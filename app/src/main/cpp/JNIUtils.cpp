@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 #include "JNIUtils.h"
-#include "include/GenericLuminanceSource.h"
-#include "include/HybridBinarizer.h"
+#include "GenericLuminanceSource.h"
+#include "HybridBinarizer.h"
 
 #include <android/bitmap.h>
 #include <stdexcept>

@@ -1,9 +1,10 @@
 #include <jni.h>
 #include <string>
 #include "JNIUtils.h"
-#include "include/MultiFormatReader.h"
-#include "include/DecodeHints.h"
-#include "include/Result.h"
+#include "MultiFormatReader.h"
+#include "DecodeHints.h"
+#include "Result.h"
+#include "yuv2bmp.h"
 
 #include <vector>
 
@@ -81,4 +82,31 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
     }
     return -1;
 
+}extern "C"
+JNIEXPORT jint JNICALL
+Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
+                                                      jbyteArray bytes_, jint left, jint top,
+                                                      jint width, jint height,
+                                                      jobjectArray result) {
+    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
+
+    try {
+        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+        jobject bitmap = reinterpret_cast<jobject>(yuv2bmp(YUV_NV21, reinterpret_cast<U8 *>(bytes), width, height));
+        auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
+        auto readResult = reader->read(*binImage);
+        if (readResult.isValid()) {
+            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+            return static_cast<int>(readResult.format());
+        }
+    }
+    catch (const std::exception &e) {
+        ThrowJavaException(env, e.what());
+    }
+    catch (...) {
+        ThrowJavaException(env, "Unknown exception");
+    }
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
+
+    return -1;
 }

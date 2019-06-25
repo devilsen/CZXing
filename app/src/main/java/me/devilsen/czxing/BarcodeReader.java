@@ -1,27 +1,8 @@
-/*
- * Copyright 2016 Nu-book Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
 
 public class BarcodeReader {
-
-    public String test() {
-        return "123";
-    }
 
     public static class Result {
         public BarcodeFormat getFormat() {
@@ -64,6 +45,19 @@ public class BarcodeReader {
         return null;
     }
 
+    public Result read(byte[] data, int cropWidth, int cropHeight,int imgWidth,int imgHeight) {
+        cropWidth = cropWidth <= 0 ? imgWidth : Math.min(imgWidth, cropWidth);
+        cropHeight = cropHeight <= 0 ? imgHeight : Math.min(imgHeight, cropHeight);
+        int cropLeft = (imgWidth - cropWidth) / 2;
+        int cropTop = (imgHeight - cropHeight) / 2;
+        Object[] result = new Object[1];
+        int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, result);
+        if (resultFormat >= 0) {
+            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+        }
+        return null;
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -77,7 +71,7 @@ public class BarcodeReader {
     }
 
 
-    private long _nativePtr = 0;
+    private long _nativePtr;
 
     private static native long createInstance(int[] formats);
 
@@ -85,8 +79,10 @@ public class BarcodeReader {
 
     private static native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
+    private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, Object[] result);
+
     static {
-        System.loadLibrary("zxing_android");
+        System.loadLibrary("zxing-lib");
     }
 
 }

@@ -1,24 +1,20 @@
 cmake_minimum_required(VERSION 3.4.1)
-
-include_directories(include)
-
-add_library( zxing
-        SHARED
-        IMPORTED )
-set_target_properties(zxing PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}/libzxing.so)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -std=c++11 -pthread ")
 
 add_library(
-        zxing_android
+        zxing-lib
         SHARED
-        native-lib.cpp JNIUtils.cpp JNIUtils.h)
+        native-lib.cpp JNIUtils.cpp yuv2bmp.c)
+
+add_subdirectory(zxing)
+include_directories(zxing)
 
 find_library(
         log-lib
         log)
 
 target_link_libraries(
-        zxing_android
+        zxing-lib
         jnigraphics
-        zxing
+        ZXingCore
         ${log-lib})
