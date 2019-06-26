@@ -68,6 +68,9 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
     try {
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
         auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
+        if (!binImage) {
+            return -1;
+        }
         auto readResult = reader->read(*binImage);
         if (readResult.isValid()) {
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
@@ -92,7 +95,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
 
     try {
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-        jobject bitmap = reinterpret_cast<jobject>(yuv2bmp(YUV_NV21, reinterpret_cast<U8 *>(bytes), width, height));
+        jobject bitmap = reinterpret_cast<jobject>(yuv2bmp(YUV_NV21, reinterpret_cast<U8 *>(bytes),
+                                                           width, height));
         auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
         auto readResult = reader->read(*binImage);
         if (readResult.isValid()) {

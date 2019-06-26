@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_code_big);
         BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
 
         if (result == null) {

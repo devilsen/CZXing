@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,7 +71,10 @@ public class ScanActivity extends AppCompatActivity implements
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        cameraDataProcessor.process(data, camera);
+        String result = cameraDataProcessor.process(data, camera);
+        if (result != null) {
+            Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ScanActivity extends AppCompatActivity implements
 
     }
 
-    private void requestPermission(){
+    private void requestPermission() {
         AndPermission.with(this)
                 .runtime()
                 .permission(Permission.Group.CAMERA)

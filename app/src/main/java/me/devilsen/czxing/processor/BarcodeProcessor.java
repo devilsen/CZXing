@@ -1,12 +1,7 @@
 package me.devilsen.czxing.processor;
 
 import android.graphics.Bitmap;
-import android.os.Environment;
 import android.util.Log;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
@@ -17,12 +12,12 @@ import me.devilsen.czxing.BarcodeReader;
  *
  * @author : dongSen
  */
-class BarcodeProcessor extends Processor {
+public class BarcodeProcessor extends Processor {
 
     private static final String TAG = "Scan >>> ";
     private BarcodeReader reader;
 
-    BarcodeProcessor() {
+    public BarcodeProcessor() {
         reader = new BarcodeReader(
                 BarcodeFormat.QR_CODE,
                 BarcodeFormat.AZTEC,
@@ -47,68 +42,40 @@ class BarcodeProcessor extends Processor {
     void onStart() {
     }
 
-    String process(final Bitmap bitmap) {
-//        if (!mSwitch) {
-//            return null;
-//        }
-//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+    public String process(final Bitmap bitmap) {
+        if (mSwitch) {
+            return null;
+        }
+        mSwitch = true;
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                saveImage(bitmap);
-            }
-        }).start();
+//        new Thread(() -> saveImage(bitmap)).start();
 
         BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
 
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
             return result.getText();
+        } else {
+            Log.d(TAG, "no Code");
         }
+        mSwitch = false;
         return null;
     }
 
     String processBytes(byte[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
+        if (mSwitch) {
+            return null;
+        }
+        mSwitch = true;
         BarcodeReader.Result result = reader.read(data, cropWidth, cropHeight, imgWidth, imgHeight);
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
             return result.getText();
+        } else {
+            Log.d(TAG, "no Code");
         }
+        mSwitch = false;
         return null;
-    }
-
-    private void saveImage(Bitmap bitmap) {
-        String thumbPath = System.currentTimeMillis() + ".png";
-        String fold = Environment.getExternalStorageDirectory().getAbsolutePath() + "/scan/";
-        File file = new File(fold, thumbPath);
-
-        FileOutputStream out = null;
-
-        try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            out = new FileOutputStream(file);
-
-            if (bitmap.compress(Bitmap.CompressFormat.PNG, 80, out)) {
-                out.flush();
-                out.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null)
-                    out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
