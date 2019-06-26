@@ -62,7 +62,7 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    String processBytes(byte[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
+    public String processBytes(byte[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
         if (mSwitch) {
             return null;
         }

@@ -85,7 +85,7 @@ public class ScanActivity extends AppCompatActivity implements
     private void requestPermission() {
         AndPermission.with(this)
                 .runtime()
-                .permission(Permission.Group.CAMERA)
+                .permission(Permission.Group.CAMERA,Permission.Group.STORAGE)
                 .onGranted(permissions -> {
                     // Storage permission are allowed.
                 })

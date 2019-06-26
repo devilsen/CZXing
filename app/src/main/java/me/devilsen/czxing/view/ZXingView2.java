@@ -96,9 +96,10 @@ public class ZXingView2 extends QRCodeView {
     @Override
     protected ScanResult processData(byte[] data, int width, int height, boolean isRetry) {
 
-        Bitmap bitmap = rawByteArray2RGBABitmap2(data, width, height);
+//        Bitmap bitmap = rawByteArray2RGBABitmap2(data, width, height);
 
-        String result = barcodeProcessor.process(bitmap);
+//        String result = barcodeProcessor.process(bitmap);
+        String result = barcodeProcessor.processBytes(data, 0, 0, width, height);
 //        String result = rawResult.getText();
         if (TextUtils.isEmpty(result)) {
             Log.e("Scan >>>", "no code");
@@ -109,6 +110,7 @@ public class ZXingView2 extends QRCodeView {
 
         return new ScanResult(result);
     }
+
     public Bitmap rawByteArray2RGBABitmap2(byte[] data, int width, int height) {
         int frameSize = width * height;
         int[] rgba = new int[frameSize];

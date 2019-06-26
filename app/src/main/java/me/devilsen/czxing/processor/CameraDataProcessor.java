@@ -62,10 +62,13 @@ public class CameraDataProcessor extends Processor {
 //        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 //        Bitmap bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
-//        return barcodeProcessor.processBytes(data, 0, 0, width, height);
 
-        Bitmap bitmap = rawByteArray2RGBABitmap3(data, width, height);
-        return barcodeProcessor.process(bitmap);
+//        Bitmap bitmap = rawByteArray2RGBABitmap2(data,width,height);
+//        return barcodeProcessor.process(bitmap);
+
+        return barcodeProcessor.processBytes(data, 0, 0, width, height);
+
+//        Bitmap bitmap = rawByteArray2RGBABitmap3(data, width, height);
     }
 
     public Bitmap rawByteArray2RGBABitmap2(byte[] data, int width, int height) {
@@ -87,6 +90,8 @@ public class CameraDataProcessor extends Processor {
             }
         Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bmp.setPixels(rgba, 0, width, 0, 0, width, height);
+        saveImage(bmp);
+
         return bmp;
     }
 

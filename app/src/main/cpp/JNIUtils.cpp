@@ -78,6 +78,20 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
     }
 }
 
+std::shared_ptr<ZXing::BinaryBitmap>
+BinaryBitmapFromBytes(JNIEnv *env, void *rgb, int cropLeft, int cropTop, int cropWidth,
+                      int cropHeight) {
+    using namespace ZXing;
+
+    std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
+            cropLeft, cropTop, cropWidth,
+            cropHeight, rgb,
+            cropWidth*4, 4, 0, 1, 2);
+
+    return std::make_shared<HybridBinarizer>(luminance);
+}
+
+
 void ThrowJavaException(JNIEnv *env, const char *message) {
     static jclass jcls = env->FindClass("java/lang/RuntimeException");
     env->ThrowNew(jcls, message);
@@ -119,45 +133,3 @@ jstring ToJavaString(JNIEnv *env, const std::wstring &str) {
     }
 }
 
-void NV21_T_RGB(unsigned int width, unsigned int height, unsigned char *yuyv, unsigned char *rgb) {
-    const int nv_start = width * height;
-    uint32_t i;
-    uint32_t j;
-    uint32_t index = 0;
-    uint32_t rgb_index = 0;
-    uint8_t y;
-    uint8_t u;
-    uint8_t v;
-    int r;
-    int g;
-    int b;
-    int nv_index = 0;
-
-    for (i = 0; i < height; ++i) {
-        for (j = 0; j < width; ++j) {
-            //nv_index = (rgb_index / 2 - width / 2 * ((i + 1) / 2)) * 2;
-            nv_index = i / 2 * width + j - j % 2;
-
-            y = yuyv[rgb_index];
-            u = yuyv[nv_start + nv_index];
-            v = yuyv[nv_start + nv_index + 1];
-
-            r = y + (140 * (v - 128)) / 100;  //r
-            g = y - (34 * (u - 128)) / 100 - (71 * (v - 128)) / 100; //g
-            b = y + (177 * (u - 128)) / 100; //b
-
-            if (r > 255) r = 255;
-            if (g > 255) g = 255;
-            if (b > 255) b = 255;
-            if (r < 0) r = 0;
-            if (g < 0) g = 0;
-            if (b < 0) b = 0;
-
-            index = rgb_index % width + (height - i - 1) * width;
-            rgb[index * 3 + 0] = b;
-            rgb[index * 3 + 1] = g;
-            rgb[index * 3 + 2] = r;
-            rgb_index++;
-        }
-    }
-}
