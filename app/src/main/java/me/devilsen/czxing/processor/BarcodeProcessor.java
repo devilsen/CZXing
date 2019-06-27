@@ -78,22 +78,6 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public String processBytes2(int[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
-        if (mSwitch) {
-            return null;
-        }
-        mSwitch = true;
-        BarcodeReader.Result result = reader.read2(data, cropWidth, cropHeight, imgWidth, imgHeight);
-        if (result != null) {
-            Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
-            return result.getText();
-        } else {
-            Log.d(TAG, "no Code");
-        }
-        mSwitch = false;
-        return null;
-    }
-
     @Override
     void onStop() {
     }

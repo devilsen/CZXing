@@ -101,19 +101,8 @@ public class ZXingView2 extends QRCodeView {
 //        Bitmap bitmap = rawByteArray2RGBABitmap4(data, width, height);
 //        String result = barcodeProcessor.process(bitmap);
 
-//        String result = barcodeProcessor.processBytes(data, 0, 0, width, height);
+        String result = barcodeProcessor.processBytes(data, 0, 0, width, height);
 
-        int[] rgba = applyGrayScale(data, width, height);
-
-        if (f) {
-            Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            bmp.setPixels(rgba, 0, width, 0, 0, width, height);
-            saveImage(bmp);
-        }
-        f = false;
-
-        String result = barcodeProcessor.processBytes2(rgba, 0, 0, width, height);
-//        String result = rawResult.getText();
         if (TextUtils.isEmpty(result)) {
             Log.e("Scan >>>", "no code");
             return null;

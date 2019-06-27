@@ -85,13 +85,11 @@ std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
                       int cropHeight) {
     using namespace ZXing;
-    LOGE("cropWidth %d , stride %d pixels %d", cropWidth, cropWidth * sizeof(int), sizeof(pixels));
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
-            cropLeft, cropTop,
-            cropWidth, cropHeight,
-            pixels,
-            cropWidth * sizeof(int));
+            cropLeft, cropTop, cropWidth,
+            cropHeight, pixels,
+            cropWidth * sizeof(int), 4, 0, 1, 2);
 
     return std::make_shared<HybridBinarizer>(luminance);
 }

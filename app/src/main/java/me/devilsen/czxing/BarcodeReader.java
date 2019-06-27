@@ -58,19 +58,6 @@ public class BarcodeReader {
         return null;
     }
 
-    public Result read2(int[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
-        cropWidth = cropWidth <= 0 ? imgWidth : Math.min(imgWidth, cropWidth);
-        cropHeight = cropHeight <= 0 ? imgHeight : Math.min(imgHeight, cropHeight);
-        int cropLeft = (imgWidth - cropWidth) / 2;
-        int cropTop = (imgHeight - cropHeight) / 2;
-        Object[] result = new Object[1];
-        int resultFormat = readBarcodeByte2(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, result);
-        if (resultFormat >= 0) {
-            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
-        }
-        return null;
-    }
-
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -93,8 +80,6 @@ public class BarcodeReader {
     private static native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
     private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, Object[] result);
-
-    private static native int readBarcodeByte2(long objPtr, int[] bytes, int left, int top, int width, int height, Object[] result);
 
     static {
         System.loadLibrary("zxing-lib");

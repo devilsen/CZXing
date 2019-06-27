@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.4.1)
 add_library(
         zxing-lib
         SHARED
-        native-lib.cpp JNIUtils.cpp yuv2bmp.c)
+        native-lib.cpp JNIUtils.cpp)
 
 add_subdirectory(zxing)
 include_directories(zxing)

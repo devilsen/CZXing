@@ -4,7 +4,6 @@
 #include "MultiFormatReader.h"
 #include "DecodeHints.h"
 #include "Result.h"
-#include "yuv2bmp.h"
 
 #include <vector>
 
@@ -87,7 +86,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
 
 }
 
-void applyGrayScale(int *pixels, const jbyte *data, int width, int height) {
+void convertNV21ToGrayScal(int *pixels, const jbyte *data, int width, int height) {
     int p;
     int size = width * height;
     for (int i = 0; i < size; i++) {
@@ -107,14 +106,12 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
     try {
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
-        int *grayscale = static_cast<int *>(malloc(width * height * sizeof(uint32_t)));
-        applyGrayScale(grayscale, bytes, width, height);
+        int *pixels = static_cast<int *>(malloc(width * height * sizeof(int)));
+        convertNV21ToGrayScal(pixels, bytes, width, height);
 
-        LOGE("get GrayScale success");
-
-        auto binImage = BinaryBitmapFromBytes(env, grayscale, left, top, width, height);
+        auto binImage = BinaryBitmapFromBytes(env, pixels, left, top, width, height);
         auto readResult = reader->read(*binImage);
-        free(grayscale);
+        free(pixels);
 
         if (readResult.isValid()) {
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
@@ -128,38 +125,6 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         ThrowJavaException(env, "Unknown exception");
     }
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
-
-    return -1;
-}extern "C"
-JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte2(JNIEnv *env, jclass type, jlong objPtr,
-                                                       jintArray bytes_, jint left, jint top,
-                                                       jint width, jint height,
-                                                       jobjectArray result) {
-    jint *bytes = env->GetIntArrayElements(bytes_, NULL);
-
-    try {
-        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-
-        auto binImage = BinaryBitmapFromBytes(env, bytes, left, top, width, height);
-        auto readResult = reader->read(*binImage);
-
-        LOGE("get readResult success");
-
-        if (readResult.isValid()) {
-            LOGE("isValid success");
-
-            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            return static_cast<int>(readResult.format());
-        }
-    }
-    catch (const std::exception &e) {
-        ThrowJavaException(env, e.what());
-    }
-    catch (...) {
-        ThrowJavaException(env, "Unknown exception");
-    }
-    env->ReleaseIntArrayElements(bytes_, bytes, 0);
 
     return -1;
 }
