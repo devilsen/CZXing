@@ -63,6 +63,9 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                                                                      bmInfo.stride);
                 break;
             case ANDROID_BITMAP_FORMAT_RGBA_8888:
+                LOGE("cropWidth %d , stride %d  pixels %d", cropWidth, bmInfo.stride,
+                     sizeof(pixels));
+
                 luminance = std::make_shared<GenericLuminanceSource>(cropLeft, cropTop, cropWidth,
                                                                      cropHeight, pixels,
                                                                      bmInfo.stride, 4, 0, 1, 2);
@@ -79,18 +82,19 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
 }
 
 std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytes(JNIEnv *env, void *rgb, int cropLeft, int cropTop, int cropWidth,
+BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
                       int cropHeight) {
     using namespace ZXing;
+    LOGE("cropWidth %d , stride %d pixels %d", cropWidth, cropWidth * sizeof(int), sizeof(pixels));
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
-            cropLeft, cropTop, cropWidth,
-            cropHeight, rgb,
-            cropWidth*4, 4, 0, 1, 2);
+            cropLeft, cropTop,
+            cropWidth, cropHeight,
+            pixels,
+            cropWidth * sizeof(int));
 
     return std::make_shared<HybridBinarizer>(luminance);
 }
-
 
 void ThrowJavaException(JNIEnv *env, const char *message) {
     static jclass jcls = env->FindClass("java/lang/RuntimeException");
