@@ -93,15 +93,13 @@ public class ZXingView2 extends QRCodeView {
         return new ScanResult(QRCodeDecoder.syncDecodeQRCode(bitmap));
     }
 
-    private boolean f = true;
-
     @Override
     protected ScanResult processData(byte[] data, int width, int height, boolean isRetry) {
 
-//        Bitmap bitmap = rawByteArray2RGBABitmap4(data, width, height);
-//        String result = barcodeProcessor.process(bitmap);
+        String result = barcodeProcessor.processBytes(data, 200, 200, 600, 600, 1080);
 
-        String result = barcodeProcessor.processBytes(data, 0, 0, width, height);
+//        rawByteArray2RGBABitmap4(data, 100, 100, 600, 1000, 1080);
+//        String result = "";
 
         if (TextUtils.isEmpty(result)) {
             Log.e("Scan >>>", "no code");
@@ -154,8 +152,9 @@ public class ZXingView2 extends QRCodeView {
         return bmp;
     }
 
-    public Bitmap rawByteArray2RGBABitmap4(byte[] data, int width, int height) {
-        int[] rgba = applyGrayScale(data, width, height);
+    public Bitmap rawByteArray2RGBABitmap4(byte[] data, int left, int top, int width, int height, int rowWidth) {
+//        int[] rgba = applyGrayScale(data, width, height);
+        int[] rgba = applyGrayScale(data, left, top, width, height, rowWidth);
 
         Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bmp.setPixels(rgba, 0, width, 0, 0, width, height);
@@ -171,6 +170,23 @@ public class ZXingView2 extends QRCodeView {
         for (int i = 0; i < size; i++) {
             p = data[i] & 0xFF;
             pixels[i] = 0xff000000 | p << 16 | p << 8 | p;
+        }
+        return pixels;
+    }
+
+    public static int[] applyGrayScale(byte[] data, int left, int top, int width, int height, int rowWidth) {
+        int p;
+        int[] pixels = new int[width * height];
+        int desIndex = 0;
+        int srcIndex = top * rowWidth;
+        int margin = rowWidth - left - width;
+        for (int i = top; i < height + top; ++i) {
+            srcIndex += left;
+            for (int j = left; j < left + width; ++j, ++desIndex, ++srcIndex) {
+                p = data[srcIndex] & 0xFF;
+                pixels[desIndex] = 0xff000000 | p << 16 | p << 8 | p;
+            }
+            srcIndex += margin;
         }
         return pixels;
     }

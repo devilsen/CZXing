@@ -45,13 +45,18 @@ public class BarcodeReader {
         return null;
     }
 
-    public Result read(byte[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
-        cropWidth = cropWidth <= 0 ? imgWidth : Math.min(imgWidth, cropWidth);
-        cropHeight = cropHeight <= 0 ? imgHeight : Math.min(imgHeight, cropHeight);
-        int cropLeft = (imgWidth - cropWidth) / 2;
-        int cropTop = (imgHeight - cropHeight) / 2;
+    public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
         Object[] result = new Object[1];
-        int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, result);
+        int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
+        if (resultFormat >= 0) {
+            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+        }
+        return null;
+    }
+
+    public Result readFullImage(byte[] data, int imageWidth, int imageHeight) {
+        Object[] result = new Object[1];
+        int resultFormat = readBarcodeByteFullImage(_nativePtr, data, imageWidth, imageHeight, result);
         if (resultFormat >= 0) {
             return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
         }
@@ -79,7 +84,9 @@ public class BarcodeReader {
 
     private static native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
-    private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, Object[] result);
+    private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, Object[] result);
+
+    private static native int readBarcodeByteFullImage(long objPtr, byte[] bytes, int width, int height, Object[] result);
 
     static {
         System.loadLibrary("zxing-lib");

@@ -19,23 +19,24 @@ public class BarcodeProcessor extends Processor {
 
     public BarcodeProcessor() {
         reader = new BarcodeReader(
-                BarcodeFormat.QR_CODE,
-                BarcodeFormat.AZTEC,
-                BarcodeFormat.CODABAR,
-                BarcodeFormat.CODE_39,
-                BarcodeFormat.CODE_93,
-                BarcodeFormat.CODE_128,
-                BarcodeFormat.DATA_MATRIX,
-                BarcodeFormat.EAN_8,
-                BarcodeFormat.EAN_13,
-                BarcodeFormat.ITF,
-                BarcodeFormat.MAXICODE,
-                BarcodeFormat.PDF_417,
-                BarcodeFormat.RSS_14,
-                BarcodeFormat.RSS_EXPANDED,
-                BarcodeFormat.UPC_A,
-                BarcodeFormat.UPC_E,
-                BarcodeFormat.UPC_EAN_EXTENSION);
+                BarcodeFormat.QR_CODE
+//                BarcodeFormat.AZTEC,
+//                BarcodeFormat.CODABAR,
+//                BarcodeFormat.CODE_39,
+//                BarcodeFormat.CODE_93,
+//                BarcodeFormat.CODE_128,
+//                BarcodeFormat.DATA_MATRIX,
+//                BarcodeFormat.EAN_8,
+//                BarcodeFormat.EAN_13,
+//                BarcodeFormat.ITF,
+//                BarcodeFormat.MAXICODE,
+//                BarcodeFormat.PDF_417,
+//                BarcodeFormat.RSS_14,
+//                BarcodeFormat.RSS_EXPANDED,
+//                BarcodeFormat.UPC_A,
+//                BarcodeFormat.UPC_E,
+//                BarcodeFormat.UPC_EAN_EXTENSION);
+        );
     }
 
     @Override
@@ -62,12 +63,12 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public String processBytes(byte[] data, int cropWidth, int cropHeight, int imgWidth, int imgHeight) {
+    public String processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
         if (mSwitch) {
             return null;
         }
         mSwitch = true;
-        BarcodeReader.Result result = reader.read(data, cropWidth, cropHeight, imgWidth, imgHeight);
+        BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
             return result.getText();

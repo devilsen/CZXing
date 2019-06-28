@@ -40,27 +40,11 @@ public class CameraDataProcessor extends Processor {
         if (!mSwitch) {
             return null;
         }
-
 //        camera.setOneShotPreviewCallback(null);
 //        //处理data
         Camera.Size previewSize = camera.getParameters().getPreviewSize();//获取尺寸,格式转换的时候要用到
         int width = previewSize.width;
         int height = previewSize.height;
-//        BitmapFactory.Options newOpts = new BitmapFactory.Options();
-//        newOpts.inJustDecodeBounds = true;
-//        YuvImage yuvimage = new YuvImage(
-//                data,
-//                ImageFormat.NV21,
-//                previewSize.width,
-//                previewSize.height,
-//                null);
-//        baos = new ByteArrayOutputStream();
-//        yuvimage.compressToJpeg(new Rect(0, 0, previewSize.width, previewSize.height), 80, baos);// 80--JPG图片的质量[0-100],100最高
-//        byte[] rawImage = baos.toByteArray();
-//        //将rawImage转换成bitmap
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-//        Bitmap bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
 
         Bitmap bitmap = rawByteArray2RGBABitmap2(data, width, height);

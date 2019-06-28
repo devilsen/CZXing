@@ -86,12 +86,36 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
 
 }
 
-void convertNV21ToGrayScal(int *pixels, const jbyte *data, int width, int height) {
+bool checkSize(int left, int top, int width, int height) {
+    if (left < 0) {
+        left = 0;
+    }
+    if (top < 0) {
+        top = 0;
+    }
+    if (left > width || top > height) {
+        LOGE("input data error, left can't larger than width");
+        return false;
+    }
+    return true;
+}
+
+void
+convertNV21ToGrayScal(int left, int top, int width, int height, int rowWidth, const jbyte *data,
+                      int *pixels) {
     int p;
-    int size = width * height;
-    for (int i = 0; i < size; i++) {
-        p = data[i] & 0xFF;
-        pixels[i] = 0xff000000 | p << 16u | p << 8u | p;
+    int desIndex = 0;
+    int bottom = top + height;
+    int right = left + width;
+    int srcIndex = top * rowWidth;
+    int marginRight = rowWidth - left - width;
+    for (int i = top; i < bottom; ++i) {
+        srcIndex += left;
+        for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
+            p = data[srcIndex] & 0xFF;
+            pixels[desIndex] = 0xff000000u | p << 16u | p << 8u | p;
+        }
+        srcIndex += marginRight;
     }
 }
 
@@ -99,17 +123,22 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
                                                       jbyteArray bytes_, jint left, jint top,
-                                                      jint width, jint height,
+                                                      jint cropWidth, jint cropHeight,
+                                                      jint rowWidth,
                                                       jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
+
+    if (!checkSize(left, top, cropWidth, cropHeight)) {
+        return -1;
+    }
 
     try {
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
-        int *pixels = static_cast<int *>(malloc(width * height * sizeof(int)));
-        convertNV21ToGrayScal(pixels, bytes, width, height);
+        int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
+        convertNV21ToGrayScal(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
 
-        auto binImage = BinaryBitmapFromBytes(env, pixels, left, top, width, height);
+        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
         free(pixels);
 
@@ -126,5 +155,39 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
     }
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
+    return -1;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_devilsen_czxing_BarcodeReader_readBarcodeByteFullImage(JNIEnv *env, jclass type,
+                                                               jlong objPtr, jbyteArray bytes_,
+                                                               jint width, jint height,
+                                                               jobjectArray result) {
+    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
+
+    try {
+        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+
+        int *pixels = static_cast<int *>(malloc(width * height * sizeof(int)));
+        convertNV21ToGrayScal(0, 0, width, height, width, bytes, pixels);
+
+        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, width, height);
+        auto readResult = reader->read(*binImage);
+        free(pixels);
+
+        if (readResult.isValid()) {
+            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+            return static_cast<int>(readResult.format());
+        }
+    }
+    catch (const std::exception &e) {
+        ThrowJavaException(env, e.what());
+    }
+    catch (...) {
+        ThrowJavaException(env, "Unknown exception");
+    }
+
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return -1;
 }
