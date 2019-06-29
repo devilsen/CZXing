@@ -4,34 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <SurfaceView
+    <me.devilsen.czxing.view.ScanView
         android:id="@+id/surface_view_scan"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="start"
-            android:text="start" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="stop"
-            android:text="stop" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="switchCamera"
-            android:text="switchCamera" />
-    </LinearLayout>
-
 
 </FrameLayout>

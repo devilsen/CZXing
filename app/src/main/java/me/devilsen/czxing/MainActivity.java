@@ -1,5 +1,6 @@
 package me.devilsen.czxing;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -33,5 +34,10 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         resutlTxt.setText(result.getText());
+    }
+
+    public void openScan(View view) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
     }
 }

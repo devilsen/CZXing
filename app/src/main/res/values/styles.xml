@@ -8,4 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ScanTheme" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/black</item>
+    </style>
+
 </resources>

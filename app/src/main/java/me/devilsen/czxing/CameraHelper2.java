@@ -9,9 +9,9 @@ import android.view.SurfaceHolder;
 
 import java.util.List;
 
-public class CameraHelper implements SurfaceHolder.Callback, Camera.PreviewCallback {
+public class CameraHelper2 implements SurfaceHolder.Callback, Camera.PreviewCallback {
 
-    private static final String TAG = "CameraHelper";
+    private static final String TAG = "CameraHelper2";
     private Activity mActivity;
     private int mHeight;
     private int mWidth;
@@ -24,7 +24,7 @@ public class CameraHelper implements SurfaceHolder.Callback, Camera.PreviewCallb
     private OnChangedSizeListener mOnChangedSizeListener;
     byte[] bytes;
 
-    public CameraHelper(Activity activity, int cameraId, int width, int height) {
+    public CameraHelper2(Activity activity, int cameraId, int width, int height) {
         mActivity = activity;
         mCameraId = cameraId;
         mWidth = width;
