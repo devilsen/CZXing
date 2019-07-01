@@ -1,10 +1,12 @@
 package me.devilsen.czxing.view;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 
@@ -15,7 +17,7 @@ import me.devilsen.czxing.camera.CameraSurface;
  * date : 2019-06-29 15:35
  * desc :
  */
-class BarCoderView extends LinearLayout implements Camera.PreviewCallback {
+abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
 
@@ -24,6 +26,7 @@ class BarCoderView extends LinearLayout implements Camera.PreviewCallback {
     protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 
     private ScanListener mScanListener;
+    private ScanBoxView mScanBoxView;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -39,23 +42,32 @@ class BarCoderView extends LinearLayout implements Camera.PreviewCallback {
     }
 
     private void init(Context context) {
-        setOrientation(VERTICAL);
         setBackground(null);
         mCameraSurface = new CameraSurface(context);
 
-        LinearLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         addView(mCameraSurface, params);
+
+        mScanBoxView = new ScanBoxView(context);
+        addView(mScanBoxView, params);
 
         setOneShotPreviewCallback();
     }
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        Rect scanBoxRect = mScanBoxView.getScanBoxRect();
+        int scanBoxSize = mScanBoxView.getScanBoxSize();
+        Log.e("ssss", "onPreviewFrame");
 
+        onPreviewFrame(data, scanBoxRect.left, scanBoxRect.top, scanBoxSize, scanBoxSize, mScanBoxView.getViewWidth());
     }
 
+    public abstract void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth);
+
     public void setScanListener(ScanListener listener) {
+        mCameraSurface.setScanListener(listener);
         mScanListener = listener;
     }
 
@@ -138,7 +150,8 @@ class BarCoderView extends LinearLayout implements Camera.PreviewCallback {
         }
 
         try {
-            mCamera.setOneShotPreviewCallback(this);
+//            mCamera.setOneShotPreviewCallback(this);
+            mCamera.setPreviewCallback(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

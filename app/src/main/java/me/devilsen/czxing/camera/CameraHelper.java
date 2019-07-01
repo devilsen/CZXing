@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.view.ScanListener;
 
 /**
  * @author : dongSen
@@ -21,8 +22,9 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
     private Context context;
     private Camera camera;
-    private Camera.Parameters params;
+//    private Camera.Parameters params;
     private SurfaceHolder surfaceHolder;
+    private ScanListener scanListener;
 
     private CameraConfigurationManager mCameraConfiguration;
 
@@ -40,10 +42,10 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
         this.camera = camera;
         this.surfaceHolder = holder;
-        this.params = camera.getParameters();
+//        this.params = camera.getParameters();
 
         mCameraConfiguration = new CameraConfigurationManager(context);
-        mCameraConfiguration.initFromCameraParameters(camera, params);
+        mCameraConfiguration.initFromCameraParameters(camera);
         surfaceHolder.addCallback(this);
     }
 
@@ -59,6 +61,9 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         stopCameraPreview();
         startCameraPreview();
+        if (scanListener != null){
+            scanListener.onCameraOpen();
+        }
     }
 
     @Override
@@ -77,9 +82,9 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
             surfaceHolder.setKeepScreenOn(true);
 
             camera.reconnect();
-            if (surfaceHolder.isCreating()) {
-                camera.setPreviewDisplay(surfaceHolder);
-            }
+//            if (surfaceHolder.isCreating()) {
+            camera.setPreviewDisplay(surfaceHolder);
+//            }
             mCameraConfiguration.setDesiredCameraParameters(camera);
             camera.startPreview();
             startContinuousAutoFocus();
@@ -136,7 +141,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
     @Override
     public void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
         boolean isNeedUpdate = false;
-        Camera.Parameters focusMeteringParameters = params;
+        Camera.Parameters focusMeteringParameters = camera.getParameters();
         Camera.Size size = focusMeteringParameters.getPreviewSize();
         if (focusMeteringParameters.getMaxNumFocusAreas() > 0) {
             BarCodeUtil.d("支持设置对焦区域");
@@ -211,6 +216,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
      * @param isZoomIn true：缩小
      */
     private void handleZoom(boolean isZoomIn) {
+        Camera.Parameters params = camera.getParameters();
         if (params.isZoomSupported()) {
             BarCodeUtil.d("不支持缩放");
             return;
@@ -230,10 +236,17 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
     }
 
     Point getCameraResolution() {
+        if (mCameraConfiguration == null) {
+            return null;
+        }
         return mCameraConfiguration.getCameraResolution();
     }
 
     boolean isPreviewing() {
         return camera != null && mPreviewing && mSurfaceCreated;
+    }
+
+    void setScanListener(ScanListener listener) {
+        scanListener = listener;
     }
 }

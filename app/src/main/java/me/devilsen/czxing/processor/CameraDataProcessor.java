@@ -37,7 +37,7 @@ public class CameraDataProcessor extends Processor {
     }
 
     public String process(byte[] data, Camera camera) {
-        if (!mSwitch) {
+        if (!cancel) {
             return null;
         }
 //        camera.setOneShotPreviewCallback(null);

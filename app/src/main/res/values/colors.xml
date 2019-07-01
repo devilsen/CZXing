@@ -6,4 +6,8 @@
 
     <color name="black">#000000</color>
 
+    <color name="color1">#0D4AD34F</color>
+    <color name="color2">#830CCE14</color>
+    <color name="color3">#0CCE14</color>
+
 </resources>

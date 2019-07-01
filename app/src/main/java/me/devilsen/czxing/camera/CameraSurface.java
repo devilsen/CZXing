@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.view.ScanListener;
 
 /**
  * @author : dongSen
@@ -155,4 +156,7 @@ public class CameraSurface extends SurfaceView implements ICamera {
         return mHelper.isPreviewing();
     }
 
+    public void setScanListener(ScanListener listener) {
+        mHelper.setScanListener(listener);
+    }
 }

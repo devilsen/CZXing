@@ -25,6 +25,7 @@ import cn.bingoogolapple.qrcode.core.BarcodeType;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.core.ScanResult;
 import cn.bingoogolapple.qrcode.zxing.QRCodeDecoder;
+import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
 /**
@@ -98,7 +99,7 @@ public class ZXingView2 extends QRCodeView {
 
         String result = barcodeProcessor.processBytes(data, 200, 200, 600, 600, 1080);
 
-//        rawByteArray2RGBABitmap4(data, 100, 100, 600, 1000, 1080);
+        SaveImageUtil.byteArray2Bitmap(data, 100, 100, 600, 1000, 1080);
 //        String result = "";
 
         if (TextUtils.isEmpty(result)) {

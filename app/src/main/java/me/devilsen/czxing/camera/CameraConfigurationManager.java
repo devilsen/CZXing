@@ -3,6 +3,7 @@ package me.devilsen.czxing.camera;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -10,20 +11,18 @@ import android.view.WindowManager;
 import java.util.Collection;
 import java.util.List;
 
-import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
-
 final class CameraConfigurationManager {
     private final Context mContext;
     private Point mCameraResolution;
     private Point mPreviewResolution;
-    private Camera.Parameters mParameters;
+//    private Camera.Parameters mParameters;
 
     CameraConfigurationManager(Context context) {
         mContext = context;
     }
 
-    void initFromCameraParameters(Camera camera, Camera.Parameters parameters) {
-        this.mParameters = parameters;
+    void initFromCameraParameters(Camera camera) {
+//        this.mParameters = parameters;
         Point screenResolution = CameraUtil.getScreenResolution(mContext);
         Point screenResolutionForCamera = new Point();
         screenResolutionForCamera.x = screenResolution.x;
@@ -34,7 +33,7 @@ final class CameraConfigurationManager {
             screenResolutionForCamera.y = screenResolution.x;
         }
 
-        mPreviewResolution = getPreviewResolution(parameters, screenResolutionForCamera);
+        mPreviewResolution = getPreviewResolution(camera.getParameters(), screenResolutionForCamera);
 
         if (CameraUtil.isPortrait(mContext)) {
             mCameraResolution = new Point(mPreviewResolution.y, mPreviewResolution.x);
@@ -57,6 +56,7 @@ final class CameraConfigurationManager {
         if (camera == null)
             return;
         Camera.Parameters parameters = camera.getParameters();
+        Log.e("ssssssss","aaaaaaaaaaaaaaaaaaaaaa");
         parameters.setPreviewSize(mPreviewResolution.x, mPreviewResolution.y);
 
         // https://github.com/googlesamples/android-vision/blob/master/visionSamples/barcode-reader/app/src/main/java/com/google/android/gms/samples/vision/barcodereader/ui/camera/CameraSource.java
@@ -91,7 +91,7 @@ final class CameraConfigurationManager {
         // range (15, 30).
         int[] selectedFpsRange = null;
         int minDiff = Integer.MAX_VALUE;
-        List<int[]> previewFpsRangeList = mParameters.getSupportedPreviewFpsRange();
+        List<int[]> previewFpsRangeList = camera.getParameters().getSupportedPreviewFpsRange();
         for (int[] range : previewFpsRangeList) {
             int deltaMin = desiredPreviewFpsScaled - range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX];
             int deltaMax = desiredPreviewFpsScaled - range[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
@@ -113,7 +113,7 @@ final class CameraConfigurationManager {
     }
 
     private void doSetTorch(Camera camera, boolean newSetting) {
-        Camera.Parameters parameters = mParameters;
+        Camera.Parameters parameters = camera.getParameters();
         String flashMode;
         /* 是否支持闪光灯 */
         if (newSetting) {

@@ -12,30 +12,24 @@ import androidx.lifecycle.OnLifecycleEvent;
  */
 abstract class Processor implements LifecycleObserver {
 
-    boolean mSwitch;
-
-    public void openSwitch() {
-        mSwitch = true;
-    }
-
-    public void closeSwitch() {
-        mSwitch = false;
-    }
+    boolean cancel;
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     void start() {
-        mSwitch = true;
     }
 
     abstract void onStart();
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     void stop() {
-        mSwitch = false;
     }
 
     abstract void onStop();
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     abstract void onDestroy();
+
+    public void cancel() {
+        cancel = true;
+    }
 }

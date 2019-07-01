@@ -6,6 +6,12 @@ package me.devilsen.czxing.view;
  * desc :
  */
 public interface ScanListener {
+
+    /**
+     * 相机已打开
+     */
+    void onCameraOpen();
+
     /**
      * 扫描结果
      *

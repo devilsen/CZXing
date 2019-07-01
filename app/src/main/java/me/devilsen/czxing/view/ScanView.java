@@ -5,7 +5,8 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 
-import me.devilsen.czxing.processor.CameraDataProcessor;
+import me.devilsen.czxing.SaveImageUtil;
+import me.devilsen.czxing.thread.Dispatcher;
 
 /**
  * @author : dongSen
@@ -14,7 +15,7 @@ import me.devilsen.czxing.processor.CameraDataProcessor;
  */
 public class ScanView extends BarCoderView {
 
-    private CameraDataProcessor mCameraDataProcessor;
+    private Dispatcher mDispatcher;
 
     public ScanView(Context context) {
         this(context, null);
@@ -27,6 +28,19 @@ public class ScanView extends BarCoderView {
     public ScanView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mCameraDataProcessor = new CameraDataProcessor();
+        mDispatcher = new Dispatcher();
     }
+
+    @Override
+    public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
+        SaveImageUtil.byteArray2Bitmap(data, left, top, width, height, rowWidth);
+        mDispatcher.newRunnable(data, left, top, width, height, rowWidth).enqueue();
+    }
+
+    @Override
+    public void stopScan() {
+        super.stopScan();
+        mDispatcher.cancelAll();
+    }
+
 }

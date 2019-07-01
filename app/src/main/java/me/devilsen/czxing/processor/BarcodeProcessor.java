@@ -44,30 +44,25 @@ public class BarcodeProcessor extends Processor {
     }
 
     public String process(final Bitmap bitmap) {
-        if (mSwitch) {
+        if (cancel) {
             return null;
         }
-        mSwitch = true;
-
-//        new Thread(() -> saveImage(bitmap)).start();
 
         BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
-
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
             return result.getText();
         } else {
             Log.d(TAG, "no Code");
         }
-        mSwitch = false;
         return null;
     }
 
     public String processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
-        if (mSwitch) {
+        if (cancel) {
             return null;
         }
-        mSwitch = true;
+
         BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
@@ -75,7 +70,6 @@ public class BarcodeProcessor extends Processor {
         } else {
             Log.d(TAG, "no Code");
         }
-        mSwitch = false;
         return null;
     }
 

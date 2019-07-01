@@ -40,7 +40,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     protected void onStart() {
         super.onStart();
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-        mScanView.startScan();  // 显示扫描框，并开始识别
+//        mScanView.startScan();  // 显示扫描框，并开始识别
     }
 
     @Override
@@ -54,6 +54,11 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     protected void onDestroy() {
         mScanView.onDestroy(); // 销毁二维码扫描控件
         super.onDestroy();
+    }
+
+    @Override
+    public void onCameraOpen() {
+        mScanView.startScan();  // 显示扫描框，并开始识别
     }
 
     @Override
