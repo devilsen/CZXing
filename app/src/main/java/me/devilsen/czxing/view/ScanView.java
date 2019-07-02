@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 
-import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.thread.Dispatcher;
 
 /**
@@ -33,7 +32,12 @@ public class ScanView extends BarCoderView {
 
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
-        SaveImageUtil.byteArray2Bitmap(data, left, top, width, height, rowWidth);
+//        left = 0;
+//        top = 0;
+//        width = 1920;
+//        height = 1080;
+//        rowWidth = 1920;
+//        SaveImageUtil.byteArray2Bitmap(data, left, top, width, height, rowWidth);
         mDispatcher.newRunnable(data, left, top, width, height, rowWidth).enqueue();
     }
 

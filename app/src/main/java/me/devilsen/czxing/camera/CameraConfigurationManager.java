@@ -3,7 +3,6 @@ package me.devilsen.czxing.camera;
 import android.content.Context;
 import android.graphics.Point;
 import android.hardware.Camera;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -53,10 +52,7 @@ final class CameraConfigurationManager {
     }
 
     void setDesiredCameraParameters(Camera camera) {
-        if (camera == null)
-            return;
         Camera.Parameters parameters = camera.getParameters();
-        Log.e("ssssssss","aaaaaaaaaaaaaaaaaaaaaa");
         parameters.setPreviewSize(mPreviewResolution.x, mPreviewResolution.y);
 
         // https://github.com/googlesamples/android-vision/blob/master/visionSamples/barcode-reader/app/src/main/java/com/google/android/gms/samples/vision/barcodereader/ui/camera/CameraSource.java

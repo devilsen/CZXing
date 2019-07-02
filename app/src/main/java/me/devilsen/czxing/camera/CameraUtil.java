@@ -9,7 +9,6 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
 import me.devilsen.czxing.BarCodeUtil;
 
 /**
@@ -17,12 +16,12 @@ import me.devilsen.czxing.BarCodeUtil;
  * date : 2019-06-29 14:56
  * desc : 相机工具
  */
-class CameraUtil {
+public class CameraUtil {
 
     /**
      * 是否为竖屏
      */
-    static boolean isPortrait(Context context) {
+    public static boolean isPortrait(Context context) {
         Point screenResolution = getScreenResolution(context);
         return screenResolution.y > screenResolution.x;
     }

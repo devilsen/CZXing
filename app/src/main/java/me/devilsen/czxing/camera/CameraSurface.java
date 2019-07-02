@@ -38,7 +38,7 @@ public class CameraSurface extends SurfaceView implements ICamera {
     }
 
     public void setCamera(Camera camera) {
-        mHelper.setCamera(camera, getHolder());
+        mHelper.setCamera(camera, this);
         if (mHelper.isPreviewing()) {
             requestLayout();
         } else {

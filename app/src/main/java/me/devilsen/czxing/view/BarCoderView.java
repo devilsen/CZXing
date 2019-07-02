@@ -4,13 +4,13 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 
 import me.devilsen.czxing.camera.CameraSurface;
+import me.devilsen.czxing.camera.CameraUtil;
 
 /**
  * @author : dongSen
@@ -21,12 +21,15 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private static final int NO_CAMERA_ID = -1;
 
+    protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     protected Camera mCamera;
     private CameraSurface mCameraSurface;
-    protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
 
     private ScanListener mScanListener;
     private ScanBoxView mScanBoxView;
+
+    protected boolean mSpotAble = false;
+    private long time;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -57,11 +60,37 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        if (System.currentTimeMillis() - time < 100) {
+            return;
+        }
+        time = System.currentTimeMillis();
+
         Rect scanBoxRect = mScanBoxView.getScanBoxRect();
         int scanBoxSize = mScanBoxView.getScanBoxSize();
-        Log.e("ssss", "onPreviewFrame");
+        Camera.Parameters parameters = mCamera.getParameters();
+        Camera.Size size = parameters.getPreviewSize();
 
-        onPreviewFrame(data, scanBoxRect.left, scanBoxRect.top, scanBoxSize, scanBoxSize, mScanBoxView.getViewWidth());
+        int left;
+        int top;
+        int rowWidth;
+        int rowHeight;
+        // 这里需要把得到的数据也翻转
+        if (CameraUtil.isPortrait(getContext())) {
+            left = scanBoxRect.top;
+            top = scanBoxRect.left;
+            rowWidth = size.width;
+            rowHeight = size.height;
+        } else {
+            left = scanBoxRect.left;
+            top = scanBoxRect.top;
+            rowWidth = size.height;
+            rowHeight = size.width;
+        }
+
+        // TODO 这里需要一个策略
+        onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
+
+        onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
     }
 
     public abstract void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth);
@@ -76,16 +105,20 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     public void startScan() {
+        mSpotAble = true;
         openCamera();
         setOneShotPreviewCallback();
     }
 
     public void stopScan() {
+        mSpotAble = false;
+
         if (mCamera == null) {
             return;
         }
         try {
-            mCamera.setOneShotPreviewCallback(null);
+//            mCamera.setOneShotPreviewCallback(this);
+            mCamera.setPreviewCallback(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,15 +178,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      * 添加摄像头获取图像数据的回调
      */
     private void setOneShotPreviewCallback() {
-        if (!mCameraSurface.isPreviewing()) {
-            return;
-        }
-
-        try {
+        if (mSpotAble && mCameraSurface.isPreviewing()) {
+            try {
 //            mCamera.setOneShotPreviewCallback(this);
-            mCamera.setPreviewCallback(this);
-        } catch (Exception e) {
-            e.printStackTrace();
+                mCamera.setPreviewCallback(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -162,6 +193,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      */
     public void closeCamera() {
         try {
+            stopSpotAndHiddenRect();
             if (mCamera != null) {
                 mCameraSurface.stopCameraPreview();
                 mCameraSurface.setCamera(null);
@@ -173,8 +205,23 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
     }
 
-    public void onDestroy() {
+    /**
+     * 停止识别，并且隐藏扫描框
+     */
+    public void stopSpotAndHiddenRect() {
         stopScan();
+//        hiddenScanRect();
+    }
+
+    /**
+     * 显示扫描框，并开始识别
+     */
+    public void startSpotAndShowRect() {
+        startScan();
+//        showScanRect();
+    }
+
+    public void onDestroy() {
         closeCamera();
         mScanListener = null;
     }

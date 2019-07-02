@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,8 +23,8 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
     private Context context;
     private Camera camera;
-//    private Camera.Parameters params;
-    private SurfaceHolder surfaceHolder;
+    //    private Camera.Parameters params;
+    private SurfaceView surfaceView;
     private ScanListener scanListener;
 
     private CameraConfigurationManager mCameraConfiguration;
@@ -35,18 +36,18 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         this.context = context;
     }
 
-    void setCamera(Camera camera, SurfaceHolder holder) {
+    void setCamera(Camera camera, SurfaceView surfaceView) {
         if (camera == null) {
             return;
         }
 
         this.camera = camera;
-        this.surfaceHolder = holder;
+        this.surfaceView = surfaceView;
 //        this.params = camera.getParameters();
 
         mCameraConfiguration = new CameraConfigurationManager(context);
         mCameraConfiguration.initFromCameraParameters(camera);
-        surfaceHolder.addCallback(this);
+        surfaceView.getHolder().addCallback(this);
     }
 
     @Override
@@ -61,7 +62,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         stopCameraPreview();
         startCameraPreview();
-        if (scanListener != null){
+        if (scanListener != null) {
             scanListener.onCameraOpen();
         }
     }
@@ -79,12 +80,10 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         try {
             mPreviewing = true;
+            SurfaceHolder surfaceHolder = surfaceView.getHolder();
             surfaceHolder.setKeepScreenOn(true);
-
-            camera.reconnect();
-//            if (surfaceHolder.isCreating()) {
             camera.setPreviewDisplay(surfaceHolder);
-//            }
+
             mCameraConfiguration.setDesiredCameraParameters(camera);
             camera.startPreview();
             startContinuousAutoFocus();
@@ -100,9 +99,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         try {
             mPreviewing = false;
-            if (surfaceHolder.isCreating()) {
-                camera.cancelAutoFocus();
-            }
+            camera.cancelAutoFocus();
             camera.stopPreview();
             camera.setOneShotPreviewCallback(null);
         } catch (Exception e) {
@@ -173,8 +170,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
         try {
             if (isNeedUpdate) {
-                if (surfaceHolder.isCreating())
-                    camera.cancelAutoFocus();
+                camera.cancelAutoFocus();
                 camera.setParameters(focusMeteringParameters);
                 camera.autoFocus((success, camera) -> {
                     if (success) {

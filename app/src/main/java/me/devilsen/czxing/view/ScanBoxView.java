@@ -229,10 +229,6 @@ public class ScanBoxView extends View {
         return mFramingRect;
     }
 
-    public int getViewWidth() {
-        return getWidth();
-    }
-
     public int getScanBoxSize() {
         return mBoxSize;
     }
