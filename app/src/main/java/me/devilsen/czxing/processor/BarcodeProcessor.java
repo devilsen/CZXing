@@ -3,6 +3,7 @@ package me.devilsen.czxing.processor;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 
@@ -58,18 +59,24 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public String processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
+    public BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
         if (cancel) {
             return null;
         }
 
+        long start = System.currentTimeMillis();
+
         BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
             Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
-            return result.getText();
+            BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
+
+            return result;
         } else {
             Log.d(TAG, "no Code");
         }
+        BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
+
         return null;
     }
 

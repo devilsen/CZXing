@@ -32,12 +32,12 @@ public final class Dispatcher {
                 new LinkedBlockingQueue<>());
     }
 
-    public ProcessRunnable newRunnable(FrameData frameData) {
-        return new ProcessRunnable(this, frameData);
+    public ProcessRunnable newRunnable(FrameData frameData, Callback callback) {
+        return new ProcessRunnable(this, frameData, callback);
     }
 
-    public ProcessRunnable newRunnable(byte[] data, int left, int top, int width, int height, int rowWidth) {
-        return newRunnable(new FrameData(data, left, top, width, height, rowWidth));
+    public ProcessRunnable newRunnable(byte[] data, int left, int top, int width, int height, int rowWidth, Callback callback) {
+        return newRunnable(new FrameData(data, left, top, width, height, rowWidth), callback);
     }
 
     public synchronized void enqueue(ProcessRunnable runnable) {
@@ -49,7 +49,7 @@ public final class Dispatcher {
         Log.e(TAG, "async size " + readyAsyncCalls.size());
     }
 
-    public synchronized void execute(ProcessRunnable runnable) {
+    private synchronized void execute(ProcessRunnable runnable) {
         executorService.execute(runnable);
     }
 

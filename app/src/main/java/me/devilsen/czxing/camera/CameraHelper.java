@@ -137,38 +137,44 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
     @Override
     public void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
-        boolean isNeedUpdate = false;
-        Camera.Parameters focusMeteringParameters = camera.getParameters();
-        Camera.Size size = focusMeteringParameters.getPreviewSize();
-        if (focusMeteringParameters.getMaxNumFocusAreas() > 0) {
-            BarCodeUtil.d("支持设置对焦区域");
-            isNeedUpdate = true;
-            Rect focusRect = CameraUtil.calculateFocusMeteringArea(1f,
-                    originFocusCenterX, originFocusCenterY,
-                    originFocusWidth, originFocusHeight,
-                    size.width, size.height);
-            CameraUtil.printRect("对焦区域", focusRect);
-            focusMeteringParameters.setFocusAreas(Collections.singletonList(new Camera.Area(focusRect, 1000)));
-            focusMeteringParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-        } else {
-            BarCodeUtil.d("不支持设置对焦区域");
-        }
-
-        if (focusMeteringParameters.getMaxNumMeteringAreas() > 0) {
-            BarCodeUtil.d("支持设置测光区域");
-            isNeedUpdate = true;
-            Rect meteringRect = CameraUtil.calculateFocusMeteringArea(1.5f,
-                    originFocusCenterX, originFocusCenterY,
-                    originFocusWidth, originFocusHeight,
-                    size.width, size.height);
-            CameraUtil.printRect("测光区域", meteringRect);
-            focusMeteringParameters.setMeteringAreas(Collections.singletonList(new Camera.Area(meteringRect, 1000)));
-        } else {
-            BarCodeUtil.d("不支持设置测光区域");
-        }
-
-
         try {
+            boolean isNeedUpdate = false;
+            Camera.Parameters focusMeteringParameters = camera.getParameters();
+
+            int minExposureCompensation = focusMeteringParameters.getMinExposureCompensation();
+            focusMeteringParameters.setExposureCompensation(minExposureCompensation);
+
+
+
+            Camera.Size size = focusMeteringParameters.getPreviewSize();
+            if (focusMeteringParameters.getMaxNumFocusAreas() > 0) {
+                BarCodeUtil.d("支持设置对焦区域");
+                isNeedUpdate = true;
+                Rect focusRect = CameraUtil.calculateFocusMeteringArea(1f,
+                        originFocusCenterX, originFocusCenterY,
+                        originFocusWidth, originFocusHeight,
+                        size.width, size.height);
+                CameraUtil.printRect("对焦区域", focusRect);
+                focusMeteringParameters.setFocusAreas(Collections.singletonList(new Camera.Area(focusRect, 1000)));
+                focusMeteringParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+            } else {
+                BarCodeUtil.d("不支持设置对焦区域");
+            }
+
+            if (focusMeteringParameters.getMaxNumMeteringAreas() > 0) {
+                BarCodeUtil.d("支持设置测光区域");
+                isNeedUpdate = true;
+                Rect meteringRect = CameraUtil.calculateFocusMeteringArea(1.5f,
+                        originFocusCenterX, originFocusCenterY,
+                        originFocusWidth, originFocusHeight,
+                        size.width, size.height);
+                CameraUtil.printRect("测光区域", meteringRect);
+                focusMeteringParameters.setMeteringAreas(Collections.singletonList(new Camera.Area(meteringRect, 1000)));
+            } else {
+                BarCodeUtil.d("不支持设置测光区域");
+            }
+
+
             if (isNeedUpdate) {
                 camera.cancelAutoFocus();
                 camera.setParameters(focusMeteringParameters);

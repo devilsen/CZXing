@@ -1,10 +1,15 @@
 package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 public class BarcodeReader {
 
     public static class Result {
+        private BarcodeFormat format;
+        private String text;
+        private float[] points;
+
         public BarcodeFormat getFormat() {
             return format;
         }
@@ -13,13 +18,29 @@ public class BarcodeReader {
             return text;
         }
 
+        public float[] getPoints() {
+            return points;
+        }
+
         Result(BarcodeFormat format, String text) {
             this.format = format;
             this.text = text;
         }
 
-        private BarcodeFormat format;
-        private String text;
+        public void setPoint(float[] lists) {
+            points = lists;
+            StringBuilder stringBuilder = new StringBuilder();
+
+            int i = 0;
+            for (float list : lists) {
+                i++;
+                stringBuilder.append(list).append("  ");
+                if (i % 2 == 0) {
+                    stringBuilder.append("\n");
+                }
+            }
+            Log.e("point ", stringBuilder.toString());
+        }
     }
 
     public BarcodeReader(BarcodeFormat... formats) {
@@ -37,28 +58,40 @@ public class BarcodeReader {
         cropHeight = cropHeight <= 0 ? imgHeight : Math.min(imgHeight, cropHeight);
         int cropLeft = (imgWidth - cropWidth) / 2;
         int cropTop = (imgHeight - cropHeight) / 2;
-        Object[] result = new Object[1];
+        Object[] result = new Object[2];
         int resultFormat = readBarcode(_nativePtr, bitmap, cropLeft, cropTop, cropWidth, cropHeight, result);
         if (resultFormat >= 0) {
-            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            if (result[1] != null) {
+                decodeResult.setPoint((float[]) result[1]);
+            }
+            return decodeResult;
         }
         return null;
     }
 
     public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
-        Object[] result = new Object[1];
+        Object[] result = new Object[2];
         int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
-        if (resultFormat >= 0) {
-            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+        if (resultFormat > 0) {
+            Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            if (result[1] != null) {
+                decodeResult.setPoint((float[]) result[1]);
+            }
+            return decodeResult;
         }
         return null;
     }
 
     public Result readFullImage(byte[] data, int imageWidth, int imageHeight) {
-        Object[] result = new Object[1];
+        Object[] result = new Object[2];
         int resultFormat = readBarcodeByteFullImage(_nativePtr, data, imageWidth, imageHeight, result);
         if (resultFormat >= 0) {
-            return new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            if (result[1] != null) {
+                decodeResult.setPoint((float[]) result[1]);
+            }
+            return decodeResult;
         }
         return null;
     }

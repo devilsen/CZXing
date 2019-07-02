@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <string>
+#include <src/ResultPoint.h>
 
 #define ZX_LOG_TAG "ZXing"
 
@@ -37,3 +38,4 @@ std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromJavaBitmap(JNIEnv* env, job
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytes(JNIEnv* env, void *grayscale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
 void ThrowJavaException(JNIEnv* env, const char* message);
 jstring ToJavaString(JNIEnv* env, const std::wstring& str);
+jfloatArray ToJavaArray(JNIEnv* env, const std::vector<ZXing::ResultPoint>& vector);

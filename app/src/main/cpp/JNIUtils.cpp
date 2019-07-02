@@ -135,3 +135,19 @@ jstring ToJavaString(JNIEnv *env, const std::wstring &str) {
     }
 }
 
+jfloatArray
+ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
+    jfloatArray array = env->NewFloatArray(input.size() * 2);
+
+    int index = 0;
+    for (auto point : input) {
+        float x = point.x();
+        float y = point.y();
+        env->SetFloatArrayRegion(array, index++, 1, &x);
+        env->SetFloatArrayRegion(array, index++, 1, &y);
+    }
+
+    return array;
+}
+
+
