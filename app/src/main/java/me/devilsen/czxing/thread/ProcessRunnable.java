@@ -1,6 +1,7 @@
 package me.devilsen.czxing.thread;
 
 import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
 /**
@@ -26,6 +27,13 @@ public class ProcessRunnable implements Runnable {
     @Override
     public void run() {
         try {
+            SaveImageUtil.saveData(frameData.data,
+                    frameData.left,
+                    frameData.top,
+                    frameData.width,
+                    frameData.height,
+                    frameData.rowWidth);
+
             BarcodeReader.Result result = mBarcodeProcessor.processBytes(frameData.data,
                     frameData.left,
                     frameData.top,

@@ -35,7 +35,7 @@ public class ScanView extends BarCoderView implements Callback {
 
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
-//        SaveImageUtil.byteArray2Bitmap(data, left, top, width, height, rowWidth);
+//        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
         mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
     }
 

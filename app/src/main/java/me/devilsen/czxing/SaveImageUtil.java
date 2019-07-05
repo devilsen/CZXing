@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class SaveImageUtil {
 
-    public static Bitmap byteArray2Bitmap(byte[] data, int left, int top, int width, int height, int rowWidth) {
+    public static void saveData(byte[] data, int left, int top, int width, int height, int rowWidth) {
         Log.e("save >>> ", "left = " + left + " top= " + top +
                 " width=" + width + " height= " + height + " row=" + rowWidth);
 
@@ -26,7 +26,7 @@ public class SaveImageUtil {
         bmp.setPixels(rgba, 0, width, 0, 0, width, height);
         saveImage(bmp);
 
-        return bmp;
+        bmp.recycle();
     }
 
     private static int[] applyGrayScale(byte[] data, int left, int top, int width, int height, int rowWidth) {
