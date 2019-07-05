@@ -75,7 +75,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
     @Override
     public void startCameraPreview() {
-        if (camera == null) {
+        if (camera == null || isPreviewing()) {
             return;
         }
         try {
@@ -140,12 +140,6 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         try {
             boolean isNeedUpdate = false;
             Camera.Parameters focusMeteringParameters = camera.getParameters();
-
-            int minExposureCompensation = focusMeteringParameters.getMinExposureCompensation();
-            focusMeteringParameters.setExposureCompensation(minExposureCompensation);
-
-
-
             Camera.Size size = focusMeteringParameters.getPreviewSize();
             if (focusMeteringParameters.getMaxNumFocusAreas() > 0) {
                 BarCodeUtil.d("支持设置对焦区域");
@@ -174,7 +168,6 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
                 BarCodeUtil.d("不支持设置测光区域");
             }
 
-
             if (isNeedUpdate) {
                 camera.cancelAutoFocus();
                 camera.setParameters(focusMeteringParameters);
@@ -196,7 +189,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
      * 连续对焦
      */
     private void startContinuousAutoFocus() {
-        if (camera == null) {
+        if (camera == null || !isPreviewing()) {
             return;
         }
 

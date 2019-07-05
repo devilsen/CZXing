@@ -1,6 +1,7 @@
 package me.devilsen.czxing.view;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
@@ -47,13 +48,16 @@ public class ScanView extends BarCoderView implements Callback {
 
     @Override
     public void onDecodeComplete(BarcodeReader.Result result) {
-
-        if (result != null) {
-            if (result.getPoints() != null) {
-                tryZoom(result);
-            }
+        if (result == null) {
+            return;
         }
-
+        if (!TextUtils.isEmpty(result.getText())) {
+            if (mScanListener != null) {
+                mScanListener.onScanSuccess(result.getText());
+            }
+        } else if (result.getPoints() != null) {
+            tryZoom(result);
+        }
     }
 
     private void tryZoom(BarcodeReader.Result result) {
@@ -67,6 +71,19 @@ public class ScanView extends BarCoderView implements Callback {
             float xLen = Math.abs(point1X - point2X);
             float yLen = Math.abs(point1Y - point2Y);
             len = (int) Math.sqrt(xLen * xLen + yLen * yLen);
+        }
+
+        if (points.length > 5) {
+            float point2X = points[2];
+            float point2Y = points[3];
+            float point3X = points[4];
+            float point3Y = points[5];
+            float xLen = Math.abs(point2X - point3X);
+            float yLen = Math.abs(point2Y - point3Y);
+            int len2 = (int) Math.sqrt(xLen * xLen + yLen * yLen);
+            if (len2 < len) {
+                len = len2;
+            }
         }
 
         Log.e("len", len + "");

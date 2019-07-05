@@ -48,6 +48,10 @@ public:
 		return StatusIsOK(_status);
 	}
 
+	bool isBlurry() const {
+		return resultPoints().size() > 2;
+	}
+
 	DecodeStatus status() const {
 		return _status;
 	}
@@ -62,7 +66,7 @@ public:
 	const ByteArray& rawBytes() const {
 		return _rawBytes;
 	}
-	
+
 	int numBits() const {
 		return _numBits;
 	}

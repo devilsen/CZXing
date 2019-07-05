@@ -15,13 +15,15 @@ import me.devilsen.czxing.view.ScanListener;
  * date : 2019-06-29 13:54
  * desc : 摄像头预览画面
  */
-public class CameraSurface extends SurfaceView implements ICamera {
+public class CameraSurface extends SurfaceView implements ICamera, SensorController.CameraFocusListener {
 
     // TODO camera2
     private CameraHelper mHelper;
+    private SensorController mSensorController;
 
     private float mOldDist = 1f;
     private boolean mIsTouchFocusing = false;
+    private Point focusCenter;
 
     public CameraSurface(Context context) {
         this(context, null);
@@ -35,10 +37,15 @@ public class CameraSurface extends SurfaceView implements ICamera {
         super(context, attrs, defStyleAttr);
         mHelper = new CameraHelper(getContext());
 
+        mSensorController = new SensorController(context);
+        mSensorController.setCameraFocusListener(this);
     }
 
     public void setCamera(Camera camera) {
         mHelper.setCamera(camera, this);
+        if (camera == null) {
+            return;
+        }
         if (mHelper.isPreviewing()) {
             requestLayout();
         } else {
@@ -49,11 +56,13 @@ public class CameraSurface extends SurfaceView implements ICamera {
     @Override
     public void startCameraPreview() {
         mHelper.startCameraPreview();
+        mSensorController.onStart();
     }
 
     @Override
     public void stopCameraPreview() {
         mHelper.stopCameraPreview();
+        mSensorController.onStop();
     }
 
 
@@ -113,7 +122,9 @@ public class CameraSurface extends SurfaceView implements ICamera {
                 return true;
             }
             mIsTouchFocusing = true;
-            handleFocus(event);
+            handleFocus(event.getX(), event.getY());
+            BarCodeUtil.d("手指触摸，触发对焦测光");
+
             mIsTouchFocusing = false;
         }
 
@@ -123,16 +134,25 @@ public class CameraSurface extends SurfaceView implements ICamera {
         return true;
     }
 
-    private void handleFocus(MotionEvent event) {
-        BarCodeUtil.d("手指触摸触发对焦测光");
-        float centerX = event.getX();
-        float centerY = event.getY();
+    @Override
+    public void onFrozen() {
+        BarCodeUtil.d("camera is frozen, start focus");
+        handleFocus(focusCenter.x, focusCenter.y);
+    }
+
+    private void handleFocus(float x, float y) {
+        if (!isPreviewing()) {
+            return;
+        }
+
+        float centerX = x;
+        float centerY = y;
         if (CameraUtil.isPortrait(getContext())) {
             float temp = centerX;
             centerX = centerY;
             centerY = temp;
         }
-        int focusSize = CameraUtil.dp2px(getContext(), 120);
+        int focusSize = CameraUtil.dp2px(getContext(), 100);
         handleFocusMetering(centerX, centerY, focusSize, focusSize);
     }
 
@@ -158,5 +178,11 @@ public class CameraSurface extends SurfaceView implements ICamera {
 
     public void setScanListener(ScanListener listener) {
         mHelper.setScanListener(listener);
+    }
+
+    public void setScanBoxPoint(Point scanBoxCenter) {
+        if (focusCenter == null) {
+            focusCenter = scanBoxCenter;
+        }
     }
 }
