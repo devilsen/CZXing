@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
@@ -231,5 +232,11 @@ public class ScanBoxView extends View {
 
     public int getScanBoxSize() {
         return mBoxSize;
+    }
+
+    public Point getScanBoxCenter() {
+        int centerX = mBoxLeft + (mBoxSize >> 1);
+        int centerY = mBoxTop + (mBoxSize >> 1);
+        return new Point(centerX, centerY);
     }
 }

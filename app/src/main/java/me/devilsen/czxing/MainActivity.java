@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView resutlTxt;
+    private TextView resultTxt;
     private BarcodeReader reader;
 
     @Override
@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        resutlTxt = findViewById(R.id.text_view_result);
+        resultTxt = findViewById(R.id.text_view_result);
 
         reader = new BarcodeReader(BarcodeFormat.QR_CODE);
     }
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Scan >>> ", "no code");
             return;
         }
-        resutlTxt.setText(result.getText());
+        resultTxt.setText(result.getText());
     }
 
     public void openScan(View view) {

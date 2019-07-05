@@ -1,7 +1,6 @@
 package me.devilsen.czxing.processor;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeFormat;
@@ -51,10 +50,7 @@ public class BarcodeProcessor extends Processor {
 
         BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
         if (result != null) {
-            Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
             return result.getText();
-        } else {
-            Log.d(TAG, "no Code");
         }
         return null;
     }
@@ -68,14 +64,10 @@ public class BarcodeProcessor extends Processor {
 
         BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
-            Log.d(TAG, "format: " + result.getFormat() + " text: " + result.getText());
-            BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
-
+            BarCodeUtil.d("have Code reader time: " + (System.currentTimeMillis() - start));
             return result;
-        } else {
-            Log.d(TAG, "no Code");
         }
-        BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
+        BarCodeUtil.d("no Code reader time: " + (System.currentTimeMillis() - start));
 
         return null;
     }

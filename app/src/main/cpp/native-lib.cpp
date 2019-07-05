@@ -148,9 +148,10 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
 
         if (readResult.isValid()) {
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            if (!readResult.resultPoints().empty()) {
-                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
-            }
+            return static_cast<int>(readResult.format());
+        } else if (readResult.isBlurry()) {
+            LOGE("points size 2 %d ", readResult.resultPoints().size());
+            env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
         }
     }

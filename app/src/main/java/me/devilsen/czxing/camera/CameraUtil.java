@@ -53,6 +53,8 @@ public class CameraUtil {
      * @param originFocusHeight  对焦高度
      * @param previewViewWidth   预览宽度
      * @param previewViewHeight  预览高度
+     *                           <p>
+     *                           https://www.cnblogs.com/panxiaochun/p/5802814.html
      */
     static Rect calculateFocusMeteringArea(float coefficient,
                                            float originFocusCenterX, float originFocusCenterY,

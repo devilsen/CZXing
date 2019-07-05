@@ -1,6 +1,7 @@
 package me.devilsen.czxing;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
+import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
@@ -63,7 +65,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     @Override
     public void onScanSuccess(String result) {
-
+        ExecutorUtil.runOnUiThread(() -> Toast.makeText(ScanActivity.this, result, Toast.LENGTH_SHORT).show());
     }
 
     @Override
