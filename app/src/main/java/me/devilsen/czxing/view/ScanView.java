@@ -30,7 +30,6 @@ public class ScanView extends BarCoderView implements Callback {
 
     public ScanView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         mDispatcher = new Dispatcher();
     }
 
@@ -58,6 +57,11 @@ public class ScanView extends BarCoderView implements Callback {
         } else if (result.getPoints() != null) {
             tryZoom(result);
         }
+    }
+
+    @Override
+    public void onDarkBrightness(boolean isDark) {
+        Log.e("isDark", isDark + "");
     }
 
     private void tryZoom(BarcodeReader.Result result) {

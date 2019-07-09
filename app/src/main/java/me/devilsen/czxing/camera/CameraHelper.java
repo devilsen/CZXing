@@ -62,9 +62,6 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         stopCameraPreview();
         startCameraPreview();
-        if (scanListener != null) {
-            scanListener.onCameraOpen();
-        }
     }
 
     @Override
@@ -86,6 +83,9 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
             mCameraConfiguration.setDesiredCameraParameters(camera);
             camera.startPreview();
+            if (scanListener != null) {
+                scanListener.onCameraOpen();
+            }
             startContinuousAutoFocus();
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,7 +101,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
             mPreviewing = false;
             camera.cancelAutoFocus();
             camera.stopPreview();
-            camera.setOneShotPreviewCallback(null);
+            camera.setPreviewCallback(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,18 +125,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
     }
 
-    @Override
-    public void zoomIn() {
-        handleZoom(true);
-    }
-
-    @Override
-    public void zoomOut() {
-        handleZoom(false);
-    }
-
-    @Override
-    public void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
+    void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
         try {
             boolean isNeedUpdate = false;
             Camera.Parameters focusMeteringParameters = camera.getParameters();
@@ -209,25 +198,35 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
      * 放大缩小
      *
      * @param isZoomIn true：缩小
+     * @param scale    放大缩小的数值
      */
-    private void handleZoom(boolean isZoomIn) {
+    void handleZoom(boolean isZoomIn, int scale) {
         Camera.Parameters params = camera.getParameters();
         if (params.isZoomSupported()) {
-            BarCodeUtil.d("不支持缩放");
-            return;
-        }
-        int zoom = params.getZoom();
-        if (isZoomIn && zoom < params.getMaxZoom()) {
-            BarCodeUtil.d("Zoom Out");
-            zoom++;
-        } else if (!isZoomIn && zoom > 0) {
-            BarCodeUtil.d("Zoom In");
-            zoom--;
+            int zoom = params.getZoom();
+            if (isZoomIn && zoom < params.getMaxZoom()) {
+                BarCodeUtil.d("放大");
+                zoom += scale;
+            } else if (!isZoomIn && zoom > 0) {
+                BarCodeUtil.d("缩小");
+                zoom -= scale;
+            } else {
+                BarCodeUtil.d("既不放大也不缩小");
+            }
+            params.setZoom(zoom);
+            camera.setParameters(params);
         } else {
-            return;
+            BarCodeUtil.d("不支持缩放");
         }
-        params.setZoom(zoom);
-        camera.setParameters(params);
+    }
+
+    /**
+     * 放大缩小
+     *
+     * @param isZoomIn true：缩小
+     */
+    void handleZoom(boolean isZoomIn) {
+        handleZoom(isZoomIn, 1);
     }
 
     Point getCameraResolution() {

@@ -6,10 +6,15 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class ExecutorUtil {
+
     private static Executor sMainExecutor;
     private static Handler sMainHandler;
+    private static Executor sIOExecutor;
 
     private synchronized static Executor getMainExecutor() {
         if (sMainExecutor == null) {
@@ -22,6 +27,14 @@ public class ExecutorUtil {
             };
         }
         return sMainExecutor;
+    }
+
+    public synchronized static Executor getIOExecutor() {
+        if (sIOExecutor == null) {
+            sIOExecutor = new ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+            ((ThreadPoolExecutor) sIOExecutor).allowCoreThreadTimeOut(true);
+        }
+        return sIOExecutor;
     }
 
     public static void runOnUiThread(Runnable runnable) {

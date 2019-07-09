@@ -39,3 +39,4 @@ std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytes(JNIEnv* env, void *gr
 void ThrowJavaException(JNIEnv* env, const char* message);
 jstring ToJavaString(JNIEnv* env, const std::wstring& str);
 jfloatArray ToJavaArray(JNIEnv* env, const std::vector<ZXing::ResultPoint>& vector);
+bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);
