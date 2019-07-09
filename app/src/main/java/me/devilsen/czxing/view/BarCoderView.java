@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
+import me.devilsen.czxing.thread.Dispatcher;
 
 /**
  * @author : dongSen
@@ -38,6 +39,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private ValueAnimator mAutoZoomAnimator;
     private long mLastAutoZoomTime = 0;
 
+    protected Dispatcher mDispatcher;
+
     public BarCoderView(Context context) {
         this(context, null);
     }
@@ -62,7 +65,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mScanBoxView = new ScanBoxView(context);
         addView(mScanBoxView, params);
 
-        setOneShotPreviewCallback();
+        mDispatcher = new Dispatcher();
+//        setPreviewCallback();
     }
 
     @Override
@@ -128,7 +132,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     public void startScan() {
         mSpotAble = true;
         openCamera();
-        setOneShotPreviewCallback();
+        setPreviewCallback();
     }
 
     public void stopScan() {
@@ -138,7 +142,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             return;
         }
         try {
-//            mCamera.setOneShotPreviewCallback(this);
+//            mCamera.setPreviewCallback(this);
             mCamera.setPreviewCallback(null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -150,7 +154,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         if (mCamera != null || Camera.getNumberOfCameras() == 0) {
             return;
         }
-
         int ultimateCameraId = findCameraIdByFacing(cameraFacing);
         if (ultimateCameraId != NO_CAMERA_ID) {
             startCameraById(ultimateCameraId);
@@ -198,10 +201,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     /**
      * 添加摄像头获取图像数据的回调
      */
-    private void setOneShotPreviewCallback() {
+    private void setPreviewCallback() {
         if (mSpotAble && mCameraSurface.isPreviewing()) {
             try {
-//            mCamera.setOneShotPreviewCallback(this);
+//            mCamera.setPreviewCallback(this);
                 mCamera.setPreviewCallback(this);
             } catch (Exception e) {
                 e.printStackTrace();

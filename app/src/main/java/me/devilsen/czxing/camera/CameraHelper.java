@@ -62,9 +62,6 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         }
         stopCameraPreview();
         startCameraPreview();
-        if (scanListener != null) {
-            scanListener.onCameraOpen();
-        }
     }
 
     @Override
@@ -86,6 +83,9 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
             mCameraConfiguration.setDesiredCameraParameters(camera);
             camera.startPreview();
+            if (scanListener != null) {
+                scanListener.onCameraOpen();
+            }
             startContinuousAutoFocus();
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,7 +101,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
             mPreviewing = false;
             camera.cancelAutoFocus();
             camera.stopPreview();
-            camera.setOneShotPreviewCallback(null);
+            camera.setPreviewCallback(null);
         } catch (Exception e) {
             e.printStackTrace();
         }

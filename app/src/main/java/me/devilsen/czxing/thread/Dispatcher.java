@@ -49,7 +49,11 @@ public final class Dispatcher {
         Log.e(TAG, "async size " + readyAsyncCalls.size());
     }
 
-    private synchronized void execute(ProcessRunnable runnable) {
+    public synchronized void openCamera(Runnable runnable) {
+        execute(runnable);
+    }
+
+    private synchronized void execute(Runnable runnable) {
         executorService.execute(runnable);
     }
 

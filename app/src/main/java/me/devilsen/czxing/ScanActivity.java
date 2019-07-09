@@ -1,13 +1,11 @@
 package me.devilsen.czxing;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.runtime.Permission;
 
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.view.ScanListener;
@@ -35,20 +33,19 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
         mScanView = findViewById(R.id.surface_view_scan);
         mScanView.setScanListener(this);
-        requestPermission();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-//        mScanView.startScan();  // 显示扫描框，并开始识别
+        mScanView.startScan();  // 显示扫描框，并开始识别
     }
 
     @Override
     protected void onStop() {
-        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
         mScanView.stopScan();
+        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
         super.onStop();
     }
 
@@ -75,21 +72,9 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     @Override
     public void onOpenCameraError() {
-
+        Log.e("onOpenCameraError", "onOpenCameraError");
     }
 
 
-    private void requestPermission() {
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.Group.CAMERA, Permission.Group.STORAGE)
-                .onGranted(permissions -> {
-                    // Storage permission are allowed.
-                })
-                .onDenied(permissions -> {
-                    // Storage permission are not allowed.
-                })
-                .start();
-    }
 
 }

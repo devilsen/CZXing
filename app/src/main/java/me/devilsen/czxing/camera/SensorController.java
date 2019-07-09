@@ -97,7 +97,7 @@ public class SensorController implements SensorEventListener {
                 if (statue == STATUS_MOVE) {
                     if (mCameraFocusListener != null) {
 //                        Log.i(TAG, "mobile static callback");
-                        mCameraFocusListener.onFrozen();
+//                        mCameraFocusListener.onFrozen();
                     }
                 }
                 statue = STATUS_STATIC;
