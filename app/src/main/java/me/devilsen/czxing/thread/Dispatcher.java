@@ -6,6 +6,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -19,14 +20,15 @@ public final class Dispatcher {
 
     private static final String TAG = Dispatcher.class.getSimpleName();
 
-    private static final int MAX_RUNNABLE = 30;
+    private static final int MAX_RUNNABLE = 10;
     private ExecutorService executorService;
 
-    private final Deque<ProcessRunnable> readyAsyncCalls = new ArrayDeque<>();
-    private final LinkedBlockingQueue<Runnable> blockingQueue;
+    private final Deque<ProcessRunnable> decodeDeque = new ArrayDeque<>();
+    private final SynchronousQueue<Runnable> blockingQueue;
+    private volatile boolean isRunning;
 
     public Dispatcher() {
-        blockingQueue = new LinkedBlockingQueue<>();
+        blockingQueue = new SynchronousQueue<>();
         executorService = new ThreadPoolExecutor(2,
                 2,
                 10,
@@ -43,43 +45,52 @@ public final class Dispatcher {
     }
 
     public synchronized void enqueue(ProcessRunnable runnable) {
-        readyAsyncCalls.addFirst(runnable);
-        if (readyAsyncCalls.size() > MAX_RUNNABLE) {
-            readyAsyncCalls.removeLast();
+        decodeDeque.addFirst(runnable);
+        if (decodeDeque.size() > MAX_RUNNABLE) {
+            decodeDeque.removeLast();
         }
-        execute(runnable);
-        Log.e(TAG, "async size " + readyAsyncCalls.size() + "   blockingQueue: " + blockingQueue.size());
+
+        if (!isRunning) {
+            execute(runnable);
+        }
+        Log.e(TAG, "decodeDeque size " + decodeDeque.size() +
+                "   blockingQueue: " + blockingQueue.size());
     }
 
-    private synchronized void execute(Runnable runnable) {
+    private synchronized void execute(ProcessRunnable runnable) {
+        isRunning = true;
         executorService.execute(runnable);
     }
 
     public void finished(ProcessRunnable runnable) {
-        finish(readyAsyncCalls, runnable);
+        finish(decodeDeque, runnable);
     }
 
-    private void finish(Deque<ProcessRunnable> readyAsyncCalls, ProcessRunnable runnable) {
+    private void finish(Deque<ProcessRunnable> decodeDeque, ProcessRunnable runnable) {
         synchronized (this) {
-            if (readyAsyncCalls.size() > 0) {
-                readyAsyncCalls.remove(runnable);
+            if (decodeDeque.size() > 0) {
+                decodeDeque.remove(runnable);
                 promoteCalls();
             }
         }
     }
 
     private void promoteCalls() {
-        if (readyAsyncCalls.isEmpty()) return; // No ready calls to promote.
+        if (decodeDeque.isEmpty()) {
+            isRunning = false;
+            return;
+        }
 
-        ProcessRunnable first = readyAsyncCalls.getFirst();
+        ProcessRunnable first = decodeDeque.getFirst();
         execute(first);
     }
 
     public synchronized void cancelAll() {
-        for (ProcessRunnable runnable : readyAsyncCalls) {
+        for (ProcessRunnable runnable : decodeDeque) {
             runnable.cancel();
         }
-        readyAsyncCalls.clear();
+        decodeDeque.clear();
+        isRunning = false;
     }
 
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -82,10 +83,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        if (System.currentTimeMillis() - processLastTime < 200) {
+        long now = System.nanoTime();
+        if (Math.abs(now - processLastTime) < 200000000) {
             return;
         }
-        processLastTime = System.currentTimeMillis();
+        processLastTime = now;
 
         try {
             Rect scanBoxRect = mScanBoxView.getScanBoxRect();
@@ -112,7 +114,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             // TODO 这里需要一个策略
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 
-            if (scanTimes % 5 == 0) {
+            if (scanTimes % 4 == 0) {
                 onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
             }
             scanTimes++;

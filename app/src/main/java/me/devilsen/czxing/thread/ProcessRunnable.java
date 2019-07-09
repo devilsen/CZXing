@@ -1,5 +1,11 @@
 package me.devilsen.czxing.thread;
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.processor.BarcodeProcessor;
@@ -21,19 +27,20 @@ public class ProcessRunnable implements Runnable {
         this.dispatcher = dispatcher;
         this.frameData = frameData;
         this.mDecodeCallback = callback;
-        mBarcodeProcessor = new BarcodeProcessor();
+        mBarcodeProcessor = BarcodeProcessor.getInstance();
     }
 
     @Override
     public void run() {
         try {
-            SaveImageUtil.saveData(frameData.data,
-                    frameData.left,
-                    frameData.top,
-                    frameData.width,
-                    frameData.height,
-                    frameData.rowWidth);
+//            SaveImageUtil.saveData(frameData.data,
+//                    frameData.left,
+//                    frameData.top,
+//                    frameData.width,
+//                    frameData.height,
+//                    frameData.rowWidth);
 
+            long start = System.currentTimeMillis();
             BarcodeReader.Result result = mBarcodeProcessor.processBytes(frameData.data,
                     frameData.left,
                     frameData.top,
@@ -41,7 +48,10 @@ public class ProcessRunnable implements Runnable {
                     frameData.height,
                     frameData.rowWidth);
 
-            if (frameData.left == 0 && frameData.top == 0 && result != null) {
+            BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
+
+
+            if (frameData.left == 0 && frameData.top == 0 && result == null) {
                 boolean isDark = mBarcodeProcessor.analysisBrightness(frameData.data, frameData.width, frameData.height);
                 if (mDecodeCallback != null) {
                     mDecodeCallback.onDarkBrightness(isDark);

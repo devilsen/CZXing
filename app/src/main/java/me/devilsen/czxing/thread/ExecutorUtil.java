@@ -2,9 +2,11 @@ package me.devilsen.czxing.thread;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -15,6 +17,8 @@ public class ExecutorUtil {
     private static Executor sMainExecutor;
     private static Handler sMainHandler;
     private static Executor sIOExecutor;
+
+
 
     private synchronized static Executor getMainExecutor() {
         if (sMainExecutor == null) {
@@ -47,4 +51,5 @@ public class ExecutorUtil {
             runnable.run();
         }
     }
+
 }

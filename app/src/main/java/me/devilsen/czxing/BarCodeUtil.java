@@ -39,4 +39,10 @@ public class BarCodeUtil {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, context.getResources().getDisplayMetrics());
     }
 
+    private static long time = 0;
+    public static void printTime() {
+        long now = System.currentTimeMillis();
+        Log.e("time:", (now - time)+ "");
+        time = now;
+    }
 }

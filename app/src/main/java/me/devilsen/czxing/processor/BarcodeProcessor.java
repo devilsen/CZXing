@@ -16,7 +16,7 @@ public class BarcodeProcessor extends Processor {
 
     private BarcodeReader reader;
 
-    public BarcodeProcessor() {
+    private BarcodeProcessor() {
         reader = new BarcodeReader(
                 BarcodeFormat.QR_CODE
 //                BarcodeFormat.AZTEC,
@@ -38,6 +38,14 @@ public class BarcodeProcessor extends Processor {
         );
     }
 
+    public static BarcodeProcessor getInstance(){
+        return Holder.instance;
+    }
+
+    private static class Holder{
+        private static final BarcodeProcessor instance = new BarcodeProcessor();
+    }
+
     @Override
     void onStart() {
     }
@@ -54,20 +62,15 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
+    public synchronized BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
         if (cancel) {
             return null;
         }
 
-        long start = System.currentTimeMillis();
-
         BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
-            BarCodeUtil.d("have Code reader time: " + (System.currentTimeMillis() - start));
             return result;
         }
-        BarCodeUtil.d("no Code reader time: " + (System.currentTimeMillis() - start));
-
         return null;
     }
 
@@ -79,7 +82,7 @@ public class BarcodeProcessor extends Processor {
      * @param imageHeight 图像高度
      * @return 是否过暗
      */
-    public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
+    public synchronized boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
         if (cancel) {
             return false;
         }
