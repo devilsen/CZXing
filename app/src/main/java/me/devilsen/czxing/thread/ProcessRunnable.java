@@ -4,7 +4,7 @@ import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
 /**
- * desc :
+ * desc : 二维码处理线程
  * date : 2019-07-01 18:47
  *
  * @author : dongSen
@@ -32,6 +32,13 @@ public class ProcessRunnable implements Runnable {
                     frameData.width,
                     frameData.height,
                     frameData.rowWidth);
+
+            if (frameData.left == 0 && frameData.top == 0 && result != null) {
+                boolean isDark = mBarcodeProcessor.analysisBrightness(frameData.data, frameData.width, frameData.height);
+                if (mDecodeCallback != null) {
+                    mDecodeCallback.onDarkBrightness(isDark);
+                }
+            }
 
             if (result != null && mDecodeCallback != null) {
                 mDecodeCallback.onDecodeComplete(result);

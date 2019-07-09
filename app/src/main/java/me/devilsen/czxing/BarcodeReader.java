@@ -96,6 +96,10 @@ public class BarcodeReader {
         return null;
     }
 
+    public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
+        return analysisBrightnessNative(data, imageWidth, imageHeight);
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -120,6 +124,8 @@ public class BarcodeReader {
     private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, Object[] result);
 
     private static native int readBarcodeByteFullImage(long objPtr, byte[] bytes, int width, int height, Object[] result);
+
+    public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
 
     static {
         System.loadLibrary("zxing-lib");

@@ -14,7 +14,6 @@ import me.devilsen.czxing.BarcodeReader;
  */
 public class BarcodeProcessor extends Processor {
 
-    private static final String TAG = "Scan >>> ";
     private BarcodeReader reader;
 
     public BarcodeProcessor() {
@@ -70,6 +69,21 @@ public class BarcodeProcessor extends Processor {
         BarCodeUtil.d("no Code reader time: " + (System.currentTimeMillis() - start));
 
         return null;
+    }
+
+    /**
+     * 分析亮度
+     *
+     * @param data        摄像头数据
+     * @param imageWidth  图像宽度
+     * @param imageHeight 图像高度
+     * @return 是否过暗
+     */
+    public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
+        if (cancel) {
+            return false;
+        }
+        return reader.analysisBrightness(data, imageWidth, imageHeight);
     }
 
     @Override

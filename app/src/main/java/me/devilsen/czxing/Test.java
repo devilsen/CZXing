@@ -65,9 +65,30 @@ public class Test {
         }
     }
 
+    private static void getY() {
+        int total = 0;
+        int YLine = 0;
+        for (int i = 0; i < 1920; ++i) {
+            if (YLine == 4) {
+                ++i;
+                YLine = 0;
+                continue;
+            }
+            ++YLine;
+
+            System.out.println(i);
+
+            for (int j = 0; j < 1080; j += 10) {
+                total++;
+            }
+        }
+        System.out.println(total);
+    }
+
     public static void main(String[] args) {
-        int result = 5 % 4;
-        System.out.println(result);
+//        int result = 5 % 4;
+//        System.out.println(result);
+        getY();
     }
 
 }

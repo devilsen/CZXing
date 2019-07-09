@@ -24,6 +24,7 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
     private float mOldDist = 1f;
     private boolean mIsTouchFocusing = false;
     private Point focusCenter;
+    private long mlastTouchTime;
 
     public CameraSurface(Context context) {
         this(context, null);
@@ -77,21 +78,6 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
     }
 
     @Override
-    public void zoomIn() {
-        mHelper.zoomIn();
-    }
-
-    @Override
-    public void zoomOut() {
-        mHelper.zoomOut();
-    }
-
-    @Override
-    public void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
-        mHelper.handleFocusMetering(originFocusCenterX, originFocusCenterY, originFocusWidth, originFocusHeight);
-    }
-
-    @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
@@ -117,23 +103,42 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             return super.onTouchEvent(event);
         }
 
-        if (event.getPointerCount() == 1 && (event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-            if (mIsTouchFocusing) {
-                return true;
+        if (event.getPointerCount() == 1) {
+            int action = event.getAction() & MotionEvent.ACTION_MASK;
+            if (action == MotionEvent.ACTION_DOWN) {
+                long now = System.currentTimeMillis();
+                if (now - mlastTouchTime < 300) {
+                    doubleTap();
+                    mlastTouchTime = 0;
+                    return true;
+                }
+                mlastTouchTime = now;
+            } else if (action == MotionEvent.ACTION_UP) {
+                if (mIsTouchFocusing) {
+                    return true;
+                }
+                mIsTouchFocusing = true;
+                handleFocus(event.getX(), event.getY());
+                BarCodeUtil.d("手指触摸，触发对焦测光");
+
+                mIsTouchFocusing = false;
             }
-            mIsTouchFocusing = true;
-            handleFocus(event.getX(), event.getY());
-            BarCodeUtil.d("手指触摸，触发对焦测光");
-
-            mIsTouchFocusing = false;
-        }
-
-        if (event.getPointerCount() == 2) {
+        } else if (event.getPointerCount() == 2) {
             handleZoom(event);
         }
         return true;
     }
 
+    /**
+     * 双击放大
+     */
+    private void doubleTap() {
+        mHelper.handleZoom(true, 5);
+    }
+
+    /**
+     * 不动时对焦
+     */
     @Override
     public void onFrozen() {
         BarCodeUtil.d("camera is frozen, start focus");
@@ -153,7 +158,7 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             centerY = temp;
         }
         int focusSize = CameraUtil.dp2px(getContext(), 100);
-        handleFocusMetering(centerX, centerY, focusSize, focusSize);
+        mHelper.handleFocusMetering(centerX, centerY, focusSize, focusSize);
     }
 
     private void handleZoom(MotionEvent event) {
@@ -164,9 +169,9 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             case MotionEvent.ACTION_MOVE:
                 float newDist = CameraUtil.calculateFingerSpacing(event);
                 if (newDist > mOldDist) {
-                    zoomIn();
+                    mHelper.handleZoom(true);
                 } else if (newDist < mOldDist) {
-                    zoomOut();
+                    mHelper.handleZoom(false);
                 }
                 break;
         }

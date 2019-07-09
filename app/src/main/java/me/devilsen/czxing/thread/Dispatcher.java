@@ -23,13 +23,15 @@ public final class Dispatcher {
     private ExecutorService executorService;
 
     private final Deque<ProcessRunnable> readyAsyncCalls = new ArrayDeque<>();
+    private final LinkedBlockingQueue<Runnable> blockingQueue;
 
     public Dispatcher() {
+        blockingQueue = new LinkedBlockingQueue<>();
         executorService = new ThreadPoolExecutor(2,
                 2,
                 10,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>());
+                blockingQueue);
     }
 
     public ProcessRunnable newRunnable(FrameData frameData, Callback callback) {
@@ -46,11 +48,7 @@ public final class Dispatcher {
             readyAsyncCalls.removeLast();
         }
         execute(runnable);
-        Log.e(TAG, "async size " + readyAsyncCalls.size());
-    }
-
-    public synchronized void openCamera(Runnable runnable) {
-        execute(runnable);
+        Log.e(TAG, "async size " + readyAsyncCalls.size() + "   blockingQueue: " + blockingQueue.size());
     }
 
     private synchronized void execute(Runnable runnable) {

@@ -12,4 +12,6 @@ public interface Callback {
 
     void onDecodeComplete(BarcodeReader.Result result);
 
+    void onDarkBrightness(boolean isDark);
+
 }

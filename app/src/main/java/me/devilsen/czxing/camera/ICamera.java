@@ -14,11 +14,4 @@ public interface ICamera {
     void openFlashlight();
 
     void closeFlashlight();
-
-    void zoomIn();
-
-    void zoomOut();
-
-    void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight);
-
 }

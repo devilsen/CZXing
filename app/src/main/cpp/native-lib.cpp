@@ -150,7 +150,6 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
             return static_cast<int>(readResult.format());
         } else if (readResult.isBlurry()) {
-            LOGE("points size 2 %d ", readResult.resultPoints().size());
             env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
         }
@@ -202,4 +201,17 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByteFullImage(JNIEnv *env, jcla
 
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return -1;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jclass type,
+                                                               jbyteArray bytes_, jint width,
+                                                               jint height) {
+    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
+
+    bool isDark = AnalysisBrightness(env, bytes, width, height);
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
+
+    return isDark ? JNI_TRUE : JNI_FALSE;
 }
