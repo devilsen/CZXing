@@ -2,7 +2,6 @@ package me.devilsen.czxing.processor;
 
 import android.graphics.Bitmap;
 
-import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 
@@ -16,7 +15,7 @@ public class BarcodeProcessor extends Processor {
 
     private BarcodeReader reader;
 
-    private BarcodeProcessor() {
+    public BarcodeProcessor() {
         reader = new BarcodeReader(
                 BarcodeFormat.QR_CODE
 //                BarcodeFormat.AZTEC,
@@ -38,13 +37,13 @@ public class BarcodeProcessor extends Processor {
         );
     }
 
-    public static BarcodeProcessor getInstance(){
-        return Holder.instance;
-    }
-
-    private static class Holder{
-        private static final BarcodeProcessor instance = new BarcodeProcessor();
-    }
+//    public static BarcodeProcessor getInstance(){
+//        return Holder.instance;
+//    }
+//
+//    private static class Holder{
+//        private static final BarcodeProcessor instance = new BarcodeProcessor();
+//    }
 
     @Override
     void onStart() {
