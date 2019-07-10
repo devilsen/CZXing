@@ -11,6 +11,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
@@ -30,10 +31,14 @@ public class ScanBoxView extends View {
     private final int SCAN_LINE_HEIGHT = BarCodeUtil.dp2px(getContext(), 1.5f);
 
     private Paint mPaint;
+    private Paint mTxtPaint;
     private Paint mScanLinePaint;
     private Rect mFramingRect;
+    private Rect mTextRect;
 
     private int mMaskColor;
+    private int mTextColor;
+    private int mTextColorBig;
 
     private int mTopOffset;
     private int mBoxSize;
@@ -51,6 +56,12 @@ public class ScanBoxView extends View {
     private LinearGradient mScanLineGradient;
     private float mScanLinePosition;
     private ValueAnimator mScanLineAnimator;
+    private int mTextSize;
+    private int mTextSizeBig;
+
+    private ScanBoxClickListener mFlashLightListener;
+    // 是否处于黑暗环境
+    private boolean isDark;
 
     public ScanBoxView(Context context) {
         this(context, null);
@@ -70,8 +81,12 @@ public class ScanBoxView extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mScanLinePaint = new Paint();
+        mTxtPaint = new Paint();
+        mTxtPaint.setAntiAlias(true);
 
         mMaskColor = Color.parseColor("#33000000");
+        mTextColor = Color.parseColor("#FFF8F8F8");
+        mTextColorBig = Color.parseColor("#BC0ED118");
 
         mBoxSize = BarCodeUtil.dp2px(context, 200);
         mTopOffset = -BarCodeUtil.dp2px(context, 60);
@@ -84,6 +99,12 @@ public class ScanBoxView extends View {
         mCornerSize = BarCodeUtil.dp2px(context, 3);
         mHalfCornerSize = 1.0f * mCornerSize / 2;
 
+        mTextSize = BarCodeUtil.sp2px(context, 14);
+        mTextSizeBig = BarCodeUtil.sp2px(context, 17);
+        mTxtPaint.setTextSize(mTextSize);
+        mTxtPaint.setTextAlign(Paint.Align.CENTER);
+        mTxtPaint.setColor(Color.GRAY);
+        mTxtPaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
@@ -109,12 +130,43 @@ public class ScanBoxView extends View {
 
         // 画扫描线
         drawScanLine(canvas);
-//
-//        // 画提示文本
-//        drawTipText(canvas);
-//
+
+        // 画提示文本
+        drawTipText(canvas);
+
         // 移动扫描线的位置
         moveScanLine();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            float x = event.getX();
+            float y = event.getY();
+
+            if (x > mFramingRect.left && x < mFramingRect.right &&
+                    y > (mFramingRect.top + (mBoxSize >> 1)) && y < mFramingRect.bottom) {
+                if (mFlashLightListener != null) {
+                    mFlashLightListener.onFlashLightClick();
+                    invalidate();
+                }
+                return true;
+            }
+
+            if (x > mTextRect.left && x < mTextRect.right &&
+                    y > mTextRect.top && y < mTextRect.bottom) {
+                if (mFlashLightListener != null) {
+                    mFlashLightListener.onCardTextClick();
+                }
+                return true;
+            }
+
+        }
+        return super.onTouchEvent(event);
+    }
+
+    public void setScanBoxClickListener(ScanBoxClickListener lightListener) {
+        mFlashLightListener = lightListener;
     }
 
     private void calFramingRect() {
@@ -204,6 +256,40 @@ public class ScanBoxView extends View {
                 mScanLinePaint);
     }
 
+    private void drawTipText(Canvas canvas) {
+        mTxtPaint.setTextSize(mTextSize);
+        mTxtPaint.setColor(mTextColor);
+        if (isDark) {
+            canvas.drawText("点击打开闪光灯",
+                    mFramingRect.left + (mBoxSize >> 1),
+                    mFramingRect.bottom - mTextSize,
+                    mTxtPaint);
+        }
+        canvas.drawText("将二维码/条形码放入扫描框",
+                mFramingRect.left + (mBoxSize >> 1),
+                mFramingRect.bottom + mTextSize * 2,
+                mTxtPaint);
+
+        mTxtPaint.setTextSize(mTextSizeBig);
+        mTxtPaint.setColor(mTextColorBig);
+        String clickText = "我的名片";
+        canvas.drawText(clickText,
+                mFramingRect.left + (mBoxSize >> 1),
+                mFramingRect.bottom + mTextSize * 6,
+                mTxtPaint);
+
+        if (mTextRect == null) {
+            mTextRect = new Rect();
+            mTxtPaint.getTextBounds(clickText, 0, clickText.length() - 1, mTextRect);
+            int width = mTextRect.width();
+            int height = mTextRect.height();
+            mTextRect.left = mFramingRect.left + (mBoxSize >> 1) - 10;
+            mTextRect.right = mTextRect.left + width + 10;
+            mTextRect.top = mFramingRect.bottom + mTextSize * 6 - 10;
+            mTextRect.bottom = mTextRect.top + height + 10;
+        }
+    }
+
     private void moveScanLine() {
         if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
             return;
@@ -238,5 +324,18 @@ public class ScanBoxView extends View {
         int centerX = mBoxLeft + (mBoxSize >> 1);
         int centerY = mBoxTop + (mBoxSize >> 1);
         return new Point(centerX, centerY);
+    }
+
+    public void setDark(boolean dark) {
+        if (this.isDark != dark) {
+            invalidate();
+        }
+        isDark = dark;
+    }
+
+    public interface ScanBoxClickListener {
+        void onFlashLightClick();
+
+        void onCardTextClick();
     }
 }

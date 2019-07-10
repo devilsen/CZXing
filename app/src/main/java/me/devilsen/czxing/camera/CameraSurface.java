@@ -22,9 +22,10 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
     private SensorController mSensorController;
 
     private float mOldDist = 1f;
-    private boolean mIsTouchFocusing = false;
+    private boolean mIsTouchFocusing;
     private Point focusCenter;
-    private long mlastTouchTime;
+    private long mLastTouchTime;
+    private boolean mFlashLightIsOpen;
 
     public CameraSurface(Context context) {
         this(context, null);
@@ -69,12 +70,22 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
 
     @Override
     public void openFlashlight() {
-        mHelper.startCameraPreview();
+        mHelper.openFlashlight();
     }
 
     @Override
     public void closeFlashlight() {
         mHelper.closeFlashlight();
+    }
+
+    public void toggleFlashLight(boolean isDark) {
+        if (mFlashLightIsOpen) {
+            closeFlashlight();
+            mFlashLightIsOpen = false;
+        } else if (isDark) {
+            openFlashlight();
+            mFlashLightIsOpen = true;
+        }
     }
 
     @Override
@@ -107,12 +118,12 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             int action = event.getAction() & MotionEvent.ACTION_MASK;
             if (action == MotionEvent.ACTION_DOWN) {
                 long now = System.currentTimeMillis();
-                if (now - mlastTouchTime < 300) {
+                if (now - mLastTouchTime < 300) {
                     doubleTap();
-                    mlastTouchTime = 0;
+                    mLastTouchTime = 0;
                     return true;
                 }
-                mlastTouchTime = now;
+                mLastTouchTime = now;
             } else if (action == MotionEvent.ACTION_UP) {
                 if (mIsTouchFocusing) {
                     return true;
