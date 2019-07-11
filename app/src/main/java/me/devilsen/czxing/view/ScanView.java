@@ -8,6 +8,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
 
@@ -35,7 +36,7 @@ public class ScanView extends BarCoderView implements Callback {
 
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
-//        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
+        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
         mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
     }
 
