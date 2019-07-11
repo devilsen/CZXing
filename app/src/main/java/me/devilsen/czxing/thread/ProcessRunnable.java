@@ -1,13 +1,7 @@
 package me.devilsen.czxing.thread;
 
-import android.util.Log;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
 /**
@@ -27,7 +21,7 @@ public class ProcessRunnable implements Runnable {
         this.dispatcher = dispatcher;
         this.frameData = frameData;
         this.mDecodeCallback = callback;
-        mBarcodeProcessor = BarcodeProcessor.getInstance();
+        mBarcodeProcessor = new BarcodeProcessor();
     }
 
     @Override

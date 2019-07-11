@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -23,32 +22,19 @@ import me.devilsen.czxing.camera.CameraUtil;
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
-    private static final int DEFAULT_ZOOM_SCALE = 3;
+    private static final int DEFAULT_ZOOM_SCALE = 4;
 
     protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     protected Camera mCamera;
-    private CameraSurface mCameraSurface;
+    CameraSurface mCameraSurface;
+    ScanBoxView mScanBoxView;
 
     protected ScanListener mScanListener;
-    private ScanBoxView mScanBoxView;
-
     protected boolean mSpotAble = false;
     private long processLastTime;
     private int scanTimes;
-
     private ValueAnimator mAutoZoomAnimator;
     private long mLastAutoZoomTime = 0;
-
-    // 上次环境亮度记录的时间戳
-    private long mLastAmbientBrightnessRecordTime = System.currentTimeMillis();
-    // 上次环境亮度记录的索引
-    private int mAmbientBrightnessDarkIndex = 0;
-    // 环境亮度历史记录的数组，255 是代表亮度最大值
-    private static final long[] AMBIENT_BRIGHTNESS_DARK_LIST = new long[]{255, 255, 255, 255};
-    // 环境亮度扫描间隔
-    private static final int AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME = 250;
-    // 亮度低的阀值
-    private static final int AMBIENT_BRIGHTNESS_DARK = 60;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -306,55 +292,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
     }
-
-    private void handleAmbientBrightness(byte[] data, Camera camera) {
-        if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
-            return;
-        }
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - mLastAmbientBrightnessRecordTime < AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME) {
-            return;
-        }
-        mLastAmbientBrightnessRecordTime = currentTime;
-
-        Camera.Size previewSize = camera.getParameters().getPreviewSize();
-        int width = previewSize.width;
-        int height = previewSize.height;
-        // 像素点的总亮度
-        long pixelLightCount = 0L;
-        // 像素点的总数
-        long pixelCount = width * height;
-        // 采集步长，因为没有必要每个像素点都采集，可以跨一段采集一个，减少计算负担，必须大于等于1。
-        int step = 10;
-        // data.length - allCount * 1.5f 的目的是判断图像格式是不是 YUV420 格式，只有是这种格式才相等
-        //因为 int 整形与 float 浮点直接比较会出问题，所以这么比
-        if (Math.abs(data.length - pixelCount * 1.5f) < 0.00001f) {
-            for (int i = 0; i < pixelCount; i += step) {
-                // 如果直接加是不行的，因为 data[i] 记录的是色值并不是数值，byte 的范围是 +127 到 —128，
-                // 而亮度 FFFFFF 是 11111111 是 -127，所以这里需要先转为无符号 unsigned long 参考 Byte.toUnsignedLong()
-                pixelLightCount += ((long) data[i]) & 0xffL;
-            }
-            // 平均亮度
-            long cameraLight = pixelLightCount / (pixelCount / step);
-            // 更新历史记录
-            int lightSize = AMBIENT_BRIGHTNESS_DARK_LIST.length;
-            AMBIENT_BRIGHTNESS_DARK_LIST[mAmbientBrightnessDarkIndex = mAmbientBrightnessDarkIndex % lightSize] = cameraLight;
-            mAmbientBrightnessDarkIndex++;
-            boolean isDarkEnv = true;
-            // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-            for (long ambientBrightness : AMBIENT_BRIGHTNESS_DARK_LIST) {
-                if (ambientBrightness > AMBIENT_BRIGHTNESS_DARK) {
-                    isDarkEnv = false;
-                    break;
-                }
-            }
-            BarCodeUtil.d("摄像头环境亮度为：" + cameraLight);
-            if (mScanListener != null) {
-                mScanListener.onBrightnessChanged(isDarkEnv);
-            }
-        }
-    }
-
 
     public void onDestroy() {
         closeCamera();

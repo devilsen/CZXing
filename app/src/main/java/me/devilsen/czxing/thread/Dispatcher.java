@@ -2,11 +2,9 @@ package me.devilsen.czxing.thread;
 
 import android.util.Log;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -23,17 +21,16 @@ public final class Dispatcher {
     private static final int MAX_RUNNABLE = 10;
     private ExecutorService executorService;
 
-    private final Deque<ProcessRunnable> decodeDeque = new ArrayDeque<>();
-    private final SynchronousQueue<Runnable> blockingQueue;
-    private volatile boolean isRunning;
+    private final LinkedBlockingDeque<Runnable> blockingDeque;
 
     public Dispatcher() {
-        blockingQueue = new SynchronousQueue<>();
-        executorService = new ThreadPoolExecutor(2,
+        blockingDeque = new LinkedBlockingDeque<>();
+        executorService = new ThreadPoolExecutor(1,
                 2,
                 10,
                 TimeUnit.SECONDS,
-                blockingQueue);
+                blockingDeque,
+                ExecutorUtil.threadFactory("decode dispatcher", false));
     }
 
     public ProcessRunnable newRunnable(FrameData frameData, Callback callback) {
@@ -44,29 +41,24 @@ public final class Dispatcher {
         return newRunnable(new FrameData(data, left, top, width, height, rowWidth), callback);
     }
 
-    public synchronized void enqueue(ProcessRunnable runnable) {
-        decodeDeque.addFirst(runnable);
-        if (decodeDeque.size() > MAX_RUNNABLE) {
-            decodeDeque.removeLast();
+    synchronized void enqueue(ProcessRunnable runnable) {
+        if (blockingDeque.size() > MAX_RUNNABLE) {
+            blockingDeque.remove();
         }
 
-        if (!isRunning) {
-            execute(runnable);
-        }
-        Log.e(TAG, "decodeDeque size " + decodeDeque.size() +
-                "   blockingQueue: " + blockingQueue.size());
+        execute(runnable);
+        Log.e(TAG, "   blockingDeque: " + blockingDeque.size());
     }
 
-    private synchronized void execute(ProcessRunnable runnable) {
-        isRunning = true;
+    private synchronized void execute(Runnable runnable) {
         executorService.execute(runnable);
     }
 
     public void finished(ProcessRunnable runnable) {
-        finish(decodeDeque, runnable);
+        finish(blockingDeque, runnable);
     }
 
-    private void finish(Deque<ProcessRunnable> decodeDeque, ProcessRunnable runnable) {
+    private void finish(Deque<Runnable> decodeDeque, ProcessRunnable runnable) {
         synchronized (this) {
             if (decodeDeque.size() > 0) {
                 decodeDeque.remove(runnable);
@@ -75,22 +67,20 @@ public final class Dispatcher {
         }
     }
 
-    private void promoteCalls() {
-        if (decodeDeque.isEmpty()) {
-            isRunning = false;
+    private synchronized void promoteCalls() {
+        if (blockingDeque.isEmpty()) {
             return;
         }
 
-        ProcessRunnable first = decodeDeque.getFirst();
+        Runnable first = blockingDeque.getFirst();
         execute(first);
     }
 
     public synchronized void cancelAll() {
-        for (ProcessRunnable runnable : decodeDeque) {
-            runnable.cancel();
+        for (Runnable runnable : blockingDeque) {
+            ((ProcessRunnable)runnable).cancel();
         }
-        decodeDeque.clear();
-        isRunning = false;
+        blockingDeque.clear();
     }
 
 }

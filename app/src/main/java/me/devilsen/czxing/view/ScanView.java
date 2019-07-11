@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.thread.Callback;
@@ -17,9 +18,10 @@ import me.devilsen.czxing.thread.Dispatcher;
  * date : 2019-06-29 16:18
  * desc :
  */
-public class ScanView extends BarCoderView implements Callback {
+public class ScanView extends BarCoderView implements Callback, ScanBoxView.ScanBoxClickListener {
 
     private Dispatcher mDispatcher;
+    private boolean isDark;
 
     public ScanView(Context context) {
         this(context, null);
@@ -32,6 +34,7 @@ public class ScanView extends BarCoderView implements Callback {
     public ScanView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mDispatcher = new Dispatcher();
+        mScanBoxView.setScanBoxClickListener(this);
     }
 
     @Override
@@ -62,7 +65,19 @@ public class ScanView extends BarCoderView implements Callback {
 
     @Override
     public void onDarkBrightness(boolean isDark) {
-        Log.e("isDark", isDark + "");
+        this.isDark = isDark;
+        BarCodeUtil.d("isDark  " + isDark);
+        mScanBoxView.setDark(isDark);
+    }
+
+    @Override
+    public void onFlashLightClick() {
+        mCameraSurface.toggleFlashLight(isDark);
+    }
+
+    @Override
+    public void onCardTextClick() {
+
     }
 
     private void tryZoom(BarcodeReader.Result result) {
@@ -97,4 +112,5 @@ public class ScanView extends BarCoderView implements Callback {
             handleAutoZoom(len);
         }
     }
+
 }

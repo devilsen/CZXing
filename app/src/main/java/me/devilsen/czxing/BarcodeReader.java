@@ -71,14 +71,18 @@ public class BarcodeReader {
     }
 
     public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
-        Object[] result = new Object[2];
-        int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
-        if (resultFormat > 0) {
-            Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
-            if (result[1] != null) {
-                decodeResult.setPoint((float[]) result[1]);
+        try {
+            Object[] result = new Object[2];
+            int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
+            if (resultFormat > 0) {
+                Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
+                if (result[1] != null) {
+                    decodeResult.setPoint((float[]) result[1]);
+                }
+                return decodeResult;
             }
-            return decodeResult;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
