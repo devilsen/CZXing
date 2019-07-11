@@ -238,9 +238,9 @@ public class ScanBoxView extends View {
     private void drawScanLine(Canvas canvas) {
         if (mScanLineGradient == null) {
             Resources resources = getResources();
-            int color1 = resources.getColor(R.color.color1);
-            int color2 = resources.getColor(R.color.color2);
-            int color3 = resources.getColor(R.color.color3);
+            int color1 = resources.getColor(R.color.color_scan_1);
+            int color2 = resources.getColor(R.color.color_scan_2);
+            int color3 = resources.getColor(R.color.color_scan_3);
 
             mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop,
                     new int[]{color1, color2, color3, color2, color1},

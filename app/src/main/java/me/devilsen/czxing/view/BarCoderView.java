@@ -100,7 +100,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             // TODO 这里需要一个策略
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 
-            if (scanTimes % 4 == 0) {
+            if (scanTimes % 5 == 0) {
                 onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
             }
             scanTimes++;
