@@ -11,6 +11,7 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import java.util.Collections;
 
+import cn.bingoogolapple.qrcode.core.BGAQRCodeUtil;
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.view.ScanListener;
 
@@ -24,7 +25,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
     private Context context;
     private Camera camera;
     //    private Camera.Parameters params;
-    private SurfaceView surfaceView;
+    private CameraSurface surfaceView;
     private ScanListener scanListener;
 
     private CameraConfigurationManager mCameraConfiguration;
@@ -36,7 +37,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
         this.context = context;
     }
 
-    void setCamera(Camera camera, SurfaceView surfaceView) {
+    void setCamera(Camera camera, CameraSurface surfaceView) {
         if (camera == null) {
             return;
         }
@@ -72,7 +73,7 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
 
     @Override
     public void startCameraPreview() {
-        if (camera == null || isPreviewing()) {
+        if (camera == null) {
             return;
         }
         try {
@@ -168,9 +169,13 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
                     }
                     startContinuousAutoFocus();
                 });
+            } else {
+                surfaceView.setIsTouchFocusing(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            BarCodeUtil.e("对焦测光失败：" + e.getMessage());
+            startContinuousAutoFocus();
         }
     }
 
@@ -178,7 +183,8 @@ final class CameraHelper implements ICamera, SurfaceHolder.Callback {
      * 连续对焦
      */
     private void startContinuousAutoFocus() {
-        if (camera == null || !isPreviewing()) {
+        surfaceView.setIsTouchFocusing(false);
+        if (camera == null) {
             return;
         }
 

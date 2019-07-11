@@ -157,10 +157,6 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
     }
 
     private void handleFocus(float x, float y) {
-        if (!isPreviewing()) {
-            return;
-        }
-
         float centerX = x;
         float centerY = y;
         if (CameraUtil.isPortrait(getContext())) {
@@ -168,7 +164,7 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             centerX = centerY;
             centerY = temp;
         }
-        int focusSize = CameraUtil.dp2px(getContext(), 100);
+        int focusSize = CameraUtil.dp2px(getContext(), 120);
         mHelper.handleFocusMetering(centerX, centerY, focusSize, focusSize);
     }
 
@@ -200,5 +196,9 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
         if (focusCenter == null) {
             focusCenter = scanBoxCenter;
         }
+    }
+
+    public void setIsTouchFocusing(boolean isTouch) {
+        mIsTouchFocusing = isTouch;
     }
 }
