@@ -1,13 +1,17 @@
 package me.devilsen.czxing.view;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import java.io.File;
+
 import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
@@ -21,6 +25,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 
     private Dispatcher mDispatcher;
     private boolean isDark;
+    private BarcodeReader reader;
 
     public ScanView(Context context) {
         this(context, null);
@@ -34,12 +39,21 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         super(context, attrs, defStyleAttr);
         mDispatcher = new Dispatcher();
         mScanBoxView.setScanBoxClickListener(this);
+        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+    }
+
+    public void onResume(){
+        String path = new File(Environment.getExternalStorageDirectory(), "qrcode_cascade.xml").getAbsolutePath();
+
+        reader.initOpenCV(path);
     }
 
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-        mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+//        mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+        reader.postData(data, rowWidth, top + height);
+
     }
 
     @Override

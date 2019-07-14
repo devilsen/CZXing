@@ -4,8 +4,10 @@
 #include "MultiFormatReader.h"
 #include "DecodeHints.h"
 #include "Result.h"
+#include "OpencvProcessor.h"
 
 #include <vector>
+OpencvProcessor opencvProcessor;
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -51,6 +53,7 @@ Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, 
 
     try {
         delete reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+//        delete opencvProcessor;
     }
     catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
@@ -214,4 +217,25 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
     return isDark ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_BarcodeReader_initOpenCV(JNIEnv *env, jobject instance, jstring path_) {
+    const char *path = env->GetStringUTFChars(path_, 0);
+
+    opencvProcessor.init(path);
+
+    env->ReleaseStringUTFChars(path_, path);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_BarcodeReader_postData(JNIEnv *env, jobject instance, jbyteArray data_,
+                                               jint width, jint height) {
+    jbyte *data = env->GetByteArrayElements(data_, NULL);
+
+    opencvProcessor.processData(data,width,height,0);
+
+    env->ReleaseByteArrayElements(data_, data, 0);
 }

@@ -29,6 +29,8 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
+        BarCodeUtil.copyAssets(this, "qrcode_cascade.xml");
+
         BarCodeUtil.setDebug(true);
 
         mScanView = findViewById(R.id.surface_view_scan);
@@ -40,6 +42,12 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         super.onStart();
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
         mScanView.startScan();  // 显示扫描框，并开始识别
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mScanView.onResume();
     }
 
     @Override
