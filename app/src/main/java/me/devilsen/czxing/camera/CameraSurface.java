@@ -1,31 +1,41 @@
 package me.devilsen.czxing.camera;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.IOException;
+import java.util.Collections;
+
 import me.devilsen.czxing.BarCodeUtil;
-import me.devilsen.czxing.view.ScanListener;
 
 /**
  * @author : dongSen
  * date : 2019-06-29 13:54
  * desc : 摄像头预览画面
  */
-public class CameraSurface extends SurfaceView implements ICamera, SensorController.CameraFocusListener {
+public class CameraSurface extends SurfaceView implements SensorController.CameraFocusListener,
+        SurfaceHolder.Callback {
 
-    // TODO camera2
-    private CameraHelper mHelper;
-    private SensorController mSensorController;
+    private Camera mCamera;
 
     private float mOldDist = 1f;
+    private boolean mPreviewing = true;
     private boolean mIsTouchFocusing;
+    private boolean mSurfaceCreated;
+    private boolean mFlashLightIsOpen;
+
     private Point focusCenter;
     private long mLastTouchTime;
-    private boolean mFlashLightIsOpen;
+    private SensorController mSensorController;
+    private CameraConfigurationManager mCameraConfigurationManager;
+    private SurfacePreviewListener scanListener;
 
     public CameraSurface(Context context) {
         this(context, null);
@@ -37,18 +47,20 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
 
     public CameraSurface(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mHelper = new CameraHelper(getContext());
-
         mSensorController = new SensorController(context);
         mSensorController.setCameraFocusListener(this);
     }
 
     public void setCamera(Camera camera) {
-        mHelper.setCamera(camera, this);
         if (camera == null) {
             return;
         }
-        if (mHelper.isPreviewing()) {
+        this.mCamera = camera;
+
+        mCameraConfigurationManager = new CameraConfigurationManager(getContext());
+        mCameraConfigurationManager.initFromCameraParameters(mCamera);
+        getHolder().addCallback(this);
+        if (mPreviewing) {
             requestLayout();
         } else {
             startCameraPreview();
@@ -56,44 +68,31 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
     }
 
     @Override
-    public void startCameraPreview() {
-        mHelper.startCameraPreview();
-        mSensorController.onStart();
+    public void surfaceCreated(SurfaceHolder holder) {
+        mSurfaceCreated = true;
     }
 
     @Override
-    public void stopCameraPreview() {
-        mHelper.stopCameraPreview();
-        mSensorController.onStop();
-    }
-
-
-    @Override
-    public void openFlashlight() {
-        mHelper.openFlashlight();
-    }
-
-    @Override
-    public void closeFlashlight() {
-        mHelper.closeFlashlight();
-    }
-
-    public void toggleFlashLight(boolean isDark) {
-        if (mFlashLightIsOpen) {
-            closeFlashlight();
-            mFlashLightIsOpen = false;
-        } else if (isDark) {
-            openFlashlight();
-            mFlashLightIsOpen = true;
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        if (holder.getSurface() == null) {
+            return;
         }
+        stopCameraPreview();
+        startCameraPreview();
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        mSurfaceCreated = false;
+        stopCameraPreview();
     }
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        if (mHelper != null && mHelper.getCameraResolution() != null) {
-            Point cameraResolution = mHelper.getCameraResolution();
+        if (mCameraConfigurationManager != null && mCameraConfigurationManager.getCameraResolution() != null) {
+            Point cameraResolution = mCameraConfigurationManager.getCameraResolution();
             // 取出来的cameraResolution高宽值与屏幕的高宽顺序是相反的
             int cameraPreviewWidth = cameraResolution.x;
             int cameraPreviewHeight = cameraResolution.y;
@@ -110,7 +109,7 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mHelper == null || !mHelper.isPreviewing()) {
+        if (!isPreviewing()) {
             return super.onTouchEvent(event);
         }
 
@@ -131,8 +130,6 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
                 mIsTouchFocusing = true;
                 handleFocus(event.getX(), event.getY());
                 BarCodeUtil.d("手指触摸，触发对焦测光");
-
-                mIsTouchFocusing = false;
             }
         } else if (event.getPointerCount() == 2) {
             handleZoom(event);
@@ -140,11 +137,75 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
         return true;
     }
 
+    public void startCameraPreview() {
+        if (mCamera == null) {
+            return;
+        }
+        try {
+            mPreviewing = true;
+            SurfaceHolder surfaceHolder = getHolder();
+            surfaceHolder.setKeepScreenOn(true);
+            mCamera.setPreviewDisplay(surfaceHolder);
+
+            mCameraConfigurationManager.setDesiredCameraParameters(mCamera);
+            mCamera.startPreview();
+            if (scanListener != null) {
+                scanListener.onStartPreview();
+            }
+            startContinuousAutoFocus();
+            mSensorController.onStart();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void stopCameraPreview() {
+        if (mCamera == null) {
+            return;
+        }
+        try {
+            mPreviewing = false;
+            mCamera.cancelAutoFocus();
+            mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
+            mSensorController.onStop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void toggleFlashLight(boolean isDark) {
+        if (mFlashLightIsOpen) {
+            closeFlashlight();
+            mFlashLightIsOpen = false;
+        } else if (isDark) {
+            openFlashlight();
+            mFlashLightIsOpen = true;
+        }
+    }
+
+
+    public void openFlashlight() {
+        if (flashLightAvailable()) {
+            mCameraConfigurationManager.openFlashlight(mCamera);
+        }
+    }
+
+    public void closeFlashlight() {
+        if (flashLightAvailable()) {
+            mCameraConfigurationManager.closeFlashlight(mCamera);
+        }
+    }
+
+    private boolean flashLightAvailable() {
+        return isPreviewing() && getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+    }
+
     /**
      * 双击放大
      */
     private void doubleTap() {
-        mHelper.handleZoom(true, 5);
+        handleZoom(true, 5);
     }
 
     /**
@@ -152,8 +213,121 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
      */
     @Override
     public void onFrozen() {
-        BarCodeUtil.d("camera is frozen, start focus");
+        BarCodeUtil.d("mCamera is frozen, start focus");
         handleFocus(focusCenter.x, focusCenter.y);
+    }
+
+    /**
+     * 放大缩小
+     *
+     * @param isZoomIn true：缩小
+     */
+    void handleZoom(boolean isZoomIn) {
+        handleZoom(isZoomIn, 1);
+    }
+
+    /**
+     * 放大缩小
+     *
+     * @param isZoomIn true：缩小
+     * @param scale    放大缩小的数值
+     */
+    void handleZoom(boolean isZoomIn, int scale) {
+        Camera.Parameters params = mCamera.getParameters();
+        if (params.isZoomSupported()) {
+            int zoom = params.getZoom();
+            if (isZoomIn && zoom < params.getMaxZoom()) {
+                BarCodeUtil.d("放大");
+                zoom += scale;
+            } else if (!isZoomIn && zoom > 0) {
+                BarCodeUtil.d("缩小");
+                zoom -= scale;
+            } else {
+                BarCodeUtil.d("既不放大也不缩小");
+            }
+            params.setZoom(zoom);
+            mCamera.setParameters(params);
+        } else {
+            BarCodeUtil.d("不支持缩放");
+        }
+    }
+
+    void handleFocusMetering(float originFocusCenterX, float originFocusCenterY, int originFocusWidth, int originFocusHeight) {
+        try {
+            boolean isNeedUpdate = false;
+            Camera.Parameters focusMeteringParameters = mCamera.getParameters();
+            Camera.Size size = focusMeteringParameters.getPreviewSize();
+            if (focusMeteringParameters.getMaxNumFocusAreas() > 0) {
+                BarCodeUtil.d("支持设置对焦区域");
+                isNeedUpdate = true;
+                Rect focusRect = CameraUtil.calculateFocusMeteringArea(1f,
+                        originFocusCenterX, originFocusCenterY,
+                        originFocusWidth, originFocusHeight,
+                        size.width, size.height);
+                CameraUtil.printRect("对焦区域", focusRect);
+                focusMeteringParameters.setFocusAreas(Collections.singletonList(new Camera.Area(focusRect, 1000)));
+                focusMeteringParameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+            } else {
+                BarCodeUtil.d("不支持设置对焦区域");
+            }
+
+            if (focusMeteringParameters.getMaxNumMeteringAreas() > 0) {
+                BarCodeUtil.d("支持设置测光区域");
+                isNeedUpdate = true;
+                Rect meteringRect = CameraUtil.calculateFocusMeteringArea(1.5f,
+                        originFocusCenterX, originFocusCenterY,
+                        originFocusWidth, originFocusHeight,
+                        size.width, size.height);
+                CameraUtil.printRect("测光区域", meteringRect);
+                focusMeteringParameters.setMeteringAreas(Collections.singletonList(new Camera.Area(meteringRect, 1000)));
+            } else {
+                BarCodeUtil.d("不支持设置测光区域");
+            }
+
+            if (isNeedUpdate) {
+                mCamera.cancelAutoFocus();
+                mCamera.setParameters(focusMeteringParameters);
+                mCamera.autoFocus((success, camera) -> {
+                    if (success) {
+                        BarCodeUtil.d("对焦测光成功");
+                    } else {
+                        BarCodeUtil.e("对焦测光失败");
+                    }
+                    startContinuousAutoFocus();
+                });
+            } else {
+                mIsTouchFocusing = false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            BarCodeUtil.e("对焦测光失败：" + e.getMessage());
+            startContinuousAutoFocus();
+        }
+    }
+
+    /**
+     * 连续对焦
+     */
+    private void startContinuousAutoFocus() {
+        mIsTouchFocusing = false;
+        if (mCamera == null) {
+            return;
+        }
+
+        try {
+            Camera.Parameters parameters = mCamera.getParameters();
+            // 连续对焦
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            mCamera.setParameters(parameters);
+            // 要实现连续的自动对焦，这一句必须加上
+            mCamera.cancelAutoFocus();
+        } catch (Exception e) {
+            BarCodeUtil.e("连续对焦失败");
+        }
+    }
+
+    public boolean isPreviewing() {
+        return mCamera != null && mPreviewing && mSurfaceCreated;
     }
 
     private void handleFocus(float x, float y) {
@@ -165,7 +339,7 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             centerY = temp;
         }
         int focusSize = CameraUtil.dp2px(getContext(), 120);
-        mHelper.handleFocusMetering(centerX, centerY, focusSize, focusSize);
+        handleFocusMetering(centerX, centerY, focusSize, focusSize);
     }
 
     private void handleZoom(MotionEvent event) {
@@ -176,20 +350,16 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
             case MotionEvent.ACTION_MOVE:
                 float newDist = CameraUtil.calculateFingerSpacing(event);
                 if (newDist > mOldDist) {
-                    mHelper.handleZoom(true);
+                    handleZoom(true);
                 } else if (newDist < mOldDist) {
-                    mHelper.handleZoom(false);
+                    handleZoom(false);
                 }
                 break;
         }
     }
 
-    public boolean isPreviewing() {
-        return mHelper.isPreviewing();
-    }
-
-    public void setScanListener(ScanListener listener) {
-        mHelper.setScanListener(listener);
+    public void setPreviewListener(SurfacePreviewListener listener) {
+        this.scanListener = listener;
     }
 
     public void setScanBoxPoint(Point scanBoxCenter) {
@@ -198,7 +368,8 @@ public class CameraSurface extends SurfaceView implements ICamera, SensorControl
         }
     }
 
-    public void setIsTouchFocusing(boolean isTouch) {
-        mIsTouchFocusing = isTouch;
+    public interface SurfacePreviewListener {
+        void onStartPreview();
     }
+
 }

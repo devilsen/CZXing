@@ -14,14 +14,12 @@ final class CameraConfigurationManager {
     private final Context mContext;
     private Point mCameraResolution;
     private Point mPreviewResolution;
-//    private Camera.Parameters mParameters;
 
     CameraConfigurationManager(Context context) {
         mContext = context;
     }
 
     void initFromCameraParameters(Camera camera) {
-//        this.mParameters = parameters;
         Point screenResolution = CameraUtil.getScreenResolution(mContext);
         Point screenResolutionForCamera = new Point();
         screenResolutionForCamera.x = screenResolution.x;
@@ -111,7 +109,7 @@ final class CameraConfigurationManager {
     private void doSetTorch(Camera camera, boolean newSetting) {
         Camera.Parameters parameters = camera.getParameters();
         String flashMode;
-        /* 是否支持闪光灯 */
+        /** 是否支持闪光灯 */
         if (newSetting) {
             flashMode = findSettableValue(parameters.getSupportedFlashModes(), Camera.Parameters.FLASH_MODE_TORCH, Camera.Parameters.FLASH_MODE_ON);
         } else {
@@ -208,5 +206,4 @@ final class CameraConfigurationManager {
         }
         return null;
     }
-
 }

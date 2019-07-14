@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.SaveImageUtil;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
 

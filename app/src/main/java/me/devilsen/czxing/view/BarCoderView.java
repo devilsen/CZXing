@@ -52,6 +52,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private void init(Context context) {
         setBackground(null);
         mCameraSurface = new CameraSurface(context);
+        mCameraSurface.setPreviewListener(new CameraSurface.SurfacePreviewListener() {
+            @Override
+            public void onStartPreview() {
+                setPreviewCallback();
+            }
+        });
 
         FrameLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
@@ -114,7 +120,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     public abstract void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth);
 
     public void setScanListener(ScanListener listener) {
-        mCameraSurface.setScanListener(listener);
         mScanListener = listener;
     }
 
@@ -197,7 +202,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private void setPreviewCallback() {
         if (mSpotAble && mCameraSurface.isPreviewing()) {
             try {
-//            mCamera.setPreviewCallback(this);
+//            mCamera.setOneShotPreviewCallback(this);
                 mCamera.setPreviewCallback(this);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -291,6 +296,14 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mAutoZoomAnimator.setRepeatCount(0);
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mAutoZoomAnimator != null) {
+            mAutoZoomAnimator.cancel();
+        }
     }
 
     public void onDestroy() {
