@@ -5,8 +5,9 @@
 #include "DecodeHints.h"
 #include "Result.h"
 #include "OpencvProcessor.h"
-
+#include "opencv2/opencv.hpp"
 #include <vector>
+
 OpencvProcessor opencvProcessor;
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
@@ -100,10 +101,10 @@ bool checkSize(int left, int top, int width, int height) {
     if (top < 0) {
         top = 0;
     }
-    if (left > width || top > height) {
-        LOGE("input data error, left can't larger than width");
-        return false;
-    }
+//    if (left > width || top > height) {
+//        LOGE("input data error, left can't larger than width");
+//        return false;
+//    }
     return true;
 }
 
@@ -144,6 +145,46 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
         convertNV21ToGrayScal(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
+
+        Point point[3];
+//        std::vector<cv::Rect> results = opencvProcessor.processData(bytes, cropWidth, cropHeight);
+        opencvProcessor.processData2(pixels, cropWidth, cropHeight, point);
+
+        if (point[0].x != 0) {
+            int x1 = 0;
+            int x2 = 0;
+            for (int i = 0; i < 3; i++) {
+                Point point1 = point[i];
+                if (left > point1.x || left == 0) {
+                    left = point1.x;
+                }
+                if (top > point1.y || top == 0) {
+                    top = point1.y;
+                }
+                if (i == 0) {
+                    x1 = left;
+                }
+                if (i == 1) {
+                    x2 = left;
+                }
+//                cropWidth = react.width;
+//                cropHeight = react.height;
+            }
+            int size = x2 - x1;
+            if (size < 0) {
+                size = -size;
+            }
+            cropWidth = size;
+            cropHeight = size;
+            LOGE("new size left: %d ,top %d , width %d ,height %d ", left, top, cropWidth,
+                 cropHeight);
+        }
+
+//        if (point && point[0].x != 0 && point[0].y != 0) {
+//            cv::Mat des(cropHeight, cropWidth, CV_8UC4, pixels);
+//            cv::imwrite("/storage/emulated/0/scan/src_result.jpg", des);
+//        }
+//        free(point);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
@@ -235,7 +276,7 @@ Java_me_devilsen_czxing_BarcodeReader_postData(JNIEnv *env, jobject instance, jb
                                                jint width, jint height) {
     jbyte *data = env->GetByteArrayElements(data_, NULL);
 
-    opencvProcessor.processData(data,width,height,0);
+    std::vector<cv::Rect> results = opencvProcessor.processData(data, width, height);
 
     env->ReleaseByteArrayElements(data_, data, 0);
 }

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.4.1)
 add_library(
         zxing-lib
         SHARED
-        native-lib.cpp JNIUtils.cpp OpencvProcessor.cpp)
+        native-lib.cpp JNIUtils.cpp OpencvProcessor.cpp OpencvProcessor.h)
 
 add_subdirectory(zxing)
 include_directories(zxing)

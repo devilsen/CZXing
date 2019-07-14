@@ -2,6 +2,7 @@ package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.view.Surface;
 
 public class BarcodeReader {
 

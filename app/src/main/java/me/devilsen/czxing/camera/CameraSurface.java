@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -370,6 +371,10 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
 
     public interface SurfacePreviewListener {
         void onStartPreview();
+    }
+
+    public Surface getSurface(){
+        return getHolder().getSurface();
     }
 
 }
