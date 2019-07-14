@@ -9,89 +9,24 @@
 
 using namespace cv;
 using namespace std;
-DetectionBasedTracker *tracker = 0;
 
-class CascadeDetectorAdapter : public DetectionBasedTracker::IDetector {
-public:
-    CascadeDetectorAdapter(cv::Ptr<cv::CascadeClassifier> detector) :
-            IDetector(),
-            Detector(detector) {
-    }
-
-    //检测到结果  调用  Mat == Bitmap
-    void detect(const cv::Mat &Image, std::vector<cv::Rect> &objects) {
-        Detector->detectMultiScale(Image, objects, scaleFactor, minNeighbours, 0, minObjSize,
-                                   maxObjSize);
-    }
-
-    virtual ~CascadeDetectorAdapter() {}
-
-private:
-    CascadeDetectorAdapter() = delete;
-
-    cv::Ptr<cv::CascadeClassifier> Detector;
-};
-
-
-void OpencvProcessor::init(const char *path) {
-    // 智能指针
-    Ptr<CascadeClassifier> classifier = makePtr<CascadeClassifier>(path);
-    // 创建检测器
-    Ptr<CascadeDetectorAdapter> mainDetector = makePtr<CascadeDetectorAdapter>(classifier);
-    // 跟踪器
-    Ptr<CascadeClassifier> classifier1 = makePtr<CascadeClassifier>(path);
-    // 创建检测器
-    Ptr<CascadeDetectorAdapter> trackingDetector = makePtr<CascadeDetectorAdapter>(classifier1);
-
-    DetectionBasedTracker::Parameters DetectorParams;
-    // tracker  含有两个对象 检测器 跟踪器
-    tracker = new DetectionBasedTracker(mainDetector, trackingDetector, DetectorParams);
-    tracker->run();
-}
-
-std::vector<cv::Rect> OpencvProcessor::processData(jbyte *data, jint w, jint h) {
-    Mat src(h + h / 2, w, CV_8UC1, data);
-    // nv21   rgba
-    cvtColor(src, src, COLOR_YUV2RGBA_NV21);
-
-    Mat gray;
-    cvtColor(src, gray, COLOR_RGBA2GRAY);
-    // 对比度    黑白  轮廓 二值化
-    equalizeHist(gray, gray);
-    // imwrite("/storage/emulated/0/src5.jpg", gray);
-    // 检测结果
-    std::vector<Rect> results;
-    tracker->process(gray);
-    tracker->getObjects(results);
-
-    LOGE("检测到二维码： %d个", results.size());
-    if (results.size() == 1) {
-        imwrite("/storage/emulated/0/src5.jpg", gray);
-    }
-
-    src.release();
-    gray.release();
-    return results;
-}
-
-void OpencvProcessor::processData2(int *data, jint w, jint h, Point *point) {
+void OpencvProcessor::processData(int *data, jint w, jint h, Point *point) {
 
     Mat src(h, w, CV_8UC4, data);
 //    cvtColor(src, src, COLOR_YUV2RGBA_NV21);
 
     Mat gray, binary;
     cvtColor(src, gray, COLOR_BGR2GRAY);
+    equalizeHist(gray, gray);
+    imwrite("/storage/emulated/0/scan/src_gray.jpg", gray);
+    // 进行canny化，变成黑白线条构成的图片
     Canny(gray, binary, 100 , 255, 3);
-    imwrite("/storage/emulated/0/scan/src_gray.jpg", binary);
-
-    equalizeHist(binary, binary);
-    imwrite("/storage/emulated/0/scan/src_gray2.jpg", binary);
-
+    imwrite("/storage/emulated/0/scan/src_canny.jpg", binary);
 //    不能加这个
 //    blur(gray, binary, Size(3, 3));
-
+    // 二值化
 //    threshold(gray, binary, 100, 255, THRESH_BINARY | THRESH_OTSU);
-    imwrite("/storage/emulated/0/scan/src_binary.jpg", binary);
+//    imwrite("/storage/emulated/0/scan/src_binary.jpg", binary);
 
     // detect rectangle now
     vector<vector<Point>> contours;

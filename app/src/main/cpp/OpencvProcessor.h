@@ -12,11 +12,7 @@ using namespace cv;
 
 class OpencvProcessor {
 public:
-    void init(const char *path);
-
-    std::vector<cv::Rect> processData(jbyte *data, jint w, jint h);
-
-    void processData2(int *data, jint w, jint h, Point *point);
+    void processData(int *data, jint w, jint h, Point *point);
 };
 
 #endif //CZXING_OPENCVPROCESSOR_H

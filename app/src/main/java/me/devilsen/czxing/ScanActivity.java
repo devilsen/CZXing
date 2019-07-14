@@ -45,12 +45,6 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mScanView.onResume();
-    }
-
-    @Override
     protected void onStop() {
         mScanView.stopScan();
         mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框

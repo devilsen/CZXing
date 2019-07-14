@@ -132,10 +132,6 @@ public class BarcodeReader {
 
     public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
 
-    public native void initOpenCV(String path);
-
-    public native void postData(byte[] data, int width, int height);
-
     static {
         System.loadLibrary("zxing-lib");
     }

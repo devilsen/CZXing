@@ -44,13 +44,6 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         reader = new BarcodeReader(BarcodeFormat.QR_CODE);
     }
 
-    public void onResume() {
-        String path = new File(Environment.getExternalStorageDirectory(), "qrcode_cascade_by_camara_smaple_4.xml").getAbsolutePath();
-
-        reader.initOpenCV(path);
-
-    }
-
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
