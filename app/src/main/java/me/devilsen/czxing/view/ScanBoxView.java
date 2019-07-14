@@ -145,7 +145,7 @@ public class ScanBoxView extends View {
             float y = event.getY();
 
             if (x > mFramingRect.left && x < mFramingRect.right &&
-                    y > (mFramingRect.top + (mBoxSize >> 1)) && y < mFramingRect.bottom) {
+                    y > (mFramingRect.top + (mBoxSize >> 2)) && y < mFramingRect.bottom) {
                 if (mFlashLightListener != null) {
                     mFlashLightListener.onFlashLightClick();
                     invalidate();

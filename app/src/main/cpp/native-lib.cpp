@@ -105,8 +105,8 @@ bool checkSize(int left, int top, int width, int height) {
 }
 
 void
-convertNV21ToGrayScal(int left, int top, int width, int height, int rowWidth, const jbyte *data,
-                      int *pixels) {
+convertNV21ToGrayScale(int left, int top, int width, int height, int rowWidth, const jbyte *data,
+                       int *pixels) {
     int p;
     int desIndex = 0;
     int bottom = top + height;
@@ -140,7 +140,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
-        convertNV21ToGrayScal(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
+        convertNV21ToGrayScale(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
@@ -177,7 +177,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByteFullImage(JNIEnv *env, jcla
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         int *pixels = static_cast<int *>(malloc(width * height * sizeof(int)));
-        convertNV21ToGrayScal(0, 0, width, height, width, bytes, pixels);
+        convertNV21ToGrayScale(0, 0, width, height, width, bytes, pixels);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, width, height);
         auto readResult = reader->read(*binImage);

@@ -1,6 +1,7 @@
 package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Environment;
 import android.util.Log;
 
@@ -68,8 +69,8 @@ public class SaveImageUtil {
         // 创建二值化图像
         bitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
         // 遍历原始图像像素,并进行二值化处理
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 // 得到当前的像素值
                 int pixel = bitmap.getPixel(i, j);
                 // 得到Alpha通道的值
@@ -83,7 +84,7 @@ public class SaveImageUtil {
                 // 通过加权平均算法,计算出最佳像素值
                 int gray = (int) ((float) red * 0.3 + (float) green * 0.59 + (float) blue * 0.11);
                 // 对图像设置黑白图
-                if (gray <= 95) {
+                if (gray <= 150) {
                     gray = 0;
                 } else {
                     gray = 255;
