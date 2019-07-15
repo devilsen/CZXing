@@ -10,18 +10,54 @@
 using namespace cv;
 using namespace std;
 
-void OpencvProcessor::processData(int *data, jint w, jint h, Point *point) {
+float getDistance(CvPoint pointO, CvPoint pointA) {
+    float distance;
+    distance = powf((pointO.x - pointA.x), 2) + powf((pointO.y - pointA.y), 2);
+    distance = sqrtf(distance);
 
-    Mat src(h, w, CV_8UC4, data);
+    return distance;
+}
+
+void check_center(vector<vector<Point> > c, vector<int> &index) {
+    float dmin1 = 10000;
+    float dmin2 = 10000;
+    for (int i = 0; i < c.size(); i++) {
+        RotatedRect rect_i = minAreaRect(c[i]);
+        for (int j = i + 1; j < c.size(); j++) {
+            RotatedRect rect_j = minAreaRect(c[j]);
+            float d = getDistance(rect_i.center, rect_j.center);
+            if (d < dmin2 && d > 10) {
+                if (d < dmin1 && d > 10) {
+                    dmin2 = dmin1;
+                    dmin1 = d;
+                    index[2] = index[0];
+                    index[3] = index[1];
+                    index[0] = i;
+                    index[1] = j;
+
+                } else {
+                    dmin2 = d;
+                    index[2] = i;
+                    index[3] = j;
+                }
+            }
+        }
+    }
+}
+
+Rect OpencvProcessor::processData(int *data, jint w, jint h) {
+    Mat binary;
+
+    Mat gray(h, w, CV_8UC4, data);
 //    cvtColor(src, src, COLOR_YUV2RGBA_NV21);
+//    imwrite("/storage/emulated/0/scan/src.jpg", src);
 
-    Mat gray, binary;
-    cvtColor(src, gray, COLOR_BGR2GRAY);
-    equalizeHist(gray, gray);
-    imwrite("/storage/emulated/0/scan/src_gray.jpg", gray);
+//    cvtColor(src, gray, COLOR_BGR2GRAY);
+//    equalizeHist(gray, gray);
+//    imwrite("/storage/emulated/0/scan/src_gray.jpg", gray);
     // 进行canny化，变成黑白线条构成的图片
-    Canny(gray, binary, 100 , 255, 3);
-    imwrite("/storage/emulated/0/scan/src_canny.jpg", binary);
+    Canny(gray, binary, 100, 255, 3);
+//    imwrite("/storage/emulated/0/scan/src_canny.jpg", binary);
 //    不能加这个
 //    blur(gray, binary, Size(3, 3));
     // 二值化
@@ -30,29 +66,77 @@ void OpencvProcessor::processData(int *data, jint w, jint h, Point *point) {
 
     // detect rectangle now
     vector<vector<Point>> contours;
-    vector<Vec4i> hireachy;
-    findContours(binary, contours, hireachy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    Mat result = Mat::zeros(src.size(), CV_8UC4);
+    vector<Vec4i> hierarchy;
+    vector<int> found;
+    vector<vector<Point>> found_contours;
+    findContours(binary, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+    Mat result = Mat::zeros(gray.size(), CV_8UC4);
     for (size_t t = 0; t < contours.size(); t++) {
         double area = contourArea(contours[t]);
+        if (area < 150) continue;
 
-        if (area < 100) continue;
         RotatedRect rect = minAreaRect(contours[t]);
         // 根据矩形特征进行几何分析
-        float w = rect.size.width;
-        float h = rect.size.height;
-        float rate = min(w, h) / max(w, h);
-        if (rate > 0.85 && w < src.cols / 4 && h < src.rows / 4) {
-//            LOGE("angle : %.2f\n ", rect.angle);
-            LOGE("size left: %f ,top %f , width %f ,height %f ", rect.center.x, rect.center.y, w,
-                 h);
-//            Mat qr_roi = transformCorner(src, rect);
-//            if (isCorner(qr_roi)) {
-            drawContours(src, contours, static_cast<int>(t), Scalar(255, 0, 0), 2, 8);
-//                imwrite(format("/storage/emulated/0/scan/src_%d.jpg", static_cast<int>(t)), qr_roi);
-            drawContours(result, contours, static_cast<int>(t), Scalar(255, 0, 0), 2, 8);
-//            }
+        float rect_w = rect.size.width;
+        float rect_h = rect.size.height;
+        float rate = min(rect_w, rect_h) / max(rect_w, rect_h);
+        if (rate > 0.7 && rect_w < (gray.cols >> 2) && rect_h < (gray.rows >> 2)) {
+            int k = t;
+            int c = 0;
+            while (hierarchy[k][2] != -1) {
+                k = hierarchy[k][2];
+                c = c + 1;
+            }
+            if (c >= 1) {
+                found.push_back(t);
+                found_contours.push_back(contours[t]);
+
+                drawContours(result, contours, static_cast<int>(t), Scalar(255, 0, 0), 2, 8);
+            }
         }
     }
-    imwrite("/storage/emulated/0/scan/src_patter.jpg", result);
+
+//    imwrite("/storage/emulated/0/scan/src_patter_1.jpg", result);
+
+    if (found.size() >= 3) {
+        vector<int> indexs(4, -1);
+        check_center(found_contours, indexs);
+        vector<Point> final;
+        for (int i = 0; i < 4; i++) {
+            RotatedRect part_rect = minAreaRect(found_contours[indexs[i]]);
+            Point2f p[4];
+            part_rect.points(p);
+            for (auto &j : p) {
+                final.push_back(j);
+            }
+        }
+
+        //region of qr
+        Rect ROI = boundingRect(final);
+        int space = 0;
+        if (ROI.width < ROI.height) {
+            space = ROI.height - ROI.width;
+            ROI = ROI + Size(space, 0);
+        } else if (ROI.width > ROI.height) {
+            space = ROI.width - ROI.height;
+            ROI = ROI + Size(0, space);
+        }
+
+        Point left_top = ROI.tl();
+        Point right_down = ROI.br();
+        if (left_top.x >= 20 || left_top.y >= 20 || right_down.x <= w - 20 ||
+            right_down.y <= h - 20) {
+            ROI = ROI + Point(-20, -20) + Size(40, 40);
+        }
+
+        if (ROI.tl().x > 0 && ROI.tl().y > 0 && ROI.br().x < w && ROI.br().y < h) {
+            rectangle(result, ROI.tl(), ROI.br(), Scalar(0, 0, 255));
+
+            imwrite("/storage/emulated/0/scan/src_patter_2.jpg", result);
+
+            return ROI;
+        }
+    }
+    Rect ROI;
+    return ROI;
 }

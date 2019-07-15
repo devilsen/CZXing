@@ -1,20 +1,15 @@
 package me.devilsen.czxing.view;
 
 import android.content.Context;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-
-import java.io.File;
 
 import me.devilsen.czxing.BarCodeUtil;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.ScanActivity;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
 
@@ -47,15 +42,19 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-//        mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+        mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
 //        reader.postData(data, rowWidth, top + height);
-        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
-
-        if (result != null) {
-            if (!TextUtils.isEmpty(result.getText())) {
-                Log.e("result", result.getText());
-            }
-        }
+//        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
+//
+//        if (result != null) {
+//            if (!TextUtils.isEmpty(result.getText())) {
+//                Log.e("result", result.getText());
+//            }
+//
+//            if (result.getPoints() != null) {
+//                tryZoom(result);
+//            }
+//        }
     }
 
     @Override

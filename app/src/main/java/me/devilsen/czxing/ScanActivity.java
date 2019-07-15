@@ -29,8 +29,6 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
-        BarCodeUtil.copyAssets(this, "qrcode_cascade_by_camara_smaple_4.xml");
-
         BarCodeUtil.setDebug(true);
 
         mScanView = findViewById(R.id.surface_view_scan);

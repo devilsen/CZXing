@@ -2,7 +2,6 @@ package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-import android.view.Surface;
 
 public class BarcodeReader {
 
@@ -42,6 +41,25 @@ public class BarcodeReader {
             }
             Log.e("point ", stringBuilder.toString());
         }
+
+        public void setPoint(int[] lists) {
+            points = new float[lists.length];
+            for (int i = 0; i < lists.length; i++) {
+                points[i] = lists[i];
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            int i = 0;
+            for (float list : lists) {
+                i++;
+                stringBuilder.append(list).append("  ");
+                if (i % 2 == 0) {
+                    stringBuilder.append("\n");
+                }
+            }
+            Log.e("opencv point ", stringBuilder.toString());
+        }
     }
 
     public BarcodeReader(BarcodeFormat... formats) {
@@ -73,12 +91,14 @@ public class BarcodeReader {
 
     public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
         try {
-            Object[] result = new Object[2];
+            Object[] result = new Object[3];
             int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
             if (resultFormat > 0) {
                 Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
                 if (result[1] != null) {
                     decodeResult.setPoint((float[]) result[1]);
+                } else if (result[2] != null) {
+                    decodeResult.setPoint((int[]) result[2]);
                 }
                 return decodeResult;
             }

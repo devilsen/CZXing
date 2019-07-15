@@ -10,6 +10,8 @@
 
 OpencvProcessor opencvProcessor;
 
+void scaleImage(const Rect &rect_, int rowWidth, const int *pInt, int *scalePixels);
+
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
     jsize len = env->GetArrayLength(formats);
@@ -116,12 +118,30 @@ convertNV21ToGrayScal(int left, int top, int width, int height, int rowWidth, co
     int bottom = top + height;
     int right = left + width;
     int srcIndex = top * rowWidth;
-    int marginRight = rowWidth - left - width;
+    int marginRight = rowWidth - right;
     for (int i = top; i < bottom; ++i) {
         srcIndex += left;
         for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
             p = data[srcIndex] & 0xFF;
             pixels[desIndex] = 0xff000000u | p << 16u | p << 8u | p;
+        }
+        srcIndex += marginRight;
+    }
+}
+
+void scaleImage(const Rect &rect_, int rowWidth, const int *pixels, int *scalePixels) {
+    int left = rect_.x;
+    int top = rect_.y;
+    int right = left + rect_.width;
+    int bottom = top + rect_.height;
+    int marginRight = rowWidth - right;
+
+    int desIndex = 0;
+    int srcIndex = top * rowWidth;
+    for (int i = top; i < bottom; ++i) {
+        srcIndex += left;
+        for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
+            scalePixels[desIndex] = pixels[srcIndex];
         }
         srcIndex += marginRight;
     }
@@ -146,9 +166,31 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
         convertNV21ToGrayScal(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
 
-        auto *point = new Point[3];
-        opencvProcessor.processData(pixels, cropWidth, cropHeight, point);
-        delete[] point;
+        cv::Rect rect = opencvProcessor.processData(pixels, cropWidth, cropHeight);
+//        if (rect.width != 0) {
+//            int scaleRowWidth = cropWidth;
+//            int scaleCropWidth = rect.width;
+//            int scaleCropHeight = rect.height;
+//            int *scalePixels = static_cast<int *>(malloc(
+//                    scaleCropWidth * scaleCropHeight * sizeof(int)));
+//            scaleImage(rect, scaleRowWidth, pixels, scalePixels);
+//
+//            Mat scale(scaleCropHeight, scaleCropWidth, CV_8UC4, scalePixels);
+//            imwrite("/storage/emulated/0/scan/src_scale.jpg", scale);
+//
+//            auto binImage = BinaryBitmapFromBytes(env, scalePixels, 0, 0, scaleCropWidth,
+//                                                  scaleCropHeight);
+//            auto readResult = reader->read(*binImage);
+//            free(scalePixels);
+//
+//            if (readResult.isValid()) {
+//                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//                return static_cast<int>(readResult.format());
+//            } else if (readResult.isBlurry()) {
+//                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+//                return static_cast<int>(readResult.format());
+//            }
+//        }
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
@@ -160,6 +202,9 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         } else if (readResult.isBlurry()) {
             env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
+        } else if (rect.width != 0) {
+            env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
+            return 1;
         }
     }
     catch (const std::exception &e) {

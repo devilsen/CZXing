@@ -20,6 +20,7 @@
 #include <android/bitmap.h>
 #include <stdexcept>
 #include <vector>
+#include <opencv2/core/types.hpp>
 
 namespace {
 
@@ -83,8 +84,8 @@ BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int 
                       int cropHeight) {
     using namespace ZXing;
 
-//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
-//         cropHeight);
+    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
+         cropHeight);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             cropLeft, cropTop, cropWidth,
@@ -173,4 +174,20 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
     return array;
 }
 
+jintArray
+reactToJavaArray(JNIEnv *env, const cv::Rect &rect) {
+    jintArray array = env->NewIntArray(6);
 
+    cv::Point pointLeftTop = rect.tl();
+    cv::Point pointRightBottom = rect.br();
+    env->SetIntArrayRegion(array, 0, 1, &pointLeftTop.x);
+    env->SetIntArrayRegion(array, 1, 1, &pointLeftTop.y);
+
+    env->SetIntArrayRegion(array, 2, 1, &pointRightBottom.x);
+    env->SetIntArrayRegion(array, 3, 1, &pointLeftTop.y);
+
+    env->SetIntArrayRegion(array, 4, 1, &pointLeftTop.x);
+    env->SetIntArrayRegion(array, 5, 1, &pointRightBottom.y);
+
+    return array;
+}

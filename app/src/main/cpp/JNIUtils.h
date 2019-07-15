@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <src/ResultPoint.h>
+#include <opencv2/core/types.hpp>
 
 #define ZX_LOG_TAG "ZXing"
 
@@ -39,4 +40,5 @@ std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytes(JNIEnv* env, void *gr
 void ThrowJavaException(JNIEnv* env, const char* message);
 jstring ToJavaString(JNIEnv* env, const std::wstring& str);
 jfloatArray ToJavaArray(JNIEnv* env, const std::vector<ZXing::ResultPoint>& vector);
+jintArray reactToJavaArray(JNIEnv *env, const cv::Rect &rect);
 bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);
