@@ -57,7 +57,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     @Override
     public void onCameraOpen() {
-        mScanView.startScan();  // 显示扫描框，并开始识别
+//        mScanView.startScan();  // 显示扫描框，并开始识别
     }
 
     @Override

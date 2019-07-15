@@ -328,7 +328,7 @@ public class ScanBoxView extends View {
 
     public void setDark(boolean dark) {
         if (this.isDark != dark) {
-            invalidate();
+            postInvalidate();
         }
         isDark = dark;
     }
