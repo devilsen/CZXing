@@ -8,10 +8,6 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 
-OpencvProcessor opencvProcessor;
-
-void scaleImage(const Rect &rect_, int rowWidth, const int *pInt, int *scalePixels);
-
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
     jsize len = env->GetArrayLength(formats);
@@ -56,7 +52,6 @@ Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, 
 
     try {
         delete reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-//        delete opencvProcessor;
     }
     catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
@@ -111,8 +106,8 @@ bool checkSize(int left, int top, int width, int height) {
 }
 
 void
-convertNV21ToGrayScal(int left, int top, int width, int height, int rowWidth, const jbyte *data,
-                      int *pixels) {
+convertNV21ToGrayScale(int left, int top, int width, int height, int rowWidth, const jbyte *data,
+                       int *pixels) {
     int p;
     int desIndex = 0;
     int bottom = top + height;
@@ -164,85 +159,30 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
-        convertNV21ToGrayScal(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
-
-        cv::Rect rect = opencvProcessor.processData(pixels, cropWidth, cropHeight);
-//        if (rect.width != 0) {
-//            int scaleRowWidth = cropWidth;
-//            int scaleCropWidth = rect.width;
-//            int scaleCropHeight = rect.height;
-//            int *scalePixels = static_cast<int *>(malloc(
-//                    scaleCropWidth * scaleCropHeight * sizeof(int)));
-//            scaleImage(rect, scaleRowWidth, pixels, scalePixels);
-//
-//            Mat scale(scaleCropHeight, scaleCropWidth, CV_8UC4, scalePixels);
-//            imwrite("/storage/emulated/0/scan/src_scale.jpg", scale);
-//
-//            auto binImage = BinaryBitmapFromBytes(env, scalePixels, 0, 0, scaleCropWidth,
-//                                                  scaleCropHeight);
-//            auto readResult = reader->read(*binImage);
-//            free(scalePixels);
-//
-//            if (readResult.isValid()) {
-//                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-//                return static_cast<int>(readResult.format());
-//            } else if (readResult.isBlurry()) {
-//                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
-//                return static_cast<int>(readResult.format());
-//            }
-//        }
+        convertNV21ToGrayScale(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
-        free(pixels);
 
         if (readResult.isValid()) {
+            free(pixels);
+
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
             return static_cast<int>(readResult.format());
         } else if (readResult.isBlurry()) {
+            free(pixels);
+
             env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
-        } else if (!rect.empty()) {
-            env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
-            return 1;
-        }
-    }
-    catch (const std::exception &e) {
-        ThrowJavaException(env, e.what());
-    }
-    catch (...) {
-        ThrowJavaException(env, "Unknown exception");
-    }
-    env->ReleaseByteArrayElements(bytes_, bytes, 0);
+        } else {
+            OpencvProcessor opencvProcessor;
+            cv::Rect rect = opencvProcessor.processData(pixels, cropWidth, cropHeight);
+            free(pixels);
 
-    return -1;
-}
-
-extern "C"
-JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeReader_readBarcodeByteFullImage(JNIEnv *env, jclass type,
-                                                               jlong objPtr, jbyteArray bytes_,
-                                                               jint width, jint height,
-                                                               jobjectArray result) {
-    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-
-    try {
-        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-
-        int *pixels = static_cast<int *>(malloc(width * height * sizeof(int)));
-        convertNV21ToGrayScal(0, 0, width, height, width, bytes, pixels);
-
-        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, width, height);
-        auto readResult = reader->read(*binImage);
-        free(pixels);
-
-        if (readResult.isValid()) {
-            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            if (!readResult.resultPoints().empty()) {
-                jfloatArray array = ToJavaArray(env, readResult.resultPoints());
-                env->SetObjectArrayElement(result, 1, array);
+            if (!rect.empty()) {
+                env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
+                return 1;
             }
-            return static_cast<int>(readResult.format());
         }
     }
     catch (const std::exception &e) {
@@ -251,8 +191,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByteFullImage(JNIEnv *env, jcla
     catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
-
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
+
     return -1;
 }
 

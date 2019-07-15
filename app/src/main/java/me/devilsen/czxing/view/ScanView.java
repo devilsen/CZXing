@@ -122,9 +122,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 
         Log.e("len", len + "");
 
-        if (len > 0) {
-            handleAutoZoom(len);
-        }
+        handleAutoZoom(len);
     }
 
 }

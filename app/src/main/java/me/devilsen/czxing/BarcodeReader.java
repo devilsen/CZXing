@@ -108,19 +108,6 @@ public class BarcodeReader {
         return null;
     }
 
-    public Result readFullImage(byte[] data, int imageWidth, int imageHeight) {
-        Object[] result = new Object[2];
-        int resultFormat = readBarcodeByteFullImage(_nativePtr, data, imageWidth, imageHeight, result);
-        if (resultFormat >= 0) {
-            Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
-            if (result[1] != null) {
-                decodeResult.setPoint((float[]) result[1]);
-            }
-            return decodeResult;
-        }
-        return null;
-    }
-
     public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
         return analysisBrightnessNative(data, imageWidth, imageHeight);
     }
@@ -147,8 +134,6 @@ public class BarcodeReader {
     private static native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
     private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, Object[] result);
-
-    private static native int readBarcodeByteFullImage(long objPtr, byte[] bytes, int width, int height, Object[] result);
 
     public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
 

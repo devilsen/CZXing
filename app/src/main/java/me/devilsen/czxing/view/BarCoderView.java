@@ -78,7 +78,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         long now = System.nanoTime();
-        if (Math.abs(now - processLastTime) < 200000000) {
+        if (Math.abs(now - processLastTime) < 300000000) {
             return;
         }
         processLastTime = now;
@@ -108,7 +108,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             // TODO 这里需要一个策略
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 
-            if (scanTimes % 4 == 0) {
+            if (scanTimes % 5 == 0) {
                 onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
 //                onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
             }
@@ -250,7 +250,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         if (mCamera == null || mScanBoxView == null) {
             return;
         }
-        if (len <= 0) {
+        if (len <= 10) {
             return;
         }
         if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
