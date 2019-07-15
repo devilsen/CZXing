@@ -46,31 +46,19 @@ void check_center(vector<vector<Point> > c, vector<int> &index) {
 }
 
 Rect OpencvProcessor::processData(int *data, jint w, jint h) {
-    Mat binary;
 
     Mat gray(h, w, CV_8UC4, data);
-//    cvtColor(src, src, COLOR_YUV2RGBA_NV21);
-//    imwrite("/storage/emulated/0/scan/src.jpg", src);
-
-//    cvtColor(src, gray, COLOR_BGR2GRAY);
-//    equalizeHist(gray, gray);
-//    imwrite("/storage/emulated/0/scan/src_gray.jpg", gray);
     // 进行canny化，变成黑白线条构成的图片
+    Mat binary;
     Canny(gray, binary, 100, 255, 3);
 //    imwrite("/storage/emulated/0/scan/src_canny.jpg", binary);
-//    不能加这个
-//    blur(gray, binary, Size(3, 3));
-    // 二值化
-//    threshold(gray, binary, 100, 255, THRESH_BINARY | THRESH_OTSU);
-//    imwrite("/storage/emulated/0/scan/src_binary.jpg", binary);
-
     // detect rectangle now
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
     vector<int> found;
     vector<vector<Point>> found_contours;
     findContours(binary, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    Mat result = Mat::zeros(gray.size(), CV_8UC4);
+//    Mat result = Mat::zeros(gray.size(), CV_8UC4);
     for (size_t t = 0; t < contours.size(); t++) {
         double area = contourArea(contours[t]);
         if (area < 150) continue;
@@ -90,8 +78,7 @@ Rect OpencvProcessor::processData(int *data, jint w, jint h) {
             if (c >= 1) {
                 found.push_back(t);
                 found_contours.push_back(contours[t]);
-
-                drawContours(result, contours, static_cast<int>(t), Scalar(255, 0, 0), 2, 8);
+//                drawContours(result, contours, static_cast<int>(t), Scalar(255, 0, 0), 2, 8);
             }
         }
     }
@@ -130,13 +117,11 @@ Rect OpencvProcessor::processData(int *data, jint w, jint h) {
         }
 
         if (ROI.tl().x > 0 && ROI.tl().y > 0 && ROI.br().x < w && ROI.br().y < h) {
-            rectangle(result, ROI.tl(), ROI.br(), Scalar(0, 0, 255));
-
-            imwrite("/storage/emulated/0/scan/src_patter_2.jpg", result);
-
+//            rectangle(result, ROI.tl(), ROI.br(), Scalar(0, 0, 255));
+//            imwrite("/storage/emulated/0/scan/src_patter_2.jpg", result);
             return ROI;
         }
     }
-    Rect ROI;
-    return ROI;
+    Rect result;
+    return result;
 }

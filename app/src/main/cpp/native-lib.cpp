@@ -202,7 +202,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         } else if (readResult.isBlurry()) {
             env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
-        } else if (rect.width != 0) {
+        } else if (!rect.empty()) {
             env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
             return 1;
         }
