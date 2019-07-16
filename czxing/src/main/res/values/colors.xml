@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="czxing_color_primary">#008577</color>
+    <color name="czxing_color_primaryDark">#00574B</color>
+    <color name="czxing_color_accent">#D81B60</color>
+
+    <color name="czxing_black">#000000</color>
+
+    <color name="color1">#0D4AD34F</color>
+    <color name="color2">#830CCE14</color>
+    <color name="color3">#FF0CCE14</color>
+
+</resources>
