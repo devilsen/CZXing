@@ -21,9 +21,9 @@ float getDistance(CvPoint pointO, CvPoint pointA) {
 void check_center(vector<vector<Point> > c, vector<int> &index) {
     float dmin1 = 10000;
     float dmin2 = 10000;
-    for (int i = 0; i < c.size(); i++) {
+    for (int i = 0; i < c.size(); ++i) {
         RotatedRect rect_i = minAreaRect(c[i]);
-        for (int j = i + 1; j < c.size(); j++) {
+        for (int j = i + 1; j < c.size(); ++j) {
             RotatedRect rect_j = minAreaRect(c[j]);
             float d = getDistance(rect_i.center, rect_j.center);
             if (d < dmin2 && d > 10) {
@@ -59,7 +59,7 @@ void OpencvProcessor::processData(int *data, jint w, jint h, Rect *resultRect) {
     vector<vector<Point>> found_contours;
     findContours(binary, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 //    Mat result = Mat::zeros(gray.size(), CV_8UC4);
-    for (size_t t = 0; t < contours.size(); t++) {
+    for (size_t t = 0; t < contours.size(); ++t) {
         double area = contourArea(contours[t]);
         if (area < 150) continue;
 
@@ -90,6 +90,9 @@ void OpencvProcessor::processData(int *data, jint w, jint h, Rect *resultRect) {
         check_center(found_contours, indexs);
         vector<Point> final;
         for (int i = 0; i < 4; i++) {
+            if (indexs[i] == -1) {
+                continue;
+            }
             RotatedRect part_rect = minAreaRect(found_contours[indexs[i]]);
             Point2f p[4];
             part_rect.points(p);
@@ -100,6 +103,9 @@ void OpencvProcessor::processData(int *data, jint w, jint h, Rect *resultRect) {
 
         //region of qr
         Rect ROI = boundingRect(final);
+        if (ROI.empty()) {
+            return;
+        }
         int space = 0;
         if (ROI.width < ROI.height) {
             space = ROI.height - ROI.width;
