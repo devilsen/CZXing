@@ -1,6 +1,6 @@
 package me.devilsen.czxing.thread;
 
-import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
@@ -62,7 +62,7 @@ public class ProcessRunnable implements Runnable {
         }
     }
 
-    public void cancel() {
+    void cancel() {
         mBarcodeProcessor.cancel();
     }
 

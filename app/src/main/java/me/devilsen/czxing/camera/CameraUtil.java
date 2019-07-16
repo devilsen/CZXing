@@ -9,7 +9,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
-import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * @author : dongSen

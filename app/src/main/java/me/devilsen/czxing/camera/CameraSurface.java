@@ -7,14 +7,13 @@ import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
 import java.util.Collections;
 
-import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * @author : dongSen
@@ -371,10 +370,6 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
 
     public interface SurfacePreviewListener {
         void onStartPreview();
-    }
-
-    public Surface getSurface(){
-        return getHolder().getSurface();
     }
 
 }

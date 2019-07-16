@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import me.devilsen.czxing.thread.ExecutorUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
@@ -19,8 +20,6 @@ import me.devilsen.czxing.view.ScanView;
  * @author : dongSen
  */
 public class ScanActivity extends AppCompatActivity implements ScanListener {
-
-    private static final String TAG = "Scan >>> ";
 
     private ScanView mScanView;
 
@@ -56,19 +55,9 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     }
 
     @Override
-    public void onCameraOpen() {
-//        mScanView.startScan();  // 显示扫描框，并开始识别
-    }
-
-    @Override
     public void onScanSuccess(String result) {
         BarCodeUtil.d(result);
         ExecutorUtil.runOnUiThread(() -> Toast.makeText(ScanActivity.this, result, Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    public void onBrightnessChanged(boolean isDark) {
-
     }
 
     @Override

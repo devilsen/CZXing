@@ -1,7 +1,8 @@
 package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
-import android.util.Log;
+
+import me.devilsen.czxing.util.BarCodeUtil;
 
 public class BarcodeReader {
 
@@ -29,17 +30,7 @@ public class BarcodeReader {
 
         public void setPoint(float[] lists) {
             points = lists;
-            StringBuilder stringBuilder = new StringBuilder();
-
-            int i = 0;
-            for (float list : lists) {
-                i++;
-                stringBuilder.append(list).append("  ");
-                if (i % 2 == 0) {
-                    stringBuilder.append("\n");
-                }
-            }
-            Log.e("point ", stringBuilder.toString());
+            logPoint();
         }
 
         public void setPoint(int[] lists) {
@@ -47,18 +38,20 @@ public class BarcodeReader {
             for (int i = 0; i < lists.length; i++) {
                 points[i] = lists[i];
             }
+            logPoint();
+        }
 
-            StringBuilder stringBuilder = new StringBuilder();
-
+        private void logPoint() {
+            StringBuilder stringBuilder = new StringBuilder("location points ");
             int i = 0;
-            for (float list : lists) {
+            for (float list : points) {
                 i++;
                 stringBuilder.append(list).append("  ");
                 if (i % 2 == 0) {
                     stringBuilder.append("\n");
                 }
             }
-            Log.e("opencv point ", stringBuilder.toString());
+            BarCodeUtil.d(stringBuilder.toString());
         }
     }
 

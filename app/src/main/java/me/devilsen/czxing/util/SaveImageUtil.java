@@ -1,4 +1,4 @@
-package me.devilsen.czxing;
+package me.devilsen.czxing.util;
 
 import android.graphics.Bitmap;
 import android.os.Environment;

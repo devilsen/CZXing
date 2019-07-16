@@ -1,9 +1,6 @@
 package me.devilsen.czxing.processor;
 
 import android.graphics.Bitmap;
-import android.os.Environment;
-
-import java.io.File;
 
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
@@ -40,10 +37,6 @@ public class BarcodeProcessor extends Processor {
         );
     }
 
-    @Override
-    void onStart() {
-    }
-
     public String process(final Bitmap bitmap) {
         if (cancel) {
             return null;
@@ -60,7 +53,6 @@ public class BarcodeProcessor extends Processor {
         if (cancel) {
             return null;
         }
-
 
         BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
         if (result != null) {
@@ -84,12 +76,4 @@ public class BarcodeProcessor extends Processor {
         return reader.analysisBrightness(data, imageWidth, imageHeight);
     }
 
-    @Override
-    void onStop() {
-    }
-
-    @Override
-    void onDestroy() {
-        reader = null;
-    }
 }

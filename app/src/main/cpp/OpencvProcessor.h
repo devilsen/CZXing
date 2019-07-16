@@ -12,7 +12,7 @@ using namespace cv;
 
 class OpencvProcessor {
 public:
-    Rect processData(int *data, jint w, jint h);
+    void processData(int *data, jint w, jint h, Rect *resultRect);
 };
 
 #endif //CZXING_OPENCVPROCESSOR_H

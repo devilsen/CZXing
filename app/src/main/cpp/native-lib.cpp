@@ -176,9 +176,9 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
             return static_cast<int>(readResult.format());
         } else {
             OpencvProcessor opencvProcessor;
-            cv::Rect rect = opencvProcessor.processData(pixels, cropWidth, cropHeight);
+            cv::Rect rect;
+            opencvProcessor.processData(pixels, cropWidth, cropHeight, &rect);
             free(pixels);
-
             if (!rect.empty()) {
                 env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
                 return 1;

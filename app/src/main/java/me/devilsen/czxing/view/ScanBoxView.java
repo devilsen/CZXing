@@ -17,7 +17,7 @@ import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.Nullable;
 
-import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.R;
 
 /**

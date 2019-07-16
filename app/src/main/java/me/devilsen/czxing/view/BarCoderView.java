@@ -11,32 +11,34 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 
-import me.devilsen.czxing.BarCodeUtil;
+import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
 import me.devilsen.czxing.thread.ExecutorUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * @author : dongSen
  * date : 2019-06-29 15:35
- * desc :
+ * desc : 二维码扫描界面，包括Surface和Box
  */
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
     private static final int DEFAULT_ZOOM_SCALE = 4;
 
-    protected int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-    protected Camera mCamera;
+    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+    private Camera mCamera;
     CameraSurface mCameraSurface;
     ScanBoxView mScanBoxView;
 
-    protected ScanListener mScanListener;
-    protected boolean mSpotAble = false;
+    protected boolean mSpotAble;
+    private int scanSequence;
     private long processLastTime;
-    private int scanTimes;
+    private long mLastAutoZoomTime;
+
+    protected ScanListener mScanListener;
     private ValueAnimator mAutoZoomAnimator;
-    private long mLastAutoZoomTime = 0;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -54,12 +56,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private void init(Context context) {
         setBackground(null);
         mCameraSurface = new CameraSurface(context);
-        mCameraSurface.setPreviewListener(new CameraSurface.SurfacePreviewListener() {
-            @Override
-            public void onStartPreview() {
-                setPreviewCallback();
-            }
-        });
+        mCameraSurface.setPreviewListener(this::setPreviewCallback);
 
         FrameLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
@@ -105,16 +102,14 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 rowWidth = size.height;
                 rowHeight = size.width;
             }
-            // TODO 这里需要一个策略
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 
-            if (scanTimes % 5 == 0) {
+            if (scanSequence % 5 == 0) {
                 onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
-//                onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
             }
-            scanTimes++;
+            scanSequence++;
 
-            BarCodeUtil.d("scan sequence " + scanTimes);
+            BarCodeUtil.d("scan sequence " + scanSequence);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,10 +119,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     public void setScanListener(ScanListener listener) {
         mScanListener = listener;
-    }
-
-    public void openCamera() {
-        openCamera(mCameraId);
     }
 
     public void startScan() {
@@ -143,13 +134,15 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             return;
         }
         try {
-//            mCamera.setPreviewCallback(this);
             mCamera.setPreviewCallback(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void openCamera() {
+        openCamera(mCameraId);
+    }
 
     public void openCamera(int cameraFacing) {
         if (mCamera != null || Camera.getNumberOfCameras() == 0) {
@@ -205,7 +198,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private void setPreviewCallback() {
         if (mSpotAble && mCameraSurface.isPreviewing()) {
             try {
-//            mCamera.setOneShotPreviewCallback(this);
                 mCamera.setPreviewCallback(this);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -246,7 +238,41 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 //        showScanRect();
     }
 
-    void handleAutoZoom(int len) {
+    /**
+     * 没有查询到二维码结果，但是能基本能定位到二维码，根据返回的数据集，检验是否要放大
+     *
+     * @param result 二维码定位信息
+     */
+    void tryZoom(BarcodeReader.Result result) {
+        int len = 0;
+        float[] points = result.getPoints();
+        if (points.length > 3) {
+            float point1X = points[0];
+            float point1Y = points[1];
+            float point2X = points[2];
+            float point2Y = points[3];
+            float xLen = Math.abs(point1X - point2X);
+            float yLen = Math.abs(point1Y - point2Y);
+            len = (int) Math.sqrt(xLen * xLen + yLen * yLen);
+        }
+
+        if (points.length > 5) {
+            float point2X = points[2];
+            float point2Y = points[3];
+            float point3X = points[4];
+            float point3Y = points[5];
+            float xLen = Math.abs(point2X - point3X);
+            float yLen = Math.abs(point2Y - point3Y);
+            int len2 = (int) Math.sqrt(xLen * xLen + yLen * yLen);
+            if (len2 < len) {
+                len = len2;
+            }
+        }
+
+        handleAutoZoom(len);
+    }
+
+    private void handleAutoZoom(int len) {
         if (mCamera == null || mScanBoxView == null) {
             return;
         }
@@ -278,17 +304,14 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private void startAutoZoom(int oldZoom, int newZoom) {
         mAutoZoomAnimator = ValueAnimator.ofInt(oldZoom, newZoom);
-        mAutoZoomAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
-                    return;
-                }
-                int zoom = (int) animation.getAnimatedValue();
-                Camera.Parameters parameters = mCamera.getParameters();
-                parameters.setZoom(zoom);
-                mCamera.setParameters(parameters);
+        mAutoZoomAnimator.addUpdateListener(animation -> {
+            if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
+                return;
             }
+            int zoom = (int) animation.getAnimatedValue();
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setZoom(zoom);
+            mCamera.setParameters(parameters);
         });
         mAutoZoomAnimator.setDuration(450);
         mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
