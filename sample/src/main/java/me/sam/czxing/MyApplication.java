@@ -1,4 +1,4 @@
-package me.devilsen.czxing;
+package me.sam.czxing;
 
 import android.app.Application;
 import android.content.Context;

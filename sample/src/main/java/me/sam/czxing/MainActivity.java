@@ -1,4 +1,4 @@
-package me.devilsen.czxing;
+package me.sam.czxing;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,6 +12,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
+
+import me.devilsen.czxing.BarcodeFormat;
+import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.ScanActivity;
 
 public class MainActivity extends AppCompatActivity {
 
