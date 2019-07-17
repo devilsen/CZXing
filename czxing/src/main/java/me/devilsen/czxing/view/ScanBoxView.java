@@ -89,7 +89,7 @@ public class ScanBoxView extends View {
         mTextColorBig = Color.parseColor("#BC0ED118");
 
         mBoxSize = BarCodeUtil.dp2px(context, 200);
-        mTopOffset = -BarCodeUtil.dp2px(context, 60);
+        mTopOffset = -BarCodeUtil.dp2px(context, 10);
 
         mBorderColor = Color.WHITE;
         mBorderSize = BarCodeUtil.dp2px(context, 1);

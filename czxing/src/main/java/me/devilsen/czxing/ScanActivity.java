@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
@@ -29,6 +30,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         setContentView(R.layout.activity_camera_scan);
 
         BarCodeUtil.setDebug(true);
+        ScreenUtil.setFullScreen(this);
 
         mScanView = findViewById(R.id.surface_view_scan);
         mScanView.setScanListener(this);
