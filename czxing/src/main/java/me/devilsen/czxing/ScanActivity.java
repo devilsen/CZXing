@@ -57,7 +57,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     @Override
     public void onScanSuccess(String result) {
         BarCodeUtil.d(result);
-//        ExecutorUtil.runOnUiThread(() -> Toast.makeText(ScanActivity.this, result, Toast.LENGTH_SHORT).show());
+        ExecutorUtil.runOnUiThread(() -> Toast.makeText(ScanActivity.this, result, Toast.LENGTH_SHORT).show());
     }
 
     @Override
