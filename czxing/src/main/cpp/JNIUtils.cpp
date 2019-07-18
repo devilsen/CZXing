@@ -162,6 +162,9 @@ jstring ToJavaString(JNIEnv *env, const std::wstring &str) {
 jfloatArray
 ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
     jfloatArray array = env->NewFloatArray(input.size() * 2);
+    if (input.size() < 2) {
+        return array;
+    }
 
     int index = 0;
     for (auto point : input) {

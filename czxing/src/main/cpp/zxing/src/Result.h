@@ -45,7 +45,7 @@ public:
 	Result(DecoderResult&& decodeResult, std::vector<ResultPoint>&& resultPoints, BarcodeFormat format);
 
 	bool isValid() const {
-		return StatusIsOK(_status);
+		return StatusIsOK(_status) || isBlurry();
 	}
 
 	bool isBlurry() const {

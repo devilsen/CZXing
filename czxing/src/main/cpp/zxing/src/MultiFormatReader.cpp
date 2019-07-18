@@ -103,8 +103,6 @@ MultiFormatReader::read(const BinaryBitmap& image) const
 		Result r = reader->decode(image);
   		if (r.isValid()){
 			return r;
-  		}else if (r.isBlurry()){
-			return r;
   		}
 	}
 	return Result(DecodeStatus::NotFound);

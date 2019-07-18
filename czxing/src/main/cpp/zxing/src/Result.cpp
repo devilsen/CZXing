@@ -36,8 +36,8 @@ Result::Result(DecoderResult&& decodeResult, std::vector<ResultPoint>&& resultPo
       _resultPoints(std::move(resultPoints)),
       _format(format)
 {
-//	if (!isValid())
-//		return;
+	if (!isValid())
+		return;
 
 	//TODO: change ResultMetadata::put interface, so we can move from decodeResult?
 	const auto& byteSegments = decodeResult.byteSegments();
