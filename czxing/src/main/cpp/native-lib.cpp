@@ -4,8 +4,9 @@
 #include "MultiFormatReader.h"
 #include "DecodeHints.h"
 #include "Result.h"
-#include "OpencvProcessor.h"
+#include "QRCodeRecognizer.h"
 #include "opencv2/opencv.hpp"
+#include "ImageUtil.h"
 #include <vector>
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
@@ -22,13 +23,6 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
     return result;
 }
 
-extern "C" JNIEXPORT jstring JNICALL
-Java_me_devilsen_czxing_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
-}
 extern "C"
 JNIEXPORT jlong JNICALL
 Java_me_devilsen_czxing_BarcodeReader_createInstance(JNIEnv *env, jclass type, jintArray formats_) {
@@ -46,7 +40,8 @@ Java_me_devilsen_czxing_BarcodeReader_createInstance(JNIEnv *env, jclass type, j
         ThrowJavaException(env, "Unknown exception");
     }
     return 0;
-}extern "C"
+}
+extern "C"
 JNIEXPORT void JNICALL
 Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, jlong objPtr) {
 
@@ -59,7 +54,8 @@ Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, 
     catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
-}extern "C"
+}
+extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlong objPtr,
                                                   jobject bitmap, jint left, jint top, jint width,
@@ -75,8 +71,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
         if (readResult.isValid()) {
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
             if (!readResult.resultPoints().empty()) {
-                jfloatArray array = ToJavaArray(env, readResult.resultPoints());
-                env->SetObjectArrayElement(result, 1, array);
+                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             }
             return static_cast<int>(readResult.format());
         }
@@ -91,57 +86,6 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
 
 }
 
-bool checkSize(int left, int top, int width, int height) {
-    if (left < 0) {
-        left = 0;
-    }
-    if (top < 0) {
-        top = 0;
-    }
-//    if (left > width || top > height) {
-//        LOGE("input data error, left can't larger than width");
-//        return false;
-//    }
-    return true;
-}
-
-void
-convertNV21ToGrayScale(int left, int top, int width, int height, int rowWidth, const jbyte *data,
-                       int *pixels) {
-    int p;
-    int desIndex = 0;
-    int bottom = top + height;
-    int right = left + width;
-    int srcIndex = top * rowWidth;
-    int marginRight = rowWidth - right;
-    for (int i = top; i < bottom; ++i) {
-        srcIndex += left;
-        for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
-            p = data[srcIndex] & 0xFF;
-            pixels[desIndex] = 0xff000000u | p << 16u | p << 8u | p;
-        }
-        srcIndex += marginRight;
-    }
-}
-
-void scaleImage(const Rect &rect_, int rowWidth, const int *pixels, int *scalePixels) {
-    int left = rect_.x;
-    int top = rect_.y;
-    int right = left + rect_.width;
-    int bottom = top + rect_.height;
-    int marginRight = rowWidth - right;
-
-    int desIndex = 0;
-    int srcIndex = top * rowWidth;
-    for (int i = top; i < bottom; ++i) {
-        srcIndex += left;
-        for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
-            scalePixels[desIndex] = pixels[srcIndex];
-        }
-        srcIndex += marginRight;
-    }
-}
-
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
@@ -150,8 +94,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
                                                       jint rowWidth,
                                                       jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-
-    if (!checkSize(left, top, cropWidth, cropHeight)) {
+    ImageUtil imageUtil;
+    if (!imageUtil.checkSize(&left, &top)) {
         return -1;
     }
 
@@ -159,7 +103,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
-        convertNV21ToGrayScale(left, top, cropWidth, cropHeight, rowWidth, bytes, pixels);
+        imageUtil.convertNV21ToGrayAndScale(left, top, cropWidth, cropHeight, rowWidth, bytes,
+                                            pixels);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);

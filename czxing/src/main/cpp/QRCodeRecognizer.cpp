@@ -3,7 +3,7 @@
 //
 
 #include <opencv2/imgproc/types_c.h>
-#include "OpencvProcessor.h"
+#include "QRCodeRecognizer.h"
 #include "opencv2/opencv.hpp"
 #include "JNIUtils.h"
 
