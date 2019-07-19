@@ -153,6 +153,10 @@ public class ScanBoxView extends View {
                 return true;
             }
 
+            if (mTextRect == null) {
+                return super.onTouchEvent(event);
+            }
+
             if (x > mTextRect.left && x < mTextRect.right &&
                     y > mTextRect.top && y < mTextRect.bottom) {
                 if (mFlashLightListener != null) {

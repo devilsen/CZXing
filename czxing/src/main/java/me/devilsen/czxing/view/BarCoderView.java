@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -270,6 +271,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
 
         handleAutoZoom(len);
+        BarCodeUtil.d("len " + len);
     }
 
     private void handleAutoZoom(int len) {
@@ -282,22 +284,31 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
             return;
         }
-        if (System.currentTimeMillis() - mLastAutoZoomTime < 1200) {
+
+        int scanBoxWidth = mScanBoxView.getScanBoxSize();
+        if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
+            if (mAutoZoomAnimator.isRunning()) {
+                mAutoZoomAnimator.cancel();
+            }
             return;
         }
+
+        if (System.currentTimeMillis() - mLastAutoZoomTime < 600) {
+            return;
+        }
+
         Camera.Parameters parameters = mCamera.getParameters();
         if (!parameters.isZoomSupported()) {
             return;
         }
 
-        int scanBoxWidth = mScanBoxView.getScanBoxSize();
-        if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
-            return;
-        }
-        // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
+
+        // 二维码在扫描框中的宽度小于扫描框的 1/2，放大镜头
         final int maxZoom = parameters.getMaxZoom();
-        final int zoomStep = maxZoom / 4;
+        final int zoomStep = maxZoom / 2;
         final int zoom = parameters.getZoom();
+        Log.e("zoom", maxZoom + "    " + len + "     " + zoom);
+
         ExecutorUtil.runOnUiThread(() -> startAutoZoom(zoom, Math.min(zoom + zoomStep, maxZoom)));
     }
 
@@ -309,11 +320,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 return;
             }
             int zoom = (int) animation.getAnimatedValue();
+            Log.e("zoom value ", ""+ zoom);
+
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setZoom(zoom);
             mCamera.setParameters(parameters);
         });
-        mAutoZoomAnimator.setDuration(450);
+        mAutoZoomAnimator.setDuration(600);
         mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
