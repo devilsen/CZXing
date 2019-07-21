@@ -1,4 +1,4 @@
-![Download](https://img.shields.io/badge/Download-0.1.1-blue.svg) 
+![GitHub release](https://img.shields.io/github/release/devilsen/czxing.svg)
 
 # CZXing
 C++ port of ZXing for Android
@@ -8,7 +8,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.2'
+implementation 'me.devilsen:CZXing:0.2.1'
 ```
 
 #### 1. 直接使用
