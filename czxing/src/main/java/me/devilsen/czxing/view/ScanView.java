@@ -38,9 +38,9 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 
     @Override
     public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
-//        if (isStop) {
-//            return;
-//        }
+        if (isStop) {
+            return;
+        }
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
         mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
 //        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
@@ -93,6 +93,8 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 
     @Override
     public void onCardTextClick() {
-
+        if (mScanListener != null) {
+            mScanListener.onClickCard();
+        }
     }
 }

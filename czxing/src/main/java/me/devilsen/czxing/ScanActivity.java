@@ -1,5 +1,6 @@
 package me.devilsen.czxing;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
+import me.devilsen.czxing.view.ScanActivityDelegate;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
@@ -59,7 +61,16 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     @Override
     public void onScanSuccess(String result) {
         BarCodeUtil.d(result);
-        ExecutorUtil.runOnUiThread(() -> Toast.makeText(ScanActivity.this, result, Toast.LENGTH_SHORT).show());
+
+        ScanActivityDelegate.OnScanDelegate scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
+        if (scanDelegate != null) {
+            scanDelegate.onScanResult(result);
+        } else {
+            Intent intent = new Intent(this, ResultActivity.class);
+            intent.putExtra("result", result);
+            startActivity(intent);
+        }
+        finish();
     }
 
     @Override
@@ -67,6 +78,10 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         Log.e("onOpenCameraError", "onOpenCameraError");
     }
 
+    @Override
+    public void onClickCard() {
+
+    }
 
 
 }
