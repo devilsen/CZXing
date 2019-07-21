@@ -97,4 +97,8 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
             mScanListener.onClickCard();
         }
     }
+
+    public void hideCard() {
+        mScanBoxView.hideCardText();
+    }
 }

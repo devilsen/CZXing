@@ -18,7 +18,7 @@ public class DelegateActivity extends AppCompatActivity {
         setContentView(R.layout.activity_delegate);
         String result = getIntent().getStringExtra("result");
 
-        TextView resultTxt = findViewById(me.devilsen.czxing.R.id.text_view_scan_result);
+        TextView resultTxt = findViewById(R.id.text_view_delegate_result);
         resultTxt.setText(result);
     }
 }

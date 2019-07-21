@@ -34,11 +34,20 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermission();
 
-//        ScanActivityDelegate.getInstance().setScanResultDelegate(result -> {
-//            Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-//            intent.putExtra("result", result);
-//            startActivity(intent);
-//        });
+        ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
+            @Override
+            public void onScanResult(String result) {
+                Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+                intent.putExtra("result", result);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onClickCard() {
+                Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void scan(View view) {

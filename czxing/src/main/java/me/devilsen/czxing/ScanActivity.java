@@ -25,17 +25,21 @@ import me.devilsen.czxing.view.ScanView;
 public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     private ScanView mScanView;
+    private ScanActivityDelegate.OnScanDelegate scanDelegate;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
-        BarCodeUtil.setDebug(true);
+        BarCodeUtil.setDebug(false);
         ScreenUtil.setFullScreen(this);
 
         mScanView = findViewById(R.id.surface_view_scan);
         mScanView.setScanListener(this);
+        mScanView.hideCard();
+
+        scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
     }
 
     @Override
@@ -62,7 +66,6 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     public void onScanSuccess(String result) {
         BarCodeUtil.d(result);
 
-        ScanActivityDelegate.OnScanDelegate scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
         if (scanDelegate != null) {
             scanDelegate.onScanResult(result);
         } else {
@@ -80,8 +83,9 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     @Override
     public void onClickCard() {
-
+        if (scanDelegate != null) {
+            scanDelegate.onClickCard();
+        }
     }
-
 
 }

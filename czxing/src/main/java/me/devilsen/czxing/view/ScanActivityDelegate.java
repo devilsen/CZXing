@@ -27,6 +27,8 @@ public class ScanActivityDelegate {
 
     public interface OnScanDelegate {
         void onScanResult(String result);
+
+        void onClickCard();
     }
 
 }

@@ -62,6 +62,7 @@ public class ScanBoxView extends View {
     private ScanBoxClickListener mFlashLightListener;
     // 是否处于黑暗环境
     private boolean isDark;
+    private boolean mDrawCardText = true;
 
     public ScanBoxView(Context context) {
         this(context, null);
@@ -274,6 +275,11 @@ public class ScanBoxView extends View {
                 mFramingRect.bottom + mTextSize * 2,
                 mTxtPaint);
 
+        // 隐藏 我的卡片 文字
+        if (!mDrawCardText){
+            return;
+        }
+
         mTxtPaint.setTextSize(mTextSizeBig);
         mTxtPaint.setColor(mTextColorBig);
         String clickText = "我的名片";
@@ -335,6 +341,13 @@ public class ScanBoxView extends View {
             postInvalidate();
         }
         isDark = dark;
+    }
+
+    /**
+     * 隐藏 我的卡片 功能
+     */
+    public void hideCardText() {
+        this.mDrawCardText = false;
     }
 
     public interface ScanBoxClickListener {
