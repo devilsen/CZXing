@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "29.0.0"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "me.devilsen.czxing"
-        minSdkVersion 16
-        targetSdkVersion 28
+        applicationId rootProject.ext.applicationId
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
 
@@ -33,8 +33,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = rootProject.ext.javaVersion
+        targetCompatibility = rootProject.ext.javaVersion
     }
 
 }
@@ -44,13 +44,13 @@ dependencies {
     implementation project(':czxing')
 //    implementation 'me.devilsen:CZXing:0.1'
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
-
+    implementation rootProject.ext.appcompat
+    testImplementation rootProject.ext.junit
+    androidTestImplementation rootProject.ext.testrunner
+    androidTestImplementation rootProject.ext.testespresso
+    // permission
     implementation 'com.yanzhenjie.permission:x:2.0.1'
-
+    // bugly
     implementation 'com.tencent.bugly:crashreport:3.0.0'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.1'
 

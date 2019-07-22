@@ -1,6 +1,7 @@
 package me.devilsen.czxing;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -32,7 +33,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
-        BarCodeUtil.setDebug(false);
+        BarCodeUtil.setDebug(BuildConfig.DEBUG);
         ScreenUtil.setFullScreen(this);
 
         mScanView = findViewById(R.id.surface_view_scan);

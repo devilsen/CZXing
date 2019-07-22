@@ -2,12 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "0.2.1"
+        versionName "0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -31,8 +31,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
+        sourceCompatibility = rootProject.ext.javaVersion
+        targetCompatibility = rootProject.ext.javaVersion
     }
 
     sourceSets {
@@ -44,11 +44,10 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.3.0-alpha01'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha01'
+    implementation rootProject.ext.appcompat
+    testImplementation rootProject.ext.junit
+    androidTestImplementation rootProject.ext.testrunner
+    androidTestImplementation rootProject.ext.testespresso
 }
 
 apply from: "bintrayUpload.gradle"
