@@ -66,7 +66,7 @@ public:
 	const ByteArray& rawBytes() const {
 		return _rawBytes;
 	}
-
+	
 	int numBits() const {
 		return _numBits;
 	}
