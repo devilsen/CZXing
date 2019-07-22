@@ -29,8 +29,8 @@ static const int QUIET_ZONE_SIZE = 4;
 
 Writer::Writer() :
 	_margin(QUIET_ZONE_SIZE),
-	_ecLevel(ErrorCorrectionLevel::Low),
-	_encoding(CharacterSet::Unknown),
+	_ecLevel(ErrorCorrectionLevel::High),
+	_encoding(CharacterSet::UTF8),
 	_version(0),
 	_useGs1Format(false),
 	_maskPattern(-1)

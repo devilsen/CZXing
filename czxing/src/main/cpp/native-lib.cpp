@@ -152,17 +152,6 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
     return isDark ? JNI_TRUE : JNI_FALSE;
 }
 
-// 需包含locale、string头文件、使用setlocale函数。
-std::wstring StringToWstring(const std::string &str) {// string转wstring
-    unsigned len = str.size() * 2;// 预留字节数
-    setlocale(LC_CTYPE, "zh_CN");     // 必须调用此函数
-    auto *p = new wchar_t[len];// 申请一段内存存放转换后的字符串
-    mbstowcs(p, str.c_str(), len);// 转换
-    std::wstring str1(p);
-    delete[] p;// 释放申请的内存
-    return str1;
-}
-
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_BarcodeReader_writeBarcode(JNIEnv *env, jclass type, jstring content_,
@@ -170,12 +159,8 @@ Java_me_devilsen_czxing_BarcodeReader_writeBarcode(JNIEnv *env, jclass type, jst
     const char *content = env->GetStringUTFChars(content_, 0);
 
     try {
-//        std::wstring wContent = L"你好";
         std::wstring wContent;
-        wContent = StringToWstring(content);
-
-//    ZXing::MultiFormatWriter writer(ZXing::BarcodeFormat(11));
-//    ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
+        wContent = StringToWString(content);
 
         ZXing::MultiFormatWriter writer(ZXing::BarcodeFormat(11));
         ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);

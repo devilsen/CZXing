@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <vector>
 #include <opencv2/core/types.hpp>
+#include <locale.h>
 
 namespace {
 
@@ -84,8 +85,8 @@ BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int 
                       int cropHeight) {
     using namespace ZXing;
 
-    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
-         cropHeight);
+//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
+//         cropHeight);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             cropLeft, cropTop, cropWidth,
@@ -116,6 +117,19 @@ bool AnalysisBrightness(JNIEnv *env, const jbyte *bytes, int width, int height) 
     }
 
     return isDarkEnv;
+}
+
+/**
+ * string转wstring
+ */
+std::wstring StringToWString(const std::string &src) {
+    unsigned len = src.size() * 2;  // 预留字节数
+    setlocale(LC_CTYPE, "");        // 必须调用此函数
+    auto *p = new wchar_t[len];     // 申请一段内存存放转换后的字符串
+    mbstowcs(p, src.c_str(), len);  // 转换
+    std::wstring desc(p);
+    delete[] p;                     // 释放申请的内存
+    return desc;
 }
 
 void ThrowJavaException(JNIEnv *env, const char *message) {

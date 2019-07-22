@@ -37,8 +37,9 @@ class BinaryBitmap;
 // Create BinaryBitmap from Android's Bitmap
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromJavaBitmap(JNIEnv* env, jobject bitmap, int cropLeft, int cropTop, int cropWidth, int cropHeight);
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytes(JNIEnv* env, void *grayscale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
+bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);
+std::wstring StringToWString(const std::string &src);
 void ThrowJavaException(JNIEnv* env, const char* message);
 jstring ToJavaString(JNIEnv* env, const std::wstring& str);
 jfloatArray ToJavaArray(JNIEnv* env, const std::vector<ZXing::ResultPoint>& vector);
 jintArray reactToJavaArray(JNIEnv *env, const cv::Rect &rect);
-bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);

@@ -27,7 +27,7 @@ public class WriteCodeActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.image_view_qr_code);
 
         BarcodeReader reader = new BarcodeReader(BarcodeFormat.QR_CODE);
-        Bitmap bitmap = reader.write("aaabbbccc", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200));
+        Bitmap bitmap = reader.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200));
 
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
