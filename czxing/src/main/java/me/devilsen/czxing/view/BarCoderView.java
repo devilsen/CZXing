@@ -293,7 +293,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             return;
         }
 
-        if (System.currentTimeMillis() - mLastAutoZoomTime < 600) {
+        if (System.currentTimeMillis() - mLastAutoZoomTime < 500) {
             return;
         }
 
@@ -303,9 +303,9 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
 
 
-        // 二维码在扫描框中的宽度小于扫描框的 1/2，放大镜头
+        // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
         final int maxZoom = parameters.getMaxZoom();
-        final int zoomStep = maxZoom / 2;
+        final int zoomStep = maxZoom / 4;
         final int zoom = parameters.getZoom();
         Log.e("zoom", maxZoom + "    " + len + "     " + zoom);
 
@@ -326,7 +326,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             parameters.setZoom(zoom);
             mCamera.setParameters(parameters);
         });
-        mAutoZoomAnimator.setDuration(600);
+        mAutoZoomAnimator.setDuration(450);
         mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
