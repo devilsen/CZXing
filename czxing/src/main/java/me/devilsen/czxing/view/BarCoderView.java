@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -275,13 +274,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     private void handleAutoZoom(int len) {
-        if (mCamera == null || mScanBoxView == null) {
-            return;
-        }
-        if (len <= 10) {
-            return;
-        }
-        if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
+        if (mCamera == null || mScanBoxView == null || len <= 0) {
             return;
         }
 
@@ -290,6 +283,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             if (mAutoZoomAnimator.isRunning()) {
                 mAutoZoomAnimator.cancel();
             }
+            return;
+        }
+
+        if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
             return;
         }
 
@@ -302,12 +299,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             return;
         }
 
-
         // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
         final int maxZoom = parameters.getMaxZoom();
         final int zoomStep = maxZoom / 4;
         final int zoom = parameters.getZoom();
-        Log.e("zoom", maxZoom + "    " + len + "     " + zoom);
+        BarCodeUtil.e(maxZoom + "     " + zoom + "    " + len);
 
         ExecutorUtil.runOnUiThread(() -> startAutoZoom(zoom, Math.min(zoom + zoomStep, maxZoom)));
     }
@@ -320,8 +316,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 return;
             }
             int zoom = (int) animation.getAnimatedValue();
-            Log.e("zoom value ", ""+ zoom);
-
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setZoom(zoom);
             mCamera.setParameters(parameters);

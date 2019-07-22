@@ -101,6 +101,16 @@ public class BarcodeReader {
         return null;
     }
 
+    public Bitmap write(String text, int width, int height) {
+        Object[] result = new Object[1];
+        int resultCode = writeBarcode(text, width, height, result);
+        if (resultCode > -1) {
+            int[] pixels = (int[]) result[0];
+            return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+        }
+        return null;
+    }
+
     public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
         return analysisBrightnessNative(data, imageWidth, imageHeight);
     }
@@ -129,6 +139,8 @@ public class BarcodeReader {
     private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, Object[] result);
 
     public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
+
+    public static native int writeBarcode(String content, int width, int height, Object[] result);
 
     static {
         System.loadLibrary("zxing-lib");

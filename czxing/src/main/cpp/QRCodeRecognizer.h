@@ -10,7 +10,7 @@
 
 using namespace cv;
 
-class OpencvProcessor {
+class QRCodeRecognizer {
 public:
     void processData(int *data, jint w, jint h, Rect *resultRect);
 };

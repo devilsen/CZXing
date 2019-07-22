@@ -8,6 +8,8 @@
 #include "opencv2/opencv.hpp"
 #include "ImageUtil.h"
 #include <vector>
+#include "MultiFormatWriter.h"
+#include "BitMatrix.h"
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -116,7 +118,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
             env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
             return static_cast<int>(readResult.format());
         } else {
-            OpencvProcessor opencvProcessor;
+            QRCodeRecognizer opencvProcessor;
             cv::Rect rect;
             opencvProcessor.processData(pixels, cropWidth, cropHeight, &rect);
             free(pixels);
@@ -148,4 +150,60 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
     return isDark ? JNI_TRUE : JNI_FALSE;
+}
+
+// 需包含locale、string头文件、使用setlocale函数。
+std::wstring StringToWstring(const std::string &str) {// string转wstring
+    unsigned len = str.size() * 2;// 预留字节数
+    setlocale(LC_CTYPE, "zh_CN");     // 必须调用此函数
+    auto *p = new wchar_t[len];// 申请一段内存存放转换后的字符串
+    mbstowcs(p, str.c_str(), len);// 转换
+    std::wstring str1(p);
+    delete[] p;// 释放申请的内存
+    return str1;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_devilsen_czxing_BarcodeReader_writeBarcode(JNIEnv *env, jclass type, jstring content_,
+                                                   jint width, jint height, jobjectArray result) {
+    const char *content = env->GetStringUTFChars(content_, 0);
+
+    try {
+//        std::wstring wContent = L"你好";
+        std::wstring wContent;
+        wContent = StringToWstring(content);
+
+//    ZXing::MultiFormatWriter writer(ZXing::BarcodeFormat(11));
+//    ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
+
+        ZXing::MultiFormatWriter writer(ZXing::BarcodeFormat(11));
+        ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
+
+        if (bitMatrix.empty()) {
+            return -1;
+        }
+
+        int size = width * height;
+        jintArray pixels = env->NewIntArray(size);
+        int black = 0xff000000;
+        int white = 0xffffffff;
+        int index = 0;
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                int pix = bitMatrix.get(i, j) ? black : white;
+                env->SetIntArrayRegion(pixels, index, 1, &pix);
+                index++;
+            }
+        }
+        env->SetObjectArrayElement(result, 0, pixels);
+        env->ReleaseStringUTFChars(content_, content);
+    }
+    catch (const std::exception &e) {
+        ThrowJavaException(env, e.what());
+    }
+    catch (...) {
+        ThrowJavaException(env, "Unknown exception");
+    }
+    return 0;
 }

@@ -45,7 +45,7 @@ void check_center(vector<vector<Point> > c, vector<int> &index) {
     }
 }
 
-void OpencvProcessor::processData(int *data, jint w, jint h, Rect *resultRect) {
+void QRCodeRecognizer::processData(int *data, jint w, jint h, Rect *resultRect) {
 
     Mat gray(h, w, CV_8UC4, data);
     // 进行canny化，变成黑白线条构成的图片

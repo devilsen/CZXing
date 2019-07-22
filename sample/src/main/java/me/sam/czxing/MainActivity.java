@@ -61,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
         resultTxt.setText(result.getText());
     }
 
+    public void write(View view) {
+        Intent intent = new Intent(this, WriteCodeActivity.class);
+        startActivity(intent);
+    }
+
     public void openScan(View view) {
         Intent intent = new Intent(this, ScanActivity.class);
         startActivity(intent);
@@ -79,4 +84,5 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .start();
     }
+
 }

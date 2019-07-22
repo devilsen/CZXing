@@ -30,6 +30,7 @@
         </activity>
         <activity android:name=".DelegateActivity" />
         <activity android:name=".MyCardActivity" />
+        <activity android:name=".WriteCodeActivity" />
 
     </application>
 
