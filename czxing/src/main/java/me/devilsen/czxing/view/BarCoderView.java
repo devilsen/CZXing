@@ -36,12 +36,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     protected boolean mSpotAble;
     private int scanSequence;
-    private long processLastTime;
-    private long mLastAutoZoomTime;
 
     protected ScanListener mScanListener;
     private ValueAnimator mAutoZoomAnimator;
 
+    private long processLastTime;
+    private long mLastAutoZoomTime;
     private long mDelayTime = 3 * ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
