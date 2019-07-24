@@ -95,3 +95,5 @@ Bitmap bitmap = reader.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCod
 
 [apk下载](https://github.com/devilsen/CZXing/releases)
 
+[设计思路](https://www.jianshu.com/p/e2866af44236)
+
