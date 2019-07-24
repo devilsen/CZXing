@@ -26,6 +26,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private static final int NO_CAMERA_ID = -1;
     private static final int DEFAULT_ZOOM_SCALE = 4;
+    private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
+    private final static long DELAY_STEP_TIME = 20000000;
 
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Camera mCamera;
@@ -39,6 +41,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     protected ScanListener mScanListener;
     private ValueAnimator mAutoZoomAnimator;
+
+    private long mDelayTime = 3 * ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -75,7 +79,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         long now = System.nanoTime();
-        if (Math.abs(now - processLastTime) < 300000000) {
+        if (Math.abs(now - processLastTime) < mDelayTime) {
             return;
         }
         processLastTime = now;
@@ -88,19 +92,15 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
             int left;
             int top;
-            int rowWidth;
-            int rowHeight;
+            int rowWidth = size.width;
+            int rowHeight = size.height;
             // 这里需要把得到的数据也翻转
             if (CameraUtil.isPortrait(getContext())) {
                 left = scanBoxRect.top;
                 top = scanBoxRect.left;
-                rowWidth = size.width;
-                rowHeight = size.height;
             } else {
                 left = scanBoxRect.left;
                 top = scanBoxRect.top;
-                rowWidth = size.height;
-                rowHeight = size.width;
             }
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 
@@ -280,7 +280,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
         int scanBoxWidth = mScanBoxView.getScanBoxSize();
         if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
-            if (mAutoZoomAnimator.isRunning()) {
+            if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
                 mAutoZoomAnimator.cancel();
             }
             return;
@@ -290,7 +290,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             return;
         }
 
-        if (System.currentTimeMillis() - mLastAutoZoomTime < 500) {
+        if (System.currentTimeMillis() - mLastAutoZoomTime < 450) {
             return;
         }
 
@@ -301,11 +301,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
         // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
         final int maxZoom = parameters.getMaxZoom();
+        // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
+        final int maxCanZoom = maxZoom * 3 / 4;
         final int zoomStep = maxZoom / 4;
         final int zoom = parameters.getZoom();
-        BarCodeUtil.e(maxZoom + "     " + zoom + "    " + len);
+        BarCodeUtil.e("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
-        ExecutorUtil.runOnUiThread(() -> startAutoZoom(zoom, Math.min(zoom + zoomStep, maxZoom)));
+        ExecutorUtil.runOnUiThread(() -> startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom)));
     }
 
 
@@ -320,7 +322,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             parameters.setZoom(zoom);
             mCamera.setParameters(parameters);
         });
-        mAutoZoomAnimator.setDuration(450);
+        mAutoZoomAnimator.setDuration(420);
         mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
@@ -332,6 +334,23 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         if (mAutoZoomAnimator != null) {
             mAutoZoomAnimator.cancel();
         }
+    }
+
+    /**
+     * 设置时间回调处理间隔
+     *
+     * @param queueSize 阻塞线程中正在处理的线程数
+     */
+    void setQueueSize(int queueSize) {
+        if (queueSize == 0 && mDelayTime > ONE_HUNDRED_MILLISECONDS) {
+            mDelayTime -= DELAY_STEP_TIME;
+        }
+
+        if (queueSize > 1) {
+            mDelayTime += DELAY_STEP_TIME;
+        }
+
+        BarCodeUtil.d("delay time : " + mDelayTime / 1000000);
     }
 
     public void onDestroy() {

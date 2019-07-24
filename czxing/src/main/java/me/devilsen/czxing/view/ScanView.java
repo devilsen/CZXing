@@ -42,7 +42,8 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
             return;
         }
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-        mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+        setQueueSize(queueSize);
 //        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
 //
 //        if (result != null) {
