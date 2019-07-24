@@ -1,12 +1,12 @@
 package me.devilsen.czxing.thread;
 
-import android.util.Log;
-
 import java.util.Deque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * desc : 任务分发器
@@ -41,13 +41,14 @@ public final class Dispatcher {
         return newRunnable(new FrameData(data, left, top, width, height, rowWidth), callback);
     }
 
-    synchronized void enqueue(ProcessRunnable runnable) {
+    synchronized int enqueue(ProcessRunnable runnable) {
         if (blockingDeque.size() > MAX_RUNNABLE) {
             blockingDeque.remove();
         }
 
         execute(runnable);
-        Log.e(TAG, "   blockingDeque: " + blockingDeque.size());
+        BarCodeUtil.d("blockingDeque: " + blockingDeque.size());
+        return blockingDeque.size();
     }
 
     private synchronized void execute(Runnable runnable) {
@@ -78,7 +79,7 @@ public final class Dispatcher {
 
     public synchronized void cancelAll() {
         for (Runnable runnable : blockingDeque) {
-            ((ProcessRunnable)runnable).cancel();
+            ((ProcessRunnable) runnable).cancel();
         }
         blockingDeque.clear();
     }

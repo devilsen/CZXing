@@ -66,7 +66,7 @@ public class ProcessRunnable implements Runnable {
         mBarcodeProcessor.cancel();
     }
 
-    public void enqueue() {
-        dispatcher.enqueue(this);
+    public int enqueue() {
+        return dispatcher.enqueue(this);
     }
 }
