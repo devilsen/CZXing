@@ -154,10 +154,10 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeReader_writeBarcode(JNIEnv *env, jclass type, jstring content_,
-                                                   jint width, jint height, jobjectArray result) {
+Java_me_devilsen_czxing_BarcodeWriter_writeBarcode(JNIEnv *env, jclass type, jstring content_,
+                                                   jint width, jint height, jint color,
+                                                   jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
-
     try {
         std::wstring wContent;
         wContent = StringToWString(content);
@@ -171,7 +171,7 @@ Java_me_devilsen_czxing_BarcodeReader_writeBarcode(JNIEnv *env, jclass type, jst
 
         int size = width * height;
         jintArray pixels = env->NewIntArray(size);
-        int black = 0xff000000;
+        int black = color;
         int white = 0xffffffff;
         int index = 0;
         for (int i = 0; i < height; ++i) {

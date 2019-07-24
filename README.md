@@ -8,24 +8,46 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.2.1'
+implementation 'me.devilsen:CZXing:0.3'
+```
+建议加入abiFilters
+```gradle
+    defaultConfig {
+        
+        // 其他设置...
+
+        ndk {
+            // 设置支持的so库架构
+            abiFilters "armeabi-v7a","arm64-v8a"
+        }
+    }
 ```
 
 #### 1. 直接使用
 你可以直接使用已经封装好的ScanActivity作为扫码界面
 ```java
 Intent intent = new Intent(this, ScanActivity.class);
-                      startActivity(intent);
+startActivity(intent);
 ```
 
-使用ScanActivity来接管扫描返回的数据
+使用ScanActivityDelegate来接管扫描返回的数据
 ```java
-ScanActivityDelegate.getInstance().setScanResultDelegate(result -> {
-    Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-    intent.putExtra("result", result);
-    startActivity(intent);
+ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
+    @Override
+    public void onScanResult(String result) {
+        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+        intent.putExtra("result", result);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClickCard() {
+        Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
+        startActivity(intent);
+    }
 });
 ```
+
 #### 2. 自定义界面
 或者使用ScanView来自定义你的界面
 ```xml
@@ -55,11 +77,21 @@ mScanView.setScanListener(new ScanListener() {
 });
 ```
 
-如果你需要展示 我的卡片 可以选择关闭
+如果不需要展示 我的卡片 可以选择关闭
 ```java
 mScanView.hideCard();
 ```
 
+#### 3. 生成二维码
+调用以下代码，可生成二维码的bitmap，Color为可选参数，默认为黑色。
+```java
+BarcodeWriter reader = new BarcodeWriter();
+Bitmap bitmap = reader.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200), Color.RED);
+```
+
+
 ### 效果展示
 [点击观看](https://www.bilibili.com/video/av59888116)
+
+[apk下载](https://github.com/devilsen/CZXing/releases)
 

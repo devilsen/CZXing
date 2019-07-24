@@ -15,13 +15,13 @@ android {
 
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a","arm64-v8a"
             }
         }
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters "armeabi-v7a"
+            abiFilters "armeabi-v7a","arm64-v8a"
         }
     }
 
@@ -41,8 +41,8 @@ android {
 
 dependencies {
 
-    implementation project(':czxing')
-//    implementation 'me.devilsen:CZXing:0.1'
+//    implementation project(':czxing')
+    implementation 'me.devilsen:CZXing:0.3'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit

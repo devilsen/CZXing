@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.BarcodeWriter;
 import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
@@ -26,7 +27,7 @@ public class WriteCodeActivity extends AppCompatActivity {
 
         ImageView imageView = findViewById(R.id.image_view_qr_code);
 
-        BarcodeReader reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+        BarcodeWriter reader = new BarcodeWriter();
         Bitmap bitmap = reader.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200));
 
         if (bitmap != null) {
