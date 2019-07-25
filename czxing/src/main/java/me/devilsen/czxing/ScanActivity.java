@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
+import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
@@ -24,6 +25,7 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
 
     private ScanView mScanView;
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
+    private SoundPoolUtil mSoundPoolUtil;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +40,9 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
         mScanView.hideCard();
 
         scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
+
+        mSoundPoolUtil = new SoundPoolUtil();
+        mSoundPoolUtil.loadDefault(this);
     }
 
     @Override
@@ -57,12 +62,14 @@ public class ScanActivity extends AppCompatActivity implements ScanListener {
     @Override
     protected void onDestroy() {
         mScanView.onDestroy(); // 销毁二维码扫描控件
+        mSoundPoolUtil.release();
         super.onDestroy();
     }
 
     @Override
     public void onScanSuccess(String result) {
         BarCodeUtil.d(result);
+        mSoundPoolUtil.play();
 
         if (scanDelegate != null) {
             scanDelegate.onScanResult(result);

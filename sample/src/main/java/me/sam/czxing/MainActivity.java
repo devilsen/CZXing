@@ -16,7 +16,6 @@ import com.yanzhenjie.permission.runtime.Permission;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.ScanActivity;
-import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,20 +33,20 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermission();
 
-        ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
-            @Override
-            public void onScanResult(String result) {
-                Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-                intent.putExtra("result", result);
-                startActivity(intent);
-            }
-
-            @Override
-            public void onClickCard() {
-                Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
-                startActivity(intent);
-            }
-        });
+//        ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
+//            @Override
+//            public void onScanResult(String result) {
+//                Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+//                intent.putExtra("result", result);
+//                startActivity(intent);
+//            }
+//
+//            @Override
+//            public void onClickCard() {
+//                Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
+//                startActivity(intent);
+//            }
+//        });
     }
 
     public void scan(View view) {

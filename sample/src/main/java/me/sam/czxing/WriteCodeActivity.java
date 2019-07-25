@@ -9,8 +9,6 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import me.devilsen.czxing.BarcodeFormat;
-import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.BarcodeWriter;
 import me.devilsen.czxing.util.BarCodeUtil;
 
@@ -30,14 +28,14 @@ public class WriteCodeActivity extends AppCompatActivity {
         ImageView qrcodeImage = findViewById(R.id.image_view_qr_code_1);
         ImageView qrcodeLogoImage = findViewById(R.id.image_view_qr_code_2);
 
-        BarcodeWriter reader = new BarcodeWriter();
-        Bitmap bitmap1 = reader.write("Hello World",
+        BarcodeWriter writer = new BarcodeWriter();
+        Bitmap bitmap1 = writer.write("Hello World",
                 BarCodeUtil.dp2px(this, 200),
                 Color.BLACK);
 
-        Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+        Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_avatar);
 
-        Bitmap bitmap2 = reader.write("Hello World",
+        Bitmap bitmap2 = writer.write("你好，世界",
                 BarCodeUtil.dp2px(this, 200),
                 Color.parseColor("#2196F3"),
                 logoBitmap);

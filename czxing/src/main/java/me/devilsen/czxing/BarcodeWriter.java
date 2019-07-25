@@ -1,8 +1,9 @@
 package me.devilsen.czxing;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
+
+import me.devilsen.czxing.util.BitmapUtil;
 
 /**
  * desc : 生成二维码处理
@@ -52,35 +53,8 @@ public class BarcodeWriter {
             bitmap = Bitmap.createBitmap(pixels, size, size, Bitmap.Config.ARGB_8888);
             // 添加logo
             if (logo != null) {
-                bitmap = addLogoInQRCode(bitmap, logo);
+                bitmap = BitmapUtil.addLogoInQRCode(bitmap, logo);
             }
-        }
-        return bitmap;
-    }
-
-    /**
-     * 添加logo到二维码图片上
-     */
-    private static Bitmap addLogoInQRCode(Bitmap src, Bitmap logo) {
-        if (src == null || logo == null) {
-            return src;
-        }
-
-        int srcWidth = src.getWidth();
-        int srcHeight = src.getHeight();
-        int logoWidth = logo.getWidth();
-        int logoHeight = logo.getHeight();
-
-        Bitmap bitmap = Bitmap.createBitmap(srcWidth, srcHeight, Bitmap.Config.ARGB_8888);
-        try {
-            Canvas canvas = new Canvas(bitmap);
-            canvas.drawBitmap(src, 0, 0, null);
-            canvas.drawBitmap(logo, (srcWidth - logoWidth) >> 1, (srcHeight - logoHeight) >> 1, null);
-            canvas.save();
-            canvas.restore();
-        } catch (Exception e) {
-            e.printStackTrace();
-            bitmap = src;
         }
         return bitmap;
     }
