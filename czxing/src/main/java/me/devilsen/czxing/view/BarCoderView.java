@@ -27,7 +27,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private static final int NO_CAMERA_ID = -1;
     private static final int DEFAULT_ZOOM_SCALE = 4;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
-    private final static long DELAY_STEP_TIME = 20000000;
+    private final static long DELAY_STEP_TIME = 10000000;
 
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Camera mCamera;
@@ -281,7 +281,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         int scanBoxWidth = mScanBoxView.getScanBoxSize();
         if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
             if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
-                mAutoZoomAnimator.cancel();
+                ExecutorUtil.runOnUiThread(() -> mAutoZoomAnimator.cancel());
             }
             return;
         }
@@ -347,7 +347,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
 
         if (queueSize > 1) {
-            mDelayTime += DELAY_STEP_TIME;
+            mDelayTime += DELAY_STEP_TIME * 2;
         }
 
         BarCodeUtil.d("delay time : " + mDelayTime / 1000000);

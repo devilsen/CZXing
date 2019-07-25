@@ -69,7 +69,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         if (result == null) {
             return;
         }
-        if (!TextUtils.isEmpty(result.getText())) {
+        if (!TextUtils.isEmpty(result.getText()) && !isStop) {
             mDispatcher.cancelAll();
             isStop = true;
             if (mScanListener != null) {

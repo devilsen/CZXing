@@ -59,7 +59,7 @@ void QRCodeRecognizer::processData(int *data, jint w, jint h, Rect *resultRect) 
     vector<vector<Point>> found_contours;
     findContours(binary, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 //    Mat result = Mat::zeros(gray.size(), CV_8UC4);
-    for (size_t t = 0; t < contours.size(); ++t) {
+    for (int t = 0; t < contours.size(); ++t) {
         double area = contourArea(contours[t]);
         if (area < 150) continue;
 
@@ -89,7 +89,7 @@ void QRCodeRecognizer::processData(int *data, jint w, jint h, Rect *resultRect) 
         vector<int> indexs(4, -1);
         check_center(found_contours, indexs);
         vector<Point> final;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; ++i) {
             if (indexs[i] == -1) {
                 continue;
             }
