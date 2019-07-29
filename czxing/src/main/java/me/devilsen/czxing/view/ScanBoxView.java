@@ -339,6 +339,13 @@ public class ScanBoxView extends View {
         return mBoxSize + mBoxSizeOffset;
     }
 
+    /**
+     * 有的手机得到的数据会有所偏移（如：华为P20），这里放大了获取到的数据
+     */
+    public int getExpandTop() {
+        return mBoxSizeOffset;
+    }
+
     public Point getScanBoxCenter() {
         int centerX = mBoxLeft + (mBoxSize >> 1);
         int centerY = mBoxTop + (mBoxSize >> 1);

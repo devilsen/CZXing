@@ -35,11 +35,11 @@ public class SaveImageUtil {
         int[] rgba = applyGrayScaleRotate(data, left, top, width, height, rowWidth);
 //        int[] rgbaRotate = rotate(rgba, width, height, width);
 
-        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        bmp.setPixels(rgba, 0, width, 0, 0, width, height);
+//        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        bmp.setPixels(rgba, 0, width, 0, 0, width, height);
         // 当长宽不一样时，要注意图像的正反
-//        Bitmap bmp = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
-//        bmp.setPixels(rgba, 0, height, 0, 0, height, width);
+        Bitmap bmp = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
+        bmp.setPixels(rgba, 0, height, 0, 0, height, width);
         saveImage(bmp);
 
 //        bmp = getBinaryzationBitmap(bmp);

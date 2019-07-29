@@ -87,6 +87,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         try {
             Rect scanBoxRect = mScanBoxView.getScanBoxRect();
             int scanBoxSize = mScanBoxView.getScanBoxSizeExpand();
+            int expandTop = mScanBoxView.getExpandTop();
             Camera.Parameters parameters = mCamera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
 
@@ -96,11 +97,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             int rowHeight = size.height;
             // 这里需要把得到的数据也翻转
             if (CameraUtil.isPortrait(getContext())) {
-                left = scanBoxRect.top;
+                left = scanBoxRect.top - expandTop;
                 top = scanBoxRect.left;
             } else {
                 left = scanBoxRect.left;
-                top = scanBoxRect.top;
+                top = scanBoxRect.top - expandTop;
             }
             onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
 

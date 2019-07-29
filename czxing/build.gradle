@@ -6,14 +6,14 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "0.3"
+        versionCode 3
+        versionName "0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a","arm64-v8a"
             }
         }
     }

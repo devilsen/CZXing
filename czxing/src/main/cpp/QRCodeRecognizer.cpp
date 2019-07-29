@@ -48,7 +48,7 @@ void check_center(vector<vector<Point> > c, vector<int> &index) {
 void QRCodeRecognizer::processData(int *data, jint w, jint h, Rect *resultRect) {
 
     Mat gray(h, w, CV_8UC4, data);
-    imwrite("/storage/emulated/0/scan/src.jpg", gray);
+//    imwrite("/storage/emulated/0/scan/src.jpg", gray);
     // 进行canny化，变成黑白线条构成的图片
     Mat binary;
     Canny(gray, binary, 100, 255, 3);

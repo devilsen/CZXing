@@ -64,7 +64,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
                 BarcodeFormat.UPC_EAN_EXTENSION
         );
 
-//        writeQrCode();
+        writeQrCode();
         writeBarCode();
 
         barcodeImage.setOnClickListener(this);
