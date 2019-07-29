@@ -105,8 +105,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
-        imageUtil.convertNV21ToGrayAndScale(left, top, cropWidth, cropHeight, rowWidth, bytes,
-                                            pixels);
+        imageUtil.convertNV21ToGrayScaleRotate(left, top, cropWidth, cropHeight, rowWidth, bytes,
+                                               pixels);
 
         auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
@@ -154,15 +154,16 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeWriter_writeBarcode(JNIEnv *env, jclass type, jstring content_,
-                                                   jint width, jint height, jint color,
-                                                   jobjectArray result) {
+Java_me_devilsen_czxing_BarcodeWriter_writeCode(JNIEnv *env, jclass type, jstring content_,
+                                                jint width, jint height, jint color,
+                                                jstring format_, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
+    const char *format = env->GetStringUTFChars(format_, 0);
     try {
         std::wstring wContent;
         wContent = StringToWString(content);
 
-        ZXing::MultiFormatWriter writer(ZXing::BarcodeFormat(11));
+        ZXing::MultiFormatWriter writer(ZXing::BarcodeFormatFromString(format));
         ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
 
         if (bitMatrix.empty()) {
@@ -176,12 +177,13 @@ Java_me_devilsen_czxing_BarcodeWriter_writeBarcode(JNIEnv *env, jclass type, jst
         int index = 0;
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
-                int pix = bitMatrix.get(i, j) ? black : white;
+                int pix = bitMatrix.get(j, i) ? black : white;
                 env->SetIntArrayRegion(pixels, index, 1, &pix);
                 index++;
             }
         }
         env->SetObjectArrayElement(result, 0, pixels);
+        env->ReleaseStringUTFChars(format_, format);
         env->ReleaseStringUTFChars(content_, content);
     }
     catch (const std::exception &e) {

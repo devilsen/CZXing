@@ -29,8 +29,8 @@ public:
      * @param data 输入文件
      * @param pixels 输出文件
      */
-    void convertNV21ToGrayAndScale(int left, int top, int width, int height, int rowWidth,
-                                   const jbyte *data, int *pixels);
+    void convertNV21ToGrayScaleRotate(int left, int top, int width, int height, int rowWidth,
+                                      const jbyte *data, int *pixels);
 
 
     /**

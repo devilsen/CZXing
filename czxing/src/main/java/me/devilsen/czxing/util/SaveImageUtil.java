@@ -26,19 +26,26 @@ public class SaveImageUtil {
             return;
         }
         time = System.currentTimeMillis();
+
+//        left -= 120;
+
         Log.e("save >>> ", "left = " + left + " top= " + top +
                 " width=" + width + " height= " + height + " row=" + rowWidth);
 
-        int[] rgba = applyGrayScale(data, left, top, width, height, rowWidth);
+        int[] rgba = applyGrayScaleRotate(data, left, top, width, height, rowWidth);
+//        int[] rgbaRotate = rotate(rgba, width, height, width);
 
         Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bmp.setPixels(rgba, 0, width, 0, 0, width, height);
+        // 当长宽不一样时，要注意图像的正反
+//        Bitmap bmp = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
+//        bmp.setPixels(rgba, 0, height, 0, 0, height, width);
         saveImage(bmp);
 
-        bmp = getBinaryzationBitmap(bmp);
+//        bmp = getBinaryzationBitmap(bmp);
 //        Bitmap bmp = rawByteArray2RGBABitmap2(data, rowWidth, width);
 
-        saveImage(bmp);
+//        saveImage(bmp);
 
         bmp.recycle();
     }
@@ -49,6 +56,7 @@ public class SaveImageUtil {
         int desIndex = 0;
         int srcIndex = top * rowWidth;
         int margin = rowWidth - left - width;
+
         for (int i = top; i < height + top; ++i) {
             srcIndex += left;
             for (int j = left; j < left + width; ++j, ++desIndex, ++srcIndex) {
@@ -56,6 +64,36 @@ public class SaveImageUtil {
                 pixels[desIndex] = 0xff000000 | p << 16 | p << 8 | p;
             }
             srcIndex += margin;
+        }
+        return pixels;
+    }
+
+    private static int[] applyGrayScaleRotate(byte[] data, int left, int top, int width, int height, int rowWidth) {
+        int p;
+        int[] pixels = new int[width * height];
+        int desIndex = 0;
+        int bottom = top + height;
+        int right = left + width;
+        int srcIndex;
+        for (int i = left; i < right; ++i) {
+            srcIndex = (bottom - 1) * rowWidth + i;
+            for (int j = 0; j < height; ++j, ++desIndex, srcIndex -= rowWidth) {
+                p = data[srcIndex] & 0xFF;
+                pixels[desIndex] = 0xff000000 | p << 16 | p << 8 | p;
+            }
+        }
+        return pixels;
+    }
+
+    private static int[] rotate(int[] data, int width, int height, int rowWidth) {
+        int[] pixels = new int[width * height];
+        int desIndex = 0;
+        int srcIndex;
+        for (int i = 0; i < width; ++i) {
+            srcIndex = (height - 1) * rowWidth + i;
+            for (int j = 0; j < height; ++j, ++desIndex, srcIndex -= rowWidth) {
+                pixels[desIndex] = data[srcIndex];
+            }
         }
         return pixels;
     }

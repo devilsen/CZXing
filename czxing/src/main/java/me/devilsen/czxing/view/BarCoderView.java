@@ -86,7 +86,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
         try {
             Rect scanBoxRect = mScanBoxView.getScanBoxRect();
-            int scanBoxSize = mScanBoxView.getScanBoxSize();
+            int scanBoxSize = mScanBoxView.getScanBoxSizeExpand();
             Camera.Parameters parameters = mCamera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
 

@@ -14,21 +14,19 @@ bool ImageUtil::checkSize(int *left, int *top) {
     return true;
 }
 
-void ImageUtil::convertNV21ToGrayAndScale(int left, int top, int width, int height, int rowWidth,
-                                          const jbyte *data, int *pixels) {
+void ImageUtil::convertNV21ToGrayScaleRotate(int left, int top, int width, int height, int rowWidth,
+                                             const jbyte *data, int *pixels) {
     int p;
     int desIndex = 0;
     int bottom = top + height;
     int right = left + width;
-    int srcIndex = top * rowWidth;
-    int marginRight = rowWidth - right;
-    for (int i = top; i < bottom; ++i) {
-        srcIndex += left;
-        for (int j = left; j < right; ++j, ++desIndex, ++srcIndex) {
+    int srcIndex;
+    for (int i = left; i < right; ++i) {
+        srcIndex = (bottom - 1) * rowWidth + i;
+        for (int j = 0; j < height; ++j, ++desIndex, srcIndex -= rowWidth) {
             p = data[srcIndex] & 0xFF;
             pixels[desIndex] = 0xff000000u | p << 16u | p << 8u | p;
         }
-        srcIndex += marginRight;
     }
 }
 

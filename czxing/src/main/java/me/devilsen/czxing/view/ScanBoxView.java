@@ -42,6 +42,7 @@ public class ScanBoxView extends View {
 
     private int mTopOffset;
     private int mBoxSize;
+    private int mBoxSizeOffset;
 
     private int mBorderColor;
     private float mBorderSize;
@@ -91,6 +92,7 @@ public class ScanBoxView extends View {
 
         mBoxSize = BarCodeUtil.dp2px(context, 200);
         mTopOffset = -BarCodeUtil.dp2px(context, 10);
+        mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
 
         mBorderColor = Color.WHITE;
         mBorderSize = BarCodeUtil.dp2px(context, 1);
@@ -276,7 +278,7 @@ public class ScanBoxView extends View {
                 mTxtPaint);
 
         // 隐藏 我的卡片 文字
-        if (!mDrawCardText){
+        if (!mDrawCardText) {
             return;
         }
 
@@ -328,6 +330,13 @@ public class ScanBoxView extends View {
 
     public int getScanBoxSize() {
         return mBoxSize;
+    }
+
+    /**
+     * 有的手机得到的数据会有所偏移（如：华为P20），这里放大了获取到的数据
+     */
+    public int getScanBoxSizeExpand() {
+        return mBoxSize + mBoxSizeOffset;
     }
 
     public Point getScanBoxCenter() {
