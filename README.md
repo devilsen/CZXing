@@ -3,12 +3,12 @@
 # CZXing
 C++ port of ZXing for Android
 
-加入了OpenCV的图像处理，能在更远的距离进行放大操作，并且能更快的识别出二维码。
+底层使用C++来处理图像及解析二维码，并且加入了OpenCV来解析图像，可以在更远的距离识别出二维码。
 
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.3'
+implementation 'me.devilsen:CZXing:0.4.4'
 ```
 建议加入abiFilters
 ```gradle
@@ -17,7 +17,7 @@ implementation 'me.devilsen:CZXing:0.3'
         // 其他设置...
 
         ndk {
-            // 设置支持的so库架构
+            // 设置支持的so库架构，设置一个可以减小包的大小
             abiFilters "armeabi-v7a","arm64-v8a"
         }
     }
@@ -85,8 +85,8 @@ mScanView.hideCard();
 #### 3. 生成二维码
 调用以下代码，可生成二维码的bitmap，Color为可选参数，默认为黑色。
 ```java
-BarcodeWriter reader = new BarcodeWriter();
-Bitmap bitmap = reader.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200), Color.RED);
+BarcodeWriter writer = new BarcodeWriter();
+Bitmap bitmap = writer.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200), Color.RED);
 ```
 
 
