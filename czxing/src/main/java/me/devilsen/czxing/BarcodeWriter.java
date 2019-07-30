@@ -67,6 +67,19 @@ public class BarcodeWriter {
      * @param text   要生成的文字（不支持中文）
      * @param width  图片宽
      * @param height 图片高
+     * @param format 一维码格式
+     * @return 一维码bitmap
+     */
+    public Bitmap writeBarCode(String text, int width, int height, BarcodeFormat format) {
+        return write(text, width, height, Color.BLACK, format, null);
+    }
+
+    /**
+     * 生成一维码
+     *
+     * @param text   要生成的文字（不支持中文）
+     * @param width  图片宽
+     * @param height 图片高
      * @param color  一维码颜色
      * @return 一维码bitmap
      */

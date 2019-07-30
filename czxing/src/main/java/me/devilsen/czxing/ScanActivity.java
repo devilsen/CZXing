@@ -66,7 +66,6 @@ public class ScanActivity extends Activity implements ScanListener {
 
     @Override
     public void onScanSuccess(String result) {
-        BarCodeUtil.d(result);
         mSoundPoolUtil.play();
 
         if (scanDelegate != null) {
