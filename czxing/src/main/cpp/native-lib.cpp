@@ -108,7 +108,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         imageUtil.convertNV21ToGrayScaleRotate(left, top, cropWidth, cropHeight, rowWidth, bytes,
                                                pixels);
 
-        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
+        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropHeight, cropWidth);
         auto readResult = reader->read(*binImage);
 
         if (readResult.isValid()) {

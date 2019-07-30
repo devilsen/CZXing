@@ -20,7 +20,7 @@ void ImageUtil::convertNV21ToGrayScaleRotate(int left, int top, int width, int h
     int desIndex = 0;
     int bottom = top + height;
     int right = left + width;
-    int srcIndex;
+    int srcIndex = 0;
     for (int i = left; i < right; ++i) {
         srcIndex = (bottom - 1) * rowWidth + i;
         for (int j = 0; j < height; ++j, ++desIndex, srcIndex -= rowWidth) {
