@@ -1,5 +1,6 @@
 package me.devilsen.czxing;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -9,20 +10,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 /**
  * @author : dongSen
  * date : 2019/07/21
  * desc : 扫码结果显示界面
  */
-public class ResultActivity extends AppCompatActivity implements View.OnClickListener {
+public class ResultActivity extends Activity implements View.OnClickListener {
 
     private TextView resultTxt;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_result);
         String result = getIntent().getStringExtra("result");
@@ -41,6 +39,6 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
         ClipData mClipData = ClipData.newPlainText("", resultTxt.getText().toString());
         // 将ClipData内容放到系统剪贴板里。
         cm.setPrimaryClip(mClipData);
-        Toast.makeText(this,"已复制",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "已复制", Toast.LENGTH_SHORT).show();
     }
 }

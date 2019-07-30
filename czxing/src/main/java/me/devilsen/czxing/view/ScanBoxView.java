@@ -15,10 +15,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
-import androidx.annotation.Nullable;
-
-import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.R;
+import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * @author : dongSen
@@ -69,11 +67,11 @@ public class ScanBoxView extends View {
         this(context, null);
     }
 
-    public ScanBoxView(Context context, @Nullable AttributeSet attrs) {
+    public ScanBoxView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ScanBoxView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ScanBoxView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }

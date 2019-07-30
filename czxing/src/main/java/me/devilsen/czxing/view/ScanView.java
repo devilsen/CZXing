@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
-import androidx.annotation.Nullable;
-
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
@@ -26,11 +24,11 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         this(context, null);
     }
 
-    public ScanView(Context context, @Nullable AttributeSet attrs) {
+    public ScanView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ScanView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ScanView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mDispatcher = new Dispatcher();
         mScanBoxView.setScanBoxClickListener(this);

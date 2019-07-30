@@ -3,8 +3,6 @@ package me.devilsen.czxing.thread;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -18,13 +16,12 @@ public class ExecutorUtil {
     private static Executor sIOExecutor;
 
 
-
     private synchronized static Executor getMainExecutor() {
         if (sMainExecutor == null) {
             sMainHandler = new Handler(Looper.getMainLooper());
             sMainExecutor = new Executor() {
                 @Override
-                public void execute(@NonNull Runnable command) {
+                public void execute(Runnable command) {
                     sMainHandler.post(command);
                 }
             };

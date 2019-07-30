@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import androidx.annotation.Nullable;
-
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
@@ -48,11 +46,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         this(context, null);
     }
 
-    public BarCoderView(Context context, @Nullable AttributeSet attrs) {
+    public BarCoderView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public BarCoderView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public BarCoderView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }

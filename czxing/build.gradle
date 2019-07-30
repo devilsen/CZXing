@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "0.4"
+        versionCode 4
+        versionName "0.4.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -44,7 +44,7 @@ android {
 
 dependencies {
 
-    implementation rootProject.ext.appcompat
+//    implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
-import androidx.annotation.RawRes;
-
 import me.devilsen.czxing.R;
 
 /**
@@ -33,7 +31,7 @@ public class SoundPoolUtil {
      * @param context 上下文
      * @param resId   资源ID
      */
-    public void load(Context context, @RawRes int resId) {
+    public void load(Context context, int resId) {
         mSoundId = mSoundPool.load(context, resId, 1);
     }
 

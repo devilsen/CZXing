@@ -1,11 +1,9 @@
 package me.devilsen.czxing;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
@@ -21,14 +19,14 @@ import me.devilsen.czxing.view.ScanView;
  *
  * @author : dongSen
  */
-public class ScanActivity extends AppCompatActivity implements ScanListener {
+public class ScanActivity extends Activity implements ScanListener {
 
     private ScanView mScanView;
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
     private SoundPoolUtil mSoundPoolUtil;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
