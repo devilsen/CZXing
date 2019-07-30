@@ -1,16 +1,13 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="CzxingAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="CzxingAppTheme" parent="android:Theme.Black.NoTitleBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/czxing_color_primary</item>
-        <item name="colorPrimaryDark">@color/czxing_color_primaryDark</item>
-        <item name="colorAccent">@color/czxing_color_accent</item>
     </style>
 
     <style name="ScanTheme" parent="CzxingAppTheme">
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@color/czxing_black</item>
+        <item name="android:windowBackground">@null</item>
     </style>
 
 </resources>
