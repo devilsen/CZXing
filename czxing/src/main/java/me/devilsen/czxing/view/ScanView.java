@@ -92,14 +92,8 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         mCameraSurface.toggleFlashLight(isDark);
     }
 
-    @Override
-    public void onCardTextClick() {
-        if (mScanListener != null) {
-            mScanListener.onClickCard();
-        }
-    }
-
     public void hideCard() {
         mScanBoxView.hideCardText();
     }
+
 }

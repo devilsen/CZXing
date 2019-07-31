@@ -11,7 +11,7 @@ project.ext {
     abortOnLintError = false
     checkLintRelease = false
     abortOnLintError = false
-    javaVersion = "1.8"
+    javaVersion = "1.7"
 
     appcompat = "androidx.appcompat:appcompat:${supportVersion}"
 

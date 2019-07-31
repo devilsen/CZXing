@@ -1,14 +1,20 @@
 package me.devilsen.czxing;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
+import me.devilsen.czxing.view.ScanBoxView;
 import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
@@ -21,6 +27,7 @@ import me.devilsen.czxing.view.ScanView;
  */
 public class ScanActivity extends Activity implements ScanListener {
 
+    private static final int PERMISSIONS_REQUEST_CAMERA = 1;
     private ScanView mScanView;
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
     private SoundPoolUtil mSoundPoolUtil;
@@ -41,6 +48,20 @@ public class ScanActivity extends Activity implements ScanListener {
 
         mSoundPoolUtil = new SoundPoolUtil();
         mSoundPoolUtil.loadDefault(this);
+
+        initData();
+        requestPermission();
+    }
+
+    private void initData() {
+        ScannerManager.ScanOption option = getIntent().getParcelableExtra("option");
+        if (option == null) {
+            return;
+        }
+        ScanBoxView scanBox = mScanView.getScanBox();
+        scanBox.setCornerColor(option.getCornerColor());
+        scanBox.setBorderColor(option.getBorderColor());
+        scanBox.setScanLineColor(option.getScanLineColors());
     }
 
     @Override
@@ -83,11 +104,25 @@ public class ScanActivity extends Activity implements ScanListener {
         Log.e("onOpenCameraError", "onOpenCameraError");
     }
 
-    @Override
-    public void onClickCard() {
-        if (scanDelegate != null) {
-            scanDelegate.onClickCard();
+    private void requestPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    PERMISSIONS_REQUEST_CAMERA);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mScanView.openCamera();
+                mScanView.startScan();
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 }

@@ -28,7 +28,7 @@ public class ScanBoxTestActivity extends Activity {
 
         Resources resources = getResources();
         scanBoxView.setCornerColor(resources.getColor(R.color.corner));
-        scanBoxView.setScanBoxLineColor(resources.getColor(R.color.box_line));
+        scanBoxView.setBorderColor(resources.getColor(R.color.box_line));
         List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
         scanBoxView.setScanLineColor(scanColors);
         scanBoxView.hideCardText();
@@ -38,12 +38,6 @@ public class ScanBoxTestActivity extends Activity {
             @Override
             public void onFlashLightClick() {
                 Log.e("ScanBox", "onFlashLightClick");
-            }
-
-            @Override
-            public void onCardTextClick() {
-                Log.e("ScanBox", "onCardTextClick");
-
             }
         });
     }

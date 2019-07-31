@@ -1,6 +1,7 @@
 package me.sam.czxing;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -10,12 +11,17 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 
+import java.util.Arrays;
+import java.util.List;
+
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.ScanActivity;
+import me.devilsen.czxing.Scanner;
+import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,25 +34,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         resultTxt = findViewById(R.id.text_view_result);
-
         reader = new BarcodeReader(BarcodeFormat.QR_CODE);
-
         requestPermission();
-
-//        ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
-//            @Override
-//            public void onScanResult(String result) {
-//                Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-//                intent.putExtra("result", result);
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onClickCard() {
-//                Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
-//                startActivity(intent);
-//            }
-//        });
     }
 
     public void scan(View view) {
@@ -66,8 +55,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openScan(View view) {
-        Intent intent = new Intent(this, ScanActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, ScanActivity.class);
+//        startActivity(intent);
+        Resources resources = getResources();
+        List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
+
+        Scanner.with(this)
+                .setBorderColor(resources.getColor(R.color.box_line))
+                .setCornerColor(resources.getColor(R.color.corner))
+                .setScanLineColors(scanColors)
+                .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
+                    @Override
+                    public void onScanResult(String result) {
+                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+                        intent.putExtra("result", result);
+                        startActivity(intent);
+                    }
+                })
+                .start();
     }
 
     public void openScanBox(View view) {
@@ -75,16 +80,21 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
     private void requestPermission() {
         AndPermission.with(this)
                 .runtime()
                 .permission(Permission.Group.CAMERA, Permission.Group.STORAGE)
-                .onGranted(permissions -> {
-                    // Storage permission are allowed.
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+
+                    }
                 })
-                .onDenied(permissions -> {
-                    // Storage permission are not allowed.
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+
+                    }
                 })
                 .start();
     }

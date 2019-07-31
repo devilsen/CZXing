@@ -13,6 +13,7 @@
 
         <activity
             android:name=".ScanActivity"
+            android:launchMode="singleTop"
             android:theme="@style/ScanTheme" />
 
         <activity android:name=".ResultActivity" />

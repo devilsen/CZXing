@@ -8,7 +8,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.4.4'
+implementation 'me.devilsen:CZXing:0.5'
 ```
 建议加入abiFilters
 ```gradle
@@ -26,26 +26,22 @@ implementation 'me.devilsen:CZXing:0.4.4'
 #### 1. 直接使用
 你可以直接使用已经封装好的ScanActivity作为扫码界面
 ```java
-Intent intent = new Intent(this, ScanActivity.class);
-startActivity(intent);
-```
+Resources resources = getResources();
+List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
-使用ScanActivityDelegate来接管扫描返回的数据
-```java
-ScanActivityDelegate.getInstance().setScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
-    @Override
-    public void onScanResult(String result) {
-        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-        intent.putExtra("result", result);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onClickCard() {
-        Intent intent = new Intent(MainActivity.this, MyCardActivity.class);
-        startActivity(intent);
-    }
-});
+Scanner.with(this)
+        .setBorderColor(resources.getColor(R.color.box_line)) // 扫码框边框颜色
+        .setCornerColor(resources.getColor(R.color.corner))   // 扫码框角颜色
+        .setScanLineColors(scanColors)                        // 扫描线颜色（这是一个渐变颜色）
+        .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
+            @Override
+            public void onScanResult(String result) {
+                Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+                intent.putExtra("result", result);
+                startActivity(intent);
+            }
+        })
+        .start();
 ```
 
 #### 2. 自定义界面
@@ -69,17 +65,7 @@ mScanView.setScanListener(new ScanListener() {
     public void onOpenCameraError() {
         // 打开相机出错
     }
-
-    @Override
-    public void onClickCard() {
-        // 点击我的卡片
-    }
 });
-```
-
-如果不需要展示 我的卡片 可以选择关闭
-```java
-mScanView.hideCard();
 ```
 
 #### 3. 生成二维码

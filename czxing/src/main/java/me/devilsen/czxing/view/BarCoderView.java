@@ -58,7 +58,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private void init(Context context) {
         setBackground(null);
         mCameraSurface = new CameraSurface(context);
-        mCameraSurface.setPreviewListener(this::setPreviewCallback);
+        mCameraSurface.setPreviewListener(new CameraSurface.SurfacePreviewListener() {
+            @Override
+            public void onStartPreview() {
+                setPreviewCallback();
+            }
+        });
 
         FrameLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
@@ -281,7 +286,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         int scanBoxWidth = mScanBoxView.getScanBoxSize();
         if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
             if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
-                ExecutorUtil.runOnUiThread(() -> mAutoZoomAnimator.cancel());
+                ExecutorUtil.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAutoZoomAnimator.cancel();
+                    }
+                });
             }
             return;
         }
@@ -307,20 +317,28 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         final int zoom = parameters.getZoom();
         BarCodeUtil.e("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
-        ExecutorUtil.runOnUiThread(() -> startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom)));
+        ExecutorUtil.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom));
+            }
+        });
     }
 
 
     private void startAutoZoom(int oldZoom, int newZoom) {
         mAutoZoomAnimator = ValueAnimator.ofInt(oldZoom, newZoom);
-        mAutoZoomAnimator.addUpdateListener(animation -> {
-            if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
-                return;
+        mAutoZoomAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
+                    return;
+                }
+                int zoom = (int) animation.getAnimatedValue();
+                Camera.Parameters parameters = mCamera.getParameters();
+                parameters.setZoom(zoom);
+                mCamera.setParameters(parameters);
             }
-            int zoom = (int) animation.getAnimatedValue();
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setZoom(zoom);
-            mCamera.setParameters(parameters);
         });
         mAutoZoomAnimator.setDuration(420);
         mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -351,6 +369,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
 
         BarCodeUtil.d("delay time : " + mDelayTime / 1000000);
+    }
+
+    public ScanBoxView getScanBox() {
+        return mScanBoxView;
     }
 
     public void onDestroy() {

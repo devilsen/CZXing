@@ -18,9 +18,4 @@ public interface ScanListener {
      * 处理打开相机出错
      */
     void onOpenCameraError();
-
-    /**
-     * 点击我的卡片
-     */
-    void onClickCard();
 }

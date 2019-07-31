@@ -65,7 +65,7 @@ public class ScanBoxView extends View {
     private ScanBoxClickListener mFlashLightListener;
     // 是否处于黑暗环境
     private boolean isDark;
-    private boolean mDrawCardText = true;
+    private boolean mDrawCardText;
     private boolean isLightOn;
 
     private int mScanLineColor1;
@@ -176,19 +176,6 @@ public class ScanBoxView extends View {
                 }
                 return true;
             }
-
-            if (mTextRect == null) {
-                return super.onTouchEvent(event);
-            }
-
-            if (x > mTextRect.left && x < mTextRect.right &&
-                    y > mTextRect.top && y < mTextRect.bottom) {
-                if (mFlashLightListener != null) {
-                    mFlashLightListener.onCardTextClick();
-                }
-                return true;
-            }
-
         }
         return super.onTouchEvent(event);
     }
@@ -412,13 +399,19 @@ public class ScanBoxView extends View {
      * 设定四个角的颜色
      */
     public void setCornerColor(int color) {
+        if (color == 0) {
+            return;
+        }
         this.mCornerColor = color;
     }
 
     /**
      * 设定扫描框的边框颜色
      */
-    public void setScanBoxLineColor(int color) {
+    public void setBorderColor(int color) {
+        if (color == 0) {
+            return;
+        }
         this.mBorderColor = color;
     }
 
@@ -448,7 +441,5 @@ public class ScanBoxView extends View {
 
     public interface ScanBoxClickListener {
         void onFlashLightClick();
-
-        void onCardTextClick();
     }
 }

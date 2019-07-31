@@ -287,13 +287,16 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
             if (isNeedUpdate) {
                 mCamera.cancelAutoFocus();
                 mCamera.setParameters(focusMeteringParameters);
-                mCamera.autoFocus((success, camera) -> {
-                    if (success) {
-                        BarCodeUtil.d("对焦测光成功");
-                    } else {
-                        BarCodeUtil.e("对焦测光失败");
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if (success) {
+                            BarCodeUtil.d("对焦测光成功");
+                        } else {
+                            BarCodeUtil.e("对焦测光失败");
+                        }
+                        startContinuousAutoFocus();
                     }
-                    startContinuousAutoFocus();
                 });
             } else {
                 mIsTouchFocusing = false;

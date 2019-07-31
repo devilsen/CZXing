@@ -35,6 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="openScanBox"
-        android:text="openScanBox" />
+        android:text="openScanBox"
+        android:visibility="gone" />
 
 </LinearLayout>
