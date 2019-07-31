@@ -70,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void openScanBox(View view) {
+        Intent intent = new Intent(this, ScanBoxTestActivity.class);
+        startActivity(intent);
+    }
+
 
     private void requestPermission() {
         AndPermission.with(this)

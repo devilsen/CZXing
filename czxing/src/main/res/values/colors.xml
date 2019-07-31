@@ -6,8 +6,18 @@
 
     <color name="czxing_black">#000000</color>
 
-    <color name="color_scan_1">#0D4AD34F</color>
-    <color name="color_scan_2">#830CCE14</color>
-    <color name="color_scan_3">#FF0CCE14</color>
+    <!-- 蒙层颜色 -->
+    <color name="czxing_line_mask">#33000000</color>
+    <color name="czxing_line_border">#C5C3C3</color>
+    <color name="czxing_line_corner">#05C705</color>
+
+    <!-- 文字颜色 -->
+    <color name="czxing_text_normal">#F8F8F8</color>
+    <color name="czxing_text_big">#BC0ED118</color>
+
+    <!-- 扫描线的渐变颜色 -->
+    <color name="czxing_scan_1">#0D4AD34F</color>
+    <color name="czxing_scan_2">#830CCE14</color>
+    <color name="czxing_scan_3">#FF0CCE14</color>
 
 </resources>

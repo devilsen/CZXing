@@ -30,4 +30,11 @@
         android:onClick="openScan"
         android:text="openScan" />
 
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="openScanBox"
+        android:text="openScanBox" />
+
 </LinearLayout>

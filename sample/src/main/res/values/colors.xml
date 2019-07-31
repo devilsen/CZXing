@@ -6,7 +6,10 @@
 
     <color name="black">#000000</color>
 
-    <color name="color_scan_1">#0D4AD34F</color>
-    <color name="color_scan_2">#830CCE14</color>
-    <color name="color_scan_3">#FF0CCE14</color>
+    <color name="corner">#2196F3</color>
+    <color name="box_line">#64B5FA</color>
+
+    <color name="scan_side">#2A017CB4</color>
+    <color name="scan_partial">#B20493D5</color>
+    <color name="scan_middle">#00AFFF</color>
 </resources>

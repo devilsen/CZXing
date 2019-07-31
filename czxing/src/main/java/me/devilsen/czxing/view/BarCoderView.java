@@ -211,6 +211,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         try {
             stopSpotAndHiddenRect();
             if (mCamera != null) {
+                mCameraSurface.closeFlashlight();
                 mCameraSurface.stopCameraPreview();
                 mCameraSurface.setCamera(null);
                 mCamera.release();

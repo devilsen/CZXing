@@ -3,6 +3,7 @@ package me.devilsen.czxing.view;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -15,8 +16,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
+import java.util.List;
+
 import me.devilsen.czxing.R;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.BitmapUtil;
 
 /**
  * @author : dongSen
@@ -62,6 +66,18 @@ public class ScanBoxView extends View {
     // 是否处于黑暗环境
     private boolean isDark;
     private boolean mDrawCardText = true;
+    private boolean isLightOn;
+
+    private int mScanLineColor1;
+    private int mScanLineColor2;
+    private int mScanLineColor3;
+
+    private Bitmap mLightOn;
+    private Bitmap mLightOff;
+    private int mFlashLightLeft;
+    private int mFlashLightTop;
+    private int mFlashLightRight;
+    private int mFlashLightBottom;
 
     public ScanBoxView(Context context) {
         this(context, null);
@@ -84,18 +100,24 @@ public class ScanBoxView extends View {
         mTxtPaint = new Paint();
         mTxtPaint.setAntiAlias(true);
 
-        mMaskColor = Color.parseColor("#33000000");
-        mTextColor = Color.parseColor("#FFF8F8F8");
-        mTextColorBig = Color.parseColor("#BC0ED118");
+        Resources resources = getResources();
+
+        mMaskColor = resources.getColor(R.color.czxing_line_mask);
+        mTextColor = resources.getColor(R.color.czxing_text_normal);
+        mTextColorBig = resources.getColor(R.color.czxing_text_big);
+
+        mScanLineColor1 = resources.getColor(R.color.czxing_scan_1);
+        mScanLineColor2 = resources.getColor(R.color.czxing_scan_2);
+        mScanLineColor3 = resources.getColor(R.color.czxing_scan_3);
 
         mBoxSize = BarCodeUtil.dp2px(context, 200);
         mTopOffset = -BarCodeUtil.dp2px(context, 10);
         mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
 
-        mBorderColor = Color.WHITE;
+        mBorderColor = resources.getColor(R.color.czxing_line_border);
         mBorderSize = BarCodeUtil.dp2px(context, 1);
 
-        mCornerColor = Color.GREEN;
+        mCornerColor = resources.getColor(R.color.czxing_line_corner);
         mCornerLength = BarCodeUtil.dp2px(context, 20);
         mCornerSize = BarCodeUtil.dp2px(context, 3);
         mHalfCornerSize = 1.0f * mCornerSize / 2;
@@ -145,10 +167,11 @@ public class ScanBoxView extends View {
             float x = event.getX();
             float y = event.getY();
 
-            if (x > mFramingRect.left && x < mFramingRect.right &&
-                    y > (mFramingRect.top + (mBoxSize >> 2)) && y < mFramingRect.bottom) {
+            if (x > mFlashLightLeft && x < mFlashLightRight &&
+                    y > mFlashLightTop && y < mFlashLightBottom) {
                 if (mFlashLightListener != null) {
                     mFlashLightListener.onFlashLightClick();
+                    isLightOn = !isLightOn;
                     invalidate();
                 }
                 return true;
@@ -242,13 +265,8 @@ public class ScanBoxView extends View {
      */
     private void drawScanLine(Canvas canvas) {
         if (mScanLineGradient == null) {
-            Resources resources = getResources();
-            int color1 = resources.getColor(R.color.color_scan_1);
-            int color2 = resources.getColor(R.color.color_scan_2);
-            int color3 = resources.getColor(R.color.color_scan_3);
-
             mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop,
-                    new int[]{color1, color2, color3, color2, color1},
+                    new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
                     null,
                     Shader.TileMode.CLAMP);
             mScanLinePaint.setShader(mScanLineGradient);
@@ -264,11 +282,13 @@ public class ScanBoxView extends View {
     private void drawTipText(Canvas canvas) {
         mTxtPaint.setTextSize(mTextSize);
         mTxtPaint.setColor(mTextColor);
-        if (isDark) {
+        if (isDark || isLightOn) {
             canvas.drawText("点击打开闪光灯",
                     mFramingRect.left + (mBoxSize >> 1),
                     mFramingRect.bottom - mTextSize,
                     mTxtPaint);
+
+            drawFlashLight(canvas);
         }
         canvas.drawText("将二维码/条形码放入扫描框",
                 mFramingRect.left + (mBoxSize >> 1),
@@ -297,6 +317,37 @@ public class ScanBoxView extends View {
             mTextRect.right = mTextRect.left + width + 10;
             mTextRect.top = mFramingRect.bottom + mTextSize * 6 - 10;
             mTextRect.bottom = mTextRect.top + height + 10;
+        }
+    }
+
+    /**
+     * 画手电筒
+     */
+    private void drawFlashLight(Canvas canvas) {
+        if (mLightOff == null) {
+            mLightOff = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_black_close_24dp);
+        }
+        if (mLightOn == null) {
+            mLightOn = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_black_open_24dp);
+        }
+        if (mFlashLightLeft == 0 && mLightOff != null) {
+            mFlashLightLeft = mFramingRect.left + ((mFramingRect.width() - mLightOff.getWidth()) >> 1);
+            mFlashLightTop = mFramingRect.bottom - (mTextSize << 2);
+            mFlashLightRight = mFlashLightLeft + mLightOff.getWidth();
+            mFlashLightBottom = mFlashLightTop + mLightOff.getHeight();
+        }
+        drawFlashLightBitmap(canvas);
+    }
+
+    private void drawFlashLightBitmap(Canvas canvas) {
+        if (isLightOn) {
+            if (mLightOn != null) {
+                canvas.drawBitmap(mLightOn, mFlashLightLeft, mFlashLightTop, mPaint);
+            }
+        } else {
+            if (mLightOff != null) {
+                canvas.drawBitmap(mLightOff, mFlashLightLeft, mFlashLightTop, mPaint);
+            }
         }
     }
 
@@ -338,7 +389,7 @@ public class ScanBoxView extends View {
     }
 
     /**
-     * 有的手机得到的数据会有所偏移（如：华为P20），这里放大了获取到的数据
+     * 获取数据偏移量
      */
     public int getExpandTop() {
         return mBoxSizeOffset;
@@ -355,6 +406,37 @@ public class ScanBoxView extends View {
             postInvalidate();
         }
         isDark = dark;
+    }
+
+    /**
+     * 设定四个角的颜色
+     */
+    public void setCornerColor(int color) {
+        this.mCornerColor = color;
+    }
+
+    /**
+     * 设定扫描框的边框颜色
+     */
+    public void setScanBoxLineColor(int color) {
+        this.mBorderColor = color;
+    }
+
+    /**
+     * 设定扫描线的颜色
+     *
+     * @param colors 渐变颜色组合
+     */
+    public void setScanLineColor(List<Integer> colors) {
+        if (colors == null || colors.size() < 3) {
+            return;
+        }
+
+        mScanLineColor1 = colors.get(0);
+        mScanLineColor2 = colors.get(1);
+        mScanLineColor3 = colors.get(2);
+
+        mScanLineGradient = null;
     }
 
     /**
