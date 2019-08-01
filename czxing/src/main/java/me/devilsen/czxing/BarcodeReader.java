@@ -132,7 +132,7 @@ public class BarcodeReader {
     public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
 
     static {
-        System.loadLibrary("zxing-lib");
+        System.loadLibrary("zxing");
     }
 
 }

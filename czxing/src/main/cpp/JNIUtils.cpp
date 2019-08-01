@@ -110,7 +110,7 @@ bool AnalysisBrightness(JNIEnv *env, const jbyte *bytes, int width, int height) 
     // 平均亮度
     long cameraLight = pixelLightCount / (pixelCount / step);
     bool isDarkEnv = false;
-    LOGE("平均亮度 %ld", cameraLight);
+//    LOGE("平均亮度 %ld", cameraLight);
     // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
     if (cameraLight < 60) {
         isDarkEnv = true;

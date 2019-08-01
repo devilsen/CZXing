@@ -115,7 +115,7 @@ public class BarcodeWriter {
     public static native int writeCode(String content, int width, int height, int color, String format, Object[] result);
 
     static {
-        System.loadLibrary("zxing-lib");
+        System.loadLibrary("zxing");
     }
 
 }
