@@ -20,4 +20,8 @@
     <color name="czxing_scan_2">#830CCE14</color>
     <color name="czxing_scan_3">#FF0CCE14</color>
 
+    <!-- button -->
+    <color name="czxing_button_normal">#DFDDDD</color>
+    <color name="czxing_button_press">#AAA9A9</color>
+
 </resources>

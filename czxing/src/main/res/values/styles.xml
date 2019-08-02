@@ -1,9 +1,9 @@
 <resources>
 
-    <style name="ScanTheme" parent="android:Theme.Material.NoActionBar">
+    <style name="ScanTheme" parent="android:Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@null</item>
     </style>
 
-    <style name="ScanResultTheme" parent="android:Theme.Material" />
+    <style name="ScanResultTheme" parent="android:Theme.Light.NoTitleBar" />
 
 </resources>
