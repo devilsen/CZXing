@@ -123,13 +123,28 @@ bool AnalysisBrightness(JNIEnv *env, const jbyte *bytes, int width, int height) 
  * string转wstring
  */
 std::wstring StringToWString(const std::string &src) {
-    unsigned len = src.size() * 2;  // 预留字节数
-    setlocale(LC_CTYPE, "");        // 必须调用此函数
+    unsigned long len = src.size() * 2;  // 预留字节数
+    setlocale(LC_CTYPE, "");        // 必须调用此函数,但是会造成污染
     auto *p = new wchar_t[len];     // 申请一段内存存放转换后的字符串
     mbstowcs(p, src.c_str(), len);  // 转换
     std::wstring desc(p);
     delete[] p;                     // 释放申请的内存
     return desc;
+}
+
+std::wstring ANSIToUnicode(const std::string &str) {
+    std::wstring ret;
+    std::mbstate_t state = {};
+    const char *src = str.data();
+    size_t len = std::mbsrtowcs(nullptr, &src, 0, &state);
+    if (static_cast<size_t>(-1) != len) {
+        std::unique_ptr<wchar_t[]> buff(new wchar_t[len + 1]);
+        len = std::mbsrtowcs(buff.get(), &src, len, &state);
+        if (static_cast<size_t>(-1) != len) {
+            ret.assign(buff.get(), len);
+        }
+    }
+    return ret;
 }
 
 void ThrowJavaException(JNIEnv *env, const char *message) {

@@ -161,7 +161,7 @@ Java_me_devilsen_czxing_BarcodeWriter_writeCode(JNIEnv *env, jclass type, jstrin
     const char *format = env->GetStringUTFChars(format_, 0);
     try {
         std::wstring wContent;
-        wContent = StringToWString(content);
+        wContent = ANSIToUnicode(content);
 
         ZXing::MultiFormatWriter writer(ZXing::BarcodeFormatFromString(format));
         ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);

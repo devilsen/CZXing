@@ -77,7 +77,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
 
         Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_avatar);
 
-        Bitmap bitmap2 = writer.write("你好，世界",
+        Bitmap bitmap2 = writer.write("你好，こんにちは，여보세요",
                 BarCodeUtil.dp2px(this, 150),
                 Color.parseColor("#2196F3"),
                 logoBitmap);
