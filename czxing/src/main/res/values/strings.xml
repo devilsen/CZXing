@@ -1,3 +1,4 @@
 <resources>
-    <string name="module_name">CZXing</string>
+    <string name="module_name">czxing</string>
+    <string name="copy">复制</string>
 </resources>

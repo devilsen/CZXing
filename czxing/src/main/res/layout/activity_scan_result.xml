@@ -18,6 +18,6 @@
         android:id="@+id/button_scan_copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="copy"/>
+        android:text="@string/copy" />
 
 </LinearLayout>

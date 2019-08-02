@@ -21,7 +21,6 @@ import java.util.List;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.Scanner;
-import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,14 +63,14 @@ public class MainActivity extends AppCompatActivity {
                 .setBorderColor(resources.getColor(R.color.box_line))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
-                .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
-                    @Override
-                    public void onScanResult(String result) {
-                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-                        intent.putExtra("result", result);
-                        startActivity(intent);
-                    }
-                })
+//                .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
+//                    @Override
+//                    public void onScanResult(String result) {
+//                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+//                        intent.putExtra("result", result);
+//                        startActivity(intent);
+//                    }
+//                })
                 .start();
     }
 

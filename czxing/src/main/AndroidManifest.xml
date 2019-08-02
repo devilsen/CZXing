@@ -16,7 +16,10 @@
             android:launchMode="singleTop"
             android:theme="@style/ScanTheme" />
 
-        <activity android:name=".ResultActivity" />
+        <activity
+            android:name=".ResultActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/ScanResultTheme" />
     </application>
 
 </manifest>
