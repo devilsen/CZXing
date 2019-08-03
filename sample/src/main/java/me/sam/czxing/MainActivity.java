@@ -1,10 +1,14 @@
 package me.sam.czxing;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -21,9 +25,13 @@ import java.util.List;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.Scanner;
+import me.devilsen.czxing.util.BitmapUtil;
+import me.devilsen.czxing.util.SaveImageUtil;
+import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
     private BarcodeReader reader;
 
@@ -39,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
-        BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
+        BarcodeReader.Result result = reader.read(bitmap);
 
         if (result == null) {
             Log.e("Scan >>> ", "no code");
@@ -63,14 +71,28 @@ public class MainActivity extends AppCompatActivity {
                 .setBorderColor(resources.getColor(R.color.box_line))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
-//                .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
-//                    @Override
-//                    public void onScanResult(String result) {
-//                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-//                        intent.putExtra("result", result);
-//                        startActivity(intent);
-//                    }
-//                })
+                .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
+                    @Override
+                    public void onClickAlbum(Activity activity) {
+                        Intent albumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        activity.startActivityForResult(albumIntent, CODE_SELECT_IMAGE);
+                    }
+
+                    @Override
+                    public void onSelectData(int requestCode, Intent data) {
+                        if (requestCode == CODE_SELECT_IMAGE) {
+                            selectPic(data);
+                        }
+                    }
+                })
+                .setOnScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
+                    @Override
+                    public void onScanResult(String result) {
+                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+                        intent.putExtra("result", result);
+                        startActivity(intent);
+                    }
+                })
                 .start();
     }
 
@@ -98,4 +120,31 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
+    private void selectPic(Intent intent) {
+        Uri selectImageUri = intent.getData();
+        if (selectImageUri == null) {
+            return;
+        }
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(selectImageUri, filePathColumn, null, null, null);
+        if (cursor == null) {
+            return;
+        }
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnIndex);
+        cursor.close();
+
+        Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+        if (bitmap == null) {
+            return;
+        }
+
+        BarcodeReader.Result result = reader.read(bitmap);
+        if (result == null) {
+            Log.e("Scan >>> ", "no code");
+            return;
+        }
+        resultTxt.setText(result.getText());
+    }
 }

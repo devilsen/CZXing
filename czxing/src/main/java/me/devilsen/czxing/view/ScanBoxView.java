@@ -169,7 +169,8 @@ public class ScanBoxView extends View {
 
             if (x > mFlashLightLeft && x < mFlashLightRight &&
                     y > mFlashLightTop && y < mFlashLightBottom) {
-                if (mFlashLightListener != null) {
+                // 在亮度不够的情况下，或者在打开闪光灯的情况下才可以点击
+                if (mFlashLightListener != null && (isDark || isLightOn)) {
                     mFlashLightListener.onFlashLightClick();
                     isLightOn = !isLightOn;
                     invalidate();

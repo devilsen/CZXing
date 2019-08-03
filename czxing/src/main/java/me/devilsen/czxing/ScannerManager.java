@@ -41,7 +41,7 @@ public class ScannerManager {
         return this;
     }
 
-    public ScannerManager setDelegate(ScanActivityDelegate.OnScanDelegate delegate) {
+    public ScannerManager setOnScanResultDelegate(ScanActivityDelegate.OnScanDelegate delegate) {
         ScanActivityDelegate.getInstance().setScanResultDelegate(delegate);
         return this;
     }
@@ -50,6 +50,11 @@ public class ScannerManager {
         Intent intent = new Intent(context, ScanActivity.class);
         intent.putExtra("option", scanOption);
         context.startActivity(intent);
+    }
+
+    public ScannerManager setOnClickAlbumDelegate(ScanActivityDelegate.OnClickAlbumDelegate onClickAlbumDelegate) {
+        ScanActivityDelegate.getInstance().setOnClickAlbumDelegate(onClickAlbumDelegate);
+        return this;
     }
 
     public static class ScanOption implements Parcelable {

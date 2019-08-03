@@ -1,4 +1,6 @@
 <resources>
     <string name="module_name">czxing</string>
     <string name="copy">复制</string>
+    <string name="album">相册</string>
+    <string name="QRCode">扫一扫</string>
 </resources>

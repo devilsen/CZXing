@@ -92,4 +92,28 @@ public class BitmapUtil {
         }
         return bitmap;
     }
+
+    /**
+     * 将本地图片文件转换成可解码二维码的 Bitmap
+     *
+     * @param picturePath 本地图片文件路径
+     */
+    public static Bitmap getDecodeAbleBitmap(String picturePath) {
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(picturePath, options);
+            int sampleSize = options.outHeight / 800;
+            if (sampleSize <= 0) {
+                sampleSize = 1;
+            }
+            options.inSampleSize = sampleSize;
+            options.inJustDecodeBounds = false;
+
+            return BitmapFactory.decodeFile(picturePath, options);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

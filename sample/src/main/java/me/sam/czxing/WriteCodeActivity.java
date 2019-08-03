@@ -116,7 +116,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void read(Bitmap bitmap) {
-        BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
+        BarcodeReader.Result result = reader.read(bitmap);
         if (result != null) {
             Log.d("read code", result.getText() + " format " + result.getFormat());
             Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();

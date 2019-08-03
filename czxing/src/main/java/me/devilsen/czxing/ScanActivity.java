@@ -5,7 +5,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import me.devilsen.czxing.compat.ActivityCompat;
@@ -25,11 +32,12 @@ import me.devilsen.czxing.view.ScanView;
  *
  * @author : dongSen
  */
-public class ScanActivity extends Activity implements ScanListener {
+public class ScanActivity extends Activity implements ScanListener, View.OnClickListener {
 
     private static final int PERMISSIONS_REQUEST_CAMERA = 1;
     private ScanView mScanView;
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
+    private ScanActivityDelegate.OnClickAlbumDelegate clickAlbumDelegate;
     private SoundPoolUtil mSoundPoolUtil;
 
     @Override
@@ -40,11 +48,20 @@ public class ScanActivity extends Activity implements ScanListener {
         BarCodeUtil.setDebug(BuildConfig.DEBUG);
         ScreenUtil.setFullScreen(this);
 
+        LinearLayout titleLayout = findViewById(R.id.layout_scan_title);
+        ImageView backImg = findViewById(R.id.image_scan_back);
+        TextView album = findViewById(R.id.text_view_scan_album);
         mScanView = findViewById(R.id.surface_view_scan);
+
+        backImg.setOnClickListener(this);
+        album.setOnClickListener(this);
         mScanView.setScanListener(this);
-        mScanView.hideCard();
+
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) titleLayout.getLayoutParams();
+        layoutParams.topMargin = ScreenUtil.getStatusBarHeight(this);
 
         scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
+        clickAlbumDelegate = ScanActivityDelegate.getInstance().getOnClickAlbumDelegate();
 
         mSoundPoolUtil = new SoundPoolUtil();
         mSoundPoolUtil.loadDefault(this);
@@ -83,6 +100,18 @@ public class ScanActivity extends Activity implements ScanListener {
         mScanView.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.image_scan_back) {
+            finish();
+        } else if (id == R.id.text_view_scan_album) {
+            if (clickAlbumDelegate != null) {
+                clickAlbumDelegate.onClickAlbum(this);
+            }
+        }
     }
 
     @Override
@@ -125,4 +154,12 @@ public class ScanActivity extends Activity implements ScanListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && clickAlbumDelegate != null) {
+            clickAlbumDelegate.onSelectData(requestCode, data);
+            finish();
+        }
+    }
 }

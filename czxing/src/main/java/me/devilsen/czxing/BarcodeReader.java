@@ -63,15 +63,11 @@ public class BarcodeReader {
         _nativePtr = createInstance(nativeFormats);
     }
 
-    public Result read(Bitmap bitmap, int cropWidth, int cropHeight) {
+    public Result read(Bitmap bitmap) {
         int imgWidth = bitmap.getWidth();
         int imgHeight = bitmap.getHeight();
-        cropWidth = cropWidth <= 0 ? imgWidth : Math.min(imgWidth, cropWidth);
-        cropHeight = cropHeight <= 0 ? imgHeight : Math.min(imgHeight, cropHeight);
-        int cropLeft = (imgWidth - cropWidth) / 2;
-        int cropTop = (imgHeight - cropHeight) / 2;
         Object[] result = new Object[2];
-        int resultFormat = readBarcode(_nativePtr, bitmap, cropLeft, cropTop, cropWidth, cropHeight, result);
+        int resultFormat = readBarcode(_nativePtr, bitmap, 0, 0, imgWidth, imgHeight, result);
         if (resultFormat >= 0) {
             Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
             if (result[1] != null) {

@@ -1,5 +1,8 @@
 package me.devilsen.czxing.view;
 
+import android.app.Activity;
+import android.content.Intent;
+
 /**
  * @author : dongSen
  * date : 2019/07/21
@@ -8,6 +11,7 @@ package me.devilsen.czxing.view;
 public class ScanActivityDelegate {
 
     private OnScanDelegate mOnScanDelegate;
+    private OnClickAlbumDelegate mOnClickAlbumDelegate;
 
     public static ScanActivityDelegate getInstance() {
         return Holder.instance;
@@ -25,8 +29,22 @@ public class ScanActivityDelegate {
         return mOnScanDelegate;
     }
 
+    public OnClickAlbumDelegate getOnClickAlbumDelegate() {
+        return mOnClickAlbumDelegate;
+    }
+
+    public void setOnClickAlbumDelegate(OnClickAlbumDelegate onClickAlbumDelegate) {
+        this.mOnClickAlbumDelegate = onClickAlbumDelegate;
+    }
+
     public interface OnScanDelegate {
         void onScanResult(String result);
+    }
+
+    public interface OnClickAlbumDelegate {
+        void onClickAlbum(Activity activity);
+
+        void onSelectData(int requestCode, Intent data);
     }
 
 }

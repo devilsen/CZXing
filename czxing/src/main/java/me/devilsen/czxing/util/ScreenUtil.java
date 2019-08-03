@@ -47,7 +47,7 @@ public class ScreenUtil {
     /**
      * 获取状态栏的高度
      */
-    private int getStatusBarHeight(Context context) {
+    public static int getStatusBarHeight(Context context) {
         int resId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resId > 0) {
             return context.getResources().getDimensionPixelSize(resId);

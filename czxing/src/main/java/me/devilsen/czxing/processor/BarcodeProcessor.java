@@ -42,7 +42,7 @@ public class BarcodeProcessor extends Processor {
             return null;
         }
 
-        BarcodeReader.Result result = reader.read(bitmap, bitmap.getWidth(), bitmap.getHeight());
+        BarcodeReader.Result result = reader.read(bitmap);
         if (result != null) {
             return result.getText();
         }

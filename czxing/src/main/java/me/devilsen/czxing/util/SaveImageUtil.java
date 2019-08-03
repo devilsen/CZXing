@@ -180,9 +180,7 @@ public class SaveImageUtil {
 
     private static long time;
 
-    private static void saveImage(Bitmap bitmap) {
-
-
+    public static void saveImage(Bitmap bitmap) {
         String thumbPath = System.currentTimeMillis() + ".jpg";
         String fold = Environment.getExternalStorageDirectory().getAbsolutePath() + "/scan/";
         File file = new File(fold, thumbPath);
