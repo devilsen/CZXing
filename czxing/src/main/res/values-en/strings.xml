@@ -4,5 +4,7 @@
     <string name="album">album</string>
     <string name="module_name">czxing</string>
     <string name="QRCode">QR Code</string>
-
+    <string name="czxing_click_open_flash_light">Tap to turn light on</string>
+    <string name="czxing_click_close_flash_light">Tap to turn light off</string>
+    <string name="czxing_scan_notice">Align QR code/barcode within frame to scan</string>
 </resources>

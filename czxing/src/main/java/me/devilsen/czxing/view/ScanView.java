@@ -56,6 +56,12 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     }
 
     @Override
+    public void startScan() {
+        super.startScan();
+        isStop = false;
+    }
+
+    @Override
     public void stopScan() {
         super.stopScan();
         isStop = true;
@@ -87,13 +93,14 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         mScanBoxView.setDark(isDark);
     }
 
+    public void resetZoom(){
+        setZoomValue(0);
+    }
+
     @Override
     public void onFlashLightClick() {
         mCameraSurface.toggleFlashLight(isDark);
     }
 
-    public void hideCard() {
-        mScanBoxView.hideCardText();
-    }
 
 }

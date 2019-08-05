@@ -5,19 +5,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import me.devilsen.czxing.compat.ActivityCompat;
-import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.compat.ContextCompat;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
@@ -86,6 +83,13 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         super.onStart();
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
         mScanView.startScan();  // 显示扫描框，并开始识别
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        mScanView.startScan();  // 显示扫描框，并开始识别
+//        mScanView.resetZoom();  // 重置相机扩大倍数
     }
 
     @Override

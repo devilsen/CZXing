@@ -346,6 +346,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mLastAutoZoomTime = System.currentTimeMillis();
     }
 
+    protected void setZoomValue(int zoom) {
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setZoom(zoom);
+        mCamera.setParameters(parameters);
+    }
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();

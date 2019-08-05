@@ -3,4 +3,7 @@
     <string name="copy">复制</string>
     <string name="album">相册</string>
     <string name="QRCode">扫一扫</string>
+    <string name="czxing_click_open_flash_light">点击打开闪光灯</string>
+    <string name="czxing_click_close_flash_light">点击关闭闪光灯</string>
+    <string name="czxing_scan_notice">将二维码/条形码放入扫描框</string>
 </resources>

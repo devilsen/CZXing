@@ -8,7 +8,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.5'
+implementation 'me.devilsen:CZXing:0.6.1'
 ```
 建议加入abiFilters
 ```gradle
@@ -30,10 +30,24 @@ Resources resources = getResources();
 List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
 Scanner.with(this)
-        .setBorderColor(resources.getColor(R.color.box_line)) // 扫码框边框颜色
-        .setCornerColor(resources.getColor(R.color.corner))   // 扫码框角颜色
-        .setScanLineColors(scanColors)                        // 扫描线颜色（这是一个渐变颜色）
-        .setDelegate(new ScanActivityDelegate.OnScanDelegate() {
+        .setBorderColor(resources.getColor(R.color.box_line))   // 扫码框边框颜色
+        .setCornerColor(resources.getColor(R.color.corner))     // 扫码框角颜色
+        .setScanLineColors(scanColors)                          // 扫描线颜色（这是一个渐变颜色）
+        .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
+            @Override
+            public void onClickAlbum(Activity activity) {       // 点击右上角的相册按钮
+                Intent albumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                activity.startActivityForResult(albumIntent, CODE_SELECT_IMAGE);
+            }
+
+            @Override
+            public void onSelectData(int requestCode, Intent data) { // 选择图片返回的数据
+                if (requestCode == CODE_SELECT_IMAGE) {
+                    selectPic(data);
+                }
+            }
+        })
+        .setOnScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() { // 接管扫码成功的数据
             @Override
             public void onScanResult(String result) {
                 Intent intent = new Intent(MainActivity.this, DelegateActivity.class);

@@ -79,6 +79,10 @@ public class ScanBoxView extends View {
     private int mFlashLightRight;
     private int mFlashLightBottom;
 
+    private String mFlashLightOnText;
+    private String mFlashLightOffText;
+    private String mScanNoticeText;
+
     public ScanBoxView(Context context) {
         this(context, null);
     }
@@ -128,6 +132,10 @@ public class ScanBoxView extends View {
         mTxtPaint.setTextAlign(Paint.Align.CENTER);
         mTxtPaint.setColor(Color.GRAY);
         mTxtPaint.setStyle(Paint.Style.FILL);
+
+        mFlashLightOnText = getResources().getText(R.string.czxing_click_open_flash_light).toString();
+        mFlashLightOffText = getResources().getText(R.string.czxing_click_close_flash_light).toString();
+        mScanNoticeText = getResources().getText(R.string.czxing_scan_notice).toString();
     }
 
     @Override
@@ -271,14 +279,14 @@ public class ScanBoxView extends View {
         mTxtPaint.setTextSize(mTextSize);
         mTxtPaint.setColor(mTextColor);
         if (isDark || isLightOn) {
-            canvas.drawText("点击打开闪光灯",
+            canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
                     mFramingRect.left + (mBoxSize >> 1),
                     mFramingRect.bottom - mTextSize,
                     mTxtPaint);
 
             drawFlashLight(canvas);
         }
-        canvas.drawText("将二维码/条形码放入扫描框",
+        canvas.drawText(mScanNoticeText,
                 mFramingRect.left + (mBoxSize >> 1),
                 mFramingRect.bottom + mTextSize * 2,
                 mTxtPaint);
