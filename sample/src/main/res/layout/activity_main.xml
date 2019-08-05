@@ -10,31 +10,44 @@
     <TextView
         android:id="@+id/text_view_result"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="scan"
-        android:text="scan" />
+        android:text="scan Image"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="write"
-        android:text="write" />
+        android:text="write Code"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="writeQrCode"
+        android:text="write QrCode"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="openScan"
-        android:text="openScan" />
+        android:text="open ScanView"
+        android:textAllCaps="false" />
 
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="openScanBox"
+        android:textAllCaps="false"
         android:text="openScanBox"
         android:visibility="gone" />
 

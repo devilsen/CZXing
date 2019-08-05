@@ -25,6 +25,7 @@ import java.util.List;
 import me.devilsen.czxing.BarcodeFormat;
 import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.Scanner;
+import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.util.SaveImageUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
@@ -46,18 +47,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_wechat);
         BarcodeReader.Result result = reader.read(bitmap);
 
         if (result == null) {
             Log.e("Scan >>> ", "no code");
             return;
+        } else {
+            Log.e("Scan >>> ", result.getText());
         }
+
         resultTxt.setText(result.getText());
     }
 
     public void write(View view) {
         Intent intent = new Intent(this, WriteCodeActivity.class);
+        startActivity(intent);
+    }
+
+    public void writeQrCode(View view) {
+        Intent intent = new Intent(this, WriteQRCodeActivity.class);
         startActivity(intent);
     }
 
@@ -144,7 +153,10 @@ public class MainActivity extends AppCompatActivity {
         if (result == null) {
             Log.e("Scan >>> ", "no code");
             return;
+        } else {
+            Log.e("Scan >>> ", result.getText());
         }
         resultTxt.setText(result.getText());
     }
+
 }

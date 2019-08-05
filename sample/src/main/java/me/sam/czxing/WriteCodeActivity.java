@@ -3,6 +3,7 @@ package me.sam.czxing;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +32,6 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     private ImageView barcodeColorImage;
     private BarcodeWriter writer;
     private BarcodeReader reader;
-    private Bitmap barcodeBitmap;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +42,11 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
         qrcodeLogoImage = findViewById(R.id.image_view_qr_code_2);
         barcodeImage = findViewById(R.id.image_view_bar_code_1);
         barcodeColorImage = findViewById(R.id.image_view_bar_code_2);
+
+        qrcodeImage.setOnClickListener(this);
+        qrcodeLogoImage.setOnClickListener(this);
+        barcodeImage.setOnClickListener(this);
+        barcodeColorImage.setOnClickListener(this);
 
         writer = new BarcodeWriter();
         reader = new BarcodeReader(
@@ -66,17 +71,17 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
 
         writeQrCode();
         writeBarCode();
-
-        barcodeImage.setOnClickListener(this);
     }
 
+    /**
+     * 生成二维码与识别二维码都是耗时操作，请务必放在子线程中执行，这里是为了演示的简洁才采用这种写法
+     */
     private void writeQrCode() {
         Bitmap bitmap1 = writer.write("Hello World",
                 BarCodeUtil.dp2px(this, 150),
                 Color.BLACK);
 
         Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_avatar);
-
         Bitmap bitmap2 = writer.write("你好，こんにちは，여보세요",
                 BarCodeUtil.dp2px(this, 150),
                 Color.parseColor("#2196F3"),
@@ -92,10 +97,10 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void writeBarCode() {
-        barcodeBitmap = writer.writeBarCode("Hello CZXing",
+        Bitmap barcodeBitmap = writer.writeBarCode("Hello CZXing",
                 BarCodeUtil.dp2px(this, 150), BarCodeUtil.dp2px(this, 80));
 
-        Bitmap bitmap2 = writer.writeBarCode("20190729",
+        Bitmap barcodeBitmap2 = writer.writeBarCode("20190729",
                 BarCodeUtil.dp2px(this, 150), BarCodeUtil.dp2px(this, 80),
                 Color.parseColor("#2196F3"));
 
@@ -103,16 +108,33 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
             barcodeImage.setImageBitmap(barcodeBitmap);
         }
 
-        if (bitmap2 != null) {
-            barcodeColorImage.setImageBitmap(bitmap2);
+        if (barcodeBitmap2 != null) {
+            barcodeColorImage.setImageBitmap(barcodeBitmap2);
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.image_view_bar_code_1) {
-            read(barcodeBitmap);
+        int id = v.getId();
+        switch (id) {
+            case R.id.image_view_qr_code_1:
+                read(getBitmap(qrcodeImage));
+                break;
+            case R.id.image_view_qr_code_2:
+                read(getBitmap(qrcodeLogoImage));
+                break;
+            case R.id.image_view_bar_code_1:
+                read(getBitmap(barcodeImage));
+                break;
+            case R.id.image_view_bar_code_2:
+                read(getBitmap(barcodeColorImage));
+                break;
         }
+    }
+
+    private Bitmap getBitmap(ImageView imageView){
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        return drawable.getBitmap();
     }
 
     public void read(Bitmap bitmap) {

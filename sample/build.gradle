@@ -53,5 +53,8 @@ dependencies {
     // bugly
     implementation 'com.tencent.bugly:crashreport:3.0.0'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.1'
+    // rxJava
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
 
 }
