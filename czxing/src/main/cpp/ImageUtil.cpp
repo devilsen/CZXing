@@ -48,3 +48,32 @@ ImageUtil::scaleImage(const cv::Rect &rect_, int rowWidth, const int *pixels, in
         srcIndex += marginRight;
     }
 }
+
+void ImageUtil::binaryzation(int width, int height, int *pixels) {
+    int index = 0;
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int p = pixels[index];
+            // 得到Alpha通道的值
+            int alpha = p & 0xFF000000;
+            // 得到Red的值
+            int red = (p & 0x00FF0000) >> 16;
+            // 得到Green的值
+            int green = (p & 0x0000FF00) >> 8;
+            // 得到Blue的值
+            int blue = p & 0x000000FF;
+
+            // 通过加权平均算法,计算出最佳像素值
+            int gray = (int) ((float) red * 0.3 + (float) green * 0.59 + (float) blue * 0.11);
+            // 对图像设置黑白图
+            if (gray <= 95) {
+                gray = 0;
+            } else {
+                gray = 255;
+            }
+            // 得到新的像素值
+            pixels[index] = alpha | (gray << 16) | (gray << 8) | gray;
+            index++;
+        }
+    }
+}

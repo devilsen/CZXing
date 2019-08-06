@@ -34,6 +34,14 @@ public:
 
 
     /**
+     * 二值化图片
+     * @param width
+     * @param height
+     * @param pixels
+     */
+    void binaryzation(int width,int height,int * pixels);
+
+    /**
      * 裁剪opencv返回的图像数据
      * @param rect_ 图像数据
      * @param rowWidth 图像宽

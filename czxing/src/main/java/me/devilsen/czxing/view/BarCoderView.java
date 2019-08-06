@@ -269,7 +269,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             float xLen = Math.abs(point2X - point3X);
             float yLen = Math.abs(point2Y - point3Y);
             int len2 = (int) Math.sqrt(xLen * xLen + yLen * yLen);
-            if (len2 < len) {
+            if (len2 > len) {
                 len = len2;
             }
         }
@@ -312,7 +312,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
         final int maxZoom = parameters.getMaxZoom();
         // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
-        final int maxCanZoom = maxZoom * 3 / 4;
+        final int maxCanZoom = maxZoom / 2;
         final int zoomStep = maxZoom / 4;
         final int zoom = parameters.getZoom();
         BarCodeUtil.e("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
