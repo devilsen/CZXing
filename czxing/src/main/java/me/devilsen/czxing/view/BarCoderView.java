@@ -40,7 +40,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private long processLastTime;
     private long mLastAutoZoomTime;
-    private long mDelayTime = 3 * ONE_HUNDRED_MILLISECONDS;
+    private long mDelayTime = 30 * ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -106,10 +106,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 left = scanBoxRect.left;
                 top = scanBoxRect.top - expandTop;
             }
-            onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth);
+            onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
 
             if (scanSequence % 4 == 0) {
-                onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth);
+                onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth, rowHeight);
             }
             scanSequence++;
 
@@ -119,7 +119,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
     }
 
-    public abstract void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth);
+    public abstract void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth, int rowHeight);
 
     public void setScanListener(ScanListener listener) {
         mScanListener = listener;

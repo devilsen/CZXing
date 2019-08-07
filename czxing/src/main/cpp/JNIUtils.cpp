@@ -81,8 +81,8 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
 }
 
 std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
-                      int cropHeight) {
+BinaryBitmapFromBytesC4(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
+                        int cropHeight) {
     using namespace ZXing;
 
 //    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
@@ -92,6 +92,20 @@ BinaryBitmapFromBytes(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int 
             cropLeft, cropTop, cropWidth,
             cropHeight, pixels,
             cropWidth * sizeof(int), 4, 0, 1, 2);
+
+    return std::make_shared<HybridBinarizer>(luminance);
+}
+
+std::shared_ptr<ZXing::BinaryBitmap>
+BinaryBitmapFromBytesC1(JNIEnv *env, void *pixels, int left, int top, int width, int height) {
+    using namespace ZXing;
+
+//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
+//         cropHeight);
+
+    std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
+            left, top, width, height,
+            pixels, width);
 
     return std::make_shared<HybridBinarizer>(luminance);
 }

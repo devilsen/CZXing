@@ -78,10 +78,10 @@ public class BarcodeReader {
         return null;
     }
 
-    public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
+    public Result read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         try {
             Object[] result = new Object[3];
-            int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, result);
+            int resultFormat = readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
             if (resultFormat > 0) {
                 Result decodeResult = new Result(BarcodeFormat.values()[resultFormat], (String) result[0]);
                 if (result[1] != null) {
@@ -123,7 +123,7 @@ public class BarcodeReader {
 
     private static native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
-    private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, Object[] result);
+    private static native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight, Object[] result);
 
     public static native boolean analysisBrightnessNative(byte[] bytes, int width, int height);
 

@@ -36,7 +36,8 @@ class BinaryBitmap;
 
 // Create BinaryBitmap from Android's Bitmap
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromJavaBitmap(JNIEnv* env, jobject bitmap, int cropLeft, int cropTop, int cropWidth, int cropHeight);
-std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytes(JNIEnv* env, void *grayscale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
+std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytesC4(JNIEnv* env, void *rgbScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
+std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytesC1(JNIEnv* env, void *grayScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
 bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);
 std::wstring StringToWString(const std::string &src);
 std::wstring ANSIToUnicode(const std::string &src);

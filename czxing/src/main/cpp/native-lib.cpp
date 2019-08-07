@@ -8,6 +8,7 @@
 #include "opencv2/opencv.hpp"
 #include "ImageUtil.h"
 #include <vector>
+#include <opencv2/imgproc/types_c.h>
 #include "MultiFormatWriter.h"
 #include "BitMatrix.h"
 
@@ -93,7 +94,7 @@ JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
                                                       jbyteArray bytes_, jint left, jint top,
                                                       jint cropWidth, jint cropHeight,
-                                                      jint rowWidth,
+                                                      jint rowWidth, jint rowHeight,
                                                       jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
     ImageUtil imageUtil;
@@ -102,13 +103,50 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
     }
 
     try {
+        Mat src(rowHeight + rowHeight / 2, rowWidth, CV_8UC1, bytes);
+//        imwrite("/storage/emulated/0/scan/src.jpg", src);
+
+        cvtColor(src, src, COLOR_YUV2RGBA_NV21);
+//        imwrite("/storage/emulated/0/scan/src2.jpg", src);
+
+        if (left != 0) {
+            src = src(Rect(left, top, cropWidth, cropHeight));
+        }
+
+        rotate(src, src, ROTATE_90_CLOCKWISE);
+//        imwrite("/storage/emulated/0/scan/src3.jpg", src);
+
+        Mat gray;
+        cvtColor(src, gray, COLOR_RGBA2GRAY);
+//        imwrite("/storage/emulated/0/scan/gray.jpg", gray);
+
+        Mat lightMat;
+        gray.convertTo(lightMat, -1, 1.0, -60);
+//        imwrite("/storage/emulated/0/scan/lightMat.jpg", lightMat);
+
+        adaptiveThreshold(lightMat, lightMat, 255, ADAPTIVE_THRESH_MEAN_C,
+                          THRESH_BINARY, 55, 3);
+//        imwrite("/storage/emulated/0/scan/adaptiveThresholdMat1.jpg", adaptiveThresholdMat1);
+
+        cropHeight = lightMat.rows;
+        cropWidth = lightMat.cols;
+
+        auto *pixels = static_cast<unsigned char *>(malloc(
+                cropWidth * cropHeight * sizeof(unsigned char)));
+        int index = 0;
+        for (int i = 0; i < cropHeight; ++i) {
+            for (int j = 0; j < cropWidth; ++j) {
+                pixels[index++] = lightMat.at<unsigned char>(i, j);
+            }
+        }
+
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
-        int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
-        imageUtil.convertNV21ToGrayScaleRotate(left, top, cropWidth, cropHeight, rowWidth, bytes,
-                                               pixels);
+        // 检查处理结果
+//        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
+//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
-        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropHeight, cropWidth);
+        auto binImage = BinaryBitmapFromBytesC1(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
 
         if (readResult.isValid()) {
@@ -120,13 +158,140 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         } else {
             QRCodeRecognizer opencvProcessor;
             cv::Rect rect;
-            opencvProcessor.processData(pixels, cropWidth, cropHeight, &rect);
+            opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
             free(pixels);
             if (!rect.empty()) {
                 env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
                 return 1;
             }
         }
+
+
+//        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+
+// ----------------------------------------------------------------------
+//        int *pixels = static_cast<int *>(malloc(cropWidth * cropHeight * sizeof(int)));
+//        imageUtil.convertNV21ToGrayScaleRotate(left, top, cropWidth, cropHeight, rowWidth, bytes,
+//                                               pixels);
+//
+//        // 这里进行了旋转，需要把后面的宽高值进行转换
+//        int temp = cropWidth;
+//        cropWidth = cropHeight;
+//        cropHeight = temp;
+// ----------------------------------------------------------------------
+
+//        Mat gray(cropHeight, cropWidth, CV_8UC4, pixels);
+//        imwrite("/storage/emulated/0/scan/src.jpg", gray);
+//
+//        cvtColor(gray, gray, CV_BGR2GRAY);
+//        // （一）全局阈值使用THRESH_OTSU大津法
+//        Mat thresholdMat;
+//        threshold(gray, thresholdMat, 0, 255, THRESH_BINARY | THRESH_OTSU);
+//        imwrite("/storage/emulated/0/scan/thresholdMat.jpg", thresholdMat);
+//
+//        // （二）全局阈值使用THRESH_TRIANGLE（三角形算法）
+//        Mat thresholdMat2;
+//        threshold(gray, thresholdMat2, 0, 255, THRESH_BINARY | THRESH_TRIANGLE);
+//        imwrite("/storage/emulated/0/scan/thresholdMat2.jpg", thresholdMat2);
+//
+//        //(1)THRESH_BINARY_INV大于阈值的都为0
+//        Mat thresholdMat3;
+//        threshold(gray, thresholdMat3, 127, 255, THRESH_BINARY_INV);
+//        imwrite("/storage/emulated/0/scan/thresholdMat3.jpg", thresholdMat3);
+//
+//        //（2）THRESH_TRUNC截断大于127的值都为127
+//        Mat thresholdMat4;
+//        threshold(gray, thresholdMat4, 127, 255, THRESH_TRUNC);
+//        imwrite("/storage/emulated/0/scan/thresholdMat4.jpg", thresholdMat4);
+//
+//        //（2）THRESH_TRUNC截断大于127的值都为127
+//        Mat thresholdMat5;
+//        threshold(gray, thresholdMat5, 127, 255, THRESH_TOZERO);
+//        imwrite("/storage/emulated/0/scan/thresholdMat5.jpg", thresholdMat5);
+//
+//        //（2）THRESH_TRUNC截断大于127的值都为127
+//        Mat adaptiveThresholdMat1;
+//        adaptiveThreshold(gray,adaptiveThresholdMat1,255,ADAPTIVE_THRESH_MEAN_C,THRESH_BINARY,25,10);
+//        imwrite("/storage/emulated/0/scan/adaptiveThresholdMat1.jpg", adaptiveThresholdMat1);
+//
+//        //（2）THRESH_TRUNC截断大于127的值都为127
+//        Mat adaptiveThresholdMat2;
+//        adaptiveThreshold(gray,adaptiveThresholdMat2,255,ADAPTIVE_THRESH_GAUSSIAN_C,THRESH_BINARY,25,10);
+//        imwrite("/storage/emulated/0/scan/adaptiveThresholdMat2.jpg", adaptiveThresholdMat2);
+
+// -----------------------------------------------------
+//        Mat equalizeHistMat;
+//        equalizeHist(gray, equalizeHistMat);
+//        imwrite("/storage/emulated/0/scan/equalizeHistMat.jpg", equalizeHistMat);
+//        // 亮度、对比度增强
+//        Mat contrastandbrightImage = Mat::zeros(equalizeHistMat.size(), equalizeHistMat.type());
+//        for (int y = 0; y < equalizeHistMat.rows; y++) {
+//            for (int x = 0; x < equalizeHistMat.cols; x++) {
+//                contrastandbrightImage.at<uchar>(y, x) = saturate_cast<uchar>(6 * (equalizeHistMat.at<uchar>(y, x)));
+//            }
+//        }
+//
+//        Mat thresholdImage;
+//        blur(contrastandbrightImage,contrastandbrightImage,Size(3,3));
+//        threshold(contrastandbrightImage,thresholdImage, 0, 255, CV_THRESH_OTSU+CV_THRESH_BINARY_INV);
+//        Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));
+//        //进行膨胀操作
+//        Mat dilateImage;
+//        dilate(thresholdImage, dilateImage, element);
+//        dilate(dilateImage, dilateImage, element);
+//        dilate(dilateImage, dilateImage, element);
+//        dilate(dilateImage, dilateImage, element);
+//        dilate(dilateImage, dilateImage, element);
+//        imwrite("/storage/emulated/0/scan/dilateImage.jpg", dilateImage);
+// -----------------------------------------------------
+
+//        Mat thresholdImage;
+//        threshold(gray, thresholdImage, 100, 255, CV_THRESH_OTSU);
+//        blur(thresholdImage, thresholdImage, Size(3, 3));
+//
+//        imwrite("/storage/emulated/0/scan/thresholdImage.jpg", thresholdImage);
+//
+
+
+// -----------------------------------------------------
+//        Mat adaptive;
+//        adaptiveThreshold(gray, adaptive, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 25, 10);
+//        imwrite("/storage/emulated/0/scan/adaptiveThreshold.jpg", adaptive);
+
+// -------------------------------------------------------
+        //        Mat filter;
+//        blur(gray, filter,);
+//        imwrite("/storage/emulated/0/scan/filter.jpg", filter);
+
+//        int index = 0;
+//        for (int i = 0; i < cropWidth / 4; ++i) {
+//            for (int j = 0; j < cropHeight / 4; ++j) {
+//                pixels[index++] = adaptive.at<int>(i, j);
+//            }
+//        }
+//
+//        Mat resultMat(cropHeight, cropWidth, CV_8UC4, pixels);
+//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+//
+//        auto binImage = BinaryBitmapFromBytes(env, pixels, 0, 0, cropWidth, cropHeight);
+//        auto readResult = reader->read(*binImage);
+
+//        if (readResult.isValid()) {
+//            free(pixels);
+//
+//            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//            env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+//            return static_cast<int>(readResult.format());
+//        } else {
+//            QRCodeRecognizer opencvProcessor;
+//            cv::Rect rect;
+//            opencvProcessor.processData(pixels, cropWidth, cropHeight, &rect);
+//            free(pixels);
+//            if (!rect.empty()) {
+//                env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
+//                return 1;
+//            }
+//        }
     }
     catch (const std::exception &e) {
         ThrowJavaException(env, e.what());

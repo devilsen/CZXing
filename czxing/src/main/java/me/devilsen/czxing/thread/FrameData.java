@@ -14,13 +14,15 @@ public class FrameData {
     public int width;
     public int height;
     public int rowWidth;
+    public int rowHeight;
 
-    public FrameData(byte[] data, int left, int top, int width, int height, int rowWidth) {
+    public FrameData(byte[] data, int left, int top, int width, int height, int rowWidth, int rowHeight) {
         this.data = data;
         this.left = left;
         this.top = top;
         this.width = width;
         this.height = height;
         this.rowWidth = rowWidth;
+        this.rowHeight = rowHeight;
     }
 }

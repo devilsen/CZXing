@@ -17,21 +17,21 @@ public class BarcodeProcessor extends Processor {
 
     public BarcodeProcessor() {
         reader = new BarcodeReader(
-                BarcodeFormat.QR_CODE,
+                BarcodeFormat.QR_CODE
 //                BarcodeFormat.AZTEC,
-                BarcodeFormat.CODABAR,
+//                BarcodeFormat.CODABAR,
 //                BarcodeFormat.CODE_39,
 //                BarcodeFormat.CODE_93,
-                BarcodeFormat.CODE_128,
+//                BarcodeFormat.CODE_128,
 //                BarcodeFormat.DATA_MATRIX,
 //                BarcodeFormat.EAN_8,
-                BarcodeFormat.EAN_13,
+//                BarcodeFormat.EAN_13,
 //                BarcodeFormat.ITF,
 //                BarcodeFormat.MAXICODE,
 //                BarcodeFormat.PDF_417,
 //                BarcodeFormat.RSS_14,
 //                BarcodeFormat.RSS_EXPANDED,
-                BarcodeFormat.UPC_A
+//                BarcodeFormat.UPC_A
 //                BarcodeFormat.UPC_E,
 //                BarcodeFormat.UPC_EAN_EXTENSION
         );
@@ -49,12 +49,12 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public synchronized BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth) {
+    public synchronized BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         if (cancel) {
             return null;
         }
 
-        BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth);
+        BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
         if (result != null) {
             return result;
         }

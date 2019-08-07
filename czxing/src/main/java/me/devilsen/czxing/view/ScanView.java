@@ -35,12 +35,12 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     }
 
     @Override
-    public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth) {
+    public void onPreviewFrame(byte[] data, int left, int top, int width, int height, int rowWidth, int rowHeight) {
         if (isStop) {
             return;
         }
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, this).enqueue();
+        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
         setQueueSize(queueSize);
 //        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
 //
@@ -93,7 +93,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         mScanBoxView.setDark(isDark);
     }
 
-    public void resetZoom(){
+    public void resetZoom() {
         setZoomValue(0);
     }
 

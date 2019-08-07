@@ -40,7 +40,8 @@ public class ProcessRunnable implements Runnable {
                     frameData.top,
                     frameData.width,
                     frameData.height,
-                    frameData.rowWidth);
+                    frameData.rowWidth,
+                    frameData.rowHeight);
 
             BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
 

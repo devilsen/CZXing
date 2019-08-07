@@ -45,10 +45,17 @@ void check_center(vector<vector<Point> > c, vector<int> &index) {
     }
 }
 
-void QRCodeRecognizer::processData(int *data, jint w, jint h, Rect *resultRect) {
+void QRCodeRecognizer::processData(Mat gray, jint w, jint h, Rect *resultRect) {
 
-    Mat gray(h, w, CV_8UC4, data);
-    imwrite("/storage/emulated/0/scan/src.jpg", gray);
+//    Mat gray(h, w, CV_8UC4, data);
+//    imwrite("/storage/emulated/0/scan/src.jpg", gray);
+
+    Mat filter;
+    bilateralFilter(gray, filter, 15, 150, 15, 4);
+//    imwrite("/storage/emulated/0/scan/filter.jpg", filter);
+
+
+
     // 进行canny化，变成黑白线条构成的图片
     Mat binary;
     Canny(gray, binary, 100, 255, 3);

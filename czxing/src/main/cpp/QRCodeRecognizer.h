@@ -12,7 +12,7 @@ using namespace cv;
 
 class QRCodeRecognizer {
 public:
-    void processData(int *data, jint w, jint h, Rect *resultRect);
+    void processData(Mat gray, jint w, jint h, Rect *resultRect);
 };
 
 #endif //CZXING_OPENCVPROCESSOR_H
