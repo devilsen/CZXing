@@ -159,8 +159,8 @@ Reader::decode(const BinaryBitmap& image) const
 	}
 	else {
 		DetectorResult detectorResult = Detector::Detect(*binImg, _tryHarder);
-//		if (!detectorResult.isValid())
-//			return Result(DecodeStatus::NotFound);
+		if (!detectorResult.isValid())
+			return Result(DecodeStatus::NotFound);
 
 		decoderResult = Decoder::Decode(detectorResult.bits(), _charset);
 		points = detectorResult.points();

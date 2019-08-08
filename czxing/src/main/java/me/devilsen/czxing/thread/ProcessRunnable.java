@@ -27,12 +27,15 @@ public class ProcessRunnable implements Runnable {
     @Override
     public void run() {
         try {
-//            SaveImageUtil.saveData(frameData.data,
-//                    frameData.left,
-//                    frameData.top,
-//                    frameData.width,
-//                    frameData.height,
-//                    frameData.rowWidth);
+            if (frameData.left != 0 && frameData.top != 0) {
+                boolean isDark = mBarcodeProcessor.analysisBrightness(frameData.data, frameData.width, frameData.height);
+                if (mDecodeCallback != null) {
+                    mDecodeCallback.onDarkBrightness(isDark);
+                }
+                if (isDark){
+                    return;
+                }
+            }
 
             long start = System.currentTimeMillis();
             BarcodeReader.Result result = mBarcodeProcessor.processBytes(frameData.data,
@@ -44,14 +47,6 @@ public class ProcessRunnable implements Runnable {
                     frameData.rowHeight);
 
             BarCodeUtil.d("reader time: " + (System.currentTimeMillis() - start));
-
-
-            if (frameData.left == 0 && frameData.top == 0 && result == null) {
-                boolean isDark = mBarcodeProcessor.analysisBrightness(frameData.data, frameData.width, frameData.height);
-                if (mDecodeCallback != null) {
-                    mDecodeCallback.onDarkBrightness(isDark);
-                }
-            }
 
             if (result != null && mDecodeCallback != null) {
                 mDecodeCallback.onDecodeComplete(result);

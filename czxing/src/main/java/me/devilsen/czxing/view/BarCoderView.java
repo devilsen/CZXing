@@ -25,7 +25,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private static final int NO_CAMERA_ID = -1;
     private static final int DEFAULT_ZOOM_SCALE = 5;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
-    private final static long DELAY_STEP_TIME = 10000000;
+    private final static long DELAY_STEP_TIME = 10_000_000;
 
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Camera mCamera;
@@ -107,11 +107,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 top = scanBoxRect.top - expandTop;
             }
 
-            if (scanSequence == 0 || scanSequence == 1) {
+            if (scanSequence < 5) {
                 onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
             } else {
                 scanSequence = -1;
-                onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth, rowHeight);
+                onPreviewFrame(data, 0, top, rowWidth, rowWidth, rowWidth, rowHeight);
             }
             scanSequence++;
 
@@ -317,7 +317,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         final int maxCanZoom = maxZoom / 2;
         final int zoomStep = maxZoom / 6;
         final int zoom = parameters.getZoom();
-        BarCodeUtil.e("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
+//        BarCodeUtil.d("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
         ExecutorUtil.runOnUiThread(new Runnable() {
             @Override
@@ -369,11 +369,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      */
     void setQueueSize(int queueSize) {
         if (queueSize == 0 && mDelayTime > ONE_HUNDRED_MILLISECONDS) {
-            mDelayTime -= DELAY_STEP_TIME;
+            mDelayTime -= DELAY_STEP_TIME * 10;
         }
 
         if (queueSize > 1) {
-            mDelayTime += DELAY_STEP_TIME * 2;
+            mDelayTime += DELAY_STEP_TIME * 50;
         }
 
         BarCodeUtil.d("delay time : " + mDelayTime / 1000000);
