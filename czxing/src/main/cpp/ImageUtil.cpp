@@ -77,3 +77,15 @@ void ImageUtil::binaryzation(int width, int height, int *pixels) {
         }
     }
 }
+
+void ImageUtil::getPixelsFromMat(cv::Mat mat, int *width, int *height, unsigned char *pixels) {
+    *height = mat.rows;
+    *width = mat.cols;
+
+    int index = 0;
+    for (int i = 0; i < *height; ++i) {
+        for (int j = 0; j < *width; ++j) {
+            pixels[index++] = mat.at<unsigned char>(i, j);
+        }
+    }
+}

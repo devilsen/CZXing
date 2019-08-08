@@ -8,6 +8,7 @@
 
 #include <jni.h>
 #include <opencv2/core/types.hpp>
+#include "opencv2/opencv.hpp"
 
 class ImageUtil {
 public:
@@ -39,7 +40,7 @@ public:
      * @param height
      * @param pixels
      */
-    void binaryzation(int width,int height,int * pixels);
+    void binaryzation(int width, int height, int *pixels);
 
     /**
      * 裁剪opencv返回的图像数据
@@ -49,6 +50,13 @@ public:
      * @param scalePixels  输出参数
      */
     void scaleImage(const cv::Rect &rect_, int rowWidth, const int *pixels, int *scalePixels);
+
+    /**
+     * 从Mat中获取像素数据
+     * @param mat  cv mat
+     * @param pixels  data
+     */
+    void getPixelsFromMat(cv::Mat mat, int *width, int *height, unsigned char *pixels);
 };
 
 
