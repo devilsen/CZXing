@@ -124,9 +124,21 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         gray.convertTo(lightMat, -1, 1.0, -60);
 //        imwrite("/storage/emulated/0/scan/lightMat.jpg", lightMat);
 
-        adaptiveThreshold(lightMat, lightMat, 255, ADAPTIVE_THRESH_MEAN_C,
-                          THRESH_BINARY, 55, 3);
-//        imwrite("/storage/emulated/0/scan/adaptiveThresholdMat1.jpg", adaptiveThresholdMat1);
+//        adaptiveThreshold(lightMat, lightMat, 255, ADAPTIVE_THRESH_MEAN_C,
+//                          THRESH_BINARY, 55, 3);
+//        threshold(lightMat, lightMat, 0, 255, CV_THRESH_OTSU);
+
+        threshold(lightMat, lightMat, 0, 255, CV_THRESH_OTSU);
+        imwrite("/storage/emulated/0/scan/threshold.jpg", lightMat);
+
+        //获取自定义核
+//        Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
+        // Point(lightMat.rows / 2, lightMat.cols / 2
+//        dilate(lightMat, lightMat, element);
+//        imwrite("/storage/emulated/0/scan/dilate.jpg", lightMat);
+
+//        medianBlur(lightMat, lightMat, 1);
+//        imwrite("/storage/emulated/0/scan/medianBlur.jpg", lightMat);
 
         cropHeight = lightMat.rows;
         cropWidth = lightMat.cols;
@@ -143,8 +155,8 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
 
         // 检查处理结果
-//        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
-//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
+        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
         auto binImage = BinaryBitmapFromBytesC1(env, pixels, 0, 0, cropWidth, cropHeight);
         auto readResult = reader->read(*binImage);
@@ -153,17 +165,44 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
             free(pixels);
 
             env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+            if (readResult.isBlurry()) {
+                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+            }
             return static_cast<int>(readResult.format());
         } else {
-            QRCodeRecognizer opencvProcessor;
-            cv::Rect rect;
-            opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
-            free(pixels);
-            if (!rect.empty()) {
-                env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
-                return 1;
+
+            rotate(lightMat, lightMat, ROTATE_90_CLOCKWISE);
+
+            cropHeight = lightMat.rows;
+            cropWidth = lightMat.cols;
+
+            index = 0;
+            for (int i = 0; i < cropHeight; ++i) {
+                for (int j = 0; j < cropWidth; ++j) {
+                    pixels[index++] = lightMat.at<unsigned char>(i, j);
+                }
             }
+            binImage = BinaryBitmapFromBytesC1(env, pixels, 0, 0, cropWidth, cropHeight);
+            readResult = reader->read(*binImage);
+            if (readResult.isValid()) {
+                free(pixels);
+
+                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+                if (readResult.isBlurry()) {
+                    env->SetObjectArrayElement(result, 1,
+                                               ToJavaArray(env, readResult.resultPoints()));
+                }
+                return static_cast<int>(readResult.format());
+            }
+//            LOGE("ssssssssssssssssssssssss");
+//            QRCodeRecognizer opencvProcessor;
+//            cv::Rect rect;
+//            opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
+//            free(pixels);
+//            if (!rect.empty()) {
+//                env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
+//                return 1;
+//            }
         }
 
 

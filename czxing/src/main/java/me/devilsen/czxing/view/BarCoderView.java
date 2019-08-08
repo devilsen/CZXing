@@ -23,7 +23,7 @@ import me.devilsen.czxing.util.BarCodeUtil;
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
-    private static final int DEFAULT_ZOOM_SCALE = 4;
+    private static final int DEFAULT_ZOOM_SCALE = 5;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
     private final static long DELAY_STEP_TIME = 10000000;
 
@@ -40,7 +40,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private long processLastTime;
     private long mLastAutoZoomTime;
-    private long mDelayTime = 30 * ONE_HUNDRED_MILLISECONDS;
+    private long mDelayTime = 3 * ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -106,9 +106,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 left = scanBoxRect.left;
                 top = scanBoxRect.top - expandTop;
             }
-            onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
 
-            if (scanSequence % 4 == 0) {
+            if (scanSequence == 0 || scanSequence == 1) {
+                onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
+            } else {
+                scanSequence = -1;
                 onPreviewFrame(data, 0, 0, rowWidth, rowHeight, rowWidth, rowHeight);
             }
             scanSequence++;
@@ -313,7 +315,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         final int maxZoom = parameters.getMaxZoom();
         // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
         final int maxCanZoom = maxZoom / 2;
-        final int zoomStep = maxZoom / 4;
+        final int zoomStep = maxZoom / 6;
         final int zoom = parameters.getZoom();
         BarCodeUtil.e("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
