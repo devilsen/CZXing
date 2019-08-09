@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/types_c.h>
 #include "MultiFormatWriter.h"
 #include "BitMatrix.h"
+#include "ImageScheduler.h"
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -91,7 +92,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
 
 ZXing::Result
 decodePixels(JNIEnv *env, ZXing::MultiFormatReader *reader, void *pixels, int width, int height) {
-    auto binImage = BinaryBitmapFromBytesC1(env, pixels, 0, 0, width, height);
+    auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
     return reader->read(*binImage);
 }
 
@@ -103,117 +104,131 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
                                                       jint rowWidth, jint rowHeight,
                                                       jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-    ImageUtil imageUtil;
-    imageUtil.checkSize(&left, &top);
 
-    try {
-        Mat src(rowHeight + rowHeight / 2, rowWidth, CV_8UC1, bytes);
-//        imwrite("/storage/emulated/0/scan/src.jpg", src);
+    auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+    ImageScheduler imageScheduler(env, reader);
+    Result *readResult = imageScheduler.process(env, bytes, left, top, cropWidth, cropHeight,
+                                                rowWidth, rowHeight);
 
-        cvtColor(src, src, COLOR_YUV2RGBA_NV21);
-//        imwrite("/storage/emulated/0/scan/src2.jpg", src);
-
-        if (left != 0) {
-            src = src(Rect(left, top, cropWidth, cropHeight));
+    if (readResult && readResult->isValid()) {
+        env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult->text()));
+        if (readResult->isBlurry()) {
+            env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult->resultPoints()));
         }
-
-        rotate(src, src, ROTATE_90_CLOCKWISE);
-//        imwrite("/storage/emulated/0/scan/src3.jpg", src);
-
-        Mat gray;
-        cvtColor(src, gray, COLOR_RGBA2GRAY);
-//        imwrite("/storage/emulated/0/scan/gray.jpg", gray);
-
-        // 降低图片亮度
-        Mat lightMat;
-        gray.convertTo(lightMat, -1, 1.0, -60);
-//        imwrite("/storage/emulated/0/scan/lightMat.jpg", lightMat);
-
-        // 二值化
-        Mat thresholdMat;
-        threshold(lightMat, thresholdMat, 0, 255, CV_THRESH_OTSU);
-//        imwrite("/storage/emulated/0/scan/threshold.jpg", lightMat);
-
-        auto *pixels = static_cast<unsigned char *>(malloc(
-                thresholdMat.cols * thresholdMat.rows * sizeof(unsigned char)));
-
-        imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
-
-        // 检查处理结果
-//        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
-//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
-
-        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-        auto readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-
-        std::vector<ZXing::ResultPoint> points;
-        if (readResult.isValid()) {
-            free(pixels);
-            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            return static_cast<int>(readResult.format());
-        } else {
-            if (readResult.isBlurry()) {
-                points = readResult.resultPoints();
-            }
-            // 翻转一次
-            rotate(thresholdMat, thresholdMat, ROTATE_90_CLOCKWISE);
-//            imwrite("/storage/emulated/0/scan/result2.jpg", thresholdMat);
-            // 获取翻转后的像素
-            imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
-            // 解析
-            readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-            if (readResult.isValid()) {
-                free(pixels);
-                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-                return static_cast<int>(readResult.format());
-            } else {
-                if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
-                    points = readResult.resultPoints();
-                }
-                // 翻转第二次
-                rotate(lightMat, lightMat, ROTATE_180);
-                // 处理过暗的图像
-                Mat adaptiveThresholdMat;
-                adaptiveThreshold(lightMat, adaptiveThresholdMat, 255, ADAPTIVE_THRESH_MEAN_C,
-                                  THRESH_BINARY, 55, 3);
-//                imwrite("/storage/emulated/0/scan/result3.jpg", adaptiveThresholdMat);
-                // 获取二次翻转后的像素
-                imageUtil.getPixelsFromMat(adaptiveThresholdMat, &cropWidth, &cropHeight, pixels);
-                // 再次解析
-                readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-                if (readResult.isValid()) {
-                    free(pixels);
-                    env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-                    return static_cast<int>(readResult.format());
-                } else {
-                    if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
-                        points = readResult.resultPoints();
-                    }
-
-                    if (points.size() > 1) {
-                        points = readResult.resultPoints();
-                        env->SetObjectArrayElement(result, 1, ToJavaArray(env, points));
-                        return static_cast<int>(readResult.format());
-                    }
-                    // 启用图片分析，获取图片位置
-                    QRCodeRecognizer opencvProcessor;
-                    cv::Rect rect;
-                    opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
-                    free(pixels);
-                    if (!rect.empty()) {
-                        env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
-                        return 1;
-                    }
-                }
-            }
-        }
+        return static_cast<int>(readResult->format());
     }
-    catch (const std::exception &e) {
-        ThrowJavaException(env, e.what());
-    }
-    catch (...) {
-        ThrowJavaException(env, "Unknown exception");
-    }
+
+//    ImageUtil imageUtil;
+//    imageUtil.checkSize(&left, &top);
+//
+//    try {
+//        Mat src(rowHeight + rowHeight / 2, rowWidth, CV_8UC1, bytes);
+////        imwrite("/storage/emulated/0/scan/src.jpg", src);
+//
+//        cvtColor(src, src, COLOR_YUV2RGBA_NV21);
+////        imwrite("/storage/emulated/0/scan/src2.jpg", src);
+//
+//        if (left != 0) {
+//            src = src(Rect(left, top, cropWidth, cropHeight));
+//        }
+//
+//        rotate(src, src, ROTATE_90_CLOCKWISE);
+////        imwrite("/storage/emulated/0/scan/src3.jpg", src);
+//
+//        Mat gray;
+//        cvtColor(src, gray, COLOR_RGBA2GRAY);
+////        imwrite("/storage/emulated/0/scan/gray.jpg", gray);
+//
+//        // 降低图片亮度
+//        Mat lightMat;
+//        gray.convertTo(lightMat, -1, 1.0, -60);
+////        imwrite("/storage/emulated/0/scan/lightMat.jpg", lightMat);
+//
+//        // 二值化
+//        Mat thresholdMat;
+//        threshold(lightMat, thresholdMat, 0, 255, CV_THRESH_OTSU);
+////        imwrite("/storage/emulated/0/scan/threshold.jpg", thresholdMat);
+//
+//        auto *pixels = static_cast<unsigned char *>(malloc(
+//                thresholdMat.cols * thresholdMat.rows * sizeof(unsigned char)));
+//
+//        imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
+//
+//        // 检查处理结果
+////        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
+////        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+//
+//        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+//        auto readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
+//
+//        std::vector<ZXing::ResultPoint> points;
+//        if (readResult.isValid()) {
+//            free(pixels);
+//            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//            return static_cast<int>(readResult.format());
+//        } else {
+//            if (readResult.isBlurry()) {
+//                points = readResult.resultPoints();
+//            }
+//            // 翻转一次
+//            rotate(thresholdMat, thresholdMat, ROTATE_90_CLOCKWISE);
+////            imwrite("/storage/emulated/0/scan/result2.jpg", thresholdMat);
+//            // 获取翻转后的像素
+//            imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
+//            // 解析
+//            readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
+//            if (readResult.isValid()) {
+//                free(pixels);
+//                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//                return static_cast<int>(readResult.format());
+//            } else {
+//                if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
+//                    points = readResult.resultPoints();
+//                }
+//                // 翻转第二次
+//                rotate(lightMat, lightMat, ROTATE_180);
+//                // 处理过暗的图像
+//                Mat adaptiveThresholdMat;
+//                adaptiveThreshold(lightMat, adaptiveThresholdMat, 255, ADAPTIVE_THRESH_MEAN_C,
+//                                  THRESH_BINARY, 55, 3);
+////                imwrite("/storage/emulated/0/scan/result3.jpg", adaptiveThresholdMat);
+//                // 获取二次翻转后的像素
+//                imageUtil.getPixelsFromMat(adaptiveThresholdMat, &cropWidth, &cropHeight, pixels);
+//                // 再次解析
+//                readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
+//                if (readResult.isValid()) {
+//                    free(pixels);
+//                    env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//                    return static_cast<int>(readResult.format());
+//                } else {
+//                    if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
+//                        points = readResult.resultPoints();
+//                    }
+//
+//                    if (points.size() > 1) {
+//                        points = readResult.resultPoints();
+//                        env->SetObjectArrayElement(result, 1, ToJavaArray(env, points));
+//                        return static_cast<int>(readResult.format());
+//                    }
+//                    // 启用图片分析，获取图片位置
+//                    QRCodeRecognizer opencvProcessor;
+//                    cv::Rect rect;
+//                    opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
+//                    free(pixels);
+//                    if (!rect.empty()) {
+//                        env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
+//                        return 1;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    catch (const std::exception &e) {
+//        ThrowJavaException(env, e.what());
+//    }
+//    catch (...) {
+//        ThrowJavaException(env, "Unknown exception");
+//    }
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
     return -1;

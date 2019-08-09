@@ -97,7 +97,7 @@ BinaryBitmapFromBytesC4(JNIEnv *env, void *pixels, int cropLeft, int cropTop, in
 }
 
 std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytesC1(JNIEnv *env, void *pixels, int left, int top, int width, int height) {
+BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
     using namespace ZXing;
 
 //    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,

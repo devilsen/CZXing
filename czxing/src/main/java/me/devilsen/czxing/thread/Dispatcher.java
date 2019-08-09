@@ -25,7 +25,7 @@ public final class Dispatcher {
 
     public Dispatcher() {
         blockingDeque = new LinkedBlockingDeque<>();
-        executorService = new ThreadPoolExecutor(2,
+        executorService = new ThreadPoolExecutor(1,
                 2,
                 10,
                 TimeUnit.SECONDS,

@@ -29,6 +29,7 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ZX_LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, ZX_LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, ZX_LOG_TAG, __VA_ARGS__)
+#define DELETE(obj) if(obj){ delete obj; obj = 0; }
 
 namespace ZXing {
 class BinaryBitmap;
@@ -37,7 +38,7 @@ class BinaryBitmap;
 // Create BinaryBitmap from Android's Bitmap
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromJavaBitmap(JNIEnv* env, jobject bitmap, int cropLeft, int cropTop, int cropWidth, int cropHeight);
 std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytesC4(JNIEnv* env, void *rgbScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
-std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytesC1(JNIEnv* env, void *grayScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
+std::shared_ptr<ZXing::BinaryBitmap> BinaryBitmapFromBytesC1(void *grayScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
 bool AnalysisBrightness(JNIEnv* env,const jbyte *bytes, int width, int height);
 std::wstring StringToWString(const std::string &src);
 std::wstring ANSIToUnicode(const std::string &src);
