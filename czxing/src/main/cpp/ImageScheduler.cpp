@@ -7,14 +7,17 @@
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
 
-ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader) {
+ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
+                               JavaCallHelper *javaCallHelper) {
     this->env = env;
     this->reader = _reader;
+    this->javaCallHelper = javaCallHelper;
 }
 
 ImageScheduler::~ImageScheduler() {
     DELETE(env);
     DELETE(reader);
+    DELETE(javaCallHelper);
 
     DELETE(grayMat);
     DELETE(thresholdMat);
@@ -126,13 +129,15 @@ void ImageScheduler::decodePixels(Mat *mat, Result *result) {
 
     getPixelsFromMat(*mat, width, height, pixels);
 
-    Mat resultMat(height, width, CV_8UC1, pixels);
-    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+//    Mat resultMat(height, width, CV_8UC1, pixels);
+//    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
     try {
         auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
         free(pixels);
         *result = reader->read(*binImage);
+
+//        javaCallHelper->onResult(result);
     } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
     }
@@ -172,6 +177,8 @@ Result *ImageScheduler::analyzeResult() {
 }
 
 void ImageScheduler::decodeGrayPixels() {
+    javaCallHelper->onTest();
+
     decodePixels(grayMat, grayResult);
 }
 

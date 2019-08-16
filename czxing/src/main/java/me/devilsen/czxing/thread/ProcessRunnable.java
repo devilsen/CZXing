@@ -1,7 +1,8 @@
 package me.devilsen.czxing.thread;
 
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.processor.BarcodeProcessor;
 
 /**
@@ -38,7 +39,7 @@ public class ProcessRunnable implements Runnable {
             }
 
             long start = System.currentTimeMillis();
-            BarcodeReader.Result result = mBarcodeProcessor.processBytes(frameData.data,
+            CodeResult result = mBarcodeProcessor.processBytes(frameData.data,
                     frameData.left,
                     frameData.top,
                     frameData.width,

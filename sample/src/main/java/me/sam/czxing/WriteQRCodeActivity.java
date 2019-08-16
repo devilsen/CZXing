@@ -1,7 +1,6 @@
 package me.sam.czxing;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -23,9 +22,10 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import me.devilsen.czxing.BarcodeFormat;
-import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.BarcodeWriter;
+import me.devilsen.czxing.code.BarcodeFormat;
+import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeWriter;
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
@@ -77,7 +77,7 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void read(Bitmap bitmap) {
-        BarcodeReader.Result result = reader.read(bitmap);
+        CodeResult result = reader.read(bitmap);
         if (result != null) {
             Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
         }

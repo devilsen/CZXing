@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,19 +21,14 @@ import com.yanzhenjie.permission.runtime.Permission;
 import java.util.Arrays;
 import java.util.List;
 
-import me.devilsen.czxing.BarcodeFormat;
-import me.devilsen.czxing.BarcodeReader;
 import me.devilsen.czxing.Scanner;
-import me.devilsen.czxing.thread.ExecutorUtil;
-import me.devilsen.czxing.util.BitmapUtil;
-import me.devilsen.czxing.util.SaveImageUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
-    private BarcodeReader reader;
+//    private BarcodeReader reader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,22 +36,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         resultTxt = findViewById(R.id.text_view_result);
-        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+//        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
         requestPermission();
     }
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_wechat);
-        BarcodeReader.Result result = reader.read(bitmap);
+//        BarcodeReader.Result result = reader.read(bitmap);
 
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.getText());
-        }
-
-        resultTxt.setText(result.getText());
+//        if (result == null) {
+//            Log.e("Scan >>> ", "no code");
+//            return;
+//        } else {
+//            Log.e("Scan >>> ", result.getText());
+//        }
+//
+//        resultTxt.setText(result.getText());
     }
 
     public void write(View view) {
@@ -106,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openScanBox(View view) {
-        Intent intent = new Intent(this, ScanBoxTestActivity.class);
+        Intent intent = new Intent(this, CallBackTestActivity.class);
         startActivity(intent);
     }
 
@@ -149,14 +143,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        BarcodeReader.Result result = reader.read(bitmap);
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.getText());
-        }
-        resultTxt.setText(result.getText());
+//        BarcodeReader.Result result = reader.read(bitmap);
+//        if (result == null) {
+//            Log.e("Scan >>> ", "no code");
+//            return;
+//        } else {
+//            Log.e("Scan >>> ", result.getText());
+//        }
+//        resultTxt.setText(result.getText());
     }
 
 }

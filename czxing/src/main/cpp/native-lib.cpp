@@ -12,6 +12,22 @@
 #include "MultiFormatWriter.h"
 #include "BitMatrix.h"
 #include "ImageScheduler.h"
+#include "JavaCallHelper.h"
+
+JavaCallHelper *javaCallHelper;
+
+JavaVM *javaVM = NULL;
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    JNIEnv *env;
+    javaVM = vm;
+
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+        return JNI_ERR; // JNI version not supported.
+    }
+
+    return JNI_VERSION_1_6;
+}
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -29,7 +45,7 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_me_devilsen_czxing_BarcodeReader_createInstance(JNIEnv *env, jclass type, jintArray formats_) {
+Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jclass type, jintArray formats_) {
     try {
         ZXing::DecodeHints hints;
         if (formats_ != nullptr) {
@@ -47,7 +63,7 @@ Java_me_devilsen_czxing_BarcodeReader_createInstance(JNIEnv *env, jclass type, j
 }
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, jlong objPtr) {
+Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jclass type, jlong objPtr) {
 
     try {
         delete reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
@@ -61,7 +77,7 @@ Java_me_devilsen_czxing_BarcodeReader_destroyInstance(JNIEnv *env, jclass type, 
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlong objPtr,
+Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jclass type, jlong objPtr,
                                                   jobject bitmap, jint left, jint top, jint width,
                                                   jint height, jobjectArray result) {
 
@@ -90,15 +106,9 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcode(JNIEnv *env, jclass type, jlon
 
 }
 
-ZXing::Result
-decodePixels(JNIEnv *env, ZXing::MultiFormatReader *reader, void *pixels, int width, int height) {
-    auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
-    return reader->read(*binImage);
-}
-
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
+Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
                                                       jbyteArray bytes_, jint left, jint top,
                                                       jint cropWidth, jint cropHeight,
                                                       jint rowWidth, jint rowHeight,
@@ -106,7 +116,10 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
 
     auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-    ImageScheduler imageScheduler(env, reader);
+
+    javaCallHelper = new JavaCallHelper(javaVM, env, type);
+
+    ImageScheduler imageScheduler(env, reader, javaCallHelper);
     Result *readResult = imageScheduler.process(env, bytes, left, top, cropWidth, cropHeight,
                                                 rowWidth, rowHeight);
 
@@ -117,118 +130,6 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
         }
         return static_cast<int>(readResult->format());
     }
-
-//    ImageUtil imageUtil;
-//    imageUtil.checkSize(&left, &top);
-//
-//    try {
-//        Mat src(rowHeight + rowHeight / 2, rowWidth, CV_8UC1, bytes);
-////        imwrite("/storage/emulated/0/scan/src.jpg", src);
-//
-//        cvtColor(src, src, COLOR_YUV2RGBA_NV21);
-////        imwrite("/storage/emulated/0/scan/src2.jpg", src);
-//
-//        if (left != 0) {
-//            src = src(Rect(left, top, cropWidth, cropHeight));
-//        }
-//
-//        rotate(src, src, ROTATE_90_CLOCKWISE);
-////        imwrite("/storage/emulated/0/scan/src3.jpg", src);
-//
-//        Mat gray;
-//        cvtColor(src, gray, COLOR_RGBA2GRAY);
-////        imwrite("/storage/emulated/0/scan/gray.jpg", gray);
-//
-//        // 降低图片亮度
-//        Mat lightMat;
-//        gray.convertTo(lightMat, -1, 1.0, -60);
-////        imwrite("/storage/emulated/0/scan/lightMat.jpg", lightMat);
-//
-//        // 二值化
-//        Mat thresholdMat;
-//        threshold(lightMat, thresholdMat, 0, 255, CV_THRESH_OTSU);
-////        imwrite("/storage/emulated/0/scan/threshold.jpg", thresholdMat);
-//
-//        auto *pixels = static_cast<unsigned char *>(malloc(
-//                thresholdMat.cols * thresholdMat.rows * sizeof(unsigned char)));
-//
-//        imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
-//
-//        // 检查处理结果
-////        Mat resultMat(cropHeight, cropWidth, CV_8UC1, pixels);
-////        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
-//
-//        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-//        auto readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-//
-//        std::vector<ZXing::ResultPoint> points;
-//        if (readResult.isValid()) {
-//            free(pixels);
-//            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-//            return static_cast<int>(readResult.format());
-//        } else {
-//            if (readResult.isBlurry()) {
-//                points = readResult.resultPoints();
-//            }
-//            // 翻转一次
-//            rotate(thresholdMat, thresholdMat, ROTATE_90_CLOCKWISE);
-////            imwrite("/storage/emulated/0/scan/result2.jpg", thresholdMat);
-//            // 获取翻转后的像素
-//            imageUtil.getPixelsFromMat(thresholdMat, &cropWidth, &cropHeight, pixels);
-//            // 解析
-//            readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-//            if (readResult.isValid()) {
-//                free(pixels);
-//                env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-//                return static_cast<int>(readResult.format());
-//            } else {
-//                if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
-//                    points = readResult.resultPoints();
-//                }
-//                // 翻转第二次
-//                rotate(lightMat, lightMat, ROTATE_180);
-//                // 处理过暗的图像
-//                Mat adaptiveThresholdMat;
-//                adaptiveThreshold(lightMat, adaptiveThresholdMat, 255, ADAPTIVE_THRESH_MEAN_C,
-//                                  THRESH_BINARY, 55, 3);
-////                imwrite("/storage/emulated/0/scan/result3.jpg", adaptiveThresholdMat);
-//                // 获取二次翻转后的像素
-//                imageUtil.getPixelsFromMat(adaptiveThresholdMat, &cropWidth, &cropHeight, pixels);
-//                // 再次解析
-//                readResult = decodePixels(env, reader, pixels, cropWidth, cropHeight);
-//                if (readResult.isValid()) {
-//                    free(pixels);
-//                    env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-//                    return static_cast<int>(readResult.format());
-//                } else {
-//                    if (readResult.isBlurry() && readResult.resultPoints().size() > points.size()) {
-//                        points = readResult.resultPoints();
-//                    }
-//
-//                    if (points.size() > 1) {
-//                        points = readResult.resultPoints();
-//                        env->SetObjectArrayElement(result, 1, ToJavaArray(env, points));
-//                        return static_cast<int>(readResult.format());
-//                    }
-//                    // 启用图片分析，获取图片位置
-//                    QRCodeRecognizer opencvProcessor;
-//                    cv::Rect rect;
-//                    opencvProcessor.processData(lightMat, cropWidth, cropHeight, &rect);
-//                    free(pixels);
-//                    if (!rect.empty()) {
-//                        env->SetObjectArrayElement(result, 2, reactToJavaArray(env, rect));
-//                        return 1;
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    catch (const std::exception &e) {
-//        ThrowJavaException(env, e.what());
-//    }
-//    catch (...) {
-//        ThrowJavaException(env, "Unknown exception");
-//    }
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
     return -1;
@@ -236,7 +137,7 @@ Java_me_devilsen_czxing_BarcodeReader_readBarcodeByte(JNIEnv *env, jclass type, 
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jclass type,
+Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jclass type,
                                                                jbyteArray bytes_, jint width,
                                                                jint height) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
@@ -249,7 +150,7 @@ Java_me_devilsen_czxing_BarcodeReader_analysisBrightnessNative(JNIEnv *env, jcla
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_BarcodeWriter_writeCode(JNIEnv *env, jclass type, jstring content_,
+Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jclass type, jstring content_,
                                                 jint width, jint height, jint color,
                                                 jstring format_, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
@@ -287,5 +188,13 @@ Java_me_devilsen_czxing_BarcodeWriter_writeCode(JNIEnv *env, jclass type, jstrin
     catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
+    return 0;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_callbackTest(JNIEnv *env, jclass type) {
+    javaCallHelper = new JavaCallHelper(javaVM, env, type);
+    javaCallHelper->onTest();
     return 0;
 }

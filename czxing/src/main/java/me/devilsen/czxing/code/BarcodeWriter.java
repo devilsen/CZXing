@@ -1,4 +1,4 @@
-package me.devilsen.czxing;
+package me.devilsen.czxing.code;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -99,7 +99,7 @@ public class BarcodeWriter {
      */
     private Bitmap write(String text, int width, int height, int color, BarcodeFormat format, Bitmap logo) {
         Object[] result = new Object[1];
-        int resultCode = writeCode(text, width, height, color, format.name(), result);
+        int resultCode = NativeSdk.writeCode(text, width, height, color, format.name(), result);
         Bitmap bitmap = null;
         if (resultCode > -1) {
             int[] pixels = (int[]) result[0];
@@ -110,12 +110,6 @@ public class BarcodeWriter {
             }
         }
         return bitmap;
-    }
-
-    public static native int writeCode(String content, int width, int height, int color, String format, Object[] result);
-
-    static {
-        System.loadLibrary("czxing");
     }
 
 }

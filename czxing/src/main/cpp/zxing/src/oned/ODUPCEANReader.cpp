@@ -36,29 +36,6 @@ UPCEANReader::UPCEANReader(const DecodeHints& hints) :
 {
 }
 
-/**
-* @param row row of black/white values to search
-* @param rowOffset position to start search
-* @param whiteFirst if true, indicates that the pattern specifies white/black/white/...
-* pixel counts, otherwise, it is interpreted as black/white/black/...
-* @param pattern pattern of counts of number of black and white pixels that are being
-* searched for as a pattern
-* @return start/end horizontal offset of guard pattern, as an array of two ints
-* @throws NotFoundException if pattern is not found
-*/
-BitArray::Range
-UPCEANReader::FindGuardPattern(const BitArray& row, BitArray::Iterator begin, bool whiteFirst, const int* pattern, size_t length)
-{
-	using Counters = std::vector<int>;
-	Counters counters(length, 0);
-
-	return RowReader::FindPattern(
-		row.getNextSetTo(begin, !whiteFirst), row.end(), counters,
-		[pattern, length](BitArray::Iterator, BitArray::Iterator, const Counters& cntrs) {
-			return RowReader::PatternMatchVariance(cntrs.data(), pattern, length, MAX_INDIVIDUAL_VARIANCE) < MAX_AVG_VARIANCE;
-		});
-}
-
 BitArray::Range
 UPCEANReader::FindStartGuardPattern(const BitArray& row)
 {
@@ -112,7 +89,9 @@ UPCEANReader::decodeRow(int rowNumber, const BitArray& row, std::unique_ptr<Deco
 BitArray::Range
 UPCEANReader::decodeEnd(const BitArray& row, BitArray::Iterator begin) const
 {
-	return FindGuardPattern(row, begin, false, UPCEANCommon::START_END_PATTERN);
+	BitArray::Range next = {begin, row.end()};
+	ReadGuardPattern(&next, UPCEANCommon::START_END_PATTERN);
+	return {begin, next.begin};
 }
 
 Result
@@ -133,31 +112,23 @@ UPCEANReader::decodeRow(int rowNumber, const BitArray& row, BitArray::Range star
 	if (!row.hasQuiteZone(stopGuard.end, stopGuard.size(), false))
 		return Result(DecodeStatus::NotFound);
 
-	// UPC/EAN should never be less than 8 chars anyway
-	if (result.length() < 8) {
-		return Result(DecodeStatus::FormatError);
-	}
-	auto status = checkChecksum(result);
-	if (StatusIsError(status))
-		return Result(status);
+	if (!checkChecksum(result))
+		return Result(DecodeStatus::ChecksumError);
 
-	float left = (startGuard.begin - row.begin()) + 0.5f * startGuard.size();
-	float right = (stopGuard.begin - row.begin()) + 0.5f * stopGuard.size();
 	BarcodeFormat format = expectedFormat();
-	float ypos = static_cast<float>(rowNumber);
+	int xStart = startGuard.begin - row.begin();
+	int xStop = stopGuard.end - row.begin() - 1;
 
-	Result decodeResult(TextDecoder::FromLatin1(result), ByteArray(), { ResultPoint(left, ypos), ResultPoint(right, ypos) }, format);
-	int extensionLength = 0;
-	Result extensionResult = UPCEANExtensionSupport::DecodeRow(rowNumber, row, stopGuard.end - row.begin());
+	Result decodeResult(result, rowNumber, xStart, xStop, format);
+	Result extensionResult = UPCEANExtensionSupport::DecodeRow(rowNumber, row, stopGuard.end);
 	if (extensionResult.isValid())
 	{
 		decodeResult.metadata().put(ResultMetadata::UPC_EAN_EXTENSION, extensionResult.text());
 		decodeResult.metadata().putAll(extensionResult.metadata());
 		decodeResult.addResultPoints(extensionResult.resultPoints());
-		extensionLength = static_cast<int>(extensionResult.text().length());
 	}
 
-	if (!_allowedExtensions.empty() && !Contains(_allowedExtensions, extensionLength)) {
+	if (!_allowedExtensions.empty() && !Contains(_allowedExtensions, extensionResult.text().size())) {
 		return Result(DecodeStatus::NotFound);
 	}
 
@@ -179,31 +150,10 @@ UPCEANReader::decodeRow(int rowNumber, const BitArray& row, BitArray::Range star
 * @return true iff string of digits passes the UPC/EAN checksum algorithm
 * @throws FormatException if the string does not contain only digits
 */
-DecodeStatus
+bool
 UPCEANReader::checkChecksum(const std::string& s) const
 {
-	int length = static_cast<int>(s.length());
-	if (length == 0) {
-		return DecodeStatus::ChecksumError;
-	}
-
-	int sum = 0;
-	for (int i = length - 2; i >= 0; i -= 2) {
-		int digit = s[i] - '0';
-		if (digit < 0 || digit > 9) {
-			return DecodeStatus::FormatError;
-		}
-		sum += digit;
-	}
-	sum *= 3;
-	for (int i = length - 1; i >= 0; i -= 2) {
-		int digit = s[i] - '0';
-		if (digit < 0 || digit > 9) {
-			return DecodeStatus::FormatError;
-		}
-		sum += digit;
-	}
-	return sum % 10 == 0 ? DecodeStatus::NoError : DecodeStatus::ChecksumError;
+	return UPCEANCommon::ComputeChecksum(s, 1) == s.back() - '0';
 }
 
 } // OneD

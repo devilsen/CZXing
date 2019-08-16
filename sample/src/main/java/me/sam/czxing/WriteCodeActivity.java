@@ -13,9 +13,10 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import me.devilsen.czxing.BarcodeFormat;
-import me.devilsen.czxing.BarcodeReader;
-import me.devilsen.czxing.BarcodeWriter;
+import me.devilsen.czxing.code.BarcodeFormat;
+import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeWriter;
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
@@ -138,7 +139,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void read(Bitmap bitmap) {
-        BarcodeReader.Result result = reader.read(bitmap);
+        CodeResult result = reader.read(bitmap);
         if (result != null) {
             Log.d("read code", result.getText() + " format " + result.getFormat());
             Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();

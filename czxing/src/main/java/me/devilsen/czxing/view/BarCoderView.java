@@ -9,9 +9,10 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 
@@ -250,7 +251,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      *
      * @param result 二维码定位信息
      */
-    void tryZoom(BarcodeReader.Result result) {
+    void tryZoom(CodeResult result) {
         int len = 0;
         float[] points = result.getPoints();
         if (points.length > 3) {

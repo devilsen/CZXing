@@ -56,9 +56,22 @@ constexpr S Length(const T&) {
 	return static_cast<S>(std::extent<T>::value);
 }
 
-inline int IndexOf(const char* str, int c) {
+template <typename Container, typename Value>
+int IndexOf(const Container& c, const Value& v) {
+	auto i = Find(c, v);
+	return i == std::end(c) ? -1 : static_cast<int>(i - std::begin(c));
+}
+
+inline int IndexOf(const char* str, char c) {
 	auto s = strchr(str, c);
 	return s != nullptr ? static_cast<int>(s - str) : -1;
+}
+
+template <typename Container, typename Value, class UnaryOp>
+Value TransformReduce(const Container& c, Value s, UnaryOp op) {
+	for (const auto& v : c)
+		s += op(v);
+	return s;
 }
 
 } // ZXing

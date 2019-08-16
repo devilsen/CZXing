@@ -31,11 +31,6 @@ public:
 	static const std::array<int, 3> START_END_PATTERN;
 
 	/**
-	* end guard pattern.
-	*/
-	static const std::array<int, 6> END_PATTERN;
-
-	/**
 	* "Odd", or "L" patterns used to encode UPC/EAN digits.
 	*/
 	static const std::array<UPCEANReader::Digit, 10> L_PATTERNS;
@@ -50,19 +45,56 @@ public:
 	*/
 	static const std::array<UPCEANReader::Digit, 20> L_AND_G_PATTERNS;
 
+	/**
+	* UPCE end guard pattern (== MIDDLE_PATTERN + single module black bar)
+	*/
+	static const std::array<int, 6> UPCE_END_PATTERN;
 
-	template <size_t N>
-	static int ComputeChecksum(const std::array<int, N>& digits)
+	/**
+	* See {@link #L_AND_G_PATTERNS}; these values similarly represent patterns of
+	* even-odd parity encodings of digits that imply both the number system (0 or 1)
+	* used (index / 10), and the check digit (index % 10).
+	*/
+	static const std::array<int, 20> NUMSYS_AND_CHECK_DIGIT_PATTERNS;
+
+	template <typename T>
+	static int ComputeChecksum(const std::basic_string<T>& digits, bool skipTail = false)
 	{
-		int sum = 0;
-		for (int i = N - 2; i >= 0; i -= 2) {
-			sum += digits[i];
+		int sum = 0, N = static_cast<int>(digits.size());
+		for (int i = N - 1 - skipTail; i >= 0; i -= 2) {
+			sum += digits[i] - '0';
 		}
 		sum *= 3;
-		for (int i = N - 3; i >= 0; i -= 2) {
-			sum += digits[i];
+		for (int i = N - 2 - skipTail; i >= 0; i -= 2) {
+			sum += digits[i] - '0';
 		}
 		return (10 - (sum % 10)) % 10;
+	}
+
+	template <size_t N, typename T>
+	static std::array<int, N> DigitString2IntArray(const std::basic_string<T>& in, int checksum = -1)
+	{
+		static_assert(N == 8 || N == 13, "invalid UPC/EAN length");
+
+		if (in.size() != N && in.size() != N-1)
+			throw std::invalid_argument("Invalid input string length");
+
+		std::array<int, N> out = {};
+		for (size_t i = 0; i < in.size(); ++i) {
+			out[i] = in[i] - '0';
+			if (out[i] < 0 || out[i] > 9)
+				throw std::invalid_argument("Contents must contain only digits: 0-9");
+		}
+
+		if (checksum == -1)
+			checksum = ComputeChecksum(in, N == in.size());
+
+		if (in.size() == N-1)
+			out.back() = checksum;
+		else if (out.back() != checksum)
+			throw std::invalid_argument("Checksum error");
+
+		return out;
 	}
 
 	/**

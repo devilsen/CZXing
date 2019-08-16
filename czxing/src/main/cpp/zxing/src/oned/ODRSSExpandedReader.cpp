@@ -706,29 +706,16 @@ ConstructResult(const std::list<ExpandedPair>& pairs)
 	auto& firstPoints = pairs.front().finderPattern().points();
 	auto& lastPoints = pairs.back().finderPattern().points();
 
-	return Result(TextDecoder::FromLatin1(resultString), ByteArray(), { firstPoints[0], firstPoints[1], lastPoints[0], lastPoints[1] }, BarcodeFormat::RSS_EXPANDED);
+	return Result(TextDecoder::FromLatin1(resultString), { firstPoints[0], firstPoints[1], lastPoints[0], lastPoints[1] }, BarcodeFormat::RSS_EXPANDED);
 }
 
 Result
 RSSExpandedReader::decodeRow(int rowNumber, const BitArray& row, std::unique_ptr<DecodingState>& state) const
 {
-	RSSExpandedDecodingState* prevState = nullptr;
-	if (state == nullptr) {
-		state.reset(prevState = new RSSExpandedDecodingState);
+	if (!state) {
+		state.reset(new RSSExpandedDecodingState);
 	}
-	else {
-#if !defined(ZX_HAVE_CONFIG)
-		#error "You need to include ZXConfig.h"
-#elif !defined(ZX_NO_RTTI)
-		prevState = dynamic_cast<RSSExpandedDecodingState*>(state.get());
-#else
-		prevState = static_cast<RSSExpandedDecodingState*>(state.get());
-#endif
-	}
-
-	if (prevState == nullptr) {
-		throw std::runtime_error("Invalid state");
-	}
+	auto* prevState = static_cast<RSSExpandedDecodingState*>(state.get());
 
 	// Rows can start with even pattern in case in prev rows there where odd number of patters.
 	// So lets try twice

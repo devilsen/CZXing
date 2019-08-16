@@ -20,7 +20,6 @@
 #include "Result.h"
 #include "BitArray.h"
 #include "DecodeHints.h"
-#include "TextDecoder.h"
 #include "ZXContainerAlgorithms.h"
 #include "ZXStrConvWorkaround.h"
 
@@ -43,8 +42,6 @@ static const int CODE_CODE_A = 101;
 static const int CODE_FNC_1 = 102;
 static const int CODE_FNC_2 = 97;
 static const int CODE_FNC_3 = 96;
-static const int CODE_FNC_4_A = 101;
-static const int CODE_FNC_4_B = 100;
 
 static const int CODE_START_A = 103;
 static const int CODE_START_B = 104;
@@ -66,7 +63,7 @@ FindStartPattern(const BitArray& row, int* startCode)
 			if (!row.hasQuiteZone(begin, -(end - begin) / 2))
 				return false;
 			float bestVariance = MAX_AVG_VARIANCE;
-		    for (int code = CODE_START_A; code <= CODE_START_C; code++) {
+			for (int code : {CODE_START_A, CODE_START_B, CODE_START_C}) {
 			    float variance =
 			        RowReader::PatternMatchVariance(counters, Code128::CODE_PATTERNS[code], MAX_INDIVIDUAL_VARIANCE);
 			    if (variance < bestVariance) {
@@ -76,28 +73,6 @@ FindStartPattern(const BitArray& row, int* startCode)
 		    }
 		    return bestVariance < MAX_AVG_VARIANCE;
 	    });
-}
-
-static bool DecodeCode(const std::vector<int>& counters, int* outCode)
-{
-	assert(outCode != nullptr);
-
-	float bestVariance = MAX_AVG_VARIANCE; // worst variance we'll accept
-	int bestMatch = -1;
-	for (size_t d = 0; d < Code128::CODE_PATTERNS.size(); d++) {
-		const auto& pattern = Code128::CODE_PATTERNS[d];
-		float variance = RowReader::PatternMatchVariance(counters, pattern, MAX_INDIVIDUAL_VARIANCE);
-		if (variance < bestVariance) {
-			bestVariance = variance;
-			bestMatch = static_cast<int>(d);
-		}
-	}
-	// TODO We're overlooking the fact that the STOP pattern has 7 values, not 6.
-	if (bestMatch >= 0) {
-		*outCode = bestMatch;
-		return true;
-	}
-	return false;
 }
 
 Code128Reader::Code128Reader(const DecodeHints& hints) :
@@ -114,294 +89,133 @@ Code128Reader::decodeRow(int rowNumber, const BitArray& row, std::unique_ptr<Dec
 		return Result(DecodeStatus::NotFound);
 	}
 
-	float left = (range.begin - row.begin()) + 0.5f * range.size();
+	int xStart = range.begin - row.begin();
 	ByteArray rawCodes;
 	rawCodes.reserve(20);
-	rawCodes.push_back(static_cast<uint8_t>(startCode));
-
-	int codeSet;
-	switch (startCode) {
-	case CODE_START_A:
-		codeSet = CODE_CODE_A;
-		break;
-	case CODE_START_B:
-		codeSet = CODE_CODE_B;
-		break;
-	case CODE_START_C:
-		codeSet = CODE_CODE_C;
-		break;
-	default:
-		return Result(DecodeStatus::FormatError);
-	}
-
-	bool done = false;
-	bool isNextShifted = false;
-
 	std::string result;
 	result.reserve(20);
 	std::vector<int> counters(6, 0);
 
-	int lastCode = 0;
-	int code = 0;
-	int checksumTotal = startCode;
-	int multiplier = 0;
-	bool lastCharacterWasPrintable = true;
-	bool upperMode = false;
-	bool shiftUpperMode = false;
+	rawCodes.push_back(static_cast<uint8_t>(startCode));
 
-	while (!done) {
+	int codeSet = 204 - startCode;
+	size_t lastResultSize = 0;
+	bool fnc4All = false;
+	bool fnc4Next = false;
+	bool shift = false;
 
-		bool unshift = isNextShifted;
-		isNextShifted = false;
+	auto fnc1 = [&] {
+		if (_convertFNC1) {
+			if (result.empty()) {
+				// GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
+				// is FNC1 then this is GS1-128. We add the symbology identifier.
+				result.append("]C1");
+			}
+			else {
+				// GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
+				result.push_back((char)29);
+			}
+		}
+	};
 
-		// Save off last code
-		lastCode = code;
-
+	while (true) {
 		range = RecordPattern(range.end, row.end(), counters);
 		if (!range)
 			return Result(DecodeStatus::NotFound);
 
 		// Decode another code from image
-		if (!DecodeCode(counters, &code))
+		int code = RowReader::DecodeDigit(counters, Code128::CODE_PATTERNS, MAX_AVG_VARIANCE, MAX_INDIVIDUAL_VARIANCE);
+		if (code == -1)
 			return Result(DecodeStatus::NotFound);
+		if (code == CODE_STOP)
+			break;
+		if (code >= CODE_START_A)
+			return Result(DecodeStatus::FormatError);
 
 		rawCodes.push_back(static_cast<uint8_t>(code));
 
-		// Remember whether the last code was printable or not (excluding CODE_STOP)
-		if (code != CODE_STOP) {
-			lastCharacterWasPrintable = true;
-		}
+		lastResultSize = result.size();
 
-		// Add to checksum computation (if not CODE_STOP of course)
-		if (code != CODE_STOP) {
-			multiplier++;
-			checksumTotal += multiplier * code;
-		}
-
-		// Take care of illegal start codes
-		switch (code) {
-		case CODE_START_A:
-		case CODE_START_B:
-		case CODE_START_C:
-			return Result(DecodeStatus::FormatError);
-		}
-
-		switch (codeSet) {
-
-		case CODE_CODE_A:
-			if (code < 64) {
-				if (shiftUpperMode == upperMode) {
-					result.push_back((char)(' ' + code));
-				}
-				else {
-					result.push_back((char)(' ' + code + 128));
-				}
-				shiftUpperMode = false;
-			}
-			else if (code < 96) {
-				if (shiftUpperMode == upperMode) {
-					result.push_back((char)(code - 64));
-				}
-				else {
-					result.push_back((char)(code + 64));
-				}
-				shiftUpperMode = false;
-			}
-			else {
-				// Don't let CODE_STOP, which always appears, affect whether whether we think the last
-				// code was printable or not.
-				if (code != CODE_STOP) {
-					lastCharacterWasPrintable = false;
-				}
-				switch (code) {
-				case CODE_FNC_1:
-					if (_convertFNC1) {
-						if (result.empty()) {
-							// GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
-							// is FNC1 then this is GS1-128. We add the symbology identifier.
-							result.append("]C1");
-						}
-						else {
-							// GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-							result.push_back((char)29);
-						}
-					}
-					break;
-				case CODE_FNC_2:
-				case CODE_FNC_3:
-					// do nothing?
-					break;
-				case CODE_FNC_4_A:
-					if (!upperMode && shiftUpperMode) {
-						upperMode = true;
-						shiftUpperMode = false;
-					}
-					else if (upperMode && shiftUpperMode) {
-						upperMode = false;
-						shiftUpperMode = false;
-					}
-					else {
-						shiftUpperMode = true;
-					}
-					break;
-				case CODE_SHIFT:
-					isNextShifted = true;
-					codeSet = CODE_CODE_B;
-					break;
-				case CODE_CODE_B:
-					codeSet = CODE_CODE_B;
-					break;
-				case CODE_CODE_C:
-					codeSet = CODE_CODE_C;
-					break;
-				case CODE_STOP:
-					done = true;
-					break;
-				}
-			}
-			break;
-		case CODE_CODE_B:
-			if (code < 96) {
-				if (shiftUpperMode == upperMode) {
-					result.push_back((char)(' ' + code));
-				}
-				else {
-					result.push_back((char)(' ' + code + 128));
-				}
-				shiftUpperMode = false;
-			}
-			else {
-				if (code != CODE_STOP) {
-					lastCharacterWasPrintable = false;
-				}
-				switch (code) {
-				case CODE_FNC_1:
-					if (_convertFNC1) {
-						if (result.empty()) {
-							// GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
-							// is FNC1 then this is GS1-128. We add the symbology identifier.
-							result.append("]C1");
-						}
-						else {
-							// GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-							result.push_back((char)29);
-						}
-					}
-					break;
-				case CODE_FNC_2:
-				case CODE_FNC_3:
-					// do nothing?
-					break;
-				case CODE_FNC_4_B:
-					if (!upperMode && shiftUpperMode) {
-						upperMode = true;
-						shiftUpperMode = false;
-					}
-					else if (upperMode && shiftUpperMode) {
-						upperMode = false;
-						shiftUpperMode = false;
-					}
-					else {
-						shiftUpperMode = true;
-					}
-					break;
-				case CODE_SHIFT:
-					isNextShifted = true;
-					codeSet = CODE_CODE_A;
-					break;
-				case CODE_CODE_A:
-					codeSet = CODE_CODE_A;
-					break;
-				case CODE_CODE_C:
-					codeSet = CODE_CODE_C;
-					break;
-				case CODE_STOP:
-					done = true;
-					break;
-				}
-			}
-			break;
-		case CODE_CODE_C:
+		if (codeSet == CODE_CODE_C) {
 			if (code < 100) {
-				if (code < 10) {
+				if (code < 10)
 					result.push_back('0');
-				}
 				result.append(std::to_string(code));
+			} else if (code == CODE_FNC_1) {
+				fnc1();
+			} else {
+				codeSet = code; // CODE_A / CODE_B
 			}
-			else {
-				if (code != CODE_STOP) {
-					lastCharacterWasPrintable = false;
+		} else { // codeSet A or B
+			bool unshift = shift;
+
+			switch (code) {
+			case CODE_FNC_1: fnc1(); break;
+			case CODE_FNC_2:
+			case CODE_FNC_3:
+				// do nothing?
+				break;
+			case CODE_SHIFT:
+				if (shift)
+					return Result(DecodeStatus::FormatError); // two shifts in a row make no sense
+				shift = true;
+				codeSet = codeSet == CODE_CODE_A ? CODE_CODE_B : CODE_CODE_A;
+				break;
+			case CODE_CODE_A:
+			case CODE_CODE_B:
+				if (codeSet == code) {
+					// FNC4
+					if (fnc4Next)
+						fnc4All = !fnc4All;
+					fnc4Next = !fnc4Next;
+				} else {
+					codeSet = code;
 				}
-				switch (code) {
-				case CODE_FNC_1:
-					if (_convertFNC1) {
-						if (result.empty()) {
-							// GS1 specification 5.4.3.7. and 5.4.6.4. If the first char after the start code
-							// is FNC1 then this is GS1-128. We add the symbology identifier.
-							result.append("]C1");
-						}
-						else {
-							// GS1 specification 5.4.7.5. Every subsequent FNC1 is returned as ASCII 29 (GS)
-							result.push_back((char)29);
-						}
-					}
-					break;
-				case CODE_CODE_A:
-					codeSet = CODE_CODE_A;
-					break;
-				case CODE_CODE_B:
-					codeSet = CODE_CODE_B;
-					break;
-				case CODE_STOP:
-					done = true;
-					break;
-				}
+				break;
+			case CODE_CODE_C: codeSet = CODE_CODE_C; break;
+
+			default: {
+				// code < 96 at this point
+				int offset;
+				if (codeSet == CODE_CODE_A && code >= 64)
+					offset = fnc4All == fnc4Next ? -64 : +64;
+				else
+					offset = fnc4All == fnc4Next ? ' ' : ' ' + 128;
+				result.push_back((char)(code + offset));
+				fnc4Next = false;
+				break;
 			}
-			break;
-		}
+			}
 
-		// Unshift back to another code set if we were shifted
-		if (unshift) {
-			codeSet = codeSet == CODE_CODE_A ? CODE_CODE_B : CODE_CODE_A;
+			// Unshift back to another code set if we were shifted
+			if (unshift) {
+				codeSet = codeSet == CODE_CODE_A ? CODE_CODE_B : CODE_CODE_A;
+				shift = false;
+			}
 		}
-
 	}
 
 	// Check for ample whitespace following pattern, but, to do this we first need to remember that
 	// we fudged decoding CODE_STOP since it actually has 7 bars, not 6. There is a black bar left
 	// to read off. Would be slightly better to properly read. Here we just skip it:
 	range.end = row.getNextUnset(range.end);
-	if (!row.hasQuiteZone(range.end, range.size() / 2))
+	if (result.empty() || !row.hasQuiteZone(range.end, range.size() / 2))
 		return Result(DecodeStatus::NotFound);
 
-	// Pull out from sum the value of the penultimate check code
-	checksumTotal -= multiplier * lastCode;
-	// lastCode is the checksum then:
-	if (checksumTotal % 103 != lastCode) {
+	int checksum = rawCodes.front();
+	for (size_t i = 1; i < rawCodes.size() - 1; ++i)
+		checksum += i * rawCodes[i];
+	// the last code is the checksum:
+	if (checksum % 103 != rawCodes.back()) {
 		return Result(DecodeStatus::ChecksumError);
 	}
 
-	// Need to pull out the check digits from string
-	size_t resultLength = result.length();
-	if (resultLength == 0) {
-		// false positive
-		return Result(DecodeStatus::NotFound);
-	}
+	// Need to pull out the check digit(s) from string (if the checksum code happened to
+	// be a printable character).
+	result.resize(lastResultSize);
 
-	// Only bother if the result had at least one character, and if the checksum digit happened to
-	// be a printable character. If it was just interpreted as a control code, nothing to remove.
-	if (resultLength > 0 && lastCharacterWasPrintable) {
-		if (codeSet == CODE_CODE_C) {
-			result.resize(resultLength >= 2 ? resultLength - 2 : 0);
-		}
-		else {
-			result.resize(resultLength - 1);
-		}
-	}
-
-	float right = (range.begin - row.begin()) + 0.5f * range.size();
-	float ypos = static_cast<float>(rowNumber);
-	return Result(TextDecoder::FromLatin1(result), std::move(rawCodes), { ResultPoint(left, ypos), ResultPoint(right, ypos) }, BarcodeFormat::CODE_128);
+	int xStop = range.end - row.begin() - 1;
+	return Result(result, rowNumber, xStart, xStop, BarcodeFormat::CODE_128, std::move(rawCodes));
 }
 
 } // OneD

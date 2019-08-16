@@ -172,7 +172,7 @@ Reader::decode(const BinaryBitmap& image) const
 
 	// If the code was mirrored: swap the bottom-left and the top-right points.
 	// No need to 'fix' top-left and alignment pattern.
-	if (points.size() >= 3 && decoderResult.extra() && dynamic_cast<DecoderMetadata*>(decoderResult.extra().get())->isMirrored()) {
+	if (points.size() >= 3 && decoderResult.extra() && static_cast<DecoderMetadata*>(decoderResult.extra().get())->isMirrored()) {
 		std::swap(points.at(0), points.at(2));
 	}
 

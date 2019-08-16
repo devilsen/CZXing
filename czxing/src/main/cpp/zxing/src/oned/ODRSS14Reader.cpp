@@ -22,6 +22,7 @@
 #include "Result.h"
 #include "DecodeHints.h"
 #include "ZXConfig.h"
+#include "ZXContainerAlgorithms.h"
 
 #include <list>
 #include <array>
@@ -71,6 +72,9 @@ struct RSS14DecodingState : public RowReader::DecodingState
 static BitArray::Range
 FindFinderPattern(const BitArray& row, bool rightFinderPattern, FinderCounters& counters)
 {
+	if (row.size() < 2 * 18 + 14)
+		return {row.end(), row.end()};
+
 	return RowReader::FindPattern(
 	    // Will encounter white first when searching for right finder pattern
 		// The finder pattern is inside the code, i.e. there must be at least 18 pixels on both sides
@@ -271,6 +275,7 @@ DecodeDataCharacter(const BitArray& row, const RSS::FinderPattern& pattern, bool
 	for (int i = 0; i < 8; i++) {
 		float value = (float)counters[i] / elementWidth;
 		int count = (int)(value + 0.5f); // Round
+		//TODO: C++17: count = std::clamp((int)(value + 0.5f), 1, 8);
 		if (count < 1) {
 			count = 1;
 		}
@@ -292,21 +297,17 @@ DecodeDataCharacter(const BitArray& row, const RSS::FinderPattern& pattern, bool
 		return {};
 	}
 
-	int oddSum = 0;
-	int oddChecksumPortion = 0;
-	for (auto it = oddCounts.rbegin(); it != oddCounts.rend(); ++it) {
-		oddChecksumPortion *= 9;
-		oddChecksumPortion += *it;
-		oddSum += *it;
-	}
-	int evenChecksumPortion = 0;
-	int evenSum = 0;
-	for (auto it = evenCounts.rbegin(); it != evenCounts.rend(); ++it) {
-		evenChecksumPortion *= 9;
-		evenChecksumPortion += *it;
-		evenSum += *it;
-	}
-	int checksumPortion = oddChecksumPortion + 3 * evenChecksumPortion;
+	auto calcChecksumPortion = [](const std::array<int, 4>& counts) {
+		int res = 0;
+		for (auto it = counts.rbegin(); it != counts.rend(); ++it) {
+			res = 9 * res + *it;
+		}
+		return res;
+	};
+
+	int checksumPortion = calcChecksumPortion(oddCounts) + 3 * calcChecksumPortion(evenCounts);
+	int oddSum = Accumulate(oddCounts, 0);
+	int evenSum = Accumulate(evenCounts, 0);
 
 	if (outsideChar) {
 		if ((oddSum & 0x01) != 0 || oddSum > 12 || oddSum < 4) {
@@ -412,29 +413,16 @@ ConstructResult(const RSS::Pair& leftPair, const RSS::Pair& rightPair)
 
 	auto& leftPoints = leftPair.finderPattern().points();
 	auto& rightPoints = rightPair.finderPattern().points();
-	return Result(buffer.str(), ByteArray(), { leftPoints[0], leftPoints[1], rightPoints[0], rightPoints[1] }, BarcodeFormat::RSS_14);
+	return Result(buffer.str(), { leftPoints[0], leftPoints[1], rightPoints[0], rightPoints[1] }, BarcodeFormat::RSS_14);
 }
 
 Result
 RSS14Reader::decodeRow(int rowNumber, const BitArray& row_, std::unique_ptr<DecodingState>& state) const
 {
-	RSS14DecodingState* prevState = nullptr;
-	if (state == nullptr) {
-		state.reset(prevState = new RSS14DecodingState);
+	if (!state) {
+		state.reset(new RSS14DecodingState);
 	}
-	else {
-#if !defined(ZX_HAVE_CONFIG)
-		#error "You need to include ZXConfig.h"
-#elif !defined(ZX_NO_RTTI)
-		prevState = dynamic_cast<RSS14DecodingState*>(state.get());
-#else
-		prevState = static_cast<RSS14DecodingState*>(state.get());
-#endif
-	}
-
-	if (prevState == nullptr) {
-		throw std::runtime_error("Invalid state");
-	}
+	auto* prevState = static_cast<RSS14DecodingState*>(state.get());
 
 	BitArray row = row_.copy();
 	AddOrTally(prevState->possibleLeftPairs, DecodePair(row, false, rowNumber));

@@ -37,17 +37,15 @@ EAN8Reader::decodeMiddle(const BitArray& row, BitArray::Iterator begin, std::str
 	BitArray::Range next = {begin, row.end()};
 	const BitArray::Range notFound = {begin, begin};
 
-	for (int x = 0; x < 4 && next; x++) {
+	for (int x = 0; x < 4; x++) {
 		if (DecodeDigit(&next, UPCEANCommon::L_PATTERNS, &resultString) == -1)
 			return notFound;
 	}
 
-	auto middleRange = FindGuardPattern(row, next.begin, true, UPCEANCommon::MIDDLE_PATTERN);
-	if (!middleRange)
+	if (!ReadGuardPattern(&next, UPCEANCommon::MIDDLE_PATTERN))
 		return notFound;
-	next.begin = middleRange.end;
 
-	for (int x = 0; x < 4 && next; x++) {
+	for (int x = 0; x < 4; x++) {
 		if (DecodeDigit(&next, UPCEANCommon::L_PATTERNS, &resultString) == -1)
 			return notFound;
 	}

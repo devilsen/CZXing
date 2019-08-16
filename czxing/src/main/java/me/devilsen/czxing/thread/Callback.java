@@ -1,6 +1,6 @@
 package me.devilsen.czxing.thread;
 
-import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.code.CodeResult;
 
 /**
  * desc :
@@ -10,7 +10,7 @@ import me.devilsen.czxing.BarcodeReader;
  */
 public interface Callback {
 
-    void onDecodeComplete(BarcodeReader.Result result);
+    void onDecodeComplete(CodeResult result);
 
     void onDarkBrightness(boolean isDark);
 

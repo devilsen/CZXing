@@ -2,8 +2,9 @@ package me.devilsen.czxing.processor;
 
 import android.graphics.Bitmap;
 
-import me.devilsen.czxing.BarcodeFormat;
-import me.devilsen.czxing.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeFormat;
+import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.CodeResult;
 
 /**
  * desc : 二维码处理模块
@@ -42,19 +43,19 @@ public class BarcodeProcessor extends Processor {
             return null;
         }
 
-        BarcodeReader.Result result = reader.read(bitmap);
+        CodeResult result = reader.read(bitmap);
         if (result != null) {
             return result.getText();
         }
         return null;
     }
 
-    public synchronized BarcodeReader.Result processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
+    public synchronized CodeResult processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         if (cancel) {
             return null;
         }
 
-        BarcodeReader.Result result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
+        CodeResult result = reader.read(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
         if (result != null) {
             return result;
         }

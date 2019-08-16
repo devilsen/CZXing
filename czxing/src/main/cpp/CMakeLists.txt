@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.4.1)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -std=c++11 -pthread ")
 
+file(GLOB SOURCE ${CMAKE_SOURCE_DIR}/*.cpp)
+
 add_library(
         czxing
         SHARED
-        native-lib.cpp JNIUtils.cpp QRCodeRecognizer.cpp ImageUtil.cpp ImageScheduler.cpp)
+        ${SOURCE})
 
 add_subdirectory(zxing)
 include_directories(zxing)

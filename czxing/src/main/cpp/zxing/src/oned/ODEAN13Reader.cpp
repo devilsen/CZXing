@@ -70,7 +70,7 @@ BitArray::Range EAN13Reader::decodeMiddle(const BitArray& row, BitArray::Iterato
 	BitArray::Range next = {begin, row.end()};
 	const BitArray::Range notFound = {begin, begin};
 
-	for (int x = 0; x < 6 && next; x++) {
+	for (int x = 0; x < 6; x++) {
 		int bestMatch = DecodeDigit(&next, UPCEANCommon::L_AND_G_PATTERNS, &resultString);
 		if (bestMatch == -1)
 			return notFound;
@@ -85,17 +85,15 @@ BitArray::Range EAN13Reader::decodeMiddle(const BitArray& row, BitArray::Iterato
 	* digits in a barcode, determines the implicitly encoded first digit and adds it to the
 	* result string.
 	*/
-	auto index = Find(FIRST_DIGIT_ENCODINGS, lgPatternFound) - std::begin(FIRST_DIGIT_ENCODINGS);
-	if( index == Length(FIRST_DIGIT_ENCODINGS) )
+	int index = IndexOf(FIRST_DIGIT_ENCODINGS, lgPatternFound);
+	if (index == -1)
 		return notFound;
 	resultString.insert(0, 1, (char)('0' + index));
 
-	auto middleRange = FindGuardPattern(row, next.begin, true, UPCEANCommon::MIDDLE_PATTERN);
-	if (!middleRange)
+	if (!ReadGuardPattern(&next, UPCEANCommon::MIDDLE_PATTERN))
 		return notFound;
-	next.begin = middleRange.end;
 
-	for (int x = 0; x < 6 && next; x++) {
+	for (int x = 0; x < 6; x++) {
 		if (DecodeDigit(&next, UPCEANCommon::L_PATTERNS, &resultString) == -1)
 			return notFound;
 	}

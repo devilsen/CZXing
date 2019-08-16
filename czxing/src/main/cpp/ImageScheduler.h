@@ -10,13 +10,14 @@
 #include <opencv2/core/mat.hpp>
 #include <src/MultiFormatReader.h>
 #include "Result.h"
+#include "JavaCallHelper.h"
 
 using namespace cv;
 using namespace ZXing;
 
 class ImageScheduler {
 public:
-    ImageScheduler(JNIEnv *env, MultiFormatReader *_reader);
+    ImageScheduler(JNIEnv *env, MultiFormatReader *_reader, JavaCallHelper *javaCallHelper);
 
     ~ImageScheduler();
 
@@ -33,6 +34,7 @@ public:
 private:
     JNIEnv *env;
     MultiFormatReader *reader;
+    JavaCallHelper *javaCallHelper;
 
     pthread_t grayThread;
     pthread_t thresholdThread;

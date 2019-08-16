@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package me.devilsen.czxing;
+package me.devilsen.czxing.code;
 
 /**
  * Enumerates barcode formats known to this package.

@@ -53,7 +53,7 @@ public:
 	}
 
 private:
-	ErrorCorrectionLevel _errorCorrectionLevel = ErrorCorrectionLevel::High;
+	ErrorCorrectionLevel _errorCorrectionLevel = ErrorCorrectionLevel::Invalid;
 	uint8_t _dataMask = 0;
 
 	FormatInformation(int formatInfo);

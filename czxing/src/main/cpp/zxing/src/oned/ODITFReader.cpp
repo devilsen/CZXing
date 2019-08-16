@@ -19,7 +19,6 @@
 #include "Result.h"
 #include "BitArray.h"
 #include "DecodeHints.h"
-#include "TextDecoder.h"
 #include "ZXContainerAlgorithms.h"
 
 #include <array>
@@ -105,9 +104,8 @@ static std::string DecodeMiddle(BitArray::Iterator begin, BitArray::Iterator end
 
 		// Split them into each array
 		for (int k = 0; k < 5; k++) {
-			int twoK = 2 * k;
-			counterBlack[k] = counterDigitPair[twoK];
-			counterWhite[k] = counterDigitPair[twoK + 1];
+			counterBlack[k] = counterDigitPair[2 * k];
+			counterWhite[k] = counterDigitPair[2 * k + 1];
 		}
 
 		int bestMatch = RowReader::DecodeDigit(counterBlack, PATTERNS, MAX_AVG_VARIANCE, MAX_INDIVIDUAL_VARIANCE);
@@ -228,11 +226,9 @@ ITFReader::decodeRow(int rowNumber, const BitArray& row, std::unique_ptr<Decodin
 			return Result(DecodeStatus::FormatError);
 	}
 
-	float x1 = static_cast<float>(startRange.end - row.begin());
-	float x2 = static_cast<float>(endRange.begin - row.begin());
-	float ypos = static_cast<float>(rowNumber);
-
-	return Result(TextDecoder::FromLatin1(result), ByteArray(), { ResultPoint(x1, ypos), ResultPoint(x2, ypos) }, BarcodeFormat::ITF);
+	int xStart = startRange.begin - row.begin();
+	int xStop = endRange.end - row.begin() - 1;
+	return Result(result, rowNumber, xStart, xStop, BarcodeFormat::ITF);
 }
 
 } // OneD
