@@ -100,12 +100,12 @@ std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
     using namespace ZXing;
 
-//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
-//         cropHeight);
+//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
+//         height);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             left, top, width, height,
-            pixels, width);
+            pixels, width * sizeof(unsigned char));
 
     return std::make_shared<HybridBinarizer>(luminance);
 }
@@ -144,6 +144,21 @@ std::wstring StringToWString(const std::string &src) {
     std::wstring desc(p);
     delete[] p;                     // 释放申请的内存
     return desc;
+}
+
+std::string UnicodeToANSI(const std::wstring &wstr) {
+    std::string ret;
+    std::mbstate_t state = {};
+    const wchar_t *src = wstr.data();
+    size_t len = std::wcsrtombs(nullptr, &src, 0, &state);
+    if (static_cast<size_t>(-1) != len) {
+        std::unique_ptr<char[]> buff(new char[len + 1]);
+        len = std::wcsrtombs(buff.get(), &src, len, &state);
+        if (static_cast<size_t>(-1) != len) {
+            ret.assign(buff.get(), len);
+        }
+    }
+    return ret;
 }
 
 std::wstring ANSIToUnicode(const std::string &str) {

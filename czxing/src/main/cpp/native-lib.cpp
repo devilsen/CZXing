@@ -15,8 +15,7 @@
 #include "JavaCallHelper.h"
 
 JavaCallHelper *javaCallHelper;
-
-JavaVM *javaVM = NULL;
+JavaVM *javaVM = nullptr;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
@@ -45,28 +44,34 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jclass type, jintArray formats_) {
+Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jclass type,
+                                                      jintArray formats_) {
     try {
+        javaCallHelper = new JavaCallHelper(javaVM, env, type);
+
         ZXing::DecodeHints hints;
         if (formats_ != nullptr) {
             hints.setPossibleFormats(GetFormats(env, formats_));
         }
-        return reinterpret_cast<jlong>(new ZXing::MultiFormatReader(hints));
-    }
-    catch (const std::exception &e) {
+
+        auto *multiFormatReader = new ZXing::MultiFormatReader(hints);
+        auto *imageScheduler = new ImageScheduler(env, multiFormatReader, javaCallHelper);
+        return reinterpret_cast<jlong>(imageScheduler);
+    } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
-    }
-    catch (...) {
+    } catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
     return 0;
 }
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jclass type, jlong objPtr) {
 
     try {
-        delete reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+        delete reinterpret_cast<ImageScheduler *>(objPtr);
+        DELETE(javaCallHelper);
     }
     catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
@@ -78,23 +83,23 @@ Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jclass type,
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jclass type, jlong objPtr,
-                                                  jobject bitmap, jint left, jint top, jint width,
-                                                  jint height, jobjectArray result) {
+                                                   jobject bitmap, jint left, jint top, jint width,
+                                                   jint height, jobjectArray result) {
 
     try {
-        auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
+        auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
         auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
         if (!binImage) {
             return -1;
         }
-        auto readResult = reader->read(*binImage);
-        if (readResult.isValid()) {
-            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-            if (!readResult.resultPoints().empty()) {
-                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
-            }
-            return static_cast<int>(readResult.format());
-        }
+//        auto readResult = imageScheduler->read(*binImage);
+//        if (readResult.isValid()) {
+//            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+//            if (!readResult.resultPoints().empty()) {
+//                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+//            }
+//            return static_cast<int>(readResult.format());
+//        }
     }
     catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
@@ -109,28 +114,14 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jclass type, jlo
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
-                                                      jbyteArray bytes_, jint left, jint top,
-                                                      jint cropWidth, jint cropHeight,
-                                                      jint rowWidth, jint rowHeight,
-                                                      jobjectArray result) {
+                                                       jbyteArray bytes_, jint left, jint top,
+                                                       jint cropWidth, jint cropHeight,
+                                                       jint rowWidth, jint rowHeight,
+                                                       jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
 
-    auto reader = reinterpret_cast<ZXing::MultiFormatReader *>(objPtr);
-
-    javaCallHelper = new JavaCallHelper(javaVM, env, type);
-
-    ImageScheduler imageScheduler(env, reader, javaCallHelper);
-    Result *readResult = imageScheduler.process(env, bytes, left, top, cropWidth, cropHeight,
-                                                rowWidth, rowHeight);
-
-    if (readResult && readResult->isValid()) {
-        env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult->text()));
-        if (readResult->isBlurry()) {
-            env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult->resultPoints()));
-        }
-        return static_cast<int>(readResult->format());
-    }
-    env->ReleaseByteArrayElements(bytes_, bytes, 0);
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    imageScheduler->process(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
 
     return -1;
 }
@@ -138,8 +129,8 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jclass type,
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jclass type,
-                                                               jbyteArray bytes_, jint width,
-                                                               jint height) {
+                                                                jbyteArray bytes_, jint width,
+                                                                jint height) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
 
     bool isDark = AnalysisBrightness(env, bytes, width, height);
@@ -151,8 +142,8 @@ Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jcl
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jclass type, jstring content_,
-                                                jint width, jint height, jint color,
-                                                jstring format_, jobjectArray result) {
+                                                 jint width, jint height, jint color,
+                                                 jstring format_, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
     const char *format = env->GetStringUTFChars(format_, 0);
     try {

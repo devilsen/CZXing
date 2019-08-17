@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.processor.BarcodeProcessor;
 import me.devilsen.czxing.thread.Callback;
 import me.devilsen.czxing.thread.Dispatcher;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -21,7 +22,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     private boolean isDark;
     private boolean isStop;
 
-//    private BarcodeProcessor processor;
+    private BarcodeProcessor processor;
 
     public ScanView(Context context) {
         this(context, null);
@@ -35,7 +36,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         super(context, attrs, defStyleAttr);
         mDispatcher = new Dispatcher();
         mScanBoxView.setScanBoxClickListener(this);
-//        processor = new BarcodeProcessor();
+        processor = new BarcodeProcessor();
     }
 
     @Override
@@ -44,12 +45,12 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
             return;
         }
 
-//        processor.processBytes(data, left, top, width, height, rowWidth, rowHeight);
+        processor.processBytes(data, left, top, width, height, rowWidth, rowHeight);
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
-        setQueueSize(queueSize);
+//        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
+//        setQueueSize(queueSize);
 
-        isStop = true;
+//        isStop = true;
 //        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
 //
 //        if (result != null) {

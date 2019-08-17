@@ -15,7 +15,7 @@ public:
 
     ~JavaCallHelper();
 
-    void onResult(ZXing::Result *result);
+    void onResult(const ZXing::Result &result);
 
     void onTest();
 
@@ -24,7 +24,6 @@ private:
     JNIEnv *env;
     jobject jSdkObject;
     jmethodID jmid_on_result;
-    jmethodID jmid_points;
 
 };
 

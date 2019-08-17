@@ -19,16 +19,14 @@ ImageScheduler::~ImageScheduler() {
     DELETE(reader);
     DELETE(javaCallHelper);
 
-    DELETE(grayMat);
-    DELETE(thresholdMat);
-    DELETE(adaptiveMat);
+    cvDet(&pretreatmentMat);
 
     DELETE(grayResult);
     DELETE(thresholdResult);
     DELETE(adaptiveResult);
 }
 
-Mat
+void
 ImageScheduler::pretreatment(jbyte *bytes, int left, int top, int cropWidth, int cropHeight,
                              int rowWidth,
                              int rowHeight) {
@@ -45,25 +43,23 @@ ImageScheduler::pretreatment(jbyte *bytes, int left, int top, int cropWidth, int
     Mat gray;
     cvtColor(src, gray, COLOR_RGBA2GRAY);
 
-    // 降低图片亮度
-    Mat lightMat;
-    gray.convertTo(lightMat, -1, 1.0, -60);
-
-    return lightMat;
+    pretreatmentMat = gray;
 }
 
 Result *
-ImageScheduler::process(JNIEnv *env, jbyte *bytes, int left, int top, int cropWidth, int cropHeight,
+ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int cropHeight,
                         int rowWidth,
                         int rowHeight) {
 
-    Mat gray = pretreatment(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
+    pretreatment(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
 
-    processGray(gray);
-//        processThreshold(gray);
-//        processAdaptive(gray);
+//    decodeGrayPixels();
+    processGray();
+    processThreshold();
+    processAdaptive();
 
-    return analyzeResult();
+//    return analyzeResult();
+    return nullptr;
 }
 
 void *threadProcessGray(void *args) {
@@ -84,72 +80,84 @@ void *threadProcessAdaptive(void *args) {
     return nullptr;
 }
 
-void ImageScheduler::processGray(Mat gray) {
-    grayMat = &gray;
+void ImageScheduler::processGray() {
     pthread_create(&grayThread, nullptr, threadProcessGray, this);
-    pthread_join(grayThread, nullptr);
 }
 
-void ImageScheduler::processThreshold(Mat gray) {
+void ImageScheduler::processThreshold() {
+    pthread_create(&thresholdThread, nullptr, threadProcessThreshold, this);
+}
+
+void ImageScheduler::processAdaptive() {
+    pthread_create(&adaptiveThread, nullptr, threadProcessAdaptive, this);
+}
+
+void ImageScheduler::decodeGrayPixels() {
+    Result result = decodePixels(pretreatmentMat);
+    javaCallHelper->onResult(result);
+}
+
+void ImageScheduler::decodeThresholdPixels() {
     Mat mat;
-    rotate(gray, mat, ROTATE_90_CLOCKWISE);
+    rotate(pretreatmentMat, mat, ROTATE_90_CLOCKWISE);
     threshold(mat, mat, 0, 255, CV_THRESH_OTSU);
 
-    thresholdMat = &mat;
-    pthread_create(&thresholdThread, nullptr, threadProcessThreshold, &mat);
-    pthread_join(thresholdThread, nullptr);
+    Result result = decodePixels(mat);
+    javaCallHelper->onResult(result);
 }
 
-void ImageScheduler::processAdaptive(Mat gray) {
+void ImageScheduler::decodeAdaptivePixels() {
     Mat mat;
-    rotate(gray, mat, ROTATE_180);
-    adaptiveThreshold(mat, mat, 255, ADAPTIVE_THRESH_MEAN_C,
+    rotate(pretreatmentMat, mat, ROTATE_180);
+
+    // 降低图片亮度
+    Mat lightMat;
+    mat.convertTo(lightMat, -1, 1.0, -60);
+
+    adaptiveThreshold(lightMat, lightMat, 255, ADAPTIVE_THRESH_MEAN_C,
                       THRESH_BINARY, 55, 3);
 
-    adaptiveMat = &mat;
-    pthread_create(&adaptiveThread, nullptr, threadProcessAdaptive, &mat);
-    pthread_join(adaptiveThread, nullptr);
+    Result result = decodePixels(lightMat);
+    javaCallHelper->onResult(result);
 }
 
-void ImageScheduler::getPixelsFromMat(Mat mat, int width, int height, unsigned char *pixels) {
-    int index = 0;
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            pixels[index++] = mat.at<unsigned char>(i, j);
+Result ImageScheduler::decodePixels(Mat mat) {
+    try {
+        int width = mat.cols;
+        int height = mat.rows;
+
+        auto *pixels = new unsigned char[height * width];
+
+        int index = 0;
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                pixels[index++] = mat.at<unsigned char>(i, j);
+            }
         }
-    }
-}
-
-void ImageScheduler::decodePixels(Mat *mat, Result *result) {
-    int width = mat->cols;
-    int height = mat->rows;
-
-    auto *pixels = static_cast<unsigned char *>(malloc(
-            width * height * sizeof(unsigned char)));
-
-    getPixelsFromMat(*mat, width, height, pixels);
 
 //    Mat resultMat(height, width, CV_8UC1, pixels);
 //    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
-    try {
         auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
-        free(pixels);
-        *result = reader->read(*binImage);
+        Result result = reader->read(*binImage);
 
-//        javaCallHelper->onResult(result);
+        delete pixels;
+
+        return result;
     } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
     }
     catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
+
+    return Result(DecodeStatus::NotFound);
 }
 
 Result *ImageScheduler::analyzeResult() {
     Result *result = nullptr;
 
-    if (grayResult) {
+    if (grayResult != nullptr) {
         if (grayResult->isValid()) {
             return grayResult;
         } else if (grayResult->isBlurry()) {
@@ -157,7 +165,7 @@ Result *ImageScheduler::analyzeResult() {
         }
     }
 
-    if (thresholdResult) {
+    if (thresholdResult != nullptr) {
         if (thresholdResult->isValid()) {
             return thresholdResult;
         } else if (thresholdResult->isBlurry() && thresholdResult->resultPoints().size() > 2) {
@@ -165,7 +173,7 @@ Result *ImageScheduler::analyzeResult() {
         }
     }
 
-    if (adaptiveResult) {
+    if (adaptiveResult != nullptr) {
         if (adaptiveResult->isValid()) {
             return adaptiveResult;
         } else if (adaptiveResult->isBlurry() && adaptiveResult->resultPoints().size() > 2) {
@@ -175,20 +183,3 @@ Result *ImageScheduler::analyzeResult() {
 
     return result;
 }
-
-void ImageScheduler::decodeGrayPixels() {
-    javaCallHelper->onTest();
-
-    decodePixels(grayMat, grayResult);
-}
-
-void ImageScheduler::decodeThresholdPixels() {
-    decodePixels(thresholdMat, thresholdResult);
-
-}
-
-void ImageScheduler::decodeAdaptivePixels() {
-    decodePixels(adaptiveMat, adaptiveResult);
-
-}
-

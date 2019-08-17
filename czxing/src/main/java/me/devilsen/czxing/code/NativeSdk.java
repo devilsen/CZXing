@@ -32,11 +32,22 @@ public class NativeSdk {
     // test
     public static native boolean callbackTest();
 
-    public void onDecodeResult() {
+
+    /**
+     * Native Callback
+     *
+     * @param content     识别出的文字
+     * @param formatIndex 格式
+     * @param points      定位点的位置
+     */
+    public void onDecodeCallback(String content, int formatIndex, float[] points) {
 //        if (decodeListener != null) {
 //            decodeListener.onDecodeResult(text);
 //        }
-        Log.e("result", "bbbbbbbbbbbbbbbbbbbbbb");
+        Log.e("result", "content : " + content + " formatIndex: " + formatIndex);
+        if (points.length > 0) {
+            Log.e("result", "points :" + points[0] + " " + points[1]);
+        }
     }
 
     public void onTest(int i) {
@@ -46,7 +57,7 @@ public class NativeSdk {
         Log.e("result", "bbbbbbbbbbbbbbbbbbbbbb  " + i);
     }
 
-    public void callbackTestJava(){
+    public void callbackTestJava() {
         callbackTest();
     }
 

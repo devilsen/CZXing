@@ -22,7 +22,7 @@ public:
     ~ImageScheduler();
 
     Result *
-    process(JNIEnv *env, jbyte *bytes, int left, int top, int width, int height, int rowWidth,
+    process(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
             int rowHeight);
 
     void decodeGrayPixels();
@@ -36,34 +36,30 @@ private:
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
 
+    pthread_t pretreatmentThread;
     pthread_t grayThread;
     pthread_t thresholdThread;
     pthread_t adaptiveThread;
 
-    Mat *grayMat;
-    Mat *thresholdMat;
-    Mat *adaptiveMat;
+    Mat pretreatmentMat;
 
     Result *grayResult;
     Result *thresholdResult;
     Result *adaptiveResult;
 
-    Mat pretreatment(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
-                     int rowHeight);
+    void pretreatment(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
+                      int rowHeight);
 
-    void processGray(Mat gray);
+    void processGray();
 
-    void processThreshold(Mat gray);
+    void processThreshold();
 
-    void processAdaptive(Mat gray);
+    void processAdaptive();
 
-    void decodePixels(Mat *mat, Result *result);
+    Result decodePixels(Mat mat);
 
     Result *analyzeResult();
 
-    void getPixelsFromMat(Mat mat, int width, int height, unsigned char *pixels);
-
 };
-
 
 #endif //CZXING_IMAGESCHEDULER_H
