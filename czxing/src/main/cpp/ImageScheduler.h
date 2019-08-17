@@ -21,7 +21,7 @@ public:
 
     ~ImageScheduler();
 
-    Result *
+    void
     process(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
             int rowHeight);
 

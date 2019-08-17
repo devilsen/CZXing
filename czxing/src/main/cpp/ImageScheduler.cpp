@@ -31,14 +31,11 @@ ImageScheduler::pretreatment(jbyte *bytes, int left, int top, int cropWidth, int
                              int rowWidth,
                              int rowHeight) {
     Mat src(rowHeight + rowHeight / 2, rowWidth, CV_8UC1, bytes);
-
     cvtColor(src, src, COLOR_YUV2RGBA_NV21);
 
     if (left != 0) {
         src = src(Rect(left, top, cropWidth, cropHeight));
     }
-
-    rotate(src, src, ROTATE_90_CLOCKWISE);
 
     Mat gray;
     cvtColor(src, gray, COLOR_RGBA2GRAY);
@@ -46,20 +43,16 @@ ImageScheduler::pretreatment(jbyte *bytes, int left, int top, int cropWidth, int
     pretreatmentMat = gray;
 }
 
-Result *
+void
 ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int cropHeight,
                         int rowWidth,
                         int rowHeight) {
 
     pretreatment(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
 
-//    decodeGrayPixels();
     processGray();
     processThreshold();
     processAdaptive();
-
-//    return analyzeResult();
-    return nullptr;
 }
 
 void *threadProcessGray(void *args) {
@@ -93,13 +86,16 @@ void ImageScheduler::processAdaptive() {
 }
 
 void ImageScheduler::decodeGrayPixels() {
-    Result result = decodePixels(pretreatmentMat);
+    Mat mat;
+    rotate(pretreatmentMat, mat, ROTATE_90_CLOCKWISE);
+
+    Result result = decodePixels(mat);
     javaCallHelper->onResult(result);
 }
 
 void ImageScheduler::decodeThresholdPixels() {
     Mat mat;
-    rotate(pretreatmentMat, mat, ROTATE_90_CLOCKWISE);
+    rotate(pretreatmentMat, mat, ROTATE_180);
     threshold(mat, mat, 0, 255, CV_THRESH_OTSU);
 
     Result result = decodePixels(mat);
@@ -108,7 +104,7 @@ void ImageScheduler::decodeThresholdPixels() {
 
 void ImageScheduler::decodeAdaptivePixels() {
     Mat mat;
-    rotate(pretreatmentMat, mat, ROTATE_180);
+    rotate(pretreatmentMat, mat, ROTATE_90_COUNTERCLOCKWISE);
 
     // 降低图片亮度
     Mat lightMat;
@@ -141,7 +137,7 @@ Result ImageScheduler::decodePixels(Mat mat) {
         auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
         Result result = reader->read(*binImage);
 
-        delete pixels;
+        delete []pixels;
 
         return result;
     } catch (const std::exception &e) {
