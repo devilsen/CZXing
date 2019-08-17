@@ -13,6 +13,7 @@
 #include "BitMatrix.h"
 #include "ImageScheduler.h"
 #include "JavaCallHelper.h"
+#include <sys/time.h>
 
 JavaCallHelper *javaCallHelper;
 JavaVM *javaVM = nullptr;
@@ -44,10 +45,10 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jclass type,
+Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject instance,
                                                       jintArray formats_) {
     try {
-        javaCallHelper = new JavaCallHelper(javaVM, env, type);
+        javaCallHelper = new JavaCallHelper(javaVM, env, instance);
 
         ZXing::DecodeHints hints;
         if (formats_ != nullptr) {
@@ -67,7 +68,7 @@ Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jclass type,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jclass type, jlong objPtr) {
+Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject instance, jlong objPtr) {
 
     try {
         delete reinterpret_cast<ImageScheduler *>(objPtr);
@@ -82,7 +83,7 @@ Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jclass type,
 }
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jclass type, jlong objPtr,
+Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance, jlong objPtr,
                                                    jobject bitmap, jint left, jint top, jint width,
                                                    jint height, jobjectArray result) {
 
@@ -113,11 +114,10 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jclass type, jlo
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jclass type, jlong objPtr,
+Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jobject instance, jlong objPtr,
                                                        jbyteArray bytes_, jint left, jint top,
                                                        jint cropWidth, jint cropHeight,
-                                                       jint rowWidth, jint rowHeight,
-                                                       jobjectArray result) {
+                                                       jint rowWidth, jint rowHeight) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
 
     auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
@@ -128,7 +128,7 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jclass type,
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jclass type,
+Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jobject instance,
                                                                 jbyteArray bytes_, jint width,
                                                                 jint height) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
@@ -141,7 +141,7 @@ Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jcl
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jclass type, jstring content_,
+Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jobject instance, jstring content_,
                                                  jint width, jint height, jint color,
                                                  jstring format_, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
@@ -184,8 +184,8 @@ Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jclass type, jstri
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_callbackTest(JNIEnv *env, jclass type) {
-    javaCallHelper = new JavaCallHelper(javaVM, env, type);
+Java_me_devilsen_czxing_code_NativeSdk_callbackTest(JNIEnv *env, jobject instance) {
+    javaCallHelper = new JavaCallHelper(javaVM, env, instance);
     javaCallHelper->onTest();
     return 0;
 }

@@ -12,9 +12,10 @@ import me.devilsen.czxing.code.CodeResult;
  *
  * @author : dongSen
  */
-public class BarcodeProcessor extends Processor {
+public class BarcodeProcessor {
 
     private BarcodeReader reader;
+    private boolean cancel;
 
     public BarcodeProcessor() {
         reader = new BarcodeReader(
@@ -32,7 +33,7 @@ public class BarcodeProcessor extends Processor {
 //                BarcodeFormat.PDF_417,
 //                BarcodeFormat.RSS_14,
 //                BarcodeFormat.RSS_EXPANDED,
-//                BarcodeFormat.UPC_A
+//                BarcodeFormat.UPC_A,
 //                BarcodeFormat.UPC_E,
 //                BarcodeFormat.UPC_EAN_EXTENSION
         );
@@ -50,7 +51,7 @@ public class BarcodeProcessor extends Processor {
         return null;
     }
 
-    public synchronized CodeResult processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
+    public CodeResult processBytes(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         if (cancel) {
             return null;
         }
@@ -70,11 +71,19 @@ public class BarcodeProcessor extends Processor {
      * @param imageHeight 图像高度
      * @return 是否过暗
      */
-    public synchronized boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
+    public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
         if (cancel) {
             return false;
         }
         return reader.analysisBrightness(data, imageWidth, imageHeight);
+    }
+
+    public void setReadCodeListener(BarcodeReader.ReadCodeListener readCodeListener) {
+        reader.setReadCodeListener(readCodeListener);
+    }
+
+    public void cancel() {
+        cancel = true;
     }
 
 }

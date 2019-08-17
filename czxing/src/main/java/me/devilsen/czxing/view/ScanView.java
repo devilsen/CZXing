@@ -16,7 +16,8 @@ import me.devilsen.czxing.util.BarCodeUtil;
  * date : 2019-06-29 16:18
  * desc : 二维码界面使用类
  */
-public class ScanView extends BarCoderView implements Callback, ScanBoxView.ScanBoxClickListener {
+public class ScanView extends BarCoderView implements Callback, ScanBoxView.ScanBoxClickListener,
+        BarcodeReader.ReadCodeListener {
 
     private Dispatcher mDispatcher;
     private boolean isDark;
@@ -37,6 +38,7 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
         mDispatcher = new Dispatcher();
         mScanBoxView.setScanBoxClickListener(this);
         processor = new BarcodeProcessor();
+        processor.setReadCodeListener(this);
     }
 
     @Override
@@ -78,13 +80,18 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     }
 
     @Override
+    public void onReadCodeResult(CodeResult result) {
+        onDecodeComplete(result);
+    }
+
+    @Override
     public void onDecodeComplete(CodeResult result) {
         if (result == null) {
             return;
         }
-        if (!TextUtils.isEmpty(result.getText()) && !isStop) {
-            BarCodeUtil.d("result: " + result.getText() + " format: " + result.getFormat());
+        BarCodeUtil.d(result.toString());
 
+        if (!TextUtils.isEmpty(result.getText()) && !isStop) {
             mDispatcher.cancelAll();
             isStop = true;
             if (mScanListener != null) {
@@ -110,6 +117,5 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     public void onFlashLightClick() {
         mCameraSurface.toggleFlashLight(isDark);
     }
-
 
 }

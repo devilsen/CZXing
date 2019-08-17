@@ -5,29 +5,35 @@
 #include "JavaCallHelper.h"
 #include "JNIUtils.h"
 
-JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jclass &_jobj) : javaVM(_javaVM),
+JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : javaVM(_javaVM),
                                                                                env(_env) {
     // 获取Class
-    jclass jSdkClass = env->FindClass("me/devilsen/czxing/code/NativeSdk");
+//    jclass jSdkClass = env->FindClass("me/devilsen/czxing/code/NativeSdk");
+//    if (jSdkClass == nullptr) {
+//        LOGE("Unable to find class");
+//        return;
+//    }
+//
+//    // 获取构造函数
+//    jmethodID constructor = env->GetMethodID(jSdkClass, "<init>", "()V");
+//    if (constructor == nullptr) {
+//        LOGE("can't constructor jClass");
+//        return;
+//    }
+
+    // 获取对应函数
+//    jSdkObject = env->NewObject(jSdkClass, constructor);
+//    if (jSdkObject == nullptr) {
+//        LOGE("can't new jobject");
+//        return;
+//    }
+    jSdkObject = env->NewGlobalRef(_jobj);
+
+    jclass jSdkClass = env->GetObjectClass(jSdkObject);
     if (jSdkClass == nullptr) {
         LOGE("Unable to find class");
         return;
     }
-
-    // 获取构造函数
-    jmethodID constructor = env->GetMethodID(jSdkClass, "<init>", "()V");
-    if (constructor == nullptr) {
-        LOGE("can't constructor jClass");
-        return;
-    }
-
-    // 获取对应函数
-    jSdkObject = env->NewObject(jSdkClass, constructor);
-    if (jSdkObject == nullptr) {
-        LOGE("can't new jobject");
-        return;
-    }
-    jSdkObject = env->NewGlobalRef(jSdkObject);
 
     jmid_on_result = env->GetMethodID(jSdkClass, "onDecodeCallback", "(Ljava/lang/String;I[F)V");
 
@@ -37,7 +43,7 @@ JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jclass &_jobj) : j
 }
 
 JavaCallHelper::~JavaCallHelper() {
-//    env->DeleteGlobalRef(jSdkObject);
+    env->DeleteGlobalRef(jSdkObject);
     DELETE(javaVM);
     DELETE(env);
 }

@@ -41,7 +41,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private long processLastTime;
     private long mLastAutoZoomTime;
-    private long mDelayTime = 5 * ONE_HUNDRED_MILLISECONDS;
+    private long mDelayTime = 2 * ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -116,7 +116,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             }
             scanSequence++;
 
-            BarCodeUtil.d("scan sequence " + scanSequence);
+//            BarCodeUtil.d("scan sequence " + scanSequence);
         } catch (Exception e) {
             e.printStackTrace();
         }

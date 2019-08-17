@@ -1,7 +1,5 @@
 package me.devilsen.czxing.code;
 
-import me.devilsen.czxing.util.BarCodeUtil;
-
 /**
  * desc: code result model
  * date: 2019/08/17
@@ -13,6 +11,22 @@ public class CodeResult {
     private BarcodeFormat format;
     private String text;
     private float[] points;
+
+
+    CodeResult(BarcodeFormat format, String text) {
+        this.format = format;
+        this.text = text;
+    }
+
+    public CodeResult(String content, int formatIndex, float[] points) {
+        this.text = content;
+        this.format = BarcodeFormat.values()[formatIndex];
+        this.points = points;
+    }
+
+    public void setPoint(float[] lists) {
+        points = lists;
+    }
 
     public BarcodeFormat getFormat() {
         return format;
@@ -26,25 +40,12 @@ public class CodeResult {
         return points;
     }
 
-    CodeResult(BarcodeFormat format, String text) {
-        this.format = format;
-        this.text = text;
+    @Override
+    public String toString() {
+        return "text: " + text + " format: " + format.toString() + " points: " + getPointsString();
     }
 
-    public void setPoint(float[] lists) {
-        points = lists;
-        logPoint();
-    }
-
-    public void setPoint(int[] lists) {
-        points = new float[lists.length];
-        for (int i = 0; i < lists.length; i++) {
-            points[i] = lists[i];
-        }
-        logPoint();
-    }
-
-    private void logPoint() {
+    private String getPointsString() {
         StringBuilder stringBuilder = new StringBuilder("location points ");
         int i = 0;
         for (float list : points) {
@@ -54,6 +55,6 @@ public class CodeResult {
                 stringBuilder.append("\n");
             }
         }
-        BarCodeUtil.d(stringBuilder.toString());
+        return stringBuilder.toString();
     }
 }

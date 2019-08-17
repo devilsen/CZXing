@@ -11,7 +11,7 @@
 
 class JavaCallHelper {
 public:
-    JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jclass &_jobj);
+    JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj);
 
     ~JavaCallHelper();
 

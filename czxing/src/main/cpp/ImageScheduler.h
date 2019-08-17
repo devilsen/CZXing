@@ -15,6 +15,16 @@
 using namespace cv;
 using namespace ZXing;
 
+typedef struct FrameData {
+    jbyte *bytes;
+    int left;
+    int top;
+    int cropWidth;
+    int cropHeight;
+    int rowWidth;
+    int rowHeight;
+} FrameData;
+
 class ImageScheduler {
 public:
     ImageScheduler(JNIEnv *env, MultiFormatReader *_reader, JavaCallHelper *javaCallHelper);
@@ -25,36 +35,23 @@ public:
     process(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
             int rowHeight);
 
-    void decodeGrayPixels();
+    void readyMat();
 
-    void decodeThresholdPixels();
+    void decodeGrayPixels(Mat gray);
 
-    void decodeAdaptivePixels();
+    void decodeThresholdPixels(Mat gray);
+
+    void decodeAdaptivePixels(Mat gray);
+
+    FrameData frameData;
 
 private:
     JNIEnv *env;
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
+    bool isProcessing = false;
 
     pthread_t pretreatmentThread;
-    pthread_t grayThread;
-    pthread_t thresholdThread;
-    pthread_t adaptiveThread;
-
-    Mat pretreatmentMat;
-
-    Result *grayResult;
-    Result *thresholdResult;
-    Result *adaptiveResult;
-
-    void pretreatment(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
-                      int rowHeight);
-
-    void processGray();
-
-    void processThreshold();
-
-    void processAdaptive();
 
     Result decodePixels(Mat mat);
 
