@@ -56,7 +56,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
 void ImageScheduler::readyMat() {
     // 分析亮度，如果亮度过低，不进行处理
     analysisBrightness(frameData);
-    if (cameraLight < 50) {
+    if (cameraLight < 40) {
         isProcessing = false;
         return;
     }
@@ -207,7 +207,7 @@ bool ImageScheduler::analysisBrightness(const FrameData frameData) {
     cameraLight = pixelLightCount / (pixelCount / step);
 //    LOGE("平均亮度 %ld", cameraLight);
     // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-    bool isDark = cameraLight < 80;
+    bool isDark = cameraLight < 50;
     javaCallHelper->onBrightness(isDark);
 
     return isDark;
