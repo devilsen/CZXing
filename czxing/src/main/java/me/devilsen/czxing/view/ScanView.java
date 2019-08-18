@@ -4,6 +4,10 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Queue;
+
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.processor.BarcodeProcessor;
@@ -16,12 +20,14 @@ import me.devilsen.czxing.util.BarCodeUtil;
  * date : 2019-06-29 16:18
  * desc : 二维码界面使用类
  */
-public class ScanView extends BarCoderView implements Callback, ScanBoxView.ScanBoxClickListener,
+public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
         BarcodeReader.ReadCodeListener {
 
-    private Dispatcher mDispatcher;
-    private boolean isDark;
+    private static final int DARK_LIST_SIZE = 4;
+
     private boolean isStop;
+    private boolean isDark;
+    private ArrayDeque<Boolean> darkList;
 
     private BarcodeProcessor processor;
 
@@ -35,10 +41,11 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 
     public ScanView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mDispatcher = new Dispatcher();
         mScanBoxView.setScanBoxClickListener(this);
         processor = new BarcodeProcessor();
         processor.setReadCodeListener(this);
+
+        darkList = new ArrayDeque<>(DARK_LIST_SIZE);
     }
 
     @Override
@@ -51,19 +58,6 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
 //        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
 //        setQueueSize(queueSize);
-
-//        isStop = true;
-//        BarcodeReader.Result result = reader.read(data, left, top, width, height, rowWidth);
-//
-//        if (result != null) {
-//            if (!TextUtils.isEmpty(result.getText())) {
-//                Log.e("result", result.getText());
-//            }
-//
-//            if (result.getPoints() != null) {
-//                tryZoom(result);
-//            }
-//        }
     }
 
     @Override
@@ -76,23 +70,16 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     public void stopScan() {
         super.stopScan();
         isStop = true;
-        mDispatcher.cancelAll();
     }
 
     @Override
     public void onReadCodeResult(CodeResult result) {
-        onDecodeComplete(result);
-    }
-
-    @Override
-    public void onDecodeComplete(CodeResult result) {
         if (result == null) {
             return;
         }
         BarCodeUtil.d(result.toString());
 
         if (!TextUtils.isEmpty(result.getText()) && !isStop) {
-            mDispatcher.cancelAll();
             isStop = true;
             if (mScanListener != null) {
                 mScanListener.onScanSuccess(result.getText());
@@ -103,9 +90,22 @@ public class ScanView extends BarCoderView implements Callback, ScanBoxView.Scan
     }
 
     @Override
-    public void onDarkBrightness(boolean isDark) {
-        this.isDark = isDark;
+    public void onAnalysisBrightness(boolean isDark) {
         BarCodeUtil.d("isDark  " + isDark);
+
+        darkList.addFirst(isDark);
+        if (darkList.size()  > DARK_LIST_SIZE){
+            darkList.removeLast();
+        }
+
+        int show = 0;
+        for (Boolean dark : darkList) {
+            if (dark) {
+                show++;
+            }
+        }
+
+        this.isDark = show >= DARK_LIST_SIZE;
         mScanBoxView.setDark(isDark);
     }
 

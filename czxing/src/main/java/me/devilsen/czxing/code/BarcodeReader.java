@@ -45,11 +45,6 @@ public class BarcodeReader {
         return null;
     }
 
-
-    public boolean analysisBrightness(byte[] data, int imageWidth, int imageHeight) {
-        return NativeSdk.getInstance().analysisBrightnessNative(data, imageWidth, imageHeight);
-    }
-
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -68,5 +63,7 @@ public class BarcodeReader {
 
     public interface ReadCodeListener {
         void onReadCodeResult(CodeResult result);
+
+        void onAnalysisBrightness(boolean isDark);
     }
 }

@@ -17,11 +17,14 @@ public:
 
     void onResult(const ZXing::Result &result);
 
+    void onBrightness(const bool isDark);
+
 private:
     JavaVM *javaVM;
     JNIEnv *env;
     jobject jSdkObject;
     jmethodID jmid_on_result;
+    jmethodID jmid_on_brightness;
 
 };
 

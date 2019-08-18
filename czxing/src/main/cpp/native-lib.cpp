@@ -122,18 +122,6 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jobject inst
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, jobject instance,
-                                                                jbyteArray bytes_, jint width,
-                                                                jint height) {
-    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-    bool isDark = AnalysisBrightness(env, bytes, width, height);
-
-    env->ReleaseByteArrayElements(bytes_, bytes, 0);
-    return isDark ? JNI_TRUE : JNI_FALSE;
-}
-
-extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jobject instance, jstring content_,
                                                  jint width, jint height, jint color,

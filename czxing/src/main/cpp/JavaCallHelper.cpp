@@ -6,7 +6,7 @@
 #include "JNIUtils.h"
 
 JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : javaVM(_javaVM),
-                                                                               env(_env) {
+                                                                                env(_env) {
     // 获取Class
 //    jclass jSdkClass = env->FindClass("me/devilsen/czxing/code/NativeSdk");
 //    if (jSdkClass == nullptr) {
@@ -36,6 +36,7 @@ JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : 
     }
 
     jmid_on_result = env->GetMethodID(jSdkClass, "onDecodeCallback", "(Ljava/lang/String;I[F)V");
+    jmid_on_brightness = env->GetMethodID(jSdkClass, "onBrightnessCallback", "(Z)V");
 
     if (jmid_on_result == nullptr) {
         LOGE("jmid_on_result is null");
@@ -91,6 +92,26 @@ void JavaCallHelper::onResult(const ZXing::Result &result) {
     }
 
     env->CallVoidMethod(jSdkObject, jmid_on_result, mJstring, format, pointsArray);
+
+    //释放当前线程
+    if (mNeedDetach) {
+        javaVM->DetachCurrentThread();
+    }
+
+}
+
+void JavaCallHelper::onBrightness(const bool isDark) {
+    int getEnvStat = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
+    int mNeedDetach = JNI_FALSE;
+    if (getEnvStat == JNI_EDETACHED) {
+        //如果没有， 主动附加到jvm环境中，获取到env
+        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+            return;
+        }
+        mNeedDetach = JNI_TRUE;
+    }
+
+    env->CallVoidMethod(jSdkObject, jmid_on_brightness, isDark);
 
     //释放当前线程
     if (mNeedDetach) {

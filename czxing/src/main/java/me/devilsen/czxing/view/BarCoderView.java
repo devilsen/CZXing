@@ -24,7 +24,7 @@ import me.devilsen.czxing.util.BarCodeUtil;
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
-    private static final int DEFAULT_ZOOM_SCALE = 5;
+    private static final int DEFAULT_ZOOM_SCALE = 4;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
     private final static long DELAY_STEP_TIME = 10_000_000;
 
@@ -41,7 +41,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private long processLastTime;
     private long mLastAutoZoomTime;
-    private long mDelayTime = 2 * ONE_HUNDRED_MILLISECONDS;
+    private long mDelayTime = ONE_HUNDRED_MILLISECONDS;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -112,7 +112,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
             } else {
                 scanSequence = -1;
-                onPreviewFrame(data, 0, top, rowWidth, rowWidth, rowWidth, rowHeight);
+                int bisSize = rowWidth < rowHeight ? rowWidth : rowHeight;
+                onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
             }
             scanSequence++;
 
@@ -272,13 +273,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             float xLen = Math.abs(point2X - point3X);
             float yLen = Math.abs(point2Y - point3Y);
             int len2 = (int) Math.sqrt(xLen * xLen + yLen * yLen);
-            if (len2 > len) {
+            if (len2 < len) {
                 len = len2;
             }
         }
 
-        handleAutoZoom(len);
         BarCodeUtil.d("len " + len);
+        handleAutoZoom(len);
     }
 
     private void handleAutoZoom(int len) {

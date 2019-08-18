@@ -75,7 +75,7 @@ public class BarcodeProcessor {
         if (cancel) {
             return false;
         }
-        return reader.analysisBrightness(data, imageWidth, imageHeight);
+        return false;
     }
 
     public void setReadCodeListener(BarcodeReader.ReadCodeListener readCodeListener) {

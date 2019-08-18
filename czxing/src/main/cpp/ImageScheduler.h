@@ -12,6 +12,7 @@
 #include <src/BinaryBitmap.h>
 #include "Result.h"
 #include "JavaCallHelper.h"
+#include "QRCodeRecognizer.h"
 
 using namespace cv;
 using namespace ZXing;
@@ -53,12 +54,18 @@ private:
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
     bool isProcessing = false;
+    long cameraLight;
+    QRCodeRecognizer *qrCodeRecognizer;
 
     pthread_t pretreatmentThread;
 
     Result decodePixels(Mat mat);
 
+    void recognizerQrCode(Mat mat);
+
     Result *analyzeResult();
+
+    bool  analysisBrightness(const FrameData frameData);
 
 };
 

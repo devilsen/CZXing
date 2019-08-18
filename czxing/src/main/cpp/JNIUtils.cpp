@@ -111,26 +111,7 @@ BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) 
 }
 
 bool AnalysisBrightness(JNIEnv *env, const jbyte *bytes, int width, int height) {
-    // 像素点的总亮度
-    unsigned long pixelLightCount = 0L;
-    // 像素点的总数
-    int pixelCount = width * height;
-    // 采集步长，因为没有必要每个像素点都采集，可以跨一段采集一个，减少计算负担，必须大于等于1。
-    int step = 20;
-    for (int i = 0; i < pixelCount; i += step) {
-        // 如果直接加是不行的，因为 data[i] 记录的是色值并不是数值，byte 的范围是 +127 到 —128，
-        pixelLightCount += bytes[i] & 0xffL;
-    }
-    // 平均亮度
-    long cameraLight = pixelLightCount / (pixelCount / step);
-    bool isDarkEnv = false;
-//    LOGE("平均亮度 %ld", cameraLight);
-    // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-    if (cameraLight < 60) {
-        isDarkEnv = true;
-    }
 
-    return isDarkEnv;
 }
 
 /**
