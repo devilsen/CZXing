@@ -50,7 +50,11 @@ JavaCallHelper::~JavaCallHelper() {
 }
 
 void JavaCallHelper::onResult(const ZXing::Result &result) {
-    if (!result.isBlurry()) {
+    if (result.format() == ZXing::BarcodeFormat::QR_CODE) {
+        if (result.resultPoints().size() < 2) {
+            return;
+        }
+    } else if (!result.isValid()) {
         return;
     }
 

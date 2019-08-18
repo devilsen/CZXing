@@ -56,7 +56,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
 void ImageScheduler::readyMat() {
     // 分析亮度，如果亮度过低，不进行处理
     analysisBrightness(frameData);
-    if (cameraLight < 40) {
+    if (cameraLight < 150) {
         isProcessing = false;
         return;
     }
@@ -96,7 +96,7 @@ void ImageScheduler::decodeThresholdPixels(Mat gray) {
     rotate(gray, mat, ROTATE_180);
 
     // 提升亮度
-    if (cameraLight < 90) {
+    if (cameraLight < 180) {
         mat.convertTo(mat, -1, 1.0, 30);
     }
 
@@ -193,21 +193,26 @@ bool ImageScheduler::analysisBrightness(const FrameData frameData) {
     unsigned long pixelLightCount = 0L;
 
     // 采集步长，因为没有必要每个像素点都采集，可以跨一段采集一个，减少计算负担，必须大于等于1。
-    int step = 8;
-    // 仅分析ScanView中的数据
-    int start = frameData.top * frameData.rowWidth;
+    int step = 2;
     // 像素点的总数
-    int pixelCount = frameData.rowWidth * frameData.cropHeight;
-    for (int i = start; i < pixelCount; i += step) {
-        // 如果直接加是不行的，因为 data[i] 记录的是色值并不是数值，byte 的范围是 +127 到 —128，
-        pixelLightCount += frameData.bytes[i] & 0xffL;
+    int pixelCount = frameData.cropWidth * frameData.cropHeight / step;
+
+    int bottom = frameData.top + frameData.cropHeight;
+    int right = frameData.left + frameData.cropWidth;
+    int rowWidth = frameData.rowWidth;
+    int srcIndex = 0;
+    for (int i = frameData.left; i < right; ++i) {
+        srcIndex = (bottom - 1) * rowWidth + i;
+        for (int j = 0; j < frameData.cropHeight; j += step, srcIndex -= rowWidth) {
+            pixelLightCount += frameData.bytes[srcIndex] & 0xFFL;
+        }
     }
 
     // 平均亮度
     cameraLight = pixelLightCount / (pixelCount / step);
 //    LOGE("平均亮度 %ld", cameraLight);
     // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-    bool isDark = cameraLight < 50;
+    bool isDark = cameraLight < 160;
     javaCallHelper->onBrightness(isDark);
 
     return isDark;

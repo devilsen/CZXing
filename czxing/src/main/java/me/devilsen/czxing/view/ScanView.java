@@ -77,7 +77,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         if (result == null) {
             return;
         }
-        BarCodeUtil.d(result.toString());
+        BarCodeUtil.d("result : " + result.toString());
 
         if (!TextUtils.isEmpty(result.getText()) && !isStop) {
             isStop = true;
@@ -91,10 +91,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
     @Override
     public void onAnalysisBrightness(boolean isDark) {
-        BarCodeUtil.d("isDark  " + isDark);
+        BarCodeUtil.d("isDark : " + isDark);
 
         darkList.addFirst(isDark);
-        if (darkList.size()  > DARK_LIST_SIZE){
+        if (darkList.size() > DARK_LIST_SIZE) {
             darkList.removeLast();
         }
 
