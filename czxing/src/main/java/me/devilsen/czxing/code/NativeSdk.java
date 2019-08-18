@@ -42,7 +42,7 @@ class NativeSdk {
     }
 
     public void callbackTestJava() {
-        callbackTest();
+//        callbackTest();
     }
 
     public void onTest(int i) {
@@ -63,9 +63,6 @@ class NativeSdk {
 
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);
-
-    // test
-    native boolean callbackTest();
 
     static {
         System.loadLibrary("czxing");

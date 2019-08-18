@@ -9,6 +9,7 @@
 #include <jni.h>
 #include <opencv2/core/mat.hpp>
 #include <src/MultiFormatReader.h>
+#include <src/BinaryBitmap.h>
 #include "Result.h"
 #include "JavaCallHelper.h"
 
@@ -44,6 +45,8 @@ public:
     void decodeAdaptivePixels(Mat gray);
 
     FrameData frameData;
+
+    Result readBitmap(jobject bitmap, int left, int top, int width,int height);
 
 private:
     JNIEnv *env;

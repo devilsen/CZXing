@@ -17,8 +17,6 @@ public:
 
     void onResult(const ZXing::Result &result);
 
-    void onTest();
-
 private:
     JavaVM *javaVM;
     JNIEnv *env;

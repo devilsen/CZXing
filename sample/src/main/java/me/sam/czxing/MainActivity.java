@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -22,13 +23,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.devilsen.czxing.Scanner;
+import me.devilsen.czxing.code.BarcodeFormat;
+import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
-//    private BarcodeReader reader;
+    private BarcodeReader reader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,22 +40,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         resultTxt = findViewById(R.id.text_view_result);
-//        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
         requestPermission();
     }
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_wechat);
-//        BarcodeReader.Result result = reader.read(bitmap);
+        CodeResult result = reader.read(bitmap);
 
-//        if (result == null) {
-//            Log.e("Scan >>> ", "no code");
-//            return;
-//        } else {
-//            Log.e("Scan >>> ", result.getText());
-//        }
-//
-//        resultTxt.setText(result.getText());
+        if (result == null) {
+            Log.e("Scan >>> ", "no code");
+            return;
+        } else {
+            Log.e("Scan >>> ", result.getText());
+        }
+
+        resultTxt.setText(result.getText());
     }
 
     public void write(View view) {
@@ -143,14 +147,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-//        BarcodeReader.Result result = reader.read(bitmap);
-//        if (result == null) {
-//            Log.e("Scan >>> ", "no code");
-//            return;
-//        } else {
-//            Log.e("Scan >>> ", result.getText());
-//        }
-//        resultTxt.setText(result.getText());
+        CodeResult result = reader.read(bitmap);
+        if (result == null) {
+            Log.e("Scan >>> ", "no code");
+            return;
+        } else {
+            Log.e("Scan >>> ", result.getText());
+        }
+        resultTxt.setText(result.getText());
     }
 
 }

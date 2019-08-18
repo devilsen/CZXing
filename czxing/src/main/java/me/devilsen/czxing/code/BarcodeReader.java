@@ -18,6 +18,10 @@ public class BarcodeReader {
     }
 
     public CodeResult read(Bitmap bitmap) {
+        if (bitmap == null) {
+            BarCodeUtil.e("bitmap is null");
+            return null;
+        }
         int imgWidth = bitmap.getWidth();
         int imgHeight = bitmap.getHeight();
         Object[] result = new Object[2];

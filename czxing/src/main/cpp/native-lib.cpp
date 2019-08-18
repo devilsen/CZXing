@@ -68,7 +68,8 @@ Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject insta
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject instance, jlong objPtr) {
+Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject instance,
+                                                       jlong objPtr) {
 
     try {
         delete reinterpret_cast<ImageScheduler *>(objPtr);
@@ -89,27 +90,20 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance
 
     try {
         auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-        auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
-        if (!binImage) {
-            return -1;
+        auto readResult = imageScheduler->readBitmap(bitmap, left, top, width, height);
+        if (readResult.isValid()) {
+            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
+            if (!readResult.resultPoints().empty()) {
+                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
+            }
+            return static_cast<int>(readResult.format());
         }
-//        auto readResult = imageScheduler->read(*binImage);
-//        if (readResult.isValid()) {
-//            env->SetObjectArrayElement(result, 0, ToJavaString(env, readResult.text()));
-//            if (!readResult.resultPoints().empty()) {
-//                env->SetObjectArrayElement(result, 1, ToJavaArray(env, readResult.resultPoints()));
-//            }
-//            return static_cast<int>(readResult.format());
-//        }
-    }
-    catch (const std::exception &e) {
+    }catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
-    }
-    catch (...) {
+    }catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
     return -1;
-
 }
 
 extern "C"
@@ -123,6 +117,7 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jobject inst
     auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
     imageScheduler->process(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
 
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return -1;
 }
 
@@ -132,10 +127,9 @@ Java_me_devilsen_czxing_code_NativeSdk_analysisBrightnessNative(JNIEnv *env, job
                                                                 jbyteArray bytes_, jint width,
                                                                 jint height) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-
     bool isDark = AnalysisBrightness(env, bytes, width, height);
-    env->ReleaseByteArrayElements(bytes_, bytes, 0);
 
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return isDark ? JNI_TRUE : JNI_FALSE;
 }
 
@@ -179,13 +173,5 @@ Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jobject instance, 
     catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
-    return 0;
-}
-
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_callbackTest(JNIEnv *env, jobject instance) {
-    javaCallHelper = new JavaCallHelper(javaVM, env, instance);
-    javaCallHelper->onTest();
     return 0;
 }

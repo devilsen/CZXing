@@ -98,30 +98,3 @@ void JavaCallHelper::onResult(const ZXing::Result &result) {
     }
 
 }
-
-void JavaCallHelper::onTest() {
-    //获取当前native线程是否有没有被附加到jvm环境中
-    int getEnvStat = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
-    int mNeedDetach = JNI_FALSE;
-    if (getEnvStat == JNI_EDETACHED) {
-        //如果没有， 主动附加到jvm环境中，获取到env
-        if (javaVM->AttachCurrentThread(&env, nullptr) != JNI_OK) {
-            return;
-        }
-        mNeedDetach = JNI_TRUE;
-    }
-
-    jstring mJstring = env->NewStringUTF("I am from C++ Thread");
-    jint format = 10;
-    jfloat points[] = {10.1, 11.2};
-    jfloatArray result;
-    result = env->NewFloatArray(2);
-    env->SetFloatArrayRegion(result, 0, 2, points);
-    env->CallVoidMethod(jSdkObject, jmid_on_result, mJstring, format, result);
-
-    //释放当前线程
-    if (mNeedDetach) {
-        javaVM->DetachCurrentThread();
-    }
-}
-

@@ -4,6 +4,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/types_c.h>
+#include <src/BinaryBitmap.h>
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
 
@@ -148,4 +149,13 @@ Result *ImageScheduler::analyzeResult() {
     Result *result = nullptr;
 
     return result;
+}
+
+Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, int height) {
+    auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
+    if (!binImage) {
+        LOGE("create binary bitmap fail");
+        return Result(DecodeStatus::NotFound);
+    }
+    return reader->read(*binImage);
 }
