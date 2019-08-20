@@ -46,7 +46,14 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     frameData.left = left;
     frameData.top = top;
     frameData.cropWidth = cropWidth;
-    frameData.cropHeight = cropHeight;
+    if (top + cropHeight > rowHeight) {
+        frameData.cropHeight = rowHeight - top;
+    } else {
+        frameData.cropHeight = cropHeight;
+    }
+    if (frameData.cropHeight < frameData.cropWidth) {
+        frameData.cropWidth = frameData.cropHeight;
+    }
     frameData.rowWidth = rowWidth;
     frameData.rowHeight = rowHeight;
 
@@ -74,6 +81,7 @@ void ImageScheduler::readyMat() {
     Mat gray;
     cvtColor(src, gray, COLOR_RGBA2GRAY);
 
+    LOGE("start decode...");
     decodeGrayPixels(gray);
 }
 
@@ -189,6 +197,8 @@ Result ImageScheduler::decodePixels(Mat mat) {
 }
 
 bool ImageScheduler::analysisBrightness(const FrameData frameData) {
+    LOGE("start analysisBrightness...");
+
     // 像素点的总亮度
     unsigned long pixelLightCount = 0L;
 

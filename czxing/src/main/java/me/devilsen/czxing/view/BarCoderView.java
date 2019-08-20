@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
 import me.devilsen.czxing.code.CodeResult;
