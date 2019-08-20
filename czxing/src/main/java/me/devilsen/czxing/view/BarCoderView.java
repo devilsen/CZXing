@@ -14,6 +14,7 @@ import me.devilsen.czxing.camera.CameraUtil;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.ResolutionAdapterUtil;
 
 /**
  * @author : dongSen
@@ -41,6 +42,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private long processLastTime;
     private long mLastAutoZoomTime;
     private long mDelayTime = ONE_HUNDRED_MILLISECONDS;
+    private ResolutionAdapterUtil resolutionAdapter;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -71,11 +73,14 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
         mScanBoxView = new ScanBoxView(context);
         addView(mScanBoxView, params);
+
+        resolutionAdapter = new ResolutionAdapterUtil();
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        resolutionAdapter.setResolutionSize(right - left, bottom - top);
         mCameraSurface.setScanBoxPoint(mScanBoxView.getScanBoxCenter());
     }
 
@@ -98,6 +103,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             int top;
             int rowWidth = size.width;
             int rowHeight = size.height;
+            resolutionAdapter.setCameraSize(rowWidth, rowHeight);
             // 这里需要把得到的数据也翻转
             if (CameraUtil.isPortrait(getContext())) {
                 left = scanBoxRect.top - expandTop;
@@ -106,6 +112,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 left = scanBoxRect.left;
                 top = scanBoxRect.top - expandTop;
             }
+
+            left = resolutionAdapter.getAdapterWidth(left);
+            top = resolutionAdapter.getAdapterHeight(top);
+            scanBoxSize = resolutionAdapter.getAdapterWidth(scanBoxSize);
 
             if (scanSequence < 5) {
                 onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);

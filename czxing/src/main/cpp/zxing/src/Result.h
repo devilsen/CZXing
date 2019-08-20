@@ -52,7 +52,7 @@ public:
 	}
 
 	bool isBlurry() const {
-		return resultPoints().size() > 2;
+		return resultPoints().size() >= 2;
 	}
 
 	DecodeStatus status() const {

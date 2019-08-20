@@ -116,7 +116,7 @@ public class ScanBoxView extends View {
 
         mBoxSize = BarCodeUtil.dp2px(context, 200);
         mTopOffset = -BarCodeUtil.dp2px(context, 10);
-//        mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
+        mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
 
         mBorderColor = resources.getColor(R.color.czxing_line_border);
         mBorderSize = BarCodeUtil.dp2px(context, 1);
@@ -203,7 +203,6 @@ public class ScanBoxView extends View {
         mBoxSize = Math.min(viewWidth * 3 / 5, MAX_BOX_SIZE);
         mBoxLeft = (viewWidth - mBoxSize) / 2;
         mBoxTop = (viewHeight - mBoxSize) / 2 + mTopOffset;
-        mBoxSizeOffset = mBoxLeft;
         mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop + mBoxSize);
     }
 
