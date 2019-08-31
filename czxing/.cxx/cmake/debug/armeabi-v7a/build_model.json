@@ -5,7 +5,6 @@
       "sdkFolder": "D:\\Android\\AndroidSDK",
       "isNativeCompilerSettingsCacheEnabled": false,
       "isBuildOnlyTargetAbiEnabled": true,
-      "ideBuildTargetAbi": "armeabi-v7a,armeabi",
       "splitsAbiFilterSet": [],
       "intermediatesFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates",
       "gradleModulePathName": ":czxing",
@@ -40,7 +39,8 @@
     "gradleBuildOutputFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug",
     "isDebuggableEnabled": true,
     "validAbiList": [
-      "ARMEABI_V7A"
+      "ARMEABI_V7A",
+      "ARM64_V8A"
     ],
     "buildTargetSet": []
   },

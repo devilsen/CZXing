@@ -1,7 +1,6 @@
 package me.devilsen.czxing.code;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 /**
  * desc: Jni connector

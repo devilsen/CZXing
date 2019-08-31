@@ -50,25 +50,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
         barcodeColorImage.setOnClickListener(this);
 
         writer = new BarcodeWriter();
-        reader = new BarcodeReader(
-                BarcodeFormat.QR_CODE,
-                BarcodeFormat.AZTEC,
-                BarcodeFormat.CODABAR,
-                BarcodeFormat.CODE_39,
-                BarcodeFormat.CODE_93,
-                BarcodeFormat.CODE_128,
-                BarcodeFormat.DATA_MATRIX,
-                BarcodeFormat.EAN_8,
-                BarcodeFormat.EAN_13,
-                BarcodeFormat.ITF,
-                BarcodeFormat.MAXICODE,
-                BarcodeFormat.PDF_417,
-                BarcodeFormat.RSS_14,
-                BarcodeFormat.RSS_EXPANDED,
-                BarcodeFormat.UPC_A,
-                BarcodeFormat.UPC_E,
-                BarcodeFormat.UPC_EAN_EXTENSION
-        );
+        reader = BarcodeReader.getInstance();
 
         writeQrCode();
         writeBarCode();

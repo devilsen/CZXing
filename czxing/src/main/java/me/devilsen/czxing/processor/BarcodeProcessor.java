@@ -18,7 +18,8 @@ public class BarcodeProcessor {
     private boolean cancel;
 
     public BarcodeProcessor() {
-        reader = new BarcodeReader(
+        reader = BarcodeReader.getInstance();
+        reader.setBarcodeFormat(
                 BarcodeFormat.QR_CODE,
 //                BarcodeFormat.AZTEC,
                 BarcodeFormat.CODABAR,

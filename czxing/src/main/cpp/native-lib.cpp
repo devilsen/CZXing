@@ -98,9 +98,9 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance
             }
             return static_cast<int>(readResult.format());
         }
-    }catch (const std::exception &e) {
+    } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
-    }catch (...) {
+    } catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
     return -1;

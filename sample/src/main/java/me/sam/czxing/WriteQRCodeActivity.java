@@ -51,7 +51,7 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
         qrcodeImage = findViewById(R.id.image_view_write_qr_code);
 
         writer = new BarcodeWriter();
-        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+        reader = BarcodeReader.getInstance();
 
         writeBtn.setOnClickListener(this);
         qrcodeImage.setOnClickListener(this);

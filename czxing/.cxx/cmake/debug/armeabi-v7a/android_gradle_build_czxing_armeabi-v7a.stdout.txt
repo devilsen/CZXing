@@ -1,3 +1,1 @@
-[1/3] Building CXX object zxing/CMakeFiles/ZXingCore.dir/src/qrcode/QRDetector.cpp.o
-[2/3] Linking CXX static library zxing\libZXingCore.a
-[3/3] Linking CXX shared library D:\Code\Android\Me\CZXing\czxing\build\intermediates\cmake\debug\obj\armeabi-v7a\libczxing.so
+ninja: no work to do.

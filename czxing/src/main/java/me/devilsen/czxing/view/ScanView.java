@@ -5,14 +5,10 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Queue;
 
+import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
-import me.devilsen.czxing.processor.BarcodeProcessor;
-import me.devilsen.czxing.thread.Callback;
-import me.devilsen.czxing.thread.Dispatcher;
 import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
@@ -28,8 +24,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     private boolean isStop;
     private boolean isDark;
     private ArrayDeque<Boolean> darkList;
-
-    private BarcodeProcessor processor;
+    private BarcodeReader reader;
 
     public ScanView(Context context) {
         this(context, null);
@@ -42,8 +37,15 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     public ScanView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScanBoxView.setScanBoxClickListener(this);
-        processor = new BarcodeProcessor();
-        processor.setReadCodeListener(this);
+        reader = BarcodeReader.getInstance();
+        reader.setBarcodeFormat(
+                BarcodeFormat.QR_CODE,
+                BarcodeFormat.CODABAR,
+                BarcodeFormat.CODE_128,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.UPC_A
+        );
+        reader.setReadCodeListener(this);
 
         darkList = new ArrayDeque<>(DARK_LIST_SIZE);
     }
@@ -54,7 +56,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             return;
         }
 
-        processor.processBytes(data, left, top, width, height, rowWidth, rowHeight);
+        reader.read(data, left, top, width, height, rowWidth, rowHeight);
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
 //        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
 //        setQueueSize(queueSize);

@@ -8,8 +8,24 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class BarcodeReader {
 
     private long _nativePtr;
+    private static BarcodeReader instance;
 
-    public BarcodeReader(BarcodeFormat... formats) {
+    public static BarcodeReader getInstance() {
+        if (instance == null) {
+            synchronized (BarcodeReader.class) {
+                if (instance == null) {
+                    instance = new BarcodeReader();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private BarcodeReader() {
+        setBarcodeFormat(BarcodeFormat.QR_CODE);
+    }
+
+    public void setBarcodeFormat(BarcodeFormat... formats) {
         int[] nativeFormats = new int[formats.length];
         for (int i = 0; i < formats.length; ++i) {
             nativeFormats[i] = formats[i].ordinal();

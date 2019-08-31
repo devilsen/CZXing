@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         resultTxt = findViewById(R.id.text_view_result);
-        reader = new BarcodeReader(BarcodeFormat.QR_CODE);
+        reader = BarcodeReader.getInstance();
         requestPermission();
     }
 

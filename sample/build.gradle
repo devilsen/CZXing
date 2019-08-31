@@ -30,6 +30,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            jniDebuggable true
+            ndk {
+                debuggable = true
+            }
+        }
     }
 
     compileOptions {

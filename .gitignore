@@ -2,6 +2,7 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+czxing/.cxx
 /captures
 # Built application files
 *.apk
@@ -71,3 +72,4 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
