@@ -56,6 +56,9 @@ static float SizeOfBlackWhiteBlackRun(const BitMatrix& image, int fromX, int fro
 	int error = -dx / 2;
 	int xstep = fromX < toX ? 1 : -1;
 	int ystep = fromY < toY ? 1 : -1;
+	float whiteDistance = 0;
+	int whiteXStart = 0;
+	int whiteYStart = 0;
 
 	// In black pixels, looking for white, first or second time.
 	int state = 0;
@@ -69,10 +72,19 @@ static float SizeOfBlackWhiteBlackRun(const BitMatrix& image, int fromX, int fro
 		// Scanning black in state 0,2 and white in state 1, so if we find the wrong
 		// color, advance to next state or end if we are in state 2 already
 		if ((state == 1) == image.get(realX, realY)) {
-			if (state == 2) {
-				return ResultPoint::Distance(x, y, fromX, fromY);
-			}
+//			if (state == 2) {
+//				return ResultPoint::Distance(x, y, fromX, fromY);
+//			}
 			state++;
+
+			if (state == 1){
+			    whiteXStart = x;
+			    whiteYStart = y;
+			}
+			if (state == 2){
+                whiteDistance = ResultPoint::Distance(x, y, whiteXStart, whiteYStart);
+                return ResultPoint::Distance(x, y, fromX, fromY) + whiteDistance;
+			}
 		}
 
 		error += dy;
@@ -280,7 +292,7 @@ ProcessFinderPatternInfo(const BitMatrix& image, const FinderPatternInfo& info)
 	}
 	int dimension = ComputeDimension(info.topLeft, info.topRight, info.bottomLeft, moduleSize);
 	if (dimension < 0)
-		return {};
+		return {{info.bottomLeft, info.topLeft, info.topRight}};
 
 	const Version* provisionalVersion = Version::ProvisionalVersionForDimension(dimension);
 	if (provisionalVersion == nullptr)

@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_wechat);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_white_border);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {
@@ -104,8 +104,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openScanBox(View view) {
-        Intent intent = new Intent(this, CallBackTestActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, CallBackTestActivity.class);
+//        startActivity(intent);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_black_boder);
+        CodeResult result = reader.read(bitmap);
+
+        if (result == null) {
+            Log.e("Scan >>> ", "no code");
+            return;
+        } else {
+            Log.e("Scan >>> ", result.getText());
+        }
+
+        resultTxt.setText(result.getText());
     }
 
     private void requestPermission() {

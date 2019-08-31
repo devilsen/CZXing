@@ -1,0 +1,68 @@
+{
+  "variant": {
+    "module": {
+      "rootBuildGradleFolder": "D:\\Code\\Android\\Me\\CZXing",
+      "sdkFolder": "D:\\Android\\AndroidSDK",
+      "isNativeCompilerSettingsCacheEnabled": false,
+      "isBuildOnlyTargetAbiEnabled": true,
+      "splitsAbiFilterSet": [],
+      "intermediatesFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates",
+      "gradleModulePathName": ":czxing",
+      "moduleRootFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing",
+      "makeFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\CMakeLists.txt",
+      "buildSystem": "CMAKE",
+      "compilerSettingsCacheFolder": "D:\\Code\\Android\\Me\\CZXing\\.cxx",
+      "cxxFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx",
+      "ndkFolder": "D:\\Android\\AndroidSDK\\ndk-bundle",
+      "ndkVersion": "19.0.5232133",
+      "ndkSupportedAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "cmakeToolchainFile": "."
+    },
+    "buildSystemArgumentList": [],
+    "cFlagList": [],
+    "cppFlagsList": [],
+    "variantName": "debug",
+    "soFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates\\cmake\\debug\\lib",
+    "objFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates\\cmake\\debug\\obj",
+    "jsonFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug",
+    "gradleBuildOutputFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug",
+    "isDebuggableEnabled": true,
+    "validAbiList": [
+      "ARMEABI_V7A",
+      "ARM64_V8A"
+    ],
+    "buildTargetSet": []
+  },
+  "abi": "ARM64_V8A",
+  "abiPlatformVersion": 16,
+  "cxxBuildFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a",
+  "jsonFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\android_gradle_build.json",
+  "gradleBuildOutputFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a",
+  "objFolder": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates\\cmake\\debug\\obj\\arm64-v8a",
+  "buildCommandFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\build_command.txt",
+  "buildOutputFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\build_output.txt",
+  "modelOutputFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\build_model.json",
+  "cmake": {
+    "cmakeListsWrapperFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\CMakeLists.txt",
+    "toolchainWrapperFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\android_gradle_build.toolchain.cmake",
+    "buildGenerationStateFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\build_generation_state.json",
+    "cacheKeyFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\compiler_cache_key.json",
+    "compilerCacheUseFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\compiler_cache_use.json",
+    "compilerCacheWriteFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\compiler_cache_write.json",
+    "toolchainSettingsFromCacheFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cxx\\debug\\arm64-v8a\\compiler_settings_cache.cmake",
+    "cmakeWrappingBaseFolder": "."
+  },
+  "jsonGenerationLoggingRecordFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\json_generation_record.json",
+  "compileCommandsJsonFile": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\arm64-v8a\\compile_commands.json"
+}

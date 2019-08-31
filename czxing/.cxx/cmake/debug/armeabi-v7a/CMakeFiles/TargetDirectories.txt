@@ -1,0 +1,14 @@
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/install.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/install/local.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/czxing.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/list_install_components.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/CMakeFiles/install/strip.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/ZXingCore.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/edit_cache.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/install.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/install/local.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/rebuild_cache.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/list_install_components.dir
+D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/CMakeFiles/install/strip.dir

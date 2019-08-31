@@ -85,7 +85,7 @@ void ImageScheduler::readyMat() {
     decodeGrayPixels(gray);
 }
 
-void ImageScheduler::decodeGrayPixels(Mat gray) {
+void ImageScheduler::decodeGrayPixels(const Mat& gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_90_CLOCKWISE);
 
@@ -94,12 +94,38 @@ void ImageScheduler::decodeGrayPixels(Mat gray) {
     if (result.isValid()) {
         javaCallHelper->onResult(result);
         isProcessing = false;
-    } else {
+    }
+//    else if (result.isNeedScale()) {
+//        LOGE("is need scale image...");
+//        std::vector<ResultPoint> points = result.resultPoints();
+//        ResultPoint topLeft = points[1];
+//        ResultPoint topRight = points[2];
+//        ResultPoint bottomLeft = points[0];
+//
+//        int left = static_cast<int>(topLeft.x()) - 3 * 20;
+//        int top = static_cast<int>(topLeft.y()) - 3 * 20;
+//        int width = static_cast<int>(topRight.x() - topLeft.x()) + 3 * 25;
+//        int height = static_cast<int>(bottomLeft.y() - topLeft.y()) + 3 * 25;
+//
+//        LOGE("left = %d, top = %d, width = %d, height = %d", left, top, width, height);
+//
+//        mat = mat(Rect(left, top, width, height));
+//        imwrite("/storage/emulated/0/scan/scale.jpg", mat);
+//        Result result1 = decodePixels(mat);
+//
+//        if (result.isValid()) {
+//            javaCallHelper->onResult(result);
+//            isProcessing = false;
+//        } else {
+//            decodeThresholdPixels(gray);
+//        }
+//    }
+    else {
         decodeThresholdPixels(gray);
     }
 }
 
-void ImageScheduler::decodeThresholdPixels(Mat gray) {
+void ImageScheduler::decodeThresholdPixels(const Mat& gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_180);
 
@@ -119,7 +145,7 @@ void ImageScheduler::decodeThresholdPixels(Mat gray) {
     }
 }
 
-void ImageScheduler::decodeAdaptivePixels(Mat gray) {
+void ImageScheduler::decodeAdaptivePixels(const Mat& gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_90_COUNTERCLOCKWISE);
 
@@ -139,7 +165,7 @@ void ImageScheduler::decodeAdaptivePixels(Mat gray) {
     }
 }
 
-void ImageScheduler::recognizerQrCode(Mat mat) {
+void ImageScheduler::recognizerQrCode(const Mat& mat) {
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
     if (rect.empty()) {

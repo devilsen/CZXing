@@ -1,0 +1,830 @@
+
+{
+	"buildFiles" : 
+	[
+		"D:/Code/Android/Me/CZXing/czxing/src/main/cpp/CMakeLists.txt",
+		"D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/CMakeLists.txt"
+	],
+	"cleanCommands" : 
+	[
+		"D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a --target clean"
+	],
+	"cppFileExtensions" : [ "cpp" ],
+	"libraries" : 
+	{
+		"ZXingCore-Debug-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "ZXingCore",
+			"buildCommand" : "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a --target ZXingCore",
+			"buildType" : "debug",
+			"files" : 
+			[
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/BarcodeFormat.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/BitArray.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/BitMatrix.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/CharacterSetECI.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/GenericGF.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/GenericGFPoly.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/TextUtfEncoding.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/ZXBigInteger.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/BitSource.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/DecodeHints.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/DecodeStatus.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/GenericLuminanceSource.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/GlobalHistogramBinarizer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/GridSampler.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/HybridBinarizer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/LuminanceSource.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/PerspectiveTransform.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/Result.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/ResultMetadata.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/ResultPoint.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/TextDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/WhiteRectDetector.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/TextEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDetector.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZHighLevelEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZToken.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMBitMatrixParser.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDataBlock.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDetector.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMVersion.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMECEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDefaultPlacement.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMHighLevelEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMSymbolInfo.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCBitMatrixParser.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANCommon.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Patterns.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEANManufacturerOrgSupport.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODMultiUPCEANReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRowReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSS14Reader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSSExpandedReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANExtensionSupport.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Writer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Writer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Writer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Writer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Writer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/ODWriterHelper.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSExpandedBinaryDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSFieldParser.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSGenericAppIdDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSReaderHelper.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBarcodeValue.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBoundingBox.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFCodewordDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDecodedBitStreamParser.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResult.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResultColumn.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetector.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusGF.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusPoly.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFScanningDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFHighLevelEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRCodecMode.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRErrorCorrectionLevel.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRVersion.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPattern.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPatternFinder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRBitMatrixParser.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataBlock.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataMask.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDetector.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPattern.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPatternFinder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFormatInformation.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRReader.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QREncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMaskUtil.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMatrixUtil.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRWriter.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5MapTable.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRHangulMapping.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextDecoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64   -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC   -std=c++11  -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextEncoder.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				}
+			],
+			"output" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a/zxing/libZXingCore.a",
+			"toolchain" : "2402814353"
+		},
+		"czxing-Debug-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "czxing",
+			"buildCommand" : "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a --target czxing",
+			"buildType" : "debug",
+			"files" : 
+			[
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/ImageScheduler.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/ImageUtil.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/JNIUtils.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/JavaCallHelper.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/QRCodeRecognizer.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				},
+				
+				{
+					"flags" : "  --target=armv7-none-linux-androideabi16 --gcc-toolchain=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64  -Dczxing_EXPORTS -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\include -ID:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\src  --sysroot D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mfpu=vfpv3-d16 -fno-addrsig -mthumb -Wa,--noexecstack -Wformat -Werror=format-security -stdlib=libc++  -O0 -fno-limit-debug-info  -fPIC    -c ",
+					"src" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/native-lib.cpp",
+					"workingDirectory" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/armeabi-v7a"
+				}
+			],
+			"output" : "D:/Code/Android/Me/CZXing/czxing/build/intermediates/cmake/debug/obj/armeabi-v7a/libczxing.so",
+			"toolchain" : "2402814353"
+		},
+		"opencv_java4-Debug-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "opencv_java4",
+			"buildType" : "debug",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../libs/armeabi-v7a/libopencv_java4.so",
+			"toolchain" : "2402814353"
+		}
+	},
+	"toolchains" : 
+	{
+		"2402814353" : 
+		{
+			"cCompilerExecutable" : "D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
+			"cppCompilerExecutable" : "D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
+		}
+	}
+}

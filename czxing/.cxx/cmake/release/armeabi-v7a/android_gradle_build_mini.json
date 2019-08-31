@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\CMakeLists.txt",
+    "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\armeabi-v7a --target clean"
+  ],
+  "libraries": {
+    "ZXingCore-Release-armeabi-v7a": {
+      "artifactName": "ZXingCore",
+      "buildCommand": "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\armeabi-v7a --target ZXingCore",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\armeabi-v7a\\zxing\\libZXingCore.a"
+    },
+    "opencv_java4-Release-armeabi-v7a": {
+      "artifactName": "opencv_java4",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\libs\\armeabi-v7a\\libopencv_java4.so"
+    },
+    "czxing-Release-armeabi-v7a": {
+      "artifactName": "czxing",
+      "buildCommand": "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\armeabi-v7a --target czxing",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates\\cmake\\release\\obj\\armeabi-v7a\\libczxing.so"
+    }
+  }
+}

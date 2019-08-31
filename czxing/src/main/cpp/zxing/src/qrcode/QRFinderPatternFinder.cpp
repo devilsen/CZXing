@@ -66,12 +66,12 @@ static bool FoundPatternDiagonal(const StateCount& stateCount) {
 	float moduleSize = totalModuleSize / 7.0f;
 	float maxVariance = moduleSize / 1.333f;
 	// Allow less than 75% variance from 1-1-3-1-1 proportions
-	return
-		std::abs(moduleSize - stateCount[0]) < maxVariance &&
-		std::abs(moduleSize - stateCount[1]) < maxVariance &&
-		std::abs(3.0f * moduleSize - stateCount[2]) < 3 * maxVariance &&
-		std::abs(moduleSize - stateCount[3]) < maxVariance &&
-		std::abs(moduleSize - stateCount[4]) < maxVariance;
+
+	bool centerRatio = std::abs(moduleSize - stateCount[1]) < maxVariance &&
+	                   std::abs(3.0f * moduleSize - stateCount[2]) < 3 * maxVariance &&
+	                   std::abs(moduleSize - stateCount[3]) < maxVariance;
+	return centerRatio && (std::abs(moduleSize - stateCount[0]) < maxVariance ||
+                           std::abs(moduleSize - stateCount[4]) < maxVariance);
 }
 
 /**
@@ -475,7 +475,6 @@ static void OrderBestPatterns(std::vector<FinderPattern>& patterns)
 	}
 }
 
-
 FinderPatternInfo FinderPatternFinder::Find(const BitMatrix& image, bool tryHarder)
 {
 	int maxI = image.height();
@@ -511,7 +510,7 @@ FinderPatternInfo FinderPatternFinder::Find(const BitMatrix& image, bool tryHard
 			else { // White pixel
 				if ((currentState & 1) == 0) { // Counting black pixels
 					if (currentState == 4) { // A winner?
-						if (FoundPatternCross(stateCount)) { // Yes
+                        if (FoundPatternCross(stateCount)) { // Yes
 							bool confirmed = HandlePossibleCenter(image, stateCount, i, j, possibleCenters);
 							if (confirmed) {
 								// Start examining every other line. Checking each line turned out to be too
@@ -603,12 +602,18 @@ FinderPatternFinder::FoundPatternCross(const StateCount& stateCount) {
 	float moduleSize = totalModuleSize / 7.0f;
 	float maxVariance = moduleSize / 2.0f;
 	// Allow less than 50% variance from 1-1-3-1-1 proportions
-	return
-		std::abs(moduleSize - stateCount[0]) < maxVariance &&
-		std::abs(moduleSize - stateCount[1]) < maxVariance &&
-		std::abs(3.0f * moduleSize - stateCount[2]) < 3 * maxVariance &&
-		std::abs(moduleSize - stateCount[3]) < maxVariance &&
-		std::abs(moduleSize - stateCount[4]) < maxVariance;
+	bool centerRatio = std::abs(moduleSize - stateCount[1]) < maxVariance &&
+                       std::abs(3.0f * moduleSize - stateCount[2]) < 3 * maxVariance &&
+                       std::abs(moduleSize - stateCount[3]) < maxVariance;
+
+    return centerRatio &&
+    (std::abs(moduleSize - stateCount[0]) < maxVariance || std::abs(moduleSize - stateCount[4]) < maxVariance);
+
+        //		std::abs(moduleSize - stateCount[0]) < maxVariance &&
+//		std::abs(moduleSize - stateCount[1]) < maxVariance &&
+//		std::abs(3.0f * moduleSize - stateCount[2]) < 3 * maxVariance &&
+//		std::abs(moduleSize - stateCount[3]) < maxVariance;
+//		std::abs(moduleSize - stateCount[4]) < maxVariance;
 }
 
 /**

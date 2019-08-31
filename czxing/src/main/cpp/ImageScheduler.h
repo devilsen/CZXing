@@ -39,13 +39,13 @@ public:
 
     void readyMat();
 
-    void decodeGrayPixels(Mat gray);
+    void decodeGrayPixels(const Mat& gray);
 
-    void decodeThresholdPixels(Mat gray);
+    void decodeThresholdPixels(const Mat& gray);
 
-    void decodeAdaptivePixels(Mat gray);
+    void decodeAdaptivePixels(const Mat& gray);
 
-    FrameData frameData;
+    FrameData frameData{};
 
     Result readBitmap(jobject bitmap, int left, int top, int width,int height);
 
@@ -54,14 +54,14 @@ private:
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
     bool isProcessing = false;
-    long cameraLight;
+    long cameraLight{};
     QRCodeRecognizer *qrCodeRecognizer;
 
-    pthread_t pretreatmentThread;
+    pthread_t pretreatmentThread{};
 
     Result decodePixels(Mat mat);
 
-    void recognizerQrCode(Mat mat);
+    void recognizerQrCode(const Mat& mat);
 
     Result *analyzeResult();
 

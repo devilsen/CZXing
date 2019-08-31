@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\CMakeLists.txt",
+    "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\zxing\\CMakeLists.txt"
+  ],
+  "cleanCommands": [
+    "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\arm64-v8a --target clean"
+  ],
+  "libraries": {
+    "opencv_java4-Release-arm64-v8a": {
+      "artifactName": "opencv_java4",
+      "abi": "arm64-v8a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\libs\\arm64-v8a\\libopencv_java4.so"
+    },
+    "ZXingCore-Release-arm64-v8a": {
+      "artifactName": "ZXingCore",
+      "buildCommand": "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\arm64-v8a --target ZXingCore",
+      "abi": "arm64-v8a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\arm64-v8a\\zxing\\libZXingCore.a"
+    },
+    "czxing-Release-arm64-v8a": {
+      "artifactName": "czxing",
+      "buildCommand": "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\release\\arm64-v8a --target czxing",
+      "abi": "arm64-v8a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\build\\intermediates\\cmake\\release\\obj\\arm64-v8a\\libczxing.so"
+    }
+  }
+}

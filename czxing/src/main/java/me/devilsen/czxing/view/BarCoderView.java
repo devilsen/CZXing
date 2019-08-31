@@ -292,50 +292,54 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     private void handleAutoZoom(int len) {
-        if (mCamera == null || mScanBoxView == null || len <= 0) {
-            return;
-        }
-
-        int scanBoxWidth = mScanBoxView.getScanBoxSize();
-        if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
-            if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
-                ExecutorUtil.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAutoZoomAnimator.cancel();
-                    }
-                });
+        try {
+            if (mCamera == null || mScanBoxView == null || len <= 0) {
+                return;
             }
-            return;
-        }
 
-        if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
-            return;
-        }
+            int scanBoxWidth = mScanBoxView.getScanBoxSize();
+            if (len > scanBoxWidth / DEFAULT_ZOOM_SCALE) {
+                if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
+                    ExecutorUtil.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAutoZoomAnimator.cancel();
+                        }
+                    });
+                }
+                return;
+            }
 
-        if (System.currentTimeMillis() - mLastAutoZoomTime < 450) {
-            return;
-        }
+            if (mAutoZoomAnimator != null && mAutoZoomAnimator.isRunning()) {
+                return;
+            }
 
-        Camera.Parameters parameters = mCamera.getParameters();
-        if (!parameters.isZoomSupported()) {
-            return;
-        }
+            if (System.currentTimeMillis() - mLastAutoZoomTime < 450) {
+                return;
+            }
 
-        // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
-        final int maxZoom = parameters.getMaxZoom();
-        // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
-        final int maxCanZoom = maxZoom / 2;
-        final int zoomStep = maxZoom / 6;
-        final int zoom = parameters.getZoom();
+            Camera.Parameters parameters = mCamera.getParameters();
+            if (!parameters.isZoomSupported()) {
+                return;
+            }
+
+            // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
+            final int maxZoom = parameters.getMaxZoom();
+            // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
+            final int maxCanZoom = maxZoom / 2;
+            final int zoomStep = maxZoom / 6;
+            final int zoom = parameters.getZoom();
 //        BarCodeUtil.d("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
-        ExecutorUtil.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom));
-            }
-        });
+            ExecutorUtil.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom));
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

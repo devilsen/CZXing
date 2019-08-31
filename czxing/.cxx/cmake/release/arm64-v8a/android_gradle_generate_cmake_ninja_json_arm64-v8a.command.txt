@@ -1,0 +1,14 @@
+Executable : D:\Android\AndroidSDK\cmake\3.6.4111459\bin\cmake.exe
+arguments : 
+-HD:\Code\Android\Me\CZXing\czxing\src\main\cpp
+-BD:\Code\Android\Me\CZXing\czxing\.cxx\cmake\release\arm64-v8a
+-DANDROID_ABI=arm64-v8a
+-DANDROID_PLATFORM=android-16
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\Code\Android\Me\CZXing\czxing\build\intermediates\cmake\release\obj\arm64-v8a
+-DCMAKE_BUILD_TYPE=Release
+-DANDROID_NDK=D:\Android\AndroidSDK\ndk-bundle
+-DCMAKE_TOOLCHAIN_FILE=D:\Android\AndroidSDK\ndk-bundle\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=D:\Android\AndroidSDK\cmake\3.6.4111459\bin\ninja.exe
+-GAndroid Gradle - Ninja
+jvmArgs : 
+

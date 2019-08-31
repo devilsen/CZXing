@@ -1,0 +1,8 @@
+Executable : D:\Android\AndroidSDK\cmake\3.6.4111459\bin\cmake.exe
+arguments : 
+--build
+D:\Code\Android\Me\CZXing\czxing\.cxx\cmake\debug\armeabi-v7a
+--target
+czxing
+jvmArgs : 
+

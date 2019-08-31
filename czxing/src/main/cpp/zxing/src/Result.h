@@ -51,6 +51,10 @@ public:
 		return StatusIsOK(_status);
 	}
 
+	bool isNeedScale() const {
+		return status() == DecodeStatus::PositionFound;
+	}
+
 	bool isBlurry() const {
 		return resultPoints().size() >= 2;
 	}
@@ -69,7 +73,7 @@ public:
 	const ByteArray& rawBytes() const {
 		return _rawBytes;
 	}
-	
+
 	int numBits() const {
 		return _numBits;
 	}
