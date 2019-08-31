@@ -762,6 +762,14 @@
 			"output" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/debug/arm64-v8a/zxing/libZXingCore.a",
 			"toolchain" : "2402814353"
 		},
+		"cpufeatures-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "cpufeatures",
+			"buildType" : "debug",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/arm64-v8a/libcpufeatures.a",
+			"toolchain" : "2402814353"
+		},
 		"czxing-Debug-arm64-v8a" : 
 		{
 			"abi" : "arm64-v8a",
@@ -810,12 +818,36 @@
 			"output" : "D:/Code/Android/Me/CZXing/czxing/build/intermediates/cmake/debug/obj/arm64-v8a/libczxing.so",
 			"toolchain" : "2402814353"
 		},
-		"opencv_java4-Debug-arm64-v8a" : 
+		"opencv_core-Debug-arm64-v8a" : 
 		{
 			"abi" : "arm64-v8a",
-			"artifactName" : "opencv_java4",
+			"artifactName" : "opencv_core",
 			"buildType" : "debug",
-			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../libs/arm64-v8a/libopencv_java4.so",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/libs/arm64-v8a/libopencv_core.a",
+			"toolchain" : "2402814353"
+		},
+		"opencv_imgproc-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "opencv_imgproc",
+			"buildType" : "debug",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/libs/arm64-v8a/libopencv_imgproc.a",
+			"toolchain" : "2402814353"
+		},
+		"tbb-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "tbb",
+			"buildType" : "debug",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/arm64-v8a/libtbb.a",
+			"toolchain" : "2402814353"
+		},
+		"tegra_hal-Debug-arm64-v8a" : 
+		{
+			"abi" : "arm64-v8a",
+			"artifactName" : "tegra_hal",
+			"buildType" : "debug",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/arm64-v8a/libtegra_hal.a",
 			"toolchain" : "2402814353"
 		}
 	},

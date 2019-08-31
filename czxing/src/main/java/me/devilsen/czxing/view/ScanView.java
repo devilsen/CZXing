@@ -19,6 +19,19 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
         BarcodeReader.ReadCodeListener {
 
+    /**
+     * 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
+     */
+    public static final int SCAN_MODE_MIX = 0;
+    /**
+     * 只扫描扫码框里的内容
+     */
+    public static final int SCAN_MODE_TINY = 1;
+    /**
+     * 扫描以屏幕宽为边长的内容
+     */
+    public static final int SCAN_MODE_BIG = 2;
+
     private static final int DARK_LIST_SIZE = 4;
 
     private boolean isStop;

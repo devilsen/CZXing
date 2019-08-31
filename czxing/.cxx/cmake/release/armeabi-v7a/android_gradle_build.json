@@ -762,6 +762,14 @@
 			"output" : "D:/Code/Android/Me/CZXing/czxing/.cxx/cmake/release/armeabi-v7a/zxing/libZXingCore.a",
 			"toolchain" : "2402814353"
 		},
+		"cpufeatures-Release-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "cpufeatures",
+			"buildType" : "release",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/armeabi-v7a/libcpufeatures.a",
+			"toolchain" : "2402814353"
+		},
 		"czxing-Release-armeabi-v7a" : 
 		{
 			"abi" : "armeabi-v7a",
@@ -810,12 +818,36 @@
 			"output" : "D:/Code/Android/Me/CZXing/czxing/build/intermediates/cmake/release/obj/armeabi-v7a/libczxing.so",
 			"toolchain" : "2402814353"
 		},
-		"opencv_java4-Release-armeabi-v7a" : 
+		"opencv_core-Release-armeabi-v7a" : 
 		{
 			"abi" : "armeabi-v7a",
-			"artifactName" : "opencv_java4",
+			"artifactName" : "opencv_core",
 			"buildType" : "release",
-			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../libs/armeabi-v7a/libopencv_java4.so",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/libs/armeabi-v7a/libopencv_core.a",
+			"toolchain" : "2402814353"
+		},
+		"opencv_imgproc-Release-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "opencv_imgproc",
+			"buildType" : "release",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/libs/armeabi-v7a/libopencv_imgproc.a",
+			"toolchain" : "2402814353"
+		},
+		"tbb-Release-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "tbb",
+			"buildType" : "release",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/armeabi-v7a/libtbb.a",
+			"toolchain" : "2402814353"
+		},
+		"tegra_hal-Release-armeabi-v7a" : 
+		{
+			"abi" : "armeabi-v7a",
+			"artifactName" : "tegra_hal",
+			"buildType" : "release",
+			"output" : "D:/Code/Android/Me/CZXing/czxing/src/main/cpp/../../../opencv/3rdparty/libs/armeabi-v7a/libtegra_hal.a",
 			"toolchain" : "2402814353"
 		}
 	},

@@ -222,8 +222,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 //Path to a program.
 CMAKE_STRIP:FILEPATH=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/arm-linux-androideabi-strip.exe
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=D:/Android/AndroidSDK/ndk-bundle/build/cmake/android.toolchain.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=D:\Android\AndroidSDK\ndk-bundle\build\cmake\android.toolchain.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -241,7 +241,7 @@ Project_SOURCE_DIR:STATIC=D:/Code/Android/Me/CZXing/czxing/src/main/cpp
 ZXingCore_LIB_DEPENDS:STATIC=
 
 //Dependencies for the target
-czxing_LIB_DEPENDS:STATIC=general;ZXingCore;general;opencv_java4;general;jnigraphics;general;android;general;z;general;D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/16/liblog.so;
+czxing_LIB_DEPENDS:STATIC=general;ZXingCore;general;opencv_imgproc;general;opencv_core;general;cpufeatures;general;tbb;general;tegra_hal;general;jnigraphics;general;android;general;z;general;D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/16/liblog.so;
 
 //Path to a library.
 log-lib:FILEPATH=D:/Android/AndroidSDK/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/arm-linux-androideabi/16/liblog.so

@@ -16,6 +16,9 @@ import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 
+import static me.devilsen.czxing.view.ScanView.SCAN_MODE_MIX;
+import static me.devilsen.czxing.view.ScanView.SCAN_MODE_TINY;
+
 /**
  * @author : dongSen
  * date : 2019-06-29 15:35
@@ -43,6 +46,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     private long mLastAutoZoomTime;
     private long mDelayTime = ONE_HUNDRED_MILLISECONDS;
     private ResolutionAdapterUtil resolutionAdapter;
+    private int scanMode;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -117,18 +121,28 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             top = resolutionAdapter.getAdapterHeight(top);
             scanBoxSize = resolutionAdapter.getAdapterWidth(scanBoxSize);
 
+            scanDataStrategy(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void scanDataStrategy(byte[] data, int left, int top, int width, int height, int rowWidth, int rowHeight) {
+        if (scanMode == SCAN_MODE_MIX) {
             if (scanSequence < 5) {
-                onPreviewFrame(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
+                onPreviewFrame(data, left, top, width, height, rowWidth, rowHeight);
             } else {
                 scanSequence = -1;
                 int bisSize = rowWidth < rowHeight ? rowWidth : rowHeight;
                 onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
             }
             scanSequence++;
-
-//            BarCodeUtil.d("scan sequence " + scanSequence);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else if (scanMode == SCAN_MODE_TINY) {
+            onPreviewFrame(data, left, top, width, height, rowWidth, rowHeight);
+        } else {
+            int bisSize = rowWidth < rowHeight ? rowWidth : rowHeight;
+            onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
         }
     }
 
@@ -403,4 +417,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mScanListener = null;
     }
 
+    public void setScanMode(int scanMode) {
+        this.scanMode = scanMode;
+    }
 }

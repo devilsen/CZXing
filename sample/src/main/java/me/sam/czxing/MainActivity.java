@@ -27,6 +27,7 @@ import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.view.ScanActivityDelegate;
+import me.devilsen.czxing.view.ScanView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 .setBorderColor(resources.getColor(R.color.box_line))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
+                .setScanMode(ScanView.SCAN_MODE_MIX)
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
                     public void onClickAlbum(Activity activity) {

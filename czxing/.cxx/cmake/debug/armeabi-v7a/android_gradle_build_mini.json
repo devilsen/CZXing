@@ -7,10 +7,25 @@
     "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a --target clean"
   ],
   "libraries": {
-    "opencv_java4-Debug-armeabi-v7a": {
-      "artifactName": "opencv_java4",
+    "tegra_hal-Debug-armeabi-v7a": {
+      "artifactName": "tegra_hal",
       "abi": "armeabi-v7a",
-      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\libs\\armeabi-v7a\\libopencv_java4.so"
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\opencv\\3rdparty\\libs\\armeabi-v7a\\libtegra_hal.a"
+    },
+    "opencv_core-Debug-armeabi-v7a": {
+      "artifactName": "opencv_core",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\opencv\\libs\\armeabi-v7a\\libopencv_core.a"
+    },
+    "cpufeatures-Debug-armeabi-v7a": {
+      "artifactName": "cpufeatures",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\opencv\\3rdparty\\libs\\armeabi-v7a\\libcpufeatures.a"
+    },
+    "opencv_imgproc-Debug-armeabi-v7a": {
+      "artifactName": "opencv_imgproc",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\opencv\\libs\\armeabi-v7a\\libopencv_imgproc.a"
     },
     "czxing-Debug-armeabi-v7a": {
       "artifactName": "czxing",
@@ -23,6 +38,11 @@
       "buildCommand": "D:\\Android\\AndroidSDK\\cmake\\3.6.4111459\\bin\\cmake.exe --build D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a --target ZXingCore",
       "abi": "armeabi-v7a",
       "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\.cxx\\cmake\\debug\\armeabi-v7a\\zxing\\libZXingCore.a"
+    },
+    "tbb-Debug-armeabi-v7a": {
+      "artifactName": "tbb",
+      "abi": "armeabi-v7a",
+      "output": "D:\\Code\\Android\\Me\\CZXing\\czxing\\src\\main\\cpp\\..\\..\\..\\opencv\\3rdparty\\libs\\armeabi-v7a\\libtbb.a"
     }
   }
 }

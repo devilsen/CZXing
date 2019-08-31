@@ -36,6 +36,11 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setScanMode(int scanMode) {
+        scanOption.scanMode = scanMode;
+        return this;
+    }
+
     public ScannerManager setScanLineColors(List<Integer> scanLineColors) {
         scanOption.scanLineColors = scanLineColors;
         return this;
@@ -58,8 +63,10 @@ public class ScannerManager {
     }
 
     public static class ScanOption implements Parcelable {
+
         private int cornerColor;
         private int borderColor;
+        private int scanMode;
         private List<Integer> scanLineColors;
 
         public int getCornerColor() {
@@ -68,6 +75,10 @@ public class ScannerManager {
 
         public int getBorderColor() {
             return borderColor;
+        }
+
+        public int getScanMode(){
+            return scanMode;
         }
 
         public List<Integer> getScanLineColors() {
@@ -84,6 +95,7 @@ public class ScannerManager {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(this.cornerColor);
             dest.writeInt(this.borderColor);
+            dest.writeInt(this.scanMode);
             dest.writeList(this.scanLineColors);
         }
 
@@ -93,6 +105,7 @@ public class ScannerManager {
         protected ScanOption(Parcel in) {
             this.cornerColor = in.readInt();
             this.borderColor = in.readInt();
+            this.scanMode = in.readInt();
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
         }
