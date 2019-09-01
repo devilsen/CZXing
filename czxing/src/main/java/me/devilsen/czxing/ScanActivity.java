@@ -89,8 +89,19 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @Override
     protected void onResume() {
         super.onResume();
+        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
+        mScanView.startScan();  // 显示扫描框，并开始识别
+
 //        mScanView.startScan();  // 显示扫描框，并开始识别
 //        mScanView.resetZoom();  // 重置相机扩大倍数
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mScanView.stopScan();
+        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
+
     }
 
     @Override
@@ -105,6 +116,11 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanView.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 
     @Override
