@@ -119,11 +119,6 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     }
 
     @Override
-    public void finish() {
-        super.finish();
-    }
-
-    @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.image_scan_back) {

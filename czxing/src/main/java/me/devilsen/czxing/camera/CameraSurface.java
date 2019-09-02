@@ -36,7 +36,6 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     private SensorController mSensorController;
     private CameraConfigurationManager mCameraConfigurationManager;
     private SurfacePreviewListener scanListener;
-    private int cancelStop;
 
     public CameraSurface(Context context) {
         this(context, null);
@@ -155,8 +154,6 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
             }
             startContinuousAutoFocus();
             mSensorController.onStart();
-
-            cancelStop++;
         } catch (IOException e) {
             e.printStackTrace();
         }

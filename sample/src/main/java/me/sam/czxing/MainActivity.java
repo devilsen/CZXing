@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_white_border);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_6);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 //        Intent intent = new Intent(this, CallBackTestActivity.class);
 //        startActivity(intent);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_black_boder);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_5);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {
