@@ -134,7 +134,7 @@ void ImageScheduler::decodeThresholdPixels(const Mat& gray) {
         mat.convertTo(mat, -1, 1.0, 30);
     }
 
-    threshold(mat, mat, 0, 255, CV_THRESH_OTSU);
+    threshold(mat, mat, 50, 255, CV_THRESH_OTSU);
 
     Result result = decodePixels(mat);
     if (result.isValid()) {

@@ -41,6 +41,16 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setTitle(String title) {
+        scanOption.title = title;
+        return this;
+    }
+
+    public ScannerManager showAlbum(boolean showAlbum) {
+        scanOption.showAlbum = showAlbum;
+        return this;
+    }
+
     public ScannerManager setScanLineColors(List<Integer> scanLineColors) {
         scanOption.scanLineColors = scanLineColors;
         return this;
@@ -67,6 +77,8 @@ public class ScannerManager {
         private int cornerColor;
         private int borderColor;
         private int scanMode;
+        private String title;
+        private boolean showAlbum = true;
         private List<Integer> scanLineColors;
 
         public int getCornerColor() {
@@ -81,10 +93,17 @@ public class ScannerManager {
             return scanMode;
         }
 
+        public String getTitle() {
+            return title;
+        }
+
+        public boolean isShowAlbum() {
+            return showAlbum;
+        }
+
         public List<Integer> getScanLineColors() {
             return scanLineColors;
         }
-
 
         @Override
         public int describeContents() {
@@ -96,6 +115,8 @@ public class ScannerManager {
             dest.writeInt(this.cornerColor);
             dest.writeInt(this.borderColor);
             dest.writeInt(this.scanMode);
+            dest.writeString(this.title);
+            dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
             dest.writeList(this.scanLineColors);
         }
 
@@ -106,6 +127,8 @@ public class ScannerManager {
             this.cornerColor = in.readInt();
             this.borderColor = in.readInt();
             this.scanMode = in.readInt();
+            this.title = in.readString();
+            this.showAlbum = in.readByte() != 0;
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
         }

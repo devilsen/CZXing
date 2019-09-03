@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_6);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_7);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {
@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
                 .setScanMode(ScanView.SCAN_MODE_MIX)
+                .setTitle("我的扫一扫")
+                .showAlbum(true)
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
                     public void onClickAlbum(Activity activity) {
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 //        Intent intent = new Intent(this, CallBackTestActivity.class);
 //        startActivity(intent);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_5);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_8);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {

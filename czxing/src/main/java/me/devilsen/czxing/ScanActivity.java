@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -36,6 +37,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
     private ScanActivityDelegate.OnClickAlbumDelegate clickAlbumDelegate;
     private SoundPoolUtil mSoundPoolUtil;
+    private TextView titleTxt;
+    private TextView albumTxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +50,12 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
         LinearLayout titleLayout = findViewById(R.id.layout_scan_title);
         ImageView backImg = findViewById(R.id.image_scan_back);
-        TextView album = findViewById(R.id.text_view_scan_album);
+        titleTxt = findViewById(R.id.text_view_scan_title);
+        albumTxt = findViewById(R.id.text_view_scan_album);
         mScanView = findViewById(R.id.surface_view_scan);
 
         backImg.setOnClickListener(this);
-        album.setOnClickListener(this);
+        albumTxt.setOnClickListener(this);
         mScanView.setScanListener(this);
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) titleLayout.getLayoutParams();
@@ -77,6 +81,19 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         scanBox.setBorderColor(option.getBorderColor());
         mScanView.setScanMode(option.getScanMode());
         scanBox.setScanLineColor(option.getScanLineColors());
+
+        // 标题栏
+        String title = option.getTitle();
+        if (title != null) {
+            titleTxt.setText(title);
+        }
+        // 是否显示相册
+        if (option.isShowAlbum()) {
+            albumTxt.setVisibility(View.VISIBLE);
+        } else {
+            albumTxt.setVisibility(View.INVISIBLE);
+            albumTxt.setOnClickListener(null);
+        }
     }
 
     @Override

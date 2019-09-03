@@ -9,7 +9,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.8.6'
+implementation 'me.devilsen:CZXing:0.8.7'
 ```
 建议加入abiFilters
 ```gradle
@@ -35,6 +35,8 @@ Scanner.with(this)
         .setCornerColor(resources.getColor(R.color.corner))     // 扫码框角颜色
         .setScanLineColors(scanColors)                          // 扫描线颜色（这是一个渐变颜色）
         .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域
+        .setTitle("My Scan View")                               // 扫码界面标题
+        .showAlbum(true)                                        // 显示相册(默认为true)
         .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
             @Override
             public void onClickAlbum(Activity activity) {       // 点击右上角的相册按钮
