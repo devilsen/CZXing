@@ -40,7 +40,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     }
     isProcessing = true;
 
-    LOGE("process begin...");
+//    LOGE("process begin...");
 
     frameData.bytes = bytes;
     frameData.left = left;
@@ -81,7 +81,7 @@ void ImageScheduler::readyMat() {
     Mat gray;
     cvtColor(src, gray, COLOR_RGBA2GRAY);
 
-    LOGE("start decode...");
+//    LOGE("start decode...");
     decodeGrayPixels(gray);
 }
 
@@ -223,7 +223,7 @@ Result ImageScheduler::decodePixels(Mat mat) {
 }
 
 bool ImageScheduler::analysisBrightness(const FrameData frameData) {
-    LOGE("start analysisBrightness...");
+//    LOGE("start analysisBrightness...");
 
     // 像素点的总亮度
     unsigned long pixelLightCount = 0L;

@@ -1,5 +1,9 @@
 package me.devilsen.czxing.util;
 
+import android.content.Context;
+
+import me.devilsen.czxing.camera.CameraUtil;
+
 /**
  * desc : 分辨率转换util
  * date : 2019-08-20 17:07
@@ -23,10 +27,10 @@ public class ResolutionAdapterUtil {
         setRatio();
     }
 
-    public void setCameraSize(int cameraWidth, int cameraHeight) {
+    public void setCameraSize(boolean portrait, int cameraWidth, int cameraHeight) {
         this.cameraWidth = cameraWidth;
         this.cameraHeight = cameraHeight;
-        if (cameraWidth > cameraHeight) {
+        if (portrait) {
             int temp = this.cameraWidth;
             this.cameraWidth = this.cameraHeight;
             this.cameraHeight = temp;

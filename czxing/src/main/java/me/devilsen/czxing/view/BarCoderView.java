@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -107,22 +108,21 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             int top;
             int rowWidth = size.width;
             int rowHeight = size.height;
-            resolutionAdapter.setCameraSize(rowWidth, rowHeight);
             // 这里需要把得到的数据也翻转
-            if (CameraUtil.isPortrait(getContext())) {
+            boolean portrait = CameraUtil.isPortrait(getContext());
+            if (portrait) {
                 left = scanBoxRect.top - expandTop;
                 top = scanBoxRect.left;
             } else {
                 left = scanBoxRect.left;
-                top = scanBoxRect.top - expandTop;
+                top = scanBoxRect.top;
             }
 
+            resolutionAdapter.setCameraSize(portrait, rowWidth, rowHeight);
             left = resolutionAdapter.getAdapterWidth(left);
             top = resolutionAdapter.getAdapterHeight(top);
             scanBoxSize = resolutionAdapter.getAdapterWidth(scanBoxSize);
-
             scanDataStrategy(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

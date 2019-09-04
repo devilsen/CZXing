@@ -99,8 +99,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @Override
     protected void onStart() {
         super.onStart();
-        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-        mScanView.startScan();  // 显示扫描框，并开始识别
+//        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
+//        mScanView.startScan();  // 显示扫描框，并开始识别
     }
 
     @Override
@@ -123,8 +123,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     @Override
     protected void onStop() {
-        mScanView.stopScan();
-        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
+//        mScanView.stopScan();
+//        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
         super.onStop();
     }
 

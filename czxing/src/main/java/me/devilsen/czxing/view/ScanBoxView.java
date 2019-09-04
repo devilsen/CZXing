@@ -200,7 +200,8 @@ public class ScanBoxView extends View {
 
         int viewWidth = getWidth();
         int viewHeight = getHeight();
-        mBoxSize = Math.min(viewWidth * 3 / 5, MAX_BOX_SIZE);
+        int minSize = Math.min(viewHeight, viewWidth);
+        mBoxSize = Math.min(minSize * 3 / 5, MAX_BOX_SIZE);
         mBoxLeft = (viewWidth - mBoxSize) / 2;
         mBoxTop = (viewHeight - mBoxSize) / 2 + mTopOffset;
         mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop + mBoxSize);
