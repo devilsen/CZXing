@@ -23,6 +23,9 @@ ImageScheduler::~ImageScheduler() {
     DELETE(qrCodeRecognizer);
 
     delete &frameData;
+    delete &isProcessing;
+    delete &cameraLight;
+    delete &pretreatmentThread;
 }
 
 void *pretreatmentMethod(void *arg) {
