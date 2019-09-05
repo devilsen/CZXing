@@ -120,8 +120,17 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             }
         }
 
-        this.isDark = show >= DARK_LIST_SIZE;
-        mScanBoxView.setDark(isDark);
+        if (this.isDark) {
+            if (show <= 2) {
+                this.isDark = false;
+                mScanBoxView.setDark(false);
+            }
+        } else {
+            if (show >= DARK_LIST_SIZE) {
+                this.isDark = true;
+                mScanBoxView.setDark(true);
+            }
+        }
     }
 
     public void resetZoom() {

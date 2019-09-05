@@ -6,7 +6,6 @@
 #include "Result.h"
 #include "QRCodeRecognizer.h"
 #include "opencv2/opencv.hpp"
-#include "ImageUtil.h"
 #include <vector>
 #include <opencv2/imgproc/types_c.h>
 #include "MultiFormatWriter.h"

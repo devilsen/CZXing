@@ -21,7 +21,6 @@
 #include <stdexcept>
 #include <vector>
 #include <opencv2/core/types.hpp>
-#include <locale.h>
 
 namespace {
 
@@ -110,23 +109,9 @@ BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) 
     return std::make_shared<HybridBinarizer>(luminance);
 }
 
-bool AnalysisBrightness(JNIEnv *env, const jbyte *bytes, int width, int height) {
-
-}
-
 /**
  * string转wstring
  */
-std::wstring StringToWString(const std::string &src) {
-    unsigned long len = src.size() * 2;  // 预留字节数
-    setlocale(LC_CTYPE, "");        // 必须调用此函数,但是会造成污染
-    auto *p = new wchar_t[len];     // 申请一段内存存放转换后的字符串
-    mbstowcs(p, src.c_str(), len);  // 转换
-    std::wstring desc(p);
-    delete[] p;                     // 释放申请的内存
-    return desc;
-}
-
 std::string UnicodeToANSI(const std::wstring &wstr) {
     std::string ret;
     std::mbstate_t state = {};
@@ -212,24 +197,6 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
         env->SetFloatArrayRegion(array, index++, 1, &x);
         env->SetFloatArrayRegion(array, index++, 1, &y);
     }
-
-    return array;
-}
-
-jintArray
-reactToJavaArray(JNIEnv *env, const cv::Rect &rect) {
-    jintArray array = env->NewIntArray(6);
-
-    cv::Point pointLeftTop = rect.tl();
-    cv::Point pointRightBottom = rect.br();
-    env->SetIntArrayRegion(array, 0, 1, &pointLeftTop.x);
-    env->SetIntArrayRegion(array, 1, 1, &pointLeftTop.y);
-
-    env->SetIntArrayRegion(array, 2, 1, &pointRightBottom.x);
-    env->SetIntArrayRegion(array, 3, 1, &pointLeftTop.y);
-
-    env->SetIntArrayRegion(array, 4, 1, &pointLeftTop.x);
-    env->SetIntArrayRegion(array, 5, 1, &pointRightBottom.y);
 
     return array;
 }
