@@ -25,13 +25,35 @@ ImageScheduler::~ImageScheduler() {
     delete &frameData;
     delete &isProcessing;
     delete &cameraLight;
-    delete &pretreatmentThread;
+    delete &prepareThread;
 }
 
-void *pretreatmentMethod(void *arg) {
+void *prepareMethod(void *arg) {
     auto scheduler = static_cast<ImageScheduler *>(arg);
-    scheduler->readyMat();
+    scheduler->start();
     return nullptr;
+}
+
+void ImageScheduler::prepare() {
+    pthread_create(&prepareThread, nullptr, prepareMethod, this);
+}
+
+void ImageScheduler::start() {
+    stopProcessing = false;
+
+    while (true) {
+        if (stopProcessing) {
+            break;
+        }
+        if (isProcessing) {
+            continue;
+        }
+        preTreatMat();
+    }
+}
+
+void ImageScheduler::stop() {
+    stopProcessing = true;
 }
 
 void
@@ -41,9 +63,6 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     if (isProcessing) {
         return;
     }
-    isProcessing = true;
-
-//    LOGE("process begin...");
 
     frameData.bytes = bytes;
     frameData.left = left;
@@ -60,16 +79,32 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     frameData.rowWidth = rowWidth;
     frameData.rowHeight = rowHeight;
 
-    pthread_create(&pretreatmentThread, nullptr, pretreatmentMethod, this);
 }
 
-void ImageScheduler::readyMat() {
+/**
+ * 预处理二进制数据
+ */
+void ImageScheduler::preTreatMat() {
+    if (isProcessing) {
+        return;
+    }
+    isProcessing = true;
+
+    if (frameData.bytes == nullptr) {
+        isProcessing = false;
+        return;
+    }
+
     // 分析亮度，如果亮度过低，不进行处理
+    LOGE("111111111111111");
     analysisBrightness(frameData);
+    LOGE("222222222222222");
+
     if (cameraLight < 150) {
         isProcessing = false;
         return;
     }
+    LOGE("33333333333333333");
 
     Mat src(frameData.rowHeight + frameData.rowHeight / 2,
             frameData.rowWidth, CV_8UC1,
@@ -84,11 +119,11 @@ void ImageScheduler::readyMat() {
     Mat gray;
     cvtColor(src, gray, COLOR_RGBA2GRAY);
 
-//    LOGE("start decode...");
+    LOGE("start decode...");
     decodeGrayPixels(gray);
 }
 
-void ImageScheduler::decodeGrayPixels(const Mat& gray) {
+void ImageScheduler::decodeGrayPixels(const Mat &gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_90_CLOCKWISE);
 
@@ -128,7 +163,7 @@ void ImageScheduler::decodeGrayPixels(const Mat& gray) {
     }
 }
 
-void ImageScheduler::decodeThresholdPixels(const Mat& gray) {
+void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_180);
 
@@ -148,7 +183,7 @@ void ImageScheduler::decodeThresholdPixels(const Mat& gray) {
     }
 }
 
-void ImageScheduler::decodeAdaptivePixels(const Mat& gray) {
+void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_90_COUNTERCLOCKWISE);
 
@@ -168,7 +203,7 @@ void ImageScheduler::decodeAdaptivePixels(const Mat& gray) {
     }
 }
 
-void ImageScheduler::recognizerQrCode(const Mat& mat) {
+void ImageScheduler::recognizerQrCode(const Mat &mat) {
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
     if (rect.empty()) {
@@ -271,3 +306,4 @@ Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, 
     }
     return reader->read(*binImage);
 }
+

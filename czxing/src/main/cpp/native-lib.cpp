@@ -71,7 +71,9 @@ Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject inst
                                                        jlong objPtr) {
 
     try {
-        delete reinterpret_cast<ImageScheduler *>(objPtr);
+        auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+        imageScheduler->stop();
+        delete imageScheduler;
         DELETE(javaCallHelper);
     }
     catch (const std::exception &e) {
@@ -81,6 +83,35 @@ Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject inst
         ThrowJavaException(env, "Unknown exception");
     }
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_prepareRead(JNIEnv *env, jobject thiz, jlong objPtr) {
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    imageScheduler->prepare();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_stopRead(JNIEnv *env, jobject thiz, jlong objPtr) {
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    imageScheduler->stop();
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jobject instance, jlong objPtr,
+                                                       jbyteArray bytes_, jint left, jint top,
+                                                       jint cropWidth, jint cropHeight,
+                                                       jint rowWidth, jint rowHeight) {
+    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
+
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    imageScheduler->process(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
+
+    env->ReleaseByteArrayElements(bytes_, bytes, 0);
+    return -1;
+}
+
 extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance, jlong objPtr,
@@ -102,21 +133,6 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance
     } catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
-    return -1;
-}
-
-extern "C"
-JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readBarcodeByte(JNIEnv *env, jobject instance, jlong objPtr,
-                                                       jbyteArray bytes_, jint left, jint top,
-                                                       jint cropWidth, jint cropHeight,
-                                                       jint rowWidth, jint rowHeight) {
-    jbyte *bytes = env->GetByteArrayElements(bytes_, NULL);
-
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-    imageScheduler->process(bytes, left, top, cropWidth, cropHeight, rowWidth, rowHeight);
-
-    env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return -1;
 }
 

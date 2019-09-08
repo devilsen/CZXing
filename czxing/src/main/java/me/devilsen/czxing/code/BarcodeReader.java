@@ -61,6 +61,14 @@ public class BarcodeReader {
         return null;
     }
 
+    public void prepareRead(){
+        NativeSdk.getInstance().prepareRead(_nativePtr);
+    }
+
+    public void stopRead(){
+        NativeSdk.getInstance().stopRead(_nativePtr);
+    }
+
     @Override
     protected void finalize() throws Throwable {
         try {

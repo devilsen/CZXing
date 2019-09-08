@@ -78,12 +78,14 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     @Override
     public void startScan() {
         super.startScan();
+        reader.prepareRead();
         isStop = false;
     }
 
     @Override
     public void stopScan() {
         super.stopScan();
+        reader.stopRead();
         isStop = true;
     }
 
@@ -96,6 +98,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
         if (!TextUtils.isEmpty(result.getText()) && !isStop) {
             isStop = true;
+            reader.stopRead();
             if (mScanListener != null) {
                 mScanListener.onScanSuccess(result.getText());
             }

@@ -60,6 +60,10 @@ class NativeSdk {
 
     native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight);
 
+    native void prepareRead(long objPtr);
+
+    native void stopRead(long objPtr);
+
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);
 

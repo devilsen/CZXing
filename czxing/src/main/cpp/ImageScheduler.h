@@ -37,7 +37,13 @@ public:
     process(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
             int rowHeight);
 
-    void readyMat();
+    void prepare();
+
+    void start();
+
+    void stop();
+
+    void preTreatMat();
 
     void decodeGrayPixels(const Mat& gray);
 
@@ -54,10 +60,11 @@ private:
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
     bool isProcessing = false;
+    bool stopProcessing = false;
     long cameraLight{};
     QRCodeRecognizer *qrCodeRecognizer;
 
-    pthread_t pretreatmentThread{};
+    pthread_t prepareThread{};
 
     Result decodePixels(Mat mat);
 
