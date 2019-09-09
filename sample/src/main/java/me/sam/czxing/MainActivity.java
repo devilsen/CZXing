@@ -12,7 +12,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yanzhenjie.permission.Action;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 .setScanMode(ScanView.SCAN_MODE_MIX)
                 .setTitle("我的扫一扫")
                 .showAlbum(true)
+                .continuousScan()
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
                     public void onClickAlbum(Activity activity) {
@@ -98,10 +101,20 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setOnScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
                     @Override
-                    public void onScanResult(String result) {
-                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
-                        intent.putExtra("result", result);
-                        startActivity(intent);
+                    public void onScanResult(@NonNull String result, @NonNull BarcodeFormat format) {
+                        // 如果有回调，则必然有值,因为要避免AndroidX和support包的差异，所以没有默认的注解
+
+//                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
+//                        intent.putExtra("result", result);
+//                        startActivity(intent);
+
+                        final String showContent = "format: " + format.name() + "  code: " + result;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this, showContent, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 })
                 .start();

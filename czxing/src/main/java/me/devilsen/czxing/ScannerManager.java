@@ -51,6 +51,11 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager continuousScan() {
+        scanOption.continuousScan = true;
+        return this;
+    }
+
     public ScannerManager setScanLineColors(List<Integer> scanLineColors) {
         scanOption.scanLineColors = scanLineColors;
         return this;
@@ -79,6 +84,7 @@ public class ScannerManager {
         private int scanMode;
         private String title;
         private boolean showAlbum = true;
+        private boolean continuousScan;
         private List<Integer> scanLineColors;
 
         public int getCornerColor() {
@@ -101,6 +107,10 @@ public class ScannerManager {
             return showAlbum;
         }
 
+        public boolean isContinuousScan(){
+            return continuousScan;
+        }
+
         public List<Integer> getScanLineColors() {
             return scanLineColors;
         }
@@ -117,6 +127,7 @@ public class ScannerManager {
             dest.writeInt(this.scanMode);
             dest.writeString(this.title);
             dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
+            dest.writeByte(this.continuousScan ? (byte) 1 : (byte) 0);
             dest.writeList(this.scanLineColors);
         }
 
@@ -129,6 +140,7 @@ public class ScannerManager {
             this.scanMode = in.readInt();
             this.title = in.readString();
             this.showAlbum = in.readByte() != 0;
+            this.continuousScan = in.readByte() != 0;
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
         }

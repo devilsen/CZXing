@@ -449,6 +449,18 @@ public class ScanBoxView extends View {
         this.mDrawCardText = false;
     }
 
+    public void startAnim() {
+        if (mScanLineAnimator != null && !mScanLineAnimator.isRunning()) {
+            mScanLineAnimator.start();
+        }
+    }
+
+    public void stopAnim() {
+        if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
+            mScanLineAnimator.cancel();
+        }
+    }
+
     public interface ScanBoxClickListener {
         void onFlashLightClick();
     }
