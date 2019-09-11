@@ -357,8 +357,8 @@ public class ScanBoxView extends View {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 mScanLinePosition = (float) animation.getAnimatedValue();
-//                postInvalidate();
-                postInvalidate(mBoxLeft,
+                // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
+                postInvalidateOnAnimation(mBoxLeft,
                         ((int) (mBoxTop + mScanLinePosition - 10)),
                         mBoxLeft + mBoxSize,
                         ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
@@ -447,6 +447,18 @@ public class ScanBoxView extends View {
      */
     public void hideCardText() {
         this.mDrawCardText = false;
+    }
+
+    public void startAnim() {
+        if (mScanLineAnimator != null && !mScanLineAnimator.isRunning()) {
+            mScanLineAnimator.start();
+        }
+    }
+
+    public void stopAnim() {
+        if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
+            mScanLineAnimator.cancel();
+        }
     }
 
     public interface ScanBoxClickListener {

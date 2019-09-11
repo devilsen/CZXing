@@ -5,7 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -33,12 +35,18 @@ import me.devilsen.czxing.view.ScanView;
 public class ScanActivity extends Activity implements ScanListener, View.OnClickListener {
 
     private static final int PERMISSIONS_REQUEST_CAMERA = 1;
-    private ScanView mScanView;
-    private ScanActivityDelegate.OnScanDelegate scanDelegate;
-    private ScanActivityDelegate.OnClickAlbumDelegate clickAlbumDelegate;
-    private SoundPoolUtil mSoundPoolUtil;
+    private static final int MESSAGE_WHAT_START_SCAN = 10;
+    private static final long DELAY_TIME = 800;
+
     private TextView titleTxt;
     private TextView albumTxt;
+    private ScanView mScanView;
+    private SoundPoolUtil mSoundPoolUtil;
+
+    private boolean isContinuousScan;
+
+    private ScanActivityDelegate.OnScanDelegate scanDelegate;
+    private ScanActivityDelegate.OnClickAlbumDelegate clickAlbumDelegate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +102,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
             albumTxt.setVisibility(View.INVISIBLE);
             albumTxt.setOnClickListener(null);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-//        mScanView.startScan();  // 显示扫描框，并开始识别
+        // 连续扫描
+        isContinuousScan = option.isContinuousScan();
     }
 
     @Override
@@ -109,8 +112,9 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
         mScanView.startScan();  // 显示扫描框，并开始识别
 
-//        mScanView.startScan();  // 显示扫描框，并开始识别
-//        mScanView.resetZoom();  // 重置相机扩大倍数
+        if (isContinuousScan) {
+            mScanView.resetZoom();  // 重置相机扩大倍数
+        }
     }
 
     @Override
@@ -118,14 +122,6 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         super.onPause();
         mScanView.stopScan();
         mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
-
-    }
-
-    @Override
-    protected void onStop() {
-//        mScanView.stopScan();
-//        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
-        super.onStop();
     }
 
     @Override
@@ -148,15 +144,20 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     }
 
     @Override
-    public void onScanSuccess(String result) {
+    public void onScanSuccess(String result, BarcodeFormat format) {
         mSoundPoolUtil.play();
 
         if (scanDelegate != null) {
-            scanDelegate.onScanResult(result);
+            scanDelegate.onScanResult(result, format);
         } else {
             Intent intent = new Intent(this, ResultActivity.class);
             intent.putExtra("result", result);
             startActivity(intent);
+        }
+        // 连续扫码，不关闭界面
+        if (isContinuousScan) {
+            handler.sendEmptyMessageDelayed(MESSAGE_WHAT_START_SCAN, DELAY_TIME);
+            return;
         }
         finish();
     }
@@ -165,6 +166,14 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     public void onOpenCameraError() {
         Log.e("onOpenCameraError", "onOpenCameraError");
     }
+
+    private final Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            mScanView.startScan();
+            return true;
+        }
+    });
 
     private void requestPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)

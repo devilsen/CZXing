@@ -48,7 +48,7 @@ android {
 dependencies {
 
     implementation project(':czxing')
-//    implementation 'me.devilsen:CZXing:0.8.8'
+//    implementation 'me.devilsen:CZXing:0.8.9'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit

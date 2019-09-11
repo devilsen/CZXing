@@ -156,10 +156,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mSpotAble = true;
         openCamera();
         setPreviewCallback();
+        mScanBoxView.startAnim();
     }
 
     public void stopScan() {
         mSpotAble = false;
+        mScanBoxView.stopAnim();
 
         if (mCamera == null) {
             return;
@@ -217,6 +219,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             mCameraSurface.setCamera(mCamera);
         } catch (Exception e) {
             e.printStackTrace();
+            mSpotAble = false;
             if (mScanListener != null) {
                 mScanListener.onOpenCameraError();
             }
@@ -301,7 +304,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             }
         }
 
-        BarCodeUtil.d("len " + len);
         handleAutoZoom(len);
     }
 

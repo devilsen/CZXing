@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
-import java.util.ArrayDeque;
-
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
@@ -36,7 +34,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
     private boolean isStop;
     private boolean isDark;
-    private ArrayDeque<Boolean> darkList;
+    private int showCounter;
     private BarcodeReader reader;
 
     public ScanView(Context context) {
@@ -59,8 +57,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
                 BarcodeFormat.UPC_A
         );
         reader.setReadCodeListener(this);
-
-        darkList = new ArrayDeque<>(DARK_LIST_SIZE);
     }
 
     @Override
@@ -71,8 +67,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
-//        int queueSize = mDispatcher.newRunnable(data, left, top, width, height, rowWidth, rowHeight, this).enqueue();
-//        setQueueSize(queueSize);
     }
 
     @Override
@@ -100,7 +94,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             isStop = true;
             reader.stopRead();
             if (mScanListener != null) {
-                mScanListener.onScanSuccess(result.getText());
+                mScanListener.onScanSuccess(result.getText(), result.getFormat());
             }
         } else if (result.getPoints() != null) {
             tryZoom(result);
@@ -111,25 +105,21 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     public void onAnalysisBrightness(boolean isDark) {
         BarCodeUtil.d("isDark : " + isDark);
 
-        darkList.addFirst(isDark);
-        if (darkList.size() > DARK_LIST_SIZE) {
-            darkList.removeLast();
-        }
-
-        int show = 0;
-        for (Boolean dark : darkList) {
-            if (dark) {
-                show++;
-            }
+        if (isDark) {
+            showCounter++;
+            showCounter = showCounter > DARK_LIST_SIZE ? DARK_LIST_SIZE : showCounter;
+        } else {
+            showCounter--;
+            showCounter = showCounter < 0 ? 0 : showCounter;
         }
 
         if (this.isDark) {
-            if (show <= 2) {
+            if (showCounter <= 2) {
                 this.isDark = false;
                 mScanBoxView.setDark(false);
             }
         } else {
-            if (show >= DARK_LIST_SIZE) {
+            if (showCounter >= DARK_LIST_SIZE) {
                 this.isDark = true;
                 mScanBoxView.setDark(true);
             }
