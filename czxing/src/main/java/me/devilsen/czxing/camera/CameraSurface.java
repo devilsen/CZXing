@@ -30,6 +30,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     private boolean mIsTouchFocusing;
     private boolean mSurfaceCreated;
     private boolean mFlashLightIsOpen;
+    private boolean mZoomOutFlag;
 
     private Point focusCenter;
     private long mLastTouchTime;
@@ -241,6 +242,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
                 zoom += scale;
             } else if (!isZoomIn && zoom > 0) {
                 BarCodeUtil.d("缩小");
+                mZoomOutFlag = true;
                 zoom -= scale;
             } else {
                 BarCodeUtil.d("既不放大也不缩小");
@@ -331,6 +333,15 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
 
     public boolean isPreviewing() {
         return mCamera != null && mPreviewing && mSurfaceCreated;
+    }
+
+    /**
+     * 是否有过缩小操作
+     *
+     * @return true：缩小过
+     */
+    public boolean hadZoomOut() {
+        return mZoomOutFlag;
     }
 
     private void handleFocus(float x, float y) {

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -309,7 +308,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private void handleAutoZoom(int len) {
         try {
-            if (mCamera == null || mScanBoxView == null || len <= 0) {
+            if (mCamera == null || mScanBoxView == null || len <= 0 || mCameraSurface.hadZoomOut()) {
                 return;
             }
 
