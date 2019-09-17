@@ -215,10 +215,9 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     Result result = decodePixels(lightMat);
     if (result.isValid()) {
         javaCallHelper->onResult(result);
+    } else {
+        recognizerQrCode(gray);
     }
-//    } else {
-//        recognizerQrCode(gray);
-//    }
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {

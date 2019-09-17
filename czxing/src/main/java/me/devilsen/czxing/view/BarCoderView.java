@@ -308,6 +308,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private void handleAutoZoom(int len) {
         try {
+            BarCodeUtil.d("len: " + len);
+
             if (mCamera == null || mScanBoxView == null || len <= 0 || mCameraSurface.hadZoomOut()) {
                 return;
             }
