@@ -7,6 +7,10 @@
 #include <src/BinaryBitmap.h>
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
+#include <thread>
+#include <chrono>
+
+#define DEFAULT_MIN_LIGHT 70;
 
 ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
                                JavaCallHelper *javaCallHelper) {
@@ -14,6 +18,8 @@ ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
     this->reader = _reader;
     this->javaCallHelper = javaCallHelper;
     qrCodeRecognizer = new QRCodeRecognizer();
+    stopProcessing.store(false);
+    isProcessing.store(false);
 }
 
 ImageScheduler::~ImageScheduler() {
@@ -21,9 +27,9 @@ ImageScheduler::~ImageScheduler() {
     DELETE(reader);
     DELETE(javaCallHelper);
     DELETE(qrCodeRecognizer);
-
-    delete &frameData;
+    frameQueue.clear();
     delete &isProcessing;
+    delete &stopProcessing;
     delete &cameraLight;
     delete &prepareThread;
 }
@@ -34,37 +40,56 @@ void *prepareMethod(void *arg) {
     return nullptr;
 }
 
+void releaseFrameData(FrameData &frameData) {
+    delete &frameData;
+}
+
 void ImageScheduler::prepare() {
+    frameQueue.setReleaseHandle(releaseFrameData);
     pthread_create(&prepareThread, nullptr, prepareMethod, this);
 }
 
 void ImageScheduler::start() {
-    stopProcessing = false;
+    stopProcessing.store(false);
+    isProcessing.store(false);
+    frameQueue.setWork(1);
 
     while (true) {
-        if (stopProcessing) {
+        if (stopProcessing.load()) {
             break;
         }
-        if (isProcessing) {
+
+        if (isProcessing.load()) {
+            std::this_thread::sleep_for(chrono::milliseconds(100));
             continue;
         }
-        preTreatMat();
+
+        FrameData frameData;
+        int ret = frameQueue.deQueue(frameData);
+        if (ret) {
+            isProcessing.store(true);
+            preTreatMat(frameData);
+            isProcessing.store(false);
+        }
     }
 }
 
 void ImageScheduler::stop() {
-    stopProcessing = true;
+    isProcessing.store(false);
+    stopProcessing.store(true);
+    frameQueue.setWork(0);
+    frameQueue.clear();
 }
 
 void
 ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int cropHeight,
                         int rowWidth,
                         int rowHeight) {
-    if (isProcessing) {
+    if (isProcessing.load()) {
         return;
     }
 
-    frameData.bytes = bytes;
+    FrameData frameData;
     frameData.left = left;
     frameData.top = top;
     frameData.cropWidth = cropWidth;
@@ -78,52 +103,44 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     }
     frameData.rowWidth = rowWidth;
     frameData.rowHeight = rowHeight;
+    frameData.bytes = bytes;
 
+    frameQueue.enQueue(frameData);
+//    LOGE("frame data size : %d", frameQueue.size());
 }
 
 /**
  * 预处理二进制数据
  */
-void ImageScheduler::preTreatMat() {
-    if (isProcessing) {
-        return;
-    }
-    isProcessing = true;
-
-    if (frameData.bytes == nullptr) {
-        isProcessing = false;
+void ImageScheduler::preTreatMat(const FrameData &frameData) {
+    if (&frameData == nullptr) {
         return;
     }
 
-    // 分析亮度，如果亮度过低，不进行处理
-    LOGE("111111111111111");
-    analysisBrightness(frameData);
-    LOGE("222222222222222");
-
-    if (cameraLight < 150) {
-        isProcessing = false;
-        return;
-    }
-    LOGE("33333333333333333");
+    LOGE("start preTreatMat...");
 
     Mat src(frameData.rowHeight + frameData.rowHeight / 2,
             frameData.rowWidth, CV_8UC1,
             frameData.bytes);
 
-    cvtColor(src, src, COLOR_YUV2RGBA_NV21);
+    Mat gray;
+    cvtColor(src, gray, COLOR_YUV2GRAY_NV21);
 
     if (frameData.left != 0) {
-        src = src(Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
+        gray = gray(Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
     }
 
-    Mat gray;
-    cvtColor(src, gray, COLOR_RGBA2GRAY);
-
-    LOGE("start decode...");
+    // 分析亮度，如果亮度过低，不进行处理
+    analysisBrightness(gray);
+    if (cameraLight < 40) {
+        return;
+    }
     decodeGrayPixels(gray);
 }
 
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
+    LOGE("start GrayPixels...");
+
     Mat mat;
     rotate(gray, mat, ROTATE_90_CLOCKWISE);
 
@@ -131,7 +148,6 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
 
     if (result.isValid()) {
         javaCallHelper->onResult(result);
-        isProcessing = false;
     }
 //    else if (result.isNeedScale()) {
 //        LOGE("is need scale image...");
@@ -153,7 +169,6 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
 //
 //        if (result.isValid()) {
 //            javaCallHelper->onResult(result);
-//            isProcessing = false;
 //        } else {
 //            decodeThresholdPixels(gray);
 //        }
@@ -164,11 +179,13 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
 }
 
 void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
+    LOGE("start ThresholdPixels...");
+
     Mat mat;
     rotate(gray, mat, ROTATE_180);
 
     // 提升亮度
-    if (cameraLight < 180) {
+    if (cameraLight < 80) {
         mat.convertTo(mat, -1, 1.0, 30);
     }
 
@@ -177,13 +194,14 @@ void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
     Result result = decodePixels(mat);
     if (result.isValid()) {
         javaCallHelper->onResult(result);
-        isProcessing = false;
     } else {
         decodeAdaptivePixels(gray);
     }
 }
 
 void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
+    LOGE("start AdaptivePixels...");
+
     Mat mat;
     rotate(gray, mat, ROTATE_90_COUNTERCLOCKWISE);
 
@@ -197,17 +215,18 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     Result result = decodePixels(lightMat);
     if (result.isValid()) {
         javaCallHelper->onResult(result);
-        isProcessing = false;
-    } else {
-        recognizerQrCode(gray);
     }
+//    } else {
+//        recognizerQrCode(gray);
+//    }
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
+    LOGE("start recognizerQrCode...");
+
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
     if (rect.empty()) {
-        isProcessing = false;
         return;
     }
 
@@ -224,7 +243,9 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
     result.setResultPoints(std::move(points));
 
     javaCallHelper->onResult(result);
-    isProcessing = false;
+
+    LOGE("end recognizerQrCode...");
+
 }
 
 Result ImageScheduler::decodePixels(Mat mat) {
@@ -260,33 +281,15 @@ Result ImageScheduler::decodePixels(Mat mat) {
     return Result(DecodeStatus::NotFound);
 }
 
-bool ImageScheduler::analysisBrightness(const FrameData frameData) {
-//    LOGE("start analysisBrightness...");
-
-    // 像素点的总亮度
-    unsigned long pixelLightCount = 0L;
-
-    // 采集步长，因为没有必要每个像素点都采集，可以跨一段采集一个，减少计算负担，必须大于等于1。
-    int step = 2;
-    // 像素点的总数
-    int pixelCount = frameData.cropWidth * frameData.cropHeight / step;
-
-    int bottom = frameData.top + frameData.cropHeight;
-    int right = frameData.left + frameData.cropWidth;
-    int rowWidth = frameData.rowWidth;
-    int srcIndex = 0;
-    for (int i = frameData.left; i < right; ++i) {
-        srcIndex = (bottom - 1) * rowWidth + i;
-        for (int j = 0; j < frameData.cropHeight; j += step, srcIndex -= rowWidth) {
-            pixelLightCount += frameData.bytes[srcIndex] & 0xFFL;
-        }
-    }
+bool ImageScheduler::analysisBrightness(const Mat& gray) {
+    LOGE("start analysisBrightness...");
 
     // 平均亮度
-    cameraLight = pixelLightCount / (pixelCount / step);
-//    LOGE("平均亮度 %ld", cameraLight);
+    Scalar scalar = mean(gray);
+    cameraLight = scalar.val[0];
+    LOGE("平均亮度 %lf", cameraLight);
     // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
-    bool isDark = cameraLight < 160;
+    bool isDark = cameraLight < DEFAULT_MIN_LIGHT;
     javaCallHelper->onBrightness(isDark);
 
     return isDark;

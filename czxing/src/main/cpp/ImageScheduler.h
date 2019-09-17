@@ -13,6 +13,7 @@
 #include "Result.h"
 #include "JavaCallHelper.h"
 #include "QRCodeRecognizer.h"
+#include "safe_queue.h"
 
 using namespace cv;
 using namespace ZXing;
@@ -43,7 +44,7 @@ public:
 
     void stop();
 
-    void preTreatMat();
+    void preTreatMat(const FrameData& frameData);
 
     void decodeGrayPixels(const Mat& gray);
 
@@ -51,18 +52,17 @@ public:
 
     void decodeAdaptivePixels(const Mat& gray);
 
-    FrameData frameData{};
-
     Result readBitmap(jobject bitmap, int left, int top, int width,int height);
 
 private:
     JNIEnv *env;
     MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
-    bool isProcessing = false;
-    bool stopProcessing = false;
-    long cameraLight{};
+    std::atomic<bool> isProcessing{};
+    std::atomic<bool> stopProcessing{};
+    double cameraLight{};
     QRCodeRecognizer *qrCodeRecognizer;
+    SafeQueue<FrameData> frameQueue;
 
     pthread_t prepareThread{};
 
@@ -72,7 +72,7 @@ private:
 
     Result *analyzeResult();
 
-    bool  analysisBrightness(const FrameData frameData);
+    bool  analysisBrightness(const Mat& gray);
 
 };
 
