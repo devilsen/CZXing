@@ -129,6 +129,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanView.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
+        ScanActivityDelegate.getInstance().setScanResultDelegate(null);
+        ScanActivityDelegate.getInstance().setOnClickAlbumDelegate(null);
     }
 
     @Override
