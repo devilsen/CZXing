@@ -7,7 +7,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 16
-        versionName "0.9"
+        versionName "0.9.1"
 
         externalNativeBuild {
             cmake {

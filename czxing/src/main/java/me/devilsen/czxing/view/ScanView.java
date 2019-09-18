@@ -56,7 +56,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
                 BarcodeFormat.EAN_13,
                 BarcodeFormat.UPC_A
         );
-        reader.setReadCodeListener(this);
     }
 
     @Override
@@ -71,6 +70,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
     @Override
     public void startScan() {
+        reader.setReadCodeListener(this);
         super.startScan();
         reader.prepareRead();
         isStop = false;
@@ -81,6 +81,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         super.stopScan();
         reader.stopRead();
         isStop = true;
+        reader.setReadCodeListener(null);
     }
 
     @Override

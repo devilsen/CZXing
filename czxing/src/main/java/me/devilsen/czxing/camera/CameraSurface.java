@@ -234,23 +234,27 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
      * @param scale    放大缩小的数值
      */
     void handleZoom(boolean isZoomIn, int scale) {
-        Camera.Parameters params = mCamera.getParameters();
-        if (params.isZoomSupported()) {
-            int zoom = params.getZoom();
-            if (isZoomIn && zoom < params.getMaxZoom()) {
-                BarCodeUtil.d("放大");
-                zoom += scale;
-            } else if (!isZoomIn && zoom > 0) {
-                BarCodeUtil.d("缩小");
-                mZoomOutFlag = true;
-                zoom -= scale;
+        try {
+            Camera.Parameters params = mCamera.getParameters();
+            if (params.isZoomSupported()) {
+                int zoom = params.getZoom();
+                if (isZoomIn && zoom < params.getMaxZoom()) {
+                    BarCodeUtil.d("放大");
+                    zoom += scale;
+                } else if (!isZoomIn && zoom > 0) {
+                    BarCodeUtil.d("缩小");
+                    mZoomOutFlag = true;
+                    zoom -= scale;
+                } else {
+                    BarCodeUtil.d("既不放大也不缩小");
+                }
+                params.setZoom(zoom);
+                mCamera.setParameters(params);
             } else {
-                BarCodeUtil.d("既不放大也不缩小");
+                BarCodeUtil.d("不支持缩放");
             }
-            params.setZoom(zoom);
-            mCamera.setParameters(params);
-        } else {
-            BarCodeUtil.d("不支持缩放");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

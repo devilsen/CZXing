@@ -47,8 +47,9 @@ android {
 
 dependencies {
 
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 //    implementation project(':czxing')
-    implementation 'me.devilsen:CZXing:0.9'
+    implementation 'me.devilsen:CZXing:0.9.1'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
