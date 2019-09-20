@@ -7,8 +7,6 @@
 #include <src/BinaryBitmap.h>
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
-#include <thread>
-#include <chrono>
 
 #define DEFAULT_MIN_LIGHT 70;
 
@@ -40,12 +38,7 @@ void *prepareMethod(void *arg) {
     return nullptr;
 }
 
-void releaseFrameData(FrameData &frameData) {
-    delete &frameData;
-}
-
 void ImageScheduler::prepare() {
-    frameQueue.setReleaseHandle(releaseFrameData);
     pthread_create(&prepareThread, nullptr, prepareMethod, this);
 }
 
@@ -60,7 +53,6 @@ void ImageScheduler::start() {
         }
 
         if (isProcessing.load()) {
-            std::this_thread::sleep_for(chrono::milliseconds(100));
             continue;
         }
 
@@ -113,29 +105,30 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
  * 预处理二进制数据
  */
 void ImageScheduler::preTreatMat(const FrameData &frameData) {
-    if (&frameData == nullptr) {
-        return;
+    try {
+        LOGE("start preTreatMat...");
+
+        Mat src(frameData.rowHeight + frameData.rowHeight / 2,
+                frameData.rowWidth, CV_8UC1,
+                frameData.bytes);
+
+        Mat gray;
+        cvtColor(src, gray, COLOR_YUV2GRAY_NV21);
+
+        if (frameData.left != 0) {
+            gray = gray(
+                    Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
+        }
+
+        // 分析亮度，如果亮度过低，不进行处理
+        analysisBrightness(gray);
+        if (cameraLight < 40) {
+            return;
+        }
+        decodeGrayPixels(gray);
+    } catch (const std::exception &e) {
+        LOGE("preTreatMat error...");
     }
-
-    LOGE("start preTreatMat...");
-
-    Mat src(frameData.rowHeight + frameData.rowHeight / 2,
-            frameData.rowWidth, CV_8UC1,
-            frameData.bytes);
-
-    Mat gray;
-    cvtColor(src, gray, COLOR_YUV2GRAY_NV21);
-
-    if (frameData.left != 0) {
-        gray = gray(Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
-    }
-
-    // 分析亮度，如果亮度过低，不进行处理
-    analysisBrightness(gray);
-    if (cameraLight < 40) {
-        return;
-    }
-    decodeGrayPixels(gray);
 }
 
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
@@ -280,7 +273,7 @@ Result ImageScheduler::decodePixels(Mat mat) {
     return Result(DecodeStatus::NotFound);
 }
 
-bool ImageScheduler::analysisBrightness(const Mat& gray) {
+bool ImageScheduler::analysisBrightness(const Mat &gray) {
     LOGE("start analysisBrightness...");
 
     // 平均亮度
