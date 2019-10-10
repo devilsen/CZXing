@@ -305,7 +305,7 @@ public class ContextCompat {
             SERVICES.put(WallpaperManager.class, "wallpaper");
             SERVICES.put(WifiP2pManager.class, "wifip2p");
             SERVICES.put(WifiManager.class, "wifi");
-            SERVICES.put(WindowManager.class, "window");
+            SERVICES.put(WindowManager.class, "src/window");
         }
     }
 }

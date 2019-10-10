@@ -14,9 +14,11 @@
 #include "JavaCallHelper.h"
 #include "QRCodeRecognizer.h"
 #include "safe_queue.h"
+#include "zbar/zbar.h"
 
 using namespace cv;
 using namespace ZXing;
+using namespace zbar;
 
 typedef struct FrameData {
     jbyte *bytes;
@@ -47,6 +49,8 @@ public:
     void preTreatMat(const FrameData& frameData);
 
     void decodeGrayPixels(const Mat& gray);
+
+    void decodeZBar(const Mat& gray);
 
     void decodeThresholdPixels(const Mat& gray);
 

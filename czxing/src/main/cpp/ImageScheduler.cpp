@@ -125,10 +125,40 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
         if (cameraLight < 40) {
             return;
         }
-        decodeGrayPixels(gray);
+//        decodeGrayPixels(gray);
+        decodeZBar(gray);
     } catch (const std::exception &e) {
         LOGE("preTreatMat error...");
     }
+}
+
+void ImageScheduler::decodeZBar(const Mat &gray) {
+    int width = gray.cols;
+    int height = gray.rows;
+
+    ImageScanner scanner;
+    const void *raw = (&gray)->data;
+    Image image(width, height, "Y800", raw, gray.cols * gray.rows);
+    int n = scanner.scan(image);
+
+    // extract results
+    if (image.symbol_begin() == image.symbol_end()) {
+        LOGE("not find code");
+        image.set_data(NULL, 0);
+        return;
+    }
+
+    Image::SymbolIterator symbol = image.symbol_begin();
+    for (; symbol != image.symbol_end(); ++symbol) {
+        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
+             symbol->get_data().c_str());
+
+        Result result(DecodeStatus::NoError);
+        result.setFormat(BarcodeFormat::QR_CODE);
+        result.setText(ANSIToUnicode(symbol->get_data()));
+        javaCallHelper->onResult(result);
+    }
+    image.set_data(NULL, 0);
 }
 
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
@@ -245,22 +275,22 @@ Result ImageScheduler::decodePixels(Mat mat) {
         int width = mat.cols;
         int height = mat.rows;
 
-        auto *pixels = new unsigned char[height * width];
-
-        int index = 0;
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                pixels[index++] = mat.at<unsigned char>(i, j);
-            }
-        }
+//        auto *pixels = new unsigned char[height * width];
+//
+//        int index = 0;
+//        for (int i = 0; i < height; ++i) {
+//            for (int j = 0; j < width; ++j) {
+//                pixels[index++] = mat.at<unsigned char>(i, j);
+//            }
+//        }
 
 //    Mat resultMat(height, width, CV_8UC1, pixels);
 //    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
-        auto binImage = BinaryBitmapFromBytesC1(pixels, 0, 0, width, height);
+        auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, width, height);
         Result result = reader->read(*binImage);
 
-        delete[]pixels;
+//        delete[]pixels;
 
         return result;
     } catch (const std::exception &e) {
@@ -301,4 +331,5 @@ Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, 
     }
     return reader->read(*binImage);
 }
+
 
