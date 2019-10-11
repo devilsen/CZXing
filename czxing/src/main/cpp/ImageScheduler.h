@@ -52,6 +52,8 @@ public:
 
     void decodeZBar(const Mat& gray);
 
+    void decodeZBar(const jobject& bitmap);
+
     void decodeThresholdPixels(const Mat& gray);
 
     void decodeAdaptivePixels(const Mat& gray);
@@ -70,7 +72,7 @@ private:
 
     pthread_t prepareThread{};
 
-    Result decodePixels(Mat mat);
+    Result decodePixels(const Mat& mat);
 
     void recognizerQrCode(const Mat& mat);
 

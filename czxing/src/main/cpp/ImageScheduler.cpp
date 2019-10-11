@@ -125,40 +125,10 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
         if (cameraLight < 40) {
             return;
         }
-//        decodeGrayPixels(gray);
-        decodeZBar(gray);
+        decodeGrayPixels(gray);
     } catch (const std::exception &e) {
         LOGE("preTreatMat error...");
     }
-}
-
-void ImageScheduler::decodeZBar(const Mat &gray) {
-    int width = gray.cols;
-    int height = gray.rows;
-
-    ImageScanner scanner;
-    const void *raw = (&gray)->data;
-    Image image(width, height, "Y800", raw, gray.cols * gray.rows);
-    int n = scanner.scan(image);
-
-    // extract results
-    if (image.symbol_begin() == image.symbol_end()) {
-        LOGE("not find code");
-        image.set_data(NULL, 0);
-        return;
-    }
-
-    Image::SymbolIterator symbol = image.symbol_begin();
-    for (; symbol != image.symbol_end(); ++symbol) {
-        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
-             symbol->get_data().c_str());
-
-        Result result(DecodeStatus::NoError);
-        result.setFormat(BarcodeFormat::QR_CODE);
-        result.setText(ANSIToUnicode(symbol->get_data()));
-        javaCallHelper->onResult(result);
-    }
-    image.set_data(NULL, 0);
 }
 
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
@@ -239,8 +209,42 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     if (result.isValid()) {
         javaCallHelper->onResult(result);
     } else {
+//        decodeZBar(gray);
         recognizerQrCode(gray);
     }
+}
+
+void ImageScheduler::decodeZBar(const Mat &gray) {
+    auto width = static_cast<unsigned int>(gray.cols);
+    auto height = static_cast<unsigned int>(gray.rows);
+
+    const void *raw = gray.data;
+    ImageScanner zbarScanner;
+    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+
+    Image image(width, height, "Y800", raw, width * height);
+    int n = zbarScanner.scan(image);
+
+    // extract results
+    if (image.symbol_begin() == image.symbol_end()) {
+        image.set_data(nullptr, 0);
+        recognizerQrCode(gray);
+        return;
+    }
+
+    Image::SymbolIterator symbol = image.symbol_begin();
+    for (; symbol != image.symbol_end(); ++symbol) {
+        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
+             symbol->get_data().c_str());
+
+        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE){
+            Result result(DecodeStatus::NoError);
+            result.setFormat(BarcodeFormat::QR_CODE);
+            result.setText(ANSIToUnicode(symbol->get_data()));
+            javaCallHelper->onResult(result);
+        }
+    }
+    image.set_data(nullptr, 0);
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
@@ -270,33 +274,18 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
 }
 
-Result ImageScheduler::decodePixels(Mat mat) {
+Result ImageScheduler::decodePixels(const Mat& mat) {
     try {
-        int width = mat.cols;
-        int height = mat.rows;
+//        int width = mat.cols;
+//        int height = mat.rows;
+//        Mat resultMat(height, width, CV_8UC1, pixels);
+//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 
-//        auto *pixels = new unsigned char[height * width];
-//
-//        int index = 0;
-//        for (int i = 0; i < height; ++i) {
-//            for (int j = 0; j < width; ++j) {
-//                pixels[index++] = mat.at<unsigned char>(i, j);
-//            }
-//        }
-
-//    Mat resultMat(height, width, CV_8UC1, pixels);
-//    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
-
-        auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, width, height);
-        Result result = reader->read(*binImage);
-
-//        delete[]pixels;
-
-        return result;
+        auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
+        return reader->read(*binImage);
     } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
-    }
-    catch (...) {
+    } catch (...) {
         ThrowJavaException(env, "Unknown exception");
     }
 
@@ -323,13 +312,49 @@ Result *ImageScheduler::analyzeResult() {
     return result;
 }
 
+void ImageScheduler::decodeZBar(const jobject &gray) {
+//    auto width = static_cast<unsigned int>(gray.cols);
+//    auto height = static_cast<unsigned int>(gray.rows);
+//
+//    const void *raw = gray.data;
+//    Image image(width, height, "Y800", raw, width * height);
+//    ImageScanner scanner;
+//    int n = scanner.scan(image);
+//
+//    // extract results
+//    if (image.symbol_begin() == image.symbol_end()) {
+//        image.set_data(nullptr, 0);
+//        recognizerQrCode(gray);
+//        return;
+//    }
+//
+//    Image::SymbolIterator symbol = image.symbol_begin();
+//    for (; symbol != image.symbol_end(); ++symbol) {
+//        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
+//             symbol->get_data().c_str());
+//
+//        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE){
+//            Result result(DecodeStatus::NoError);
+//            result.setFormat(BarcodeFormat::QR_CODE);
+//            result.setText(ANSIToUnicode(symbol->get_data()));
+//            javaCallHelper->onResult(result);
+//        }
+//    }
+//    image.set_data(nullptr, 0);
+}
+
 Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, int height) {
     auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
     if (!binImage) {
         LOGE("create binary bitmap fail");
         return Result(DecodeStatus::NotFound);
     }
+//    Result result = reader->read(*binImage);
+//    if (!result.isValid()){
+//
+//    }
     return reader->read(*binImage);
 }
+
 
 
