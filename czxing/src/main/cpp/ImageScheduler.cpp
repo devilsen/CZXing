@@ -15,6 +15,8 @@ ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
     this->env = env;
     this->reader = _reader;
     this->javaCallHelper = javaCallHelper;
+    zbarScanner = new ImageScanner();
+    zbarScanner->set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
     qrCodeRecognizer = new QRCodeRecognizer();
     stopProcessing.store(false);
     isProcessing.store(false);
@@ -24,6 +26,7 @@ ImageScheduler::~ImageScheduler() {
     DELETE(env);
     DELETE(reader);
     DELETE(javaCallHelper);
+    DELETE(zbarScanner);
     DELETE(qrCodeRecognizer);
     frameQueue.clear();
     delete &isProcessing;
@@ -209,8 +212,8 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     if (result.isValid()) {
         javaCallHelper->onResult(result);
     } else {
-//        decodeZBar(gray);
-        recognizerQrCode(gray);
+        decodeZBar(gray);
+//        recognizerQrCode(gray);
     }
 }
 
@@ -219,32 +222,25 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
     auto height = static_cast<unsigned int>(gray.rows);
 
     const void *raw = gray.data;
-    ImageScanner zbarScanner;
-    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
-
     Image image(width, height, "Y800", raw, width * height);
-    int n = zbarScanner.scan(image);
+    int n = zbarScanner->scan(image);
 
     // extract results
-    if (image.symbol_begin() == image.symbol_end()) {
-        image.set_data(nullptr, 0);
-        recognizerQrCode(gray);
-        return;
-    }
+    if (n > 0) {
+        Image::SymbolIterator symbol = image.symbol_begin();
+        LOGE("zbar Code Data = %s", symbol->get_data().c_str());
 
-    Image::SymbolIterator symbol = image.symbol_begin();
-    for (; symbol != image.symbol_end(); ++symbol) {
-        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
-             symbol->get_data().c_str());
-
-        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE){
+        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
             Result result(DecodeStatus::NoError);
             result.setFormat(BarcodeFormat::QR_CODE);
             result.setText(ANSIToUnicode(symbol->get_data()));
             javaCallHelper->onResult(result);
+            image.set_data(nullptr, 0);
         }
+    } else {
+        image.set_data(nullptr, 0);
+        recognizerQrCode(gray);
     }
-    image.set_data(nullptr, 0);
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
@@ -274,7 +270,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
 }
 
-Result ImageScheduler::decodePixels(const Mat& mat) {
+Result ImageScheduler::decodePixels(const Mat &mat) {
     try {
 //        int width = mat.cols;
 //        int height = mat.rows;

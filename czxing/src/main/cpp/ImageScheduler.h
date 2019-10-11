@@ -67,6 +67,7 @@ private:
     std::atomic<bool> isProcessing{};
     std::atomic<bool> stopProcessing{};
     double cameraLight{};
+    ImageScanner *zbarScanner;
     QRCodeRecognizer *qrCodeRecognizer;
     SafeQueue<FrameData> frameQueue;
 
