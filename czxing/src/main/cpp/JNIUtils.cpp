@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <vector>
 #include <opencv2/core/types.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc.hpp>
 
 namespace {
 
@@ -83,9 +85,8 @@ std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC4(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
                         int cropHeight) {
     using namespace ZXing;
-
-//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
-//         cropHeight);
+    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
+         cropHeight);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             cropLeft, cropTop, cropWidth,
@@ -98,15 +99,38 @@ BinaryBitmapFromBytesC4(JNIEnv *env, void *pixels, int cropLeft, int cropTop, in
 std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
     using namespace ZXing;
-
-//    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
-//         height);
+    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
+         height);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             left, top, width, height,
             pixels, width * sizeof(unsigned char));
 
     return std::make_shared<HybridBinarizer>(luminance);
+}
+
+void
+BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
+    AndroidBitmapInfo bmInfo;
+    AndroidBitmap_getInfo(env, bitmap, &bmInfo);
+    cv::Mat &dst = mat;
+
+    void *pixels = nullptr;
+    if (AndroidBitmap_lockPixels(env, bitmap, &pixels) == ANDROID_BITMAP_RESUT_SUCCESS) {
+        AutoUnlockPixels autounlock(env, bitmap);
+
+        if (bmInfo.format == ANDROID_BITMAP_FORMAT_RGBA_8888) {
+            LOGE("nBitmapToMat: RGB_8888 -> CV_8UC4");
+            cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC4, pixels);
+            tmp.copyTo(dst);
+        } else {
+            // info.format == ANDROID_BITMAP_FORMAT_RGB_565
+            LOGE("nBitmapToMat: RGB_565 -> CV_8UC4");
+            cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC2, pixels);
+        }
+    } else {
+        throw std::runtime_error("Failed to read bitmap's data");
+    }
 }
 
 /**
@@ -200,3 +224,4 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
 
     return array;
 }
+

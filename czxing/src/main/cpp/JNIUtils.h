@@ -22,6 +22,7 @@
 #include <string>
 #include <src/ResultPoint.h>
 #include <opencv2/core/types.hpp>
+#include "zbar/zbar.h"
 
 #define ZX_LOG_TAG "ZXing"
 #define DEBUG
@@ -55,6 +56,9 @@ BinaryBitmapFromBytesC4(JNIEnv *env, void *rgbScale, int cropLeft, int cropTop, 
 
 std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC1(void *grayScale, int cropLeft, int cropTop, int cropWidth, int cropHeight);
+
+void
+BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat);
 
 std::string UnicodeToANSI(const std::wstring &wstr);
 

@@ -144,32 +144,7 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
 
     if (result.isValid()) {
         javaCallHelper->onResult(result);
-    }
-//    else if (result.isNeedScale()) {
-//        LOGE("is need scale image...");
-//        std::vector<ResultPoint> points = result.resultPoints();
-//        ResultPoint topLeft = points[1];
-//        ResultPoint topRight = points[2];
-//        ResultPoint bottomLeft = points[0];
-//
-//        int left = static_cast<int>(topLeft.x()) - 3 * 20;
-//        int top = static_cast<int>(topLeft.y()) - 3 * 20;
-//        int width = static_cast<int>(topRight.x() - topLeft.x()) + 3 * 25;
-//        int height = static_cast<int>(bottomLeft.y() - topLeft.y()) + 3 * 25;
-//
-//        LOGE("left = %d, top = %d, width = %d, height = %d", left, top, width, height);
-//
-//        mat = mat(Rect(left, top, width, height));
-//        imwrite("/storage/emulated/0/scan/scale.jpg", mat);
-//        Result result1 = decodePixels(mat);
-//
-//        if (result.isValid()) {
-//            javaCallHelper->onResult(result);
-//        } else {
-//            decodeThresholdPixels(gray);
-//        }
-//    }
-    else {
+    }else {
         decodeThresholdPixels(gray);
     }
 }
@@ -225,7 +200,6 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
     Image image(width, height, "Y800", raw, width * height);
     int n = zbarScanner->scan(image);
 
-    // extract results
     if (n > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
         LOGE("zbar Code Data = %s", symbol->get_data().c_str());
@@ -267,7 +241,6 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
     javaCallHelper->onResult(result);
 
     LOGE("end recognizerQrCode...");
-
 }
 
 Result ImageScheduler::decodePixels(const Mat &mat) {
@@ -308,47 +281,36 @@ Result *ImageScheduler::analyzeResult() {
     return result;
 }
 
-void ImageScheduler::decodeZBar(const jobject &gray) {
-//    auto width = static_cast<unsigned int>(gray.cols);
-//    auto height = static_cast<unsigned int>(gray.rows);
-//
-//    const void *raw = gray.data;
-//    Image image(width, height, "Y800", raw, width * height);
-//    ImageScanner scanner;
-//    int n = scanner.scan(image);
-//
-//    // extract results
-//    if (image.symbol_begin() == image.symbol_end()) {
-//        image.set_data(nullptr, 0);
-//        recognizerQrCode(gray);
-//        return;
-//    }
-//
-//    Image::SymbolIterator symbol = image.symbol_begin();
-//    for (; symbol != image.symbol_end(); ++symbol) {
-//        LOGE("zbar Code Type = %s , Data = %s", symbol->get_type_name().c_str(),
-//             symbol->get_data().c_str());
-//
-//        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE){
-//            Result result(DecodeStatus::NoError);
-//            result.setFormat(BarcodeFormat::QR_CODE);
-//            result.setText(ANSIToUnicode(symbol->get_data()));
-//            javaCallHelper->onResult(result);
-//        }
-//    }
-//    image.set_data(nullptr, 0);
-}
-
 Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, int height) {
+
+    Mat src;
+    BitmapToMat(env, bitmap, src);
+
+    Mat gray;
+    cvtColor(src, gray, COLOR_RGB2GRAY);
+
+    const void *raw = gray.data;
+    Image image(gray.cols, gray.rows, "Y800", raw, gray.cols * gray.rows);
+    if (zbarScanner->scan(image) > 0) {
+        Image::SymbolIterator symbol = image.symbol_begin();
+        LOGE("zbar Code Data = %s", symbol->get_data().c_str());
+        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
+            Result resultBar(DecodeStatus::NoError);
+            resultBar.setFormat(BarcodeFormat::QR_CODE);
+            resultBar.setText(ANSIToUnicode(symbol->get_data()));
+            image.set_data(nullptr, 0);
+            return resultBar;
+        }
+    } else {
+        image.set_data(nullptr, 0);
+    }
+
     auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
     if (!binImage) {
         LOGE("create binary bitmap fail");
         return Result(DecodeStatus::NotFound);
     }
-//    Result result = reader->read(*binImage);
-//    if (!result.isValid()){
-//
-//    }
+
     return reader->read(*binImage);
 }
 

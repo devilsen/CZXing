@@ -28,6 +28,7 @@ import me.devilsen.czxing.Scanner;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.util.SaveImageUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 import me.devilsen.czxing.view.ScanView;
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_7);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_black_boder);
         CodeResult result = reader.read(bitmap);
 
         if (result == null) {

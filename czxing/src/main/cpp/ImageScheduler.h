@@ -52,8 +52,6 @@ public:
 
     void decodeZBar(const Mat& gray);
 
-    void decodeZBar(const jobject& bitmap);
-
     void decodeThresholdPixels(const Mat& gray);
 
     void decodeAdaptivePixels(const Mat& gray);
