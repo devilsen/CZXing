@@ -88,6 +88,8 @@ public class BarcodeReader {
     public interface ReadCodeListener {
         void onReadCodeResult(CodeResult result);
 
+        void onFocus();
+
         void onAnalysisBrightness(boolean isDark);
     }
 }

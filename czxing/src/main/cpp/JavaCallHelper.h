@@ -17,6 +17,8 @@ public:
 
     void onResult(const ZXing::Result &result);
 
+    void onFocus();
+
     void onBrightness(const bool isDark);
 
 private:
@@ -24,6 +26,7 @@ private:
     JNIEnv *env;
     jobject jSdkObject;
     jmethodID jmid_on_result;
+    jmethodID jmid_on_focus;
     jmethodID jmid_on_brightness;
 
 };

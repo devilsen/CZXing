@@ -127,6 +127,9 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
     }
 
+    /**
+     * 扫码识别策略
+     */
     private void scanDataStrategy(byte[] data, int left, int top, int width, int height, int rowWidth, int rowHeight) {
         if (scanMode == SCAN_MODE_MIX) {
             if (scanSequence < 5) {

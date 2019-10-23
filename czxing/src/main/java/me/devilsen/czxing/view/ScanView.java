@@ -103,6 +103,12 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     }
 
     @Override
+    public void onFocus() {
+        BarCodeUtil.d("not found code too many times , try focus");
+        mCameraSurface.onFrozen();
+    }
+
+    @Override
     public void onAnalysisBrightness(boolean isDark) {
         BarCodeUtil.d("isDark : " + isDark);
 

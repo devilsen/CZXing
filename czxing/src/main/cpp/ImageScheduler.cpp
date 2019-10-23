@@ -33,6 +33,7 @@ ImageScheduler::~ImageScheduler() {
     delete &stopProcessing;
     delete &cameraLight;
     delete &prepareThread;
+    scanIndex = 0;
 }
 
 void *prepareMethod(void *arg) {
@@ -49,6 +50,7 @@ void ImageScheduler::start() {
     stopProcessing.store(false);
     isProcessing.store(false);
     frameQueue.setWork(1);
+    scanIndex = 0;
 
     while (true) {
         if (stopProcessing.load()) {
@@ -74,6 +76,7 @@ void ImageScheduler::stop() {
     stopProcessing.store(true);
     frameQueue.setWork(0);
     frameQueue.clear();
+    scanIndex = 0;
 }
 
 void
@@ -109,7 +112,8 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
  */
 void ImageScheduler::preTreatMat(const FrameData &frameData) {
     try {
-        LOGE("start preTreatMat...");
+        scanIndex++;
+        LOGE("start preTreatMat..., scanIndex = %d", scanIndex);
 
         Mat src(frameData.rowHeight + frameData.rowHeight / 2,
                 frameData.rowWidth, CV_8UC1,
@@ -128,7 +132,12 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
         if (cameraLight < 40) {
             return;
         }
-        decodeGrayPixels(gray);
+
+        if (scanIndex % 2 == 0) {
+            decodeGrayPixels(gray);
+        } else {
+            decodeZBar(gray);
+        }
     } catch (const std::exception &e) {
         LOGE("preTreatMat error...");
     }
@@ -144,8 +153,35 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
 
     if (result.isValid()) {
         javaCallHelper->onResult(result);
-    }else {
+        LOGE("ZXing GrayPixels Success, scanIndex = %d", scanIndex);
+    } else {
         decodeThresholdPixels(gray);
+    }
+}
+
+void ImageScheduler::decodeZBar(const Mat &gray) {
+    auto width = static_cast<unsigned int>(gray.cols);
+    auto height = static_cast<unsigned int>(gray.rows);
+
+    const void *raw = gray.data;
+    Image image(width, height, "Y800", raw, width * height);
+    int n = zbarScanner->scan(image);
+
+    if (n > 0) {
+        Image::SymbolIterator symbol = image.symbol_begin();
+        LOGE("zbar GrayPixels Success  Data = %s scanIndex = %d", symbol->get_data().c_str(),
+             scanIndex);
+
+        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
+            Result result(DecodeStatus::NoError);
+            result.setFormat(BarcodeFormat::QR_CODE);
+            result.setText(ANSIToUnicode(symbol->get_data()));
+            javaCallHelper->onResult(result);
+            image.set_data(nullptr, 0);
+        }
+    } else {
+        image.set_data(nullptr, 0);
+        decodeAdaptivePixels(gray);
     }
 }
 
@@ -164,13 +200,17 @@ void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
 
     Result result = decodePixels(mat);
     if (result.isValid()) {
+        LOGE("ZXing Threshold Success, scanIndex = %d", scanIndex);
         javaCallHelper->onResult(result);
     } else {
-        decodeAdaptivePixels(gray);
+        recognizerQrCode(gray);
     }
 }
 
 void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
+    if (scanIndex % 3 != 0) {
+        return;
+    }
     LOGE("start AdaptivePixels...");
 
     Mat mat;
@@ -185,39 +225,22 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
 
     Result result = decodePixels(lightMat);
     if (result.isValid()) {
+        LOGE("ZXing Adaptive Success, scanIndex = %d", scanIndex);
         javaCallHelper->onResult(result);
     } else {
-        decodeZBar(gray);
-//        recognizerQrCode(gray);
-    }
-}
-
-void ImageScheduler::decodeZBar(const Mat &gray) {
-    auto width = static_cast<unsigned int>(gray.cols);
-    auto height = static_cast<unsigned int>(gray.rows);
-
-    const void *raw = gray.data;
-    Image image(width, height, "Y800", raw, width * height);
-    int n = zbarScanner->scan(image);
-
-    if (n > 0) {
-        Image::SymbolIterator symbol = image.symbol_begin();
-        LOGE("zbar Code Data = %s", symbol->get_data().c_str());
-
-        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
-            Result result(DecodeStatus::NoError);
-            result.setFormat(BarcodeFormat::QR_CODE);
-            result.setText(ANSIToUnicode(symbol->get_data()));
-            javaCallHelper->onResult(result);
-            image.set_data(nullptr, 0);
-        }
-    } else {
-        image.set_data(nullptr, 0);
         recognizerQrCode(gray);
     }
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
+    if (scanIndex % 7 == 0) {
+        javaCallHelper->onFocus();
+        return;
+    }
+
+    if (scanIndex % 3 != 0) {
+        return;
+    }
     LOGE("start recognizerQrCode...");
 
     cv::Rect rect;
@@ -240,7 +263,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
     javaCallHelper->onResult(result);
 
-    LOGE("end recognizerQrCode...");
+    LOGE("end recognizerQrCode..., scanIndex = %d", scanIndex);
 }
 
 Result ImageScheduler::decodePixels(const Mat &mat) {

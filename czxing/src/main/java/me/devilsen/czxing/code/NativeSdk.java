@@ -41,6 +41,16 @@ class NativeSdk {
     }
 
     /**
+     * Native Callback for focus
+     *
+     */
+    public void onFocusCallback() {
+        if (readCodeListener != null) {
+            readCodeListener.onFocus();
+        }
+    }
+
+    /**
      * Native callback for brightness
      *
      * @param isDark true : bright too low

@@ -68,6 +68,7 @@ private:
     ImageScanner *zbarScanner;
     QRCodeRecognizer *qrCodeRecognizer;
     SafeQueue<FrameData> frameQueue;
+    int scanIndex;
 
     pthread_t prepareThread{};
 

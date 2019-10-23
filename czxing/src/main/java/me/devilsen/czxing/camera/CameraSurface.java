@@ -214,7 +214,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
      */
     @Override
     public void onFrozen() {
-        BarCodeUtil.d("mCamera is frozen, start focus");
+        BarCodeUtil.d("mCamera is frozen, start focus x = " + focusCenter.x + " y = "+ focusCenter.y);
         handleFocus(focusCenter.x, focusCenter.y);
     }
 

@@ -18,7 +18,7 @@ public class SoundPoolUtil {
     private int mSoundId = -1;
 
     public SoundPoolUtil() {
-        mSoundPool = new SoundPool(1, AudioManager.STREAM_NOTIFICATION, 0);
+        mSoundPool = new SoundPool(1, AudioManager.STREAM_RING, 0);
     }
 
     public void loadDefault(Context context) {
