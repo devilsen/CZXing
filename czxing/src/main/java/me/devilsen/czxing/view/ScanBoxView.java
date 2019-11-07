@@ -461,6 +461,30 @@ public class ScanBoxView extends View {
         }
     }
 
+    public void onDestroy() {
+        if (mScanLineAnimator != null) {
+            mScanLineAnimator.removeAllUpdateListeners();
+        }
+    }
+
+    public void setFlashLightOnText(String lightOnText) {
+        if (lightOnText != null) {
+            mFlashLightOnText = lightOnText;
+        }
+    }
+
+    public void setFlashLightOffText(String lightOffText) {
+        if (lightOffText != null) {
+            mFlashLightOffText = lightOffText;
+        }
+    }
+
+    public void setScanNoticeText(String scanNoticeText) {
+        if (scanNoticeText != null) {
+            mScanNoticeText = scanNoticeText;
+        }
+    }
+
     public interface ScanBoxClickListener {
         void onFlashLightClick();
     }

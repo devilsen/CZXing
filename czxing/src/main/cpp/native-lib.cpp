@@ -47,6 +47,9 @@ JNIEXPORT jlong JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject instance,
                                                       jintArray formats_) {
     try {
+        if (javaCallHelper) {
+            DELETE(javaCallHelper);
+        }
         javaCallHelper = new JavaCallHelper(javaVM, env, instance);
 
         ZXing::DecodeHints hints;
@@ -63,6 +66,29 @@ Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject insta
         ThrowJavaException(env, "Unknown exception");
     }
     return 0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_setFormat(JNIEnv *env, jobject thiz, jlong objPtr,
+                                                 jintArray formats_) {
+    if (objPtr == 0) {
+        return;
+    }
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    ZXing::DecodeHints hints;
+    bool decodeQr = true;
+    if (formats_ != nullptr) {
+        std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
+        hints.setPossibleFormats(formats);
+
+        if (std::find(formats.begin(), formats.end(), ZXing::BarcodeFormat::QR_CODE) ==
+            formats.end()) {
+            decodeQr = false;
+        }
+    }
+    imageScheduler->isDecodeQrCode(decodeQr);
+    imageScheduler->reader->setFormat(hints);
 }
 
 extern "C"

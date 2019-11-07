@@ -34,6 +34,7 @@ ImageScheduler::~ImageScheduler() {
     delete &cameraLight;
     delete &prepareThread;
     scanIndex = 0;
+    decodeQr = 0;
 }
 
 void *prepareMethod(void *arg) {
@@ -133,6 +134,13 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
             return;
         }
 
+        // 不需要解析二维码
+        if (!decodeQr) {
+            decodeGrayPixels(gray);
+            return;
+        }
+
+        // 正常解析策略 偶数次zxing解析，奇数次zbar解析
         if (scanIndex % 2 == 0) {
             decodeGrayPixels(gray);
         } else {
@@ -167,6 +175,7 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
     Image image(width, height, "Y800", raw, width * height);
     int n = zbarScanner->scan(image);
 
+    // 检测到二维码
     if (n > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
         LOGE("zbar GrayPixels Success  Data = %s scanIndex = %d", symbol->get_data().c_str(),
@@ -233,6 +242,11 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
+    // 不需要解析二维码
+    if (!decodeQr) {
+        return;
+    }
+
     if (scanIndex % 7 == 0) {
         javaCallHelper->onFocus();
         return;
@@ -245,7 +259,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
-    if (rect.empty()) {
+    if (rect.empty() || rect.height < 110) {
         return;
     }
 
@@ -263,7 +277,8 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
     javaCallHelper->onResult(result);
 
-    LOGE("end recognizerQrCode..., scanIndex = %d", scanIndex);
+    LOGE("end recognizerQrCode..., scanIndex = %d height = %d width = %d", scanIndex, rect.height,
+         rect.width);
 }
 
 Result ImageScheduler::decodePixels(const Mat &mat) {
@@ -302,6 +317,10 @@ Result *ImageScheduler::analyzeResult() {
     Result *result = nullptr;
 
     return result;
+}
+
+void ImageScheduler::isDecodeQrCode(bool decodeQrCode) {
+    this->decodeQr = decodeQrCode;
 }
 
 Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, int height) {

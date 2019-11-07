@@ -419,6 +419,9 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     public void onDestroy() {
+        if (mScanBoxView != null) {
+            mScanBoxView.onDestroy();
+        }
         closeCamera();
         mScanListener = null;
     }

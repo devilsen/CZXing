@@ -42,7 +42,6 @@ class NativeSdk {
 
     /**
      * Native Callback for focus
-     *
      */
     public void onFocusCallback() {
         if (readCodeListener != null) {
@@ -63,6 +62,8 @@ class NativeSdk {
 
     // read
     native long createInstance(int[] formats);
+
+    native void setFormat(long objPtr, int[] formats);
 
     native void destroyInstance(long objPtr);
 

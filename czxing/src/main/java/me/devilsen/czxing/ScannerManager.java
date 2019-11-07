@@ -56,6 +56,21 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setFlashLightOnText(String lightOnText) {
+        scanOption.flashLightOnText = lightOnText;
+        return this;
+    }
+
+    public ScannerManager setFlashLightOffText(String lightOffText) {
+        scanOption.flashLightOffText = lightOffText;
+        return this;
+    }
+
+    public ScannerManager setScanNoticeText(String scanNoticeText) {
+        scanOption.scanNoticeText = scanNoticeText;
+        return this;
+    }
+
     public ScannerManager setScanLineColors(List<Integer> scanLineColors) {
         scanOption.scanLineColors = scanLineColors;
         return this;
@@ -85,6 +100,11 @@ public class ScannerManager {
         private String title;
         private boolean showAlbum = true;
         private boolean continuousScan;
+
+        private String flashLightOnText;
+        private String flashLightOffText;
+        private String scanNoticeText;
+
         private List<Integer> scanLineColors;
 
         public int getCornerColor() {
@@ -95,7 +115,7 @@ public class ScannerManager {
             return borderColor;
         }
 
-        public int getScanMode(){
+        public int getScanMode() {
             return scanMode;
         }
 
@@ -107,8 +127,20 @@ public class ScannerManager {
             return showAlbum;
         }
 
-        public boolean isContinuousScan(){
+        public boolean isContinuousScan() {
             return continuousScan;
+        }
+
+        public String getFlashLightOnText() {
+            return flashLightOnText;
+        }
+
+        public String getFlashLightOffText() {
+            return flashLightOffText;
+        }
+
+        public String getScanNoticeText() {
+            return scanNoticeText;
         }
 
         public List<Integer> getScanLineColors() {
@@ -128,6 +160,9 @@ public class ScannerManager {
             dest.writeString(this.title);
             dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
             dest.writeByte(this.continuousScan ? (byte) 1 : (byte) 0);
+            dest.writeString(this.flashLightOnText);
+            dest.writeString(this.flashLightOffText);
+            dest.writeString(this.scanNoticeText);
             dest.writeList(this.scanLineColors);
         }
 
@@ -141,6 +176,9 @@ public class ScannerManager {
             this.title = in.readString();
             this.showAlbum = in.readByte() != 0;
             this.continuousScan = in.readByte() != 0;
+            this.flashLightOnText = in.readString();
+            this.flashLightOffText = in.readString();
+            this.scanNoticeText = in.readString();
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
         }

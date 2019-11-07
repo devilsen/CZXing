@@ -49,13 +49,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         super(context, attrs, defStyleAttr);
         mScanBoxView.setScanBoxClickListener(this);
         reader = BarcodeReader.getInstance();
-        reader.setBarcodeFormat(
-                BarcodeFormat.QR_CODE,
-                BarcodeFormat.CODABAR,
-                BarcodeFormat.CODE_128,
-                BarcodeFormat.EAN_13,
-                BarcodeFormat.UPC_A
-        );
     }
 
     @Override
@@ -66,6 +59,13 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
+    }
+
+    /**
+     * 设置扫描格式
+     */
+    public void setBarcodeFormat(BarcodeFormat... formats) {
+        reader.setBarcodeFormat(formats);
     }
 
     @Override

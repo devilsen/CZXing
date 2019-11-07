@@ -46,21 +46,24 @@ public:
 
     void stop();
 
-    void preTreatMat(const FrameData& frameData);
+    void preTreatMat(const FrameData &frameData);
 
-    void decodeGrayPixels(const Mat& gray);
+    void decodeGrayPixels(const Mat &gray);
 
-    void decodeZBar(const Mat& gray);
+    void decodeZBar(const Mat &gray);
 
-    void decodeThresholdPixels(const Mat& gray);
+    void decodeThresholdPixels(const Mat &gray);
 
-    void decodeAdaptivePixels(const Mat& gray);
+    void decodeAdaptivePixels(const Mat &gray);
 
-    Result readBitmap(jobject bitmap, int left, int top, int width,int height);
+    Result readBitmap(jobject bitmap, int left, int top, int width, int height);
+
+    void isDecodeQrCode(bool decodeQrCode);
+
+    MultiFormatReader *reader;
 
 private:
     JNIEnv *env;
-    MultiFormatReader *reader;
     JavaCallHelper *javaCallHelper;
     std::atomic<bool> isProcessing{};
     std::atomic<bool> stopProcessing{};
@@ -69,16 +72,17 @@ private:
     QRCodeRecognizer *qrCodeRecognizer;
     SafeQueue<FrameData> frameQueue;
     int scanIndex;
+    bool decodeQr;
 
     pthread_t prepareThread{};
 
-    Result decodePixels(const Mat& mat);
+    Result decodePixels(const Mat &mat);
 
-    void recognizerQrCode(const Mat& mat);
+    void recognizerQrCode(const Mat &mat);
 
     Result *analyzeResult();
 
-    bool  analysisBrightness(const Mat& gray);
+    bool analysisBrightness(const Mat &gray);
 
 };
 

@@ -1,5 +1,5 @@
 //
-// Created by Administrator on 2019/08/10 0010.
+// Created by dongSen on 2019/08/10 0010.
 //
 
 #include "JavaCallHelper.h"
@@ -7,26 +7,6 @@
 
 JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : javaVM(_javaVM),
                                                                                 env(_env) {
-    // 获取Class
-//    jclass jSdkClass = env->FindClass("me/devilsen/czxing/code/NativeSdk");
-//    if (jSdkClass == nullptr) {
-//        LOGE("Unable to find class");
-//        return;
-//    }
-//
-//    // 获取构造函数
-//    jmethodID constructor = env->GetMethodID(jSdkClass, "<init>", "()V");
-//    if (constructor == nullptr) {
-//        LOGE("can't constructor jClass");
-//        return;
-//    }
-
-    // 获取对应函数
-//    jSdkObject = env->NewObject(jSdkClass, constructor);
-//    if (jSdkObject == nullptr) {
-//        LOGE("can't new jobject");
-//        return;
-//    }
     jSdkObject = env->NewGlobalRef(_jobj);
 
     jclass jSdkClass = env->GetObjectClass(jSdkObject);
@@ -46,19 +26,11 @@ JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : 
 
 JavaCallHelper::~JavaCallHelper() {
     env->DeleteGlobalRef(jSdkObject);
-    DELETE(javaVM);
-    DELETE(env);
+//    DELETE(javaVM);
+//    DELETE(env);
 }
 
 void JavaCallHelper::onResult(const ZXing::Result &result) {
-//    if (result.format() == ZXing::BarcodeFormat::QR_CODE) {
-//        if (result.resultPoints().size() < 2) {
-//            return;
-//        }
-//    } else if (!result.isValid()) {
-//        return;
-//    }
-
     if (!result.isValid() && !result.isBlurry()) {
         return;
     }

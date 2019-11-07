@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
                 .setScanLineColors(scanColors)
                 .setScanMode(ScanView.SCAN_MODE_MIX)
                 .setTitle("我的扫一扫")
+                .setScanNoticeText("扫描二维码")
+                .setFlashLightOnText("打开闪光灯")
+                .setFlashLightOffText("关闭闪光灯")
                 .showAlbum(true)
                 .continuousScan()
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {

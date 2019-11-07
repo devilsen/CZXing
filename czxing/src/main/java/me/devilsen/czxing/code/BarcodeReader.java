@@ -22,15 +22,24 @@ public class BarcodeReader {
     }
 
     private BarcodeReader() {
-        setBarcodeFormat(BarcodeFormat.QR_CODE);
+        BarcodeFormat[] formats = new BarcodeFormat[]{BarcodeFormat.QR_CODE,
+                BarcodeFormat.CODABAR,
+                BarcodeFormat.CODE_128,
+                BarcodeFormat.EAN_13,
+                BarcodeFormat.UPC_A};
+        _nativePtr = NativeSdk.getInstance().createInstance(getNativeFormats(formats));
     }
 
     public void setBarcodeFormat(BarcodeFormat... formats) {
+        NativeSdk.getInstance().setFormat(_nativePtr, getNativeFormats(formats));
+    }
+
+    private int[] getNativeFormats(BarcodeFormat... formats) {
         int[] nativeFormats = new int[formats.length];
         for (int i = 0; i < formats.length; ++i) {
             nativeFormats[i] = formats[i].ordinal();
         }
-        _nativePtr = NativeSdk.getInstance().createInstance(nativeFormats);
+        return nativeFormats;
     }
 
     public CodeResult read(Bitmap bitmap) {
@@ -61,11 +70,11 @@ public class BarcodeReader {
         return null;
     }
 
-    public void prepareRead(){
+    public void prepareRead() {
         NativeSdk.getInstance().prepareRead(_nativePtr);
     }
 
-    public void stopRead(){
+    public void stopRead() {
         NativeSdk.getInstance().stopRead(_nativePtr);
     }
 

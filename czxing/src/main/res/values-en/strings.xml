@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="copy">copy</string>
-    <string name="album">album</string>
+    <string name="album">Album</string>
     <string name="module_name">czxing</string>
     <string name="QRCode">QR Code</string>
     <string name="czxing_click_open_flash_light">Tap to turn light on</string>

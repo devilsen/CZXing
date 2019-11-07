@@ -40,6 +40,8 @@ public:
 	explicit MultiFormatReader(const DecodeHints& hints);
     ~MultiFormatReader();
 
+    void setFormat(const DecodeHints& hints);
+
 	Result read(const BinaryBitmap& image) const;
 
 private:
