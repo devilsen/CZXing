@@ -130,7 +130,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
 
         // 分析亮度，如果亮度过低，不进行处理
         analysisBrightness(gray);
-        if (cameraLight < 40) {
+        if (cameraLight < 30) {
             return;
         }
 
@@ -259,7 +259,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
-    if (rect.empty() || rect.height < 110) {
+    if (rect.empty() || rect.height < 100) {
         return;
     }
 

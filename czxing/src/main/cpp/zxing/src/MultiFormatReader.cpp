@@ -79,9 +79,9 @@ MultiFormatReader::MultiFormatReader(const DecodeHints& hints)
 		}
 		_readers.emplace_back(new QRCode::Reader(hints));
 		_readers.emplace_back(new DataMatrix::Reader(hints));
-//		_readers.emplace_back(new Aztec::Reader());
-//		_readers.emplace_back(new Pdf417::Reader());
-//		_readers.emplace_back(new MaxiCode::Reader());
+		_readers.emplace_back(new Aztec::Reader());
+		_readers.emplace_back(new Pdf417::Reader());
+		_readers.emplace_back(new MaxiCode::Reader());
 		if (tryHarder) {
 			_readers.emplace_back(new OneD::Reader(hints));
 		}

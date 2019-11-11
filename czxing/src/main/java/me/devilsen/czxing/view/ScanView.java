@@ -65,6 +65,9 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
      * 设置扫描格式
      */
     public void setBarcodeFormat(BarcodeFormat... formats) {
+        if (formats == null || formats.length == 0) {
+            return;
+        }
         reader.setBarcodeFormat(formats);
     }
 

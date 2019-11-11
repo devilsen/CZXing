@@ -6,8 +6,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 
 /**
@@ -76,6 +78,11 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setBarcodeFormat(BarcodeFormat... barcodeFormats){
+        scanOption.barcodeFormats = Arrays.asList(barcodeFormats);
+        return this;
+    }
+
     public ScannerManager setOnScanResultDelegate(ScanActivityDelegate.OnScanDelegate delegate) {
         ScanActivityDelegate.getInstance().setScanResultDelegate(delegate);
         return this;
@@ -105,6 +112,7 @@ public class ScannerManager {
         private String flashLightOffText;
         private String scanNoticeText;
 
+        private List<BarcodeFormat> barcodeFormats;
         private List<Integer> scanLineColors;
 
         public int getCornerColor() {
@@ -147,6 +155,10 @@ public class ScannerManager {
             return scanLineColors;
         }
 
+        public BarcodeFormat[] getBarcodeFormat() {
+            return barcodeFormats.toArray(new BarcodeFormat[0]);
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -163,6 +175,7 @@ public class ScannerManager {
             dest.writeString(this.flashLightOnText);
             dest.writeString(this.flashLightOffText);
             dest.writeString(this.scanNoticeText);
+            dest.writeList(this.barcodeFormats);
             dest.writeList(this.scanLineColors);
         }
 
@@ -179,6 +192,8 @@ public class ScannerManager {
             this.flashLightOnText = in.readString();
             this.flashLightOffText = in.readString();
             this.scanNoticeText = in.readString();
+            this.barcodeFormats = new ArrayList<>();
+            in.readList(this.barcodeFormats, BarcodeFormat.class.getClassLoader());
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
         }

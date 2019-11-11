@@ -84,16 +84,16 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (option == null) {
             return;
         }
+        mScanView.setScanMode(option.getScanMode());
+        mScanView.setBarcodeFormat(option.getBarcodeFormat());
+
         ScanBoxView scanBox = mScanView.getScanBox();
         scanBox.setCornerColor(option.getCornerColor());
         scanBox.setBorderColor(option.getBorderColor());
-        mScanView.setScanMode(option.getScanMode());
         scanBox.setScanLineColor(option.getScanLineColors());
         scanBox.setFlashLightOnText(option.getFlashLightOnText());
         scanBox.setFlashLightOffText(option.getFlashLightOffText());
         scanBox.setScanNoticeText(option.getScanNoticeText());
-
-//        mScanView.setBarcodeFormat(BarcodeFormat.EAN_13);
 
         // 标题栏
         String title = option.getTitle();
