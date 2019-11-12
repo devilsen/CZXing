@@ -9,7 +9,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.9.6'
+implementation 'me.devilsen:CZXing:0.9.7'
 ```
 建议加入abiFilters
 ```gradle
@@ -37,6 +37,10 @@ Scanner.with(this)
         .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域
         .setTitle("My Scan View")                               // 扫码界面标题
         .showAlbum(true)                                        // 显示相册(默认为true)
+        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
+        .setScanNoticeText("扫描二维码")                         // 设置扫码文字提示
+        .setFlashLightOnText("打开闪光灯")                       // 打开闪光灯提示
+        .setFlashLightOffText("关闭闪光灯")                      // 关闭闪光灯提示
         .continuousScan()                                       // 连续扫码，不关闭扫码界面
         .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
             @Override

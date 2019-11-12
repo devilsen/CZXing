@@ -23,6 +23,7 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class CameraSurface extends SurfaceView implements SensorController.CameraFocusListener,
         SurfaceHolder.Callback {
 
+    private static final long ONE_SECOND = 1000;
     private Camera mCamera;
 
     private float mOldDist = 1f;
@@ -33,6 +34,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     private boolean mZoomOutFlag;
 
     private Point focusCenter;
+    private long mLastFrozenTime;
     private long mLastTouchTime;
     private SensorController mSensorController;
     private CameraConfigurationManager mCameraConfigurationManager;
@@ -214,7 +216,13 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
      */
     @Override
     public void onFrozen() {
-        BarCodeUtil.d("mCamera is frozen, start focus x = " + focusCenter.x + " y = "+ focusCenter.y);
+        long now = System.currentTimeMillis();
+        if (now - mLastFrozenTime < ONE_SECOND) {
+            return;
+        }
+        mLastFrozenTime = now;
+
+        BarCodeUtil.d("mCamera is frozen, start focus x = " + focusCenter.x + " y = " + focusCenter.y);
         handleFocus(focusCenter.x, focusCenter.y);
     }
 
