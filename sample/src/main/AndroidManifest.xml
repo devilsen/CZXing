@@ -46,7 +46,9 @@
         </activity>
         <activity android:name=".WriteQRCodeActivity" />
         <activity android:name=".CallBackTestActivity" />
-        <activity android:name=".CustomizeActivity" />
+        <activity
+            android:name=".CustomizeActivity"
+            android:launchMode="singleTop" />
 
     </application>
 

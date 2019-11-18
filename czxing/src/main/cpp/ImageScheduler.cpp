@@ -15,8 +15,6 @@ ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
     this->env = env;
     this->reader = _reader;
     this->javaCallHelper = javaCallHelper;
-    zbarScanner = new ImageScanner();
-    zbarScanner->set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
     qrCodeRecognizer = new QRCodeRecognizer();
     decodeQr = true;
     stopProcessing.store(false);
@@ -27,7 +25,6 @@ ImageScheduler::~ImageScheduler() {
     DELETE(env);
     DELETE(reader);
     DELETE(javaCallHelper);
-    DELETE(zbarScanner);
     DELETE(qrCodeRecognizer);
     frameQueue.clear();
     delete &isProcessing;
@@ -174,10 +171,11 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
 
     const void *raw = gray.data;
     Image image(width, height, "Y800", raw, width * height);
-    int n = zbarScanner->scan(image);
+    ImageScanner zbarScanner;
+    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
 
     // 检测到二维码
-    if (n > 0) {
+    if (zbarScanner.scan(image) > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
         LOGE("zbar GrayPixels Success  Data = %s scanIndex = %d", symbol->get_data().c_str(),
              scanIndex);
@@ -334,7 +332,9 @@ Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, 
 
     const void *raw = gray.data;
     Image image(gray.cols, gray.rows, "Y800", raw, gray.cols * gray.rows);
-    if (zbarScanner->scan(image) > 0) {
+    ImageScanner zbarScanner;
+    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+    if (zbarScanner.scan(image) > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
         LOGE("zbar Code Data = %s", symbol->get_data().c_str());
         if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {

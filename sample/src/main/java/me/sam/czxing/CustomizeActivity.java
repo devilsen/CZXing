@@ -1,6 +1,8 @@
 package me.sam.czxing;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,15 +21,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.runtime.Permission;
-
-import java.util.List;
-
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.compat.ActivityCompat;
+import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
@@ -43,6 +41,8 @@ import me.devilsen.czxing.view.ScanView;
  */
 public class CustomizeActivity extends AppCompatActivity implements View.OnClickListener, ScanListener {
 
+    private static final int PERMISSIONS_REQUEST_CAMERA = 1;
+    private static final int PERMISSIONS_REQUEST_STORAGE = 2;
     private static final int CODE_SELECT_IMAGE = 100;
 
     private ScanView mScanView;
@@ -192,42 +192,43 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         showResult(result.getText());
     }
 
+    /**
+     * 获取摄像头权限（实际测试中，使用第三方获取权限工具，可能造成摄像头打开失败）
+     */
     private void requestCameraPermission() {
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.Group.CAMERA)
-                .onGranted(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                    }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                    }
-                })
-                .start();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    PERMISSIONS_REQUEST_CAMERA);
+        }
     }
 
     private void requestStoragePermission() {
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.Group.STORAGE)
-                .onGranted(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-                        Intent albumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        startActivityForResult(albumIntent, CODE_SELECT_IMAGE);
-                    }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                    }
-                })
-                .start();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST_STORAGE);
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mScanView.openCamera();
+                mScanView.startScan();
+            }
+            return;
+        } else if (requestCode == PERMISSIONS_REQUEST_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent albumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(albumIntent, CODE_SELECT_IMAGE);
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
 }
