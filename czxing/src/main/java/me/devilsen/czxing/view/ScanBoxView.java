@@ -43,11 +43,11 @@ public class ScanBoxView extends View {
     private int mTextColorBig;
 
     private int mTopOffset;
-    private int mBoxSize;
     private int mBoxSizeOffset;
 
     private int mBorderColor;
-    private float mBorderSize;
+    private int mBoxSize;
+    private float mBorderStrokeWidth;
 
     private int mCornerColor;
     private int mCornerLength;
@@ -78,6 +78,8 @@ public class ScanBoxView extends View {
     private int mFlashLightTop;
     private int mFlashLightRight;
     private int mFlashLightBottom;
+    // 不使用手电筒图标
+    private boolean mDropFlashLight;
 
     private String mFlashLightOnText;
     private String mFlashLightOffText;
@@ -114,12 +116,11 @@ public class ScanBoxView extends View {
         mScanLineColor2 = resources.getColor(R.color.czxing_scan_2);
         mScanLineColor3 = resources.getColor(R.color.czxing_scan_3);
 
-        mBoxSize = BarCodeUtil.dp2px(context, 200);
         mTopOffset = -BarCodeUtil.dp2px(context, 10);
         mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
 
         mBorderColor = resources.getColor(R.color.czxing_line_border);
-        mBorderSize = BarCodeUtil.dp2px(context, 1);
+        mBorderStrokeWidth = BarCodeUtil.dp2px(context, 0.5f);
 
         mCornerColor = resources.getColor(R.color.czxing_line_corner);
         mCornerLength = BarCodeUtil.dp2px(context, 20);
@@ -201,9 +202,14 @@ public class ScanBoxView extends View {
         int viewWidth = getWidth();
         int viewHeight = getHeight();
         int minSize = Math.min(viewHeight, viewWidth);
-        mBoxSize = Math.min(minSize * 3 / 5, MAX_BOX_SIZE);
+        if (mBoxSize == 0) {
+            mBoxSize = Math.min(minSize * 3 / 5, MAX_BOX_SIZE);
+        } else if (mBoxSize > minSize) {
+            mBoxSize = minSize;
+        }
         mBoxLeft = (viewWidth - mBoxSize) / 2;
         mBoxTop = (viewHeight - mBoxSize) / 2 + mTopOffset;
+        mBoxTop = mBoxTop < 0 ? 0 : mBoxTop;
         mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop + mBoxSize);
     }
 
@@ -224,7 +230,7 @@ public class ScanBoxView extends View {
     private void drawBorderLine(Canvas canvas) {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(mBorderColor);
-        mPaint.setStrokeWidth(mBorderSize);
+        mPaint.setStrokeWidth(mBorderStrokeWidth);
         canvas.drawRect(mFramingRect, mPaint);
     }
 
@@ -279,14 +285,18 @@ public class ScanBoxView extends View {
     private void drawTipText(Canvas canvas) {
         mTxtPaint.setTextSize(mTextSize);
         mTxtPaint.setColor(mTextColor);
-        if (isDark || isLightOn) {
-            canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
-                    mFramingRect.left + (mBoxSize >> 1),
-                    mFramingRect.bottom - mTextSize,
-                    mTxtPaint);
 
-            drawFlashLight(canvas);
+        if (!mDropFlashLight) {
+            if (isDark || isLightOn) {
+                canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
+                        mFramingRect.left + (mBoxSize >> 1),
+                        mFramingRect.bottom - mTextSize,
+                        mTxtPaint);
+
+                drawFlashLight(canvas);
+            }
         }
+
         canvas.drawText(mScanNoticeText,
                 mFramingRect.left + (mBoxSize >> 1),
                 mFramingRect.bottom + mTextSize * 2,
@@ -321,6 +331,10 @@ public class ScanBoxView extends View {
      * 画手电筒
      */
     private void drawFlashLight(Canvas canvas) {
+        // 不使用手电筒图标
+        if (mDropFlashLight) {
+            return;
+        }
         if (mLightOff == null) {
             mLightOff = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_black_close_24dp);
         }
@@ -352,7 +366,7 @@ public class ScanBoxView extends View {
         if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
             return;
         }
-        mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxSize - mBorderSize * 2);
+        mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxSize - mBorderStrokeWidth * 2);
         mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -426,6 +440,40 @@ public class ScanBoxView extends View {
     }
 
     /**
+     * 设置边框长度
+     *
+     * @param borderSize px
+     */
+    public void setBorderSize(int borderSize) {
+        if (borderSize <= 0) {
+            return;
+        }
+        this.mBoxSize = borderSize;
+    }
+
+
+    /**
+     * 设置边框长度
+     *
+     * @param strokeWidth px
+     */
+    public void setBorderStrokeWidth(int strokeWidth) {
+        if (strokeWidth <= 0) {
+            return;
+        }
+        this.mBorderStrokeWidth = strokeWidth;
+    }
+
+    /**
+     * 设置扫码框上下偏移量，可以为负数
+     *
+     * @param offset px
+     */
+    public void setBoxTopOffset(int offset) {
+        mTopOffset = offset;
+    }
+
+    /**
      * 设定扫描线的颜色
      *
      * @param colors 渐变颜色组合
@@ -440,6 +488,27 @@ public class ScanBoxView extends View {
         mScanLineColor3 = colors.get(2);
 
         mScanLineGradient = null;
+    }
+
+    /**
+     * 设置手电筒打开时的图标
+     */
+    public void setFlashLightOnDrawable(int lightOnDrawable) {
+        mLightOn = BitmapUtil.getBitmap(getContext(), lightOnDrawable);
+    }
+
+    /**
+     * 设置手电筒关闭时的图标
+     */
+    public void setFlashLightOffDrawable(int lightOffDrawable) {
+        mLightOff = BitmapUtil.getBitmap(getContext(), lightOffDrawable);
+    }
+
+    /**
+     * 不使用手电筒图标
+     */
+    public void dropFlashLightIcon() {
+        mDropFlashLight = true;
     }
 
     /**

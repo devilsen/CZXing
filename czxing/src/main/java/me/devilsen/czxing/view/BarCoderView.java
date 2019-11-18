@@ -27,7 +27,7 @@ import static me.devilsen.czxing.view.ScanView.SCAN_MODE_TINY;
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
     private static final int NO_CAMERA_ID = -1;
-    private static final int DEFAULT_ZOOM_SCALE = 4;
+    private static final int DEFAULT_ZOOM_SCALE = 3;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
     private final static long DELAY_STEP_TIME = 10_000_000;
 

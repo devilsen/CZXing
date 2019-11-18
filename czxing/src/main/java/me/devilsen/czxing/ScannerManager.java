@@ -38,6 +38,11 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setBorderSize(int borderSize) {
+        scanOption.borderSize = borderSize;
+        return this;
+    }
+
     public ScannerManager setScanMode(int scanMode) {
         scanOption.scanMode = scanMode;
         return this;
@@ -58,6 +63,16 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setFlashLightOnDrawable(int flashLightOnDrawable) {
+        scanOption.flashLightOnDrawable = flashLightOnDrawable;
+        return this;
+    }
+
+    public ScannerManager setFlashLightOffDrawable(int flashLightOffDrawable) {
+        scanOption.flashLightOffDrawable = flashLightOffDrawable;
+        return this;
+    }
+
     public ScannerManager setFlashLightOnText(String lightOnText) {
         scanOption.flashLightOnText = lightOnText;
         return this;
@@ -73,12 +88,17 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager setFlashLightInvisible() {
+        scanOption.dropFlashLight = true;
+        return this;
+    }
+
     public ScannerManager setScanLineColors(List<Integer> scanLineColors) {
         scanOption.scanLineColors = scanLineColors;
         return this;
     }
 
-    public ScannerManager setBarcodeFormat(BarcodeFormat... barcodeFormats){
+    public ScannerManager setBarcodeFormat(BarcodeFormat... barcodeFormats) {
         scanOption.barcodeFormats = Arrays.asList(barcodeFormats);
         return this;
     }
@@ -103,13 +123,17 @@ public class ScannerManager {
 
         private int cornerColor;
         private int borderColor;
+        private int borderSize;
         private int scanMode;
         private String title;
         private boolean showAlbum = true;
         private boolean continuousScan;
 
+        private int flashLightOnDrawable;
+        private int flashLightOffDrawable;
         private String flashLightOnText;
         private String flashLightOffText;
+        private boolean dropFlashLight;
         private String scanNoticeText;
 
         private List<BarcodeFormat> barcodeFormats;
@@ -121,6 +145,10 @@ public class ScannerManager {
 
         public int getBorderColor() {
             return borderColor;
+        }
+
+        public int getBorderSize() {
+            return borderSize;
         }
 
         public int getScanMode() {
@@ -139,12 +167,24 @@ public class ScannerManager {
             return continuousScan;
         }
 
+        public int getFlashLightOnDrawable() {
+            return flashLightOnDrawable;
+        }
+
+        public int getFlashLightOffDrawable() {
+            return flashLightOffDrawable;
+        }
+
         public String getFlashLightOnText() {
             return flashLightOnText;
         }
 
         public String getFlashLightOffText() {
             return flashLightOffText;
+        }
+
+        public boolean isDropFlashLight() {
+            return dropFlashLight;
         }
 
         public String getScanNoticeText() {
@@ -168,12 +208,16 @@ public class ScannerManager {
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(this.cornerColor);
             dest.writeInt(this.borderColor);
+            dest.writeInt(this.borderSize);
             dest.writeInt(this.scanMode);
             dest.writeString(this.title);
             dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
             dest.writeByte(this.continuousScan ? (byte) 1 : (byte) 0);
+            dest.writeInt(this.flashLightOnDrawable);
+            dest.writeInt(this.flashLightOffDrawable);
             dest.writeString(this.flashLightOnText);
             dest.writeString(this.flashLightOffText);
+            dest.writeByte(this.dropFlashLight ? (byte) 1 : (byte) 0);
             dest.writeString(this.scanNoticeText);
             dest.writeList(this.barcodeFormats);
             dest.writeList(this.scanLineColors);
@@ -185,12 +229,16 @@ public class ScannerManager {
         protected ScanOption(Parcel in) {
             this.cornerColor = in.readInt();
             this.borderColor = in.readInt();
+            this.borderSize = in.readInt();
             this.scanMode = in.readInt();
             this.title = in.readString();
             this.showAlbum = in.readByte() != 0;
             this.continuousScan = in.readByte() != 0;
+            this.flashLightOnDrawable = in.readInt();
+            this.flashLightOffDrawable = in.readInt();
             this.flashLightOnText = in.readString();
             this.flashLightOffText = in.readString();
+            this.dropFlashLight = in.readByte() != 0;
             this.scanNoticeText = in.readString();
             this.barcodeFormats = new ArrayList<>();
             in.readList(this.barcodeFormats, BarcodeFormat.class.getClassLoader());
@@ -209,5 +257,6 @@ public class ScannerManager {
                 return new ScanOption[size];
             }
         };
+
     }
 }

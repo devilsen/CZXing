@@ -18,6 +18,7 @@ ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
     zbarScanner = new ImageScanner();
     zbarScanner->set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
     qrCodeRecognizer = new QRCodeRecognizer();
+    decodeQr = true;
     stopProcessing.store(false);
     isProcessing.store(false);
 }
@@ -242,24 +243,26 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
 }
 
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
+    LOGE("try to recognizerQrCode..., scanIndex = %d ", scanIndex);
+
     // 不需要解析二维码
     if (!decodeQr) {
         return;
     }
-
+    // 7次没有解析出来，尝试聚焦
     if (scanIndex % 7 == 0) {
         javaCallHelper->onFocus();
-        return;
     }
-
-    if (scanIndex % 3 != 0) {
-        return;
-    }
+    // 只有3的倍数次才去使用OpenCV处理
+//    if (scanIndex % 3 != 0) {
+//        return;
+//    }
     LOGE("start recognizerQrCode...");
 
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
-    if (rect.empty() || rect.height < 100) {
+    // 一般认为，长度小于120的一般是误报
+    if (rect.empty() || rect.height < 120) {
         return;
     }
 
@@ -283,8 +286,6 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 
 Result ImageScheduler::decodePixels(const Mat &mat) {
     try {
-//        int width = mat.cols;
-//        int height = mat.rows;
 //        Mat resultMat(height, width, CV_8UC1, pixels);
 //        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
 

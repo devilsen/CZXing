@@ -46,6 +46,7 @@
         </activity>
         <activity android:name=".WriteQRCodeActivity" />
         <activity android:name=".CallBackTestActivity" />
+        <activity android:name=".CustomizeActivity" />
 
     </application>
 

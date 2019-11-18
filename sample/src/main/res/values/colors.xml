@@ -2,9 +2,10 @@
 <resources>
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorAccent">#05C705</color>
 
     <color name="black">#000000</color>
+    <color name="text_white">#E6E5E5</color>
 
     <color name="corner">#2196F3</color>
     <color name="box_line">#64B5FA</color>
@@ -12,4 +13,5 @@
     <color name="scan_side">#2A017CB4</color>
     <color name="scan_partial">#B20493D5</color>
     <color name="scan_middle">#00AFFF</color>
+
 </resources>

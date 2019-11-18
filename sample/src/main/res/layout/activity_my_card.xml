@@ -6,9 +6,9 @@
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ic_launcher" />
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_avatar" />
 
     <TextView
         android:layout_width="wrap_content"

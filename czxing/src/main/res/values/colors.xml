@@ -8,7 +8,7 @@
 
     <!-- 蒙层颜色 -->
     <color name="czxing_line_mask">#33000000</color>
-    <color name="czxing_line_border">#C5C3C3</color>
+    <color name="czxing_line_border">#95B8B8B8</color>
     <color name="czxing_line_corner">#05C705</color>
 
     <!-- 文字颜色 -->

@@ -28,7 +28,7 @@ import me.devilsen.czxing.Scanner;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
-import me.devilsen.czxing.util.SaveImageUtil;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 import me.devilsen.czxing.view.ScanView;
 
@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
-    private BarcodeReader reader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +43,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         resultTxt = findViewById(R.id.text_view_result);
-        reader = BarcodeReader.getInstance();
         requestPermission();
     }
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_black_boder);
-        CodeResult result = reader.read(bitmap);
+        CodeResult result = BarcodeReader.getInstance().read(bitmap);
 
         if (result == null) {
             Log.e("Scan >>> ", "no code");
@@ -73,21 +71,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openScan(View view) {
-//        Intent intent = new Intent(this, ScanActivity.class);
-//        startActivity(intent);
         Resources resources = getResources();
         List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
         Scanner.with(this)
                 .setBorderColor(resources.getColor(R.color.box_line))
+                .setBorderSize(BarCodeUtil.dp2px(this, 200))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
                 .setScanMode(ScanView.SCAN_MODE_MIX)
                 .setTitle("我的扫一扫")
 //                .setBarcodeFormat(BarcodeFormat.EAN_13)
-//                .setScanNoticeText("扫描二维码")
-//                .setFlashLightOnText("打开闪光灯")
-//                .setFlashLightOffText("关闭闪光灯")
+                .setScanNoticeText("扫描二维码")
+                .setFlashLightOnText("打开闪光灯")
+                .setFlashLightOffText("关闭闪光灯")
+//                .setFlashLightInvisible()
+                .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
+                .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
                 .showAlbum(true)
                 .continuousScan()
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSelectData(int requestCode, Intent data) {
                         if (requestCode == CODE_SELECT_IMAGE) {
-                            selectPic(data);
+                            decodeImage(data);
                         }
                     }
                 })
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onScanResult(@NonNull String result, @NonNull BarcodeFormat format) {
                         // 如果有回调，则必然有值,因为要避免AndroidX和support包的差异，所以没有默认的注解
-
 //                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
 //                        intent.putExtra("result", result);
 //                        startActivity(intent);
@@ -126,11 +125,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openScanBox(View view) {
-//        Intent intent = new Intent(this, CallBackTestActivity.class);
-//        startActivity(intent);
+        Intent intent = new Intent(this, ScanBoxTestActivity.class);
+        startActivity(intent);
+    }
 
+    /**
+     * 测试复杂二维码
+     */
+    public void test() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_8);
-        CodeResult result = reader.read(bitmap);
+        CodeResult result = BarcodeReader.getInstance().read(bitmap);
 
         if (result == null) {
             Log.e("Scan >>> ", "no code");
@@ -140,6 +144,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         resultTxt.setText(result.getText());
+    }
+
+    public void openCustomizeActivity(View view) {
+        Intent intent = new Intent(this, CustomizeActivity.class);
+        startActivity(intent);
     }
 
     private void requestPermission() {
@@ -161,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
-    private void selectPic(Intent intent) {
+    private void decodeImage(Intent intent) {
         Uri selectImageUri = intent.getData();
         if (selectImageUri == null) {
             return;
@@ -181,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        CodeResult result = reader.read(bitmap);
+        CodeResult result = BarcodeReader.getInstance().read(bitmap);
         if (result == null) {
             Log.e("Scan >>> ", "no code");
             return;

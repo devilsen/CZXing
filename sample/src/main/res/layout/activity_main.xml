@@ -18,37 +18,43 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="scan"
-        android:text="scan Image"
+        android:text="解析本地二维码"
         android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="write"
-        android:text="write Code"
+        android:text="生成一维码/二维码"
         android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="writeQrCode"
-        android:text="write QrCode"
+        android:text="实时生成二维码"
         android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="openScan"
-        android:text="open ScanView"
+        android:text="调用API打开界面"
         android:textAllCaps="false" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="openCustomizeActivity"
+        android:text="自定义扫码界面"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="openScanBox"
-        android:textAllCaps="false"
         android:text="openScanBox"
+        android:textAllCaps="false"
         android:visibility="gone" />
 
 </LinearLayout>

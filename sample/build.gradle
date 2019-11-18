@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
-apply plugin: 'bugly'
-apply from: "../config.gradle"
+//apply plugin: 'bugly'
+//apply from: "../config.gradle"
 
 // 如初次运行，请把此处注释掉
-bugly {
+//bugly {
 //    debug = true
-    appId = buglyAppId
-    appKey = buglyAppKey
-}
+//    appId = buglyAppId
+//    appKey = buglyAppKey
+//}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -57,8 +57,8 @@ android {
 dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
-//    implementation project(':czxing')
-    implementation 'me.devilsen:CZXing:0.9.8'
+    implementation project(':czxing')
+//    implementation 'me.devilsen:CZXing:0.9.8'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
