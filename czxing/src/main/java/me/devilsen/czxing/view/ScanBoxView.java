@@ -514,7 +514,7 @@ public class ScanBoxView extends View {
     }
 
     /**
-     * 不使用手电筒图标
+     * 不使用手电筒图标及提示
      */
     public void invisibleFlashLightIcon() {
         mDropFlashLight = true;
@@ -525,6 +525,33 @@ public class ScanBoxView extends View {
      */
     public void hideCardText() {
         this.mDrawCardText = false;
+    }
+
+    /**
+     * 设置闪光灯打开时的提示文字
+     */
+    public void setFlashLightOnText(String lightOnText) {
+        if (lightOnText != null) {
+            mFlashLightOnText = lightOnText;
+        }
+    }
+
+    /**
+     * 设置闪光灯关闭时的提示文字
+     */
+    public void setFlashLightOffText(String lightOffText) {
+        if (lightOffText != null) {
+            mFlashLightOffText = lightOffText;
+        }
+    }
+
+    /**
+     * 设置扫码框下方的提示文字
+     */
+    public void setScanNoticeText(String scanNoticeText) {
+        if (scanNoticeText != null) {
+            mScanNoticeText = scanNoticeText;
+        }
     }
 
     public void startAnim() {
@@ -542,24 +569,6 @@ public class ScanBoxView extends View {
     public void onDestroy() {
         if (mScanLineAnimator != null) {
             mScanLineAnimator.removeAllUpdateListeners();
-        }
-    }
-
-    public void setFlashLightOnText(String lightOnText) {
-        if (lightOnText != null) {
-            mFlashLightOnText = lightOnText;
-        }
-    }
-
-    public void setFlashLightOffText(String lightOffText) {
-        if (lightOffText != null) {
-            mFlashLightOffText = lightOffText;
-        }
-    }
-
-    public void setScanNoticeText(String scanNoticeText) {
-        if (scanNoticeText != null) {
-            mScanNoticeText = scanNoticeText;
         }
     }
 

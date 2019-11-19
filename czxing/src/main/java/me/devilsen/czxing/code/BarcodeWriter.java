@@ -94,6 +94,7 @@ public class BarcodeWriter {
      * @param width  图片宽
      * @param height 图片高
      * @param color  要生成的二维码颜色
+     * @param format 要生成的条码格式
      * @param logo   放在中间的logo
      * @return bitmap二维码
      */

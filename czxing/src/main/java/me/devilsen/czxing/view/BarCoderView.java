@@ -426,6 +426,26 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mScanListener = null;
     }
 
+    /**
+     * 扫描模式，提供了三种扫码模式
+     * ┏--------------┓
+     * ┃              ┃
+     * ┃       2      ┃
+     * ┃    ┏----┓    ┃
+     * ┃    ┃  1 ┃    ┃
+     * ┃    ┗----┛    ┃
+     * ┃              ┃
+     * ┃              ┃
+     * ┃              ┃
+     * ┃              ┃
+     * ┗--------------┛
+     * <p>
+     * 0：混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
+     * 1：只扫描扫码框里的内容
+     * 2：扫描以屏幕宽为边长的内容
+     *
+     * @param scanMode 0 / 1 / 2
+     */
     public void setScanMode(int scanMode) {
         this.scanMode = scanMode;
     }

@@ -84,15 +84,15 @@ public class MainActivity extends AppCompatActivity {
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
                 .setScanMode(ScanView.SCAN_MODE_MIX)
-                .setTitle("我的扫一扫")
 //                .setBarcodeFormat(BarcodeFormat.EAN_13)
+                .setTitle("我的扫一扫")
+                .showAlbum(true)
                 .setScanNoticeText("扫描二维码")
                 .setFlashLightOnText("打开闪光灯")
                 .setFlashLightOffText("关闭闪光灯")
 //                .setFlashLightInvisible()
                 .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
                 .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
-                .showAlbum(true)
                 .continuousScan()
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override

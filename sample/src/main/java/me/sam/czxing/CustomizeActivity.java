@@ -35,8 +35,8 @@ import me.devilsen.czxing.view.ScanListener;
 import me.devilsen.czxing.view.ScanView;
 
 /**
- * desc :
- * date : 2019-11-18 15:22
+ * desc : 自定义扫码界面
+ * date : 2019-11-18
  *
  * @author : dongSen
  */
@@ -70,13 +70,42 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         TextView option2Txt = findViewById(R.id.text_view_customize_option_2);
         TextView option3Txt = findViewById(R.id.text_view_customize_option_3);
 
+        // 设置扫描模式
+//        mScanView.setScanMode(ScanView.SCAN_MODE_MIX);
+        // 设置扫描格式 BarcodeFormat
+//        mScanView.setBarcodeFormat();
+
         ScanBoxView scanBox = mScanView.getScanBox();
+        // 设置扫码框上下偏移量，可以为负数
         scanBox.setBoxTopOffset(-BarCodeUtil.dp2px(this, 100));
+        // 设置扫码框四周的颜色
         scanBox.setMaskColor(Color.parseColor("#9C272626"));
+        // 设定四个角的颜色
+//        scanBox.setCornerColor();
+        // 设定扫描框的边框颜色
+//        scanBox.setBorderColor();
+        // 设置边框长度(扫码框大小)
+//        scanBox.setBorderSize();
+        // 设定扫描线的颜色
+//        scanBox.setScanLineColor();
+        // 设置手电筒打开时的图标
+//        scanBox.setFlashLightOnDrawable();
+        // 设置手电筒关闭时的图标
+//        scanBox.setFlashLightOffDrawable();
+        // 设置闪光灯打开时的提示文字
+//        scanBox.setFlashLightOnText();
+        // 设置闪光灯关闭时的提示文字
+//        scanBox.setFlashLightOffText();
+        // 不使用手电筒图标及提示
+//        scanBox.invisibleFlashLightIcon();
+        // 设置扫码框下方的提示文字
+//        scanBox.setScanNoticeText();
 
         backImg.setOnClickListener(this);
         albumTxt.setOnClickListener(this);
+        // 获取扫码回调
         mScanView.setScanListener(this);
+        // 获取亮度测量结果
         mScanView.setAnalysisBrightnessListener(this);
         myCodeTxt.setOnClickListener(this);
         option1Txt.setOnClickListener(this);

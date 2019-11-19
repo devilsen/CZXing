@@ -6,10 +6,12 @@ C++ port of ZXing for Android
 
 底层使用C++来处理图像及解析二维码，并且加入了OpenCV来解析图像，可以在更远的距离识别出二维码。
 
+![App展示](https://github.com/devilsen/CZXing/blob/master/screenshots/scan_code.gif)
+
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.9.8'
+implementation 'me.devilsen:CZXing:0.9.9'
 ```
 建议加入abiFilters
 ```gradle
@@ -23,6 +25,10 @@ implementation 'me.devilsen:CZXing:0.9.8'
         }
     }
 ```
+如果下载失败，可以在根目录加入阿里云的镜像
+```gradle
+maven { url 'https://maven.aliyun.com/repository/jcenter' }
+```
 
 #### 1. 直接使用
 你可以直接使用已经封装好的ScanActivity作为扫码界面
@@ -31,16 +37,21 @@ Resources resources = getResources();
 List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
 Scanner.with(this)
+        .setMaskColor(resources.getColor(R.color.mask_color))   // 设置设置扫码框四周颜色
         .setBorderColor(resources.getColor(R.color.box_line))   // 扫码框边框颜色
+        .setBorderSize(BarCodeUtil.dp2px(this, 200))            // 设置扫码框大小
         .setCornerColor(resources.getColor(R.color.corner))     // 扫码框角颜色
         .setScanLineColors(scanColors)                          // 扫描线颜色（这是一个渐变颜色）
-        .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域
+        .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域 0：混合 1：只扫描框内 2：只扫描整个屏幕
+        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
         .setTitle("My Scan View")                               // 扫码界面标题
         .showAlbum(true)                                        // 显示相册(默认为true)
-        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
         .setScanNoticeText("扫描二维码")                         // 设置扫码文字提示
         .setFlashLightOnText("打开闪光灯")                       // 打开闪光灯提示
         .setFlashLightOffText("关闭闪光灯")                      // 关闭闪光灯提示
+        .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)       // 闪光灯打开时的样式
+        .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)    // 闪光灯关闭时的样式
+        .setFlashLightInvisible()                               // 不使用闪光灯图标及提示
         .continuousScan()                                       // 连续扫码，不关闭扫码界面
         .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
             @Override
@@ -68,6 +79,8 @@ Scanner.with(this)
 ```
 
 #### 2. 自定义界面
+![自定义界面展示](https://github.com/devilsen/CZXing/blob/master/screenshots/customize_scan_view.jpg)
+
 或者使用ScanView来自定义你的界面
 ```xml
 <me.devilsen.czxing.view.ScanView
@@ -91,16 +104,39 @@ mScanView.setScanListener(new ScanListener() {
 });
 ```
 
+更多API请参考[CustomizeActivity](https://github.com/devilsen/CZXing/blob/master/sample/src/main/java/me/sam/czxing/CustomizeActivity.java)
+
 #### 3. 生成二维码
+![生成二维码](https://github.com/devilsen/CZXing/blob/master/screenshots/write_code.gif)
+
 调用以下代码，可生成二维码的bitmap，Color为可选参数，默认为黑色。
+
+简易调用
+
 ```java
 BarcodeWriter writer = new BarcodeWriter();
 Bitmap bitmap = writer.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200), Color.RED);
 ```
 
+复杂调用
+
+```java
+/**
+* 生成图片
+*
+* @param text   要生成的文本
+* @param width  图片宽
+* @param height 图片高
+* @param color  要生成的二维码颜色
+* @param format 要生成的条码格式
+* @param logo   放在中间的logo
+* @return 条码bitmap
+*/
+private Bitmap write(String text, int width, int height, int color, BarcodeFormat format, Bitmap logo)
+```
 
 ### 效果展示
-[点击观看](https://www.bilibili.com/video/av59888116)
+[远距离扫码演示](https://www.bilibili.com/video/av59888116)
 
 [apk下载](https://github.com/devilsen/CZXing/releases)
 
@@ -108,7 +144,6 @@ Bitmap bitmap = writer.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCod
 
 ## License
 
-    Copyright (C) 2012 The Android Open Source Project
     Copyright 2019 Devilsen
 
     Licensed under the Apache License, Version 2.0 (the "License");
