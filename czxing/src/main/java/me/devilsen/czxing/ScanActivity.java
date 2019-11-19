@@ -86,8 +86,10 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         }
         mScanView.setScanMode(option.getScanMode());
         mScanView.setBarcodeFormat(option.getBarcodeFormat());
+        mScanView.onFlashLightClick();
 
         ScanBoxView scanBox = mScanView.getScanBox();
+        scanBox.setMaskColor(option.getMaskColor());
         scanBox.setCornerColor(option.getCornerColor());
         scanBox.setBorderColor(option.getBorderColor());
         scanBox.setBorderSize(option.getBorderSize());
@@ -96,8 +98,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         scanBox.setFlashLightOffDrawable(option.getFlashLightOffDrawable());
         scanBox.setFlashLightOnText(option.getFlashLightOnText());
         scanBox.setFlashLightOffText(option.getFlashLightOffText());
-        if (option.isDropFlashLight()){
-            scanBox.dropFlashLightIcon();
+        if (option.isDropFlashLight()) {
+            scanBox.invisibleFlashLightIcon();
         }
         scanBox.setScanNoticeText(option.getScanNoticeText());
 

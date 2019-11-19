@@ -474,6 +474,15 @@ public class ScanBoxView extends View {
     }
 
     /**
+     * 设置扫码框四周的颜色
+     *
+     * @param color 透明颜色
+     */
+    public void setMaskColor(int color) {
+        mMaskColor = color;
+    }
+
+    /**
      * 设定扫描线的颜色
      *
      * @param colors 渐变颜色组合
@@ -507,7 +516,7 @@ public class ScanBoxView extends View {
     /**
      * 不使用手电筒图标
      */
-    public void dropFlashLightIcon() {
+    public void invisibleFlashLightIcon() {
         mDropFlashLight = true;
     }
 

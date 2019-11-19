@@ -9,6 +9,7 @@
 
     <color name="corner">#2196F3</color>
     <color name="box_line">#64B5FA</color>
+    <color name="mask_color">#9C272626</color>
 
     <color name="scan_side">#2A017CB4</color>
     <color name="scan_partial">#B20493D5</color>

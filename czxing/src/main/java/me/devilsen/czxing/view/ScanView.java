@@ -36,6 +36,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     private boolean isDark;
     private int showCounter;
     private BarcodeReader reader;
+    private ScanListener.AnalysisBrightnessListener brightnessListener;
 
     public ScanView(Context context) {
         this(context, null);
@@ -59,6 +60,13 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
 //        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
+    }
+
+    /**
+     * 设置亮度分析会调
+     */
+    public void setAnalysisBrightnessListener(ScanListener.AnalysisBrightnessListener brightnessListener) {
+        this.brightnessListener = brightnessListener;
     }
 
     /**
@@ -133,6 +141,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
                 this.isDark = true;
                 mScanBoxView.setDark(true);
             }
+        }
+
+        if (brightnessListener != null) {
+            brightnessListener.onAnalysisBrightness(this.isDark);
         }
     }
 

@@ -70,11 +70,15 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * 内置API展示
+     */
     public void openScan(View view) {
         Resources resources = getResources();
         List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
         Scanner.with(this)
+                .setMaskColor(resources.getColor(R.color.mask_color))
                 .setBorderColor(resources.getColor(R.color.box_line))
                 .setBorderSize(BarCodeUtil.dp2px(this, 200))
                 .setCornerColor(resources.getColor(R.color.corner))

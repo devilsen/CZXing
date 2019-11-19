@@ -20,4 +20,13 @@ public interface ScanListener {
      * 处理打开相机出错
      */
     void onOpenCameraError();
+
+    /**
+     * 亮度分析回调
+     */
+    interface AnalysisBrightnessListener {
+
+        void onAnalysisBrightness(boolean isDark);
+
+    }
 }

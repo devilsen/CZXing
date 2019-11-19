@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -39,7 +40,8 @@ import me.devilsen.czxing.view.ScanView;
  *
  * @author : dongSen
  */
-public class CustomizeActivity extends AppCompatActivity implements View.OnClickListener, ScanListener {
+public class CustomizeActivity extends AppCompatActivity implements View.OnClickListener,
+        ScanListener, ScanListener.AnalysisBrightnessListener {
 
     private static final int PERMISSIONS_REQUEST_CAMERA = 1;
     private static final int PERMISSIONS_REQUEST_STORAGE = 2;
@@ -70,10 +72,12 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
 
         ScanBoxView scanBox = mScanView.getScanBox();
         scanBox.setBoxTopOffset(-BarCodeUtil.dp2px(this, 100));
+        scanBox.setMaskColor(Color.parseColor("#9C272626"));
 
         backImg.setOnClickListener(this);
         albumTxt.setOnClickListener(this);
         mScanView.setScanListener(this);
+        mScanView.setAnalysisBrightnessListener(this);
         myCodeTxt.setOnClickListener(this);
         option1Txt.setOnClickListener(this);
         option2Txt.setOnClickListener(this);
@@ -149,6 +153,20 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
 
         showResult(result);
         finish();
+    }
+
+    /**
+     * 可以通过此回调来控制自定义的手电筒显隐藏
+     *
+     * @param isDark 是否处于黑暗的环境
+     */
+    @Override
+    public void onAnalysisBrightness(boolean isDark) {
+        if (isDark) {
+            Log.d("analysisBrightness", "您处于黑暗的环境，建议打开手电筒");
+        } else {
+            Log.d("analysisBrightness", "正常环境，如果您打开了手电筒，可以关闭");
+        }
     }
 
     @Override
