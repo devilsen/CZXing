@@ -106,15 +106,15 @@ public class SaveImageUtil {
      * @return 二值化处理后的图片
      */
     public static Bitmap getBinaryzationBitmap(Bitmap bm) {
-        Bitmap bitmap = null;
+        Bitmap bitmap;
         // 获取图片的宽和高
         int width = bm.getWidth();
         int height = bm.getHeight();
         // 创建二值化图像
         bitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
         // 遍历原始图像像素,并进行二值化处理
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 // 得到当前的像素值
                 int pixel = bitmap.getPixel(i, j);
                 // 得到Alpha通道的值

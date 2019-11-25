@@ -126,7 +126,8 @@ BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
         } else {
             // info.format == ANDROID_BITMAP_FORMAT_RGB_565
             LOGE("nBitmapToMat: RGB_565 -> CV_8UC4");
-            cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC2, pixels);
+            cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC4, pixels);
+            tmp.copyTo(dst);
         }
     } else {
         throw std::runtime_error("Failed to read bitmap's data");

@@ -1,9 +1,11 @@
 package me.devilsen.czxing.code;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.SaveImageUtil;
 
 public class BarcodeReader {
 
@@ -47,10 +49,11 @@ public class BarcodeReader {
             BarCodeUtil.e("bitmap is null");
             return null;
         }
-        int imgWidth = bitmap.getWidth();
-        int imgHeight = bitmap.getHeight();
+        Bitmap grayBitmap = SaveImageUtil.getBinaryzationBitmap(bitmap);
+        int imgWidth = grayBitmap.getWidth();
+        int imgHeight = grayBitmap.getHeight();
         Object[] result = new Object[2];
-        int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, bitmap, 0, 0, imgWidth, imgHeight, result);
+        int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, grayBitmap, 0, 0, imgWidth, imgHeight, result);
         if (resultFormat >= 0) {
             CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);
             if (result[1] != null) {
