@@ -29,6 +29,7 @@ import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.view.ScanActivityDelegate;
 import me.devilsen.czxing.view.ScanView;
 
@@ -189,7 +190,8 @@ public class MainActivity extends AppCompatActivity {
         String picturePath = cursor.getString(columnIndex);
         cursor.close();
 
-        Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+        // 适当压缩图片
+        Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
         if (bitmap == null) {
             return;
         }

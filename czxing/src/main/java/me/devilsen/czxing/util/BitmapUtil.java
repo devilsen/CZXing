@@ -103,7 +103,7 @@ public class BitmapUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(picturePath, options);
-            int sampleSize = options.outHeight / 800;
+            int sampleSize = options.outHeight / 700;
             if (sampleSize <= 0) {
                 sampleSize = 1;
             }

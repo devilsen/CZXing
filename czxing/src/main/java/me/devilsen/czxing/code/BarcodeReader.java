@@ -49,11 +49,12 @@ public class BarcodeReader {
             BarCodeUtil.e("bitmap is null");
             return null;
         }
-        Bitmap grayBitmap = SaveImageUtil.getBinaryzationBitmap(bitmap);
-        int imgWidth = grayBitmap.getWidth();
-        int imgHeight = grayBitmap.getHeight();
+        // 避免某些情况无法获取图片格式的问题
+        Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
+        int imgWidth = newBitmap.getWidth();
+        int imgHeight = newBitmap.getHeight();
         Object[] result = new Object[2];
-        int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, grayBitmap, 0, 0, imgWidth, imgHeight, result);
+        int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, newBitmap, 0, 0, imgWidth, imgHeight, result);
         if (resultFormat >= 0) {
             CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);
             if (result[1] != null) {

@@ -28,6 +28,7 @@ import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.ScanBoxView;
@@ -224,7 +225,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         String picturePath = cursor.getString(columnIndex);
         cursor.close();
 
-        Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+        Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
         if (bitmap == null) {
             return;
         }
@@ -252,11 +253,14 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     PERMISSIONS_REQUEST_STORAGE);
+        } else {
+            Intent albumIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(albumIntent, CODE_SELECT_IMAGE);
         }
     }
 
