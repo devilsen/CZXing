@@ -33,9 +33,18 @@ namespace ZXing {
 
 MultiFormatReader::MultiFormatReader(const DecodeHints& hints)
 {
+	setFormat(hints);
+}
+
+MultiFormatReader::~MultiFormatReader()
+{
+}
+
+void MultiFormatReader::setFormat(const DecodeHints &hints)
+{
+	_readers.clear();
 	bool tryHarder = hints.shouldTryHarder();
-	if (hints.hasNoFormat()) {
-		bool addOneDReader =
+	bool addOneDReader =
 			hints.hasFormat(BarcodeFormat::UPC_A) ||
 			hints.hasFormat(BarcodeFormat::UPC_E) ||
 			hints.hasFormat(BarcodeFormat::EAN_13) ||
@@ -48,29 +57,28 @@ MultiFormatReader::MultiFormatReader(const DecodeHints& hints)
 			hints.hasFormat(BarcodeFormat::RSS_14) ||
 			hints.hasFormat(BarcodeFormat::RSS_EXPANDED);
 
-		// Put 1D readers upfront in "normal" mode
-		if (addOneDReader && !tryHarder) {
-			_readers.emplace_back(new OneD::Reader(hints));
-		}
-		if (hints.hasFormat(BarcodeFormat::QR_CODE)) {
-			_readers.emplace_back(new QRCode::Reader(hints));
-		}
-		if (hints.hasFormat(BarcodeFormat::DATA_MATRIX)) {
-			_readers.emplace_back(new DataMatrix::Reader(hints));
-		}
-		if (hints.hasFormat(BarcodeFormat::AZTEC)) {
-			_readers.emplace_back(new Aztec::Reader());
-		}
-		if (hints.hasFormat(BarcodeFormat::PDF_417)) {
-			_readers.emplace_back(new Pdf417::Reader());
-		}
-		if (hints.hasFormat(BarcodeFormat::MAXICODE)) {
-			_readers.emplace_back(new MaxiCode::Reader());
-		}
-		// At end in "try harder" mode
-		if (addOneDReader && tryHarder) {
-			_readers.emplace_back(new OneD::Reader(hints));
-		}
+	// Put 1D readers upfront in "normal" mode
+	if (addOneDReader && !tryHarder) {
+		_readers.emplace_back(new OneD::Reader(hints));
+	}
+	if (hints.hasFormat(BarcodeFormat::QR_CODE)) {
+		_readers.emplace_back(new QRCode::Reader(hints));
+	}
+	if (hints.hasFormat(BarcodeFormat::DATA_MATRIX)) {
+		_readers.emplace_back(new DataMatrix::Reader(hints));
+	}
+	if (hints.hasFormat(BarcodeFormat::AZTEC)) {
+		_readers.emplace_back(new Aztec::Reader());
+	}
+	if (hints.hasFormat(BarcodeFormat::PDF_417)) {
+		_readers.emplace_back(new Pdf417::Reader());
+	}
+	if (hints.hasFormat(BarcodeFormat::MAXICODE)) {
+		_readers.emplace_back(new MaxiCode::Reader());
+	}
+	// At end in "try harder" mode
+	if (addOneDReader && tryHarder) {
+		_readers.emplace_back(new OneD::Reader(hints));
 	}
 
 	if (_readers.empty()) {
@@ -86,16 +94,6 @@ MultiFormatReader::MultiFormatReader(const DecodeHints& hints)
 			_readers.emplace_back(new OneD::Reader(hints));
 		}
 	}
-}
-
-MultiFormatReader::~MultiFormatReader()
-{
-}
-
-void MultiFormatReader::setFormat(const DecodeHints &hints)
-{
-	_readers.clear();
-	_readers.emplace_back(new OneD::Reader(hints));
 }
 
 Result

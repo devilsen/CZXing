@@ -449,4 +449,22 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     public void setScanMode(int scanMode) {
         this.scanMode = scanMode;
     }
+
+    /**
+     * 打开闪光灯
+     */
+    public void openFlashlight() {
+        if (mCameraSurface != null) {
+            mCameraSurface.openFlashlight();
+        }
+    }
+
+    /**
+     * 关闭闪光灯
+     */
+    public void closeFlashlight() {
+        if (mCameraSurface != null) {
+            mCameraSurface.closeFlashlight();
+        }
+    }
 }

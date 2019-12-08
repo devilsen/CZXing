@@ -4,26 +4,26 @@
 # CZXing
 C++ port of ZXing for Android
 
-底层使用C++来处理图像及解析二维码，并且加入了OpenCV来解析图像，可以在更远的距离识别出二维码。
+底层使用C++来处理图像及解析二维码，并且加入了OpenCV来解析图像，可以在更远的距离识别出更加复杂的二维码。
 
 ![App展示](https://github.com/devilsen/CZXing/blob/master/screenshots/scan_code.gif)
 
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.9.10'
+implementation 'me.devilsen:CZXing:0.9.11'
 ```
 建议加入abiFilters
 ```gradle
-    defaultConfig {
-        
-        // 其他设置...
+defaultConfig {
+    
+    // 其他设置...
 
-        ndk {
-            // 设置支持的so库架构，设置一个可以减小包的大小
-            abiFilters "armeabi-v7a","arm64-v8a"
-        }
+    ndk {
+        // 设置支持的so库架构，设置一个可以减小包的大小
+        abiFilters "armeabi-v7a","arm64-v8a"
     }
+}
 ```
 如果下载失败，可以在根目录加入阿里云的镜像
 ```gradle
@@ -118,7 +118,7 @@ BarcodeWriter writer = new BarcodeWriter();
 Bitmap bitmap = writer.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 200), Color.RED);
 ```
 
-复杂调用
+完整调用
 
 ```java
 /**
@@ -133,7 +133,14 @@ Bitmap bitmap = writer.write("Hello World", BarCodeUtil.dp2px(this, 200), BarCod
 * @return 条码bitmap
 */
 private Bitmap write(String text, int width, int height, int color, BarcodeFormat format, Bitmap logo)
+
 ```
+
+### 4. 测试Case
+| | | |
+:--:|:-:|:--:
+![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_bar_code.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_black_boder.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_color.png)
+![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_gray.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_oblique.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_oblique_2.png)
 
 ### 效果展示
 [远距离扫码演示](https://www.bilibili.com/video/av59888116)
