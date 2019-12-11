@@ -364,7 +364,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
             centerX = centerY;
             centerY = temp;
         }
-        int focusSize = CameraUtil.dp2px(getContext(), 120);
+        int focusSize = CameraUtil.dp2px(getContext(), 80);
         handleFocusMetering(centerX, centerY, focusSize, focusSize);
     }
 

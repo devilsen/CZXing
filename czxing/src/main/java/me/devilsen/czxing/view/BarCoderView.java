@@ -7,6 +7,9 @@ import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import me.devilsen.czxing.camera.CameraSurface;
@@ -334,7 +337,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 return;
             }
 
-            if (System.currentTimeMillis() - mLastAutoZoomTime < 450) {
+            if (System.currentTimeMillis() - mLastAutoZoomTime < 200) {
                 return;
             }
 
@@ -377,8 +380,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 mCamera.setParameters(parameters);
             }
         });
-        mAutoZoomAnimator.setDuration(420);
-        mAutoZoomAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mAutoZoomAnimator.setDuration(100);
+        mAutoZoomAnimator.setInterpolator(new LinearInterpolator());
         mAutoZoomAnimator.start();
         mLastAutoZoomTime = System.currentTimeMillis();
     }

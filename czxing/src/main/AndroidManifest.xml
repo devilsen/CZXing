@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="me.devilsen.czxing">
 
-    <uses-feature android:name="android.hardware.mCamera" />
-
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application

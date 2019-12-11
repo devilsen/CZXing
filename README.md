@@ -11,7 +11,7 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.9.11'
+implementation 'me.devilsen:CZXing:0.9.12'
 ```
 建议加入abiFilters
 ```gradle
