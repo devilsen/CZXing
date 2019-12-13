@@ -107,6 +107,7 @@ javadoc {
 bintray {
     user = bintrayUser
     key = bintrayApikey
+    override = true
     configurations = ['archives']
     pkg {
         userOrg = pkgUserOrg
