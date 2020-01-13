@@ -43,7 +43,7 @@ Scanner.with(this)
         .setCornerColor(resources.getColor(R.color.corner))     // 扫码框角颜色
         .setScanLineColors(scanColors)                          // 扫描线颜色（这是一个渐变颜色）
         .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域 0：混合 1：只扫描框内 2：只扫描整个屏幕
-        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
+//        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
         .setTitle("My Scan View")                               // 扫码界面标题
         .showAlbum(true)                                        // 显示相册(默认为true)
         .setScanNoticeText("扫描二维码")                         // 设置扫码文字提示
