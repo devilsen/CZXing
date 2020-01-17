@@ -202,9 +202,11 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 mScanView.openCamera();
                 mScanView.startScan();
+            } else {
+                BarCodeUtil.e("request permission error");
             }
             return;
         }
