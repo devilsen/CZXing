@@ -24,13 +24,13 @@ android {
 
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a","arm64-v8a"
             }
         }
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters "armeabi-v7a"
+            abiFilters "armeabi-v7a","arm64-v8a"
         }
     }
 
@@ -57,8 +57,8 @@ android {
 dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
-    implementation project(':czxing')
-//    implementation 'me.devilsen:CZXing:0.9.13'
+//    implementation project(':czxing')
+    implementation 'me.devilsen:CZXing:0.9.14'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
