@@ -8,7 +8,12 @@
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
 
-#define DEFAULT_MIN_LIGHT 70;
+int DEFAULT_MIN_LIGHT = 70;
+int SCAN_TYPE_GRAY = 0;
+int SCAN_TYPE_THRESHOLD = 1;
+int SCAN_TYPE_ZBAR = 2;
+int SCAN_TYPE_ADAPTIVE = 3;
+int SCAN_TYPE_CUSTOMIZE = 4;
 
 ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
                                JavaCallHelper *javaCallHelper) {
@@ -49,7 +54,7 @@ void ImageScheduler::start() {
     stopProcessing.store(false);
     isProcessing.store(false);
     frameQueue.setWork(1);
-    scanIndex = 0;
+    scanIndex = -1;
 
     while (true) {
         if (stopProcessing.load()) {
@@ -142,13 +147,19 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
         if (scanIndex % 2 == 0) {
             decodeGrayPixels(gray);
         } else {
-            decodeZBar(gray);
+//            decodeZBar(gray);
         }
     } catch (const std::exception &e) {
         LOGE("preTreatMat error...");
     }
 }
 
+/**
+ * 1.1
+ * 直接解析gray后的mat
+ * 顺时针旋转90度图片，得到正常的图片（Android的后置摄像头获取的格式是横着的，需要旋转90度）
+ * @param gray
+ */
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
     LOGE("start GrayPixels...");
 
@@ -158,13 +169,47 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
     Result result = decodePixels(mat);
 
     if (result.isValid()) {
-        javaCallHelper->onResult(result);
+        javaCallHelper->onResult(result, SCAN_TYPE_GRAY);
         LOGE("ZXing GrayPixels Success, scanIndex = %d", scanIndex);
     } else {
         decodeThresholdPixels(gray);
     }
 }
 
+/**
+ * 1.2
+ * 如果gray化没有解析出来，尝试提升亮度，处理图片亮度过低时的情况
+ * 并进行二值化处理，让二维码更清晰
+ * 同时旋转180度
+ * @param gray
+ */
+void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
+    LOGE("start ThresholdPixels...");
+
+    Mat mat;
+    rotate(gray, mat, ROTATE_180);
+
+    // 提升亮度
+    if (cameraLight < 80) {
+        mat.convertTo(mat, -1, 1.0, 30);
+    }
+
+    threshold(mat, mat, 50, 255, CV_THRESH_OTSU);
+
+    Result result = decodePixels(mat);
+    if (result.isValid()) {
+        LOGE("ZXing Threshold Success, scanIndex = %d", scanIndex);
+        javaCallHelper->onResult(result, SCAN_TYPE_THRESHOLD);
+    } else {
+        recognizerQrCode(gray);
+    }
+}
+
+/**
+ * 2.1
+ * 使用ZBar用来补充ZXing对于某些情况（比如，倾斜角度过大）的不足
+ * @param gray
+ */
 void ImageScheduler::decodeZBar(const Mat &gray) {
     auto width = static_cast<unsigned int>(gray.cols);
     auto height = static_cast<unsigned int>(gray.rows);
@@ -184,7 +229,11 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
             Result result(DecodeStatus::NoError);
             result.setFormat(BarcodeFormat::QR_CODE);
             result.setText(ANSIToUnicode(symbol->get_data()));
-            javaCallHelper->onResult(result);
+//            SymbolSet symbolSet = symbol->get_components();
+//            set points = symbolSet;
+//            points.
+//            set.zbar_symbol_set_t();
+            javaCallHelper->onResult(result, SCAN_TYPE_ZBAR);
             image.set_data(nullptr, 0);
         }
     } else {
@@ -193,28 +242,11 @@ void ImageScheduler::decodeZBar(const Mat &gray) {
     }
 }
 
-void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
-    LOGE("start ThresholdPixels...");
-
-    Mat mat;
-    rotate(gray, mat, ROTATE_180);
-
-    // 提升亮度
-    if (cameraLight < 80) {
-        mat.convertTo(mat, -1, 1.0, 30);
-    }
-
-    threshold(mat, mat, 50, 255, CV_THRESH_OTSU);
-
-    Result result = decodePixels(mat);
-    if (result.isValid()) {
-        LOGE("ZXing Threshold Success, scanIndex = %d", scanIndex);
-        javaCallHelper->onResult(result);
-    } else {
-        recognizerQrCode(gray);
-    }
-}
-
+/**
+ * 2.2 降低图片亮度，再次识别图像，处理亮度过高时的情况
+ * 逆时针旋转90度，即旋转了270度
+ * @param gray
+ */
 void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     if (scanIndex % 3 != 0) {
         return;
@@ -234,12 +266,16 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     Result result = decodePixels(lightMat);
     if (result.isValid()) {
         LOGE("ZXing Adaptive Success, scanIndex = %d", scanIndex);
-        javaCallHelper->onResult(result);
+        javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
     } else {
-        recognizerQrCode(gray);
+//        recognizerQrCode(gray);
     }
 }
 
+/**
+ * 3.0
+ * 不能使用内置的解析出来，使用自定的图片解析策略
+ */
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
     LOGE("try to recognizerQrCode..., scanIndex = %d ", scanIndex);
 
@@ -276,7 +312,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
     Result result(DecodeStatus::NotFound);
     result.setResultPoints(std::move(points));
 
-    javaCallHelper->onResult(result);
+    javaCallHelper->onResult(result, SCAN_TYPE_CUSTOMIZE);
 
     LOGE("end recognizerQrCode..., scanIndex = %d height = %d width = %d", scanIndex, rect.height,
          rect.width);

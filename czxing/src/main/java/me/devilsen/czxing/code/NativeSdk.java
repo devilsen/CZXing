@@ -33,10 +33,11 @@ class NativeSdk {
      * @param content     识别出的文字
      * @param formatIndex 格式
      * @param points      定位点的位置
+     * @param scanType    扫码类型，用于还原定位点的位置
      */
-    public void onDecodeCallback(String content, int formatIndex, float[] points) {
+    public void onDecodeCallback(String content, int formatIndex, float[] points, int scanType) {
         if (readCodeListener != null) {
-            readCodeListener.onReadCodeResult(new CodeResult(content, formatIndex, points));
+            readCodeListener.onReadCodeResult(new CodeResult(content, formatIndex, points, scanType));
         }
     }
 

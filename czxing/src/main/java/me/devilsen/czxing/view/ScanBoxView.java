@@ -36,7 +36,9 @@ public class ScanBoxView extends View {
     private Paint mTxtPaint;
     private Paint mScanLinePaint;
     private Rect mFramingRect;
+    private Rect mFocusRect;
     private Rect mTextRect;
+    private Canvas mCanvas;
 
     private int mMaskColor;
     private int mTextColor;
@@ -150,6 +152,7 @@ public class ScanBoxView extends View {
         if (mFramingRect == null) {
             return;
         }
+        mCanvas = canvas;
 
         // 画遮罩层
         drawMask(canvas);
@@ -168,6 +171,9 @@ public class ScanBoxView extends View {
 
         // 移动扫描线的位置
         moveScanLine();
+
+        // 画对识别到二维码的区域
+//        drawFocusRect(0, 0, 0, 0);
     }
 
     @Override
@@ -360,6 +366,28 @@ public class ScanBoxView extends View {
                 canvas.drawBitmap(mLightOff, mFlashLightLeft, mFlashLightTop, mPaint);
             }
         }
+    }
+
+    /**
+     * 画对焦部分的方框
+     */
+    public void drawFocusRect(int left, int top, int right, int bottom) {
+        if (mFocusRect == null) {
+            mFocusRect = new Rect(left, top, right, bottom);
+        } else if (right != 0 && bottom != 0) {
+            // 会比认为的高度高一点 大概 400px，这点还需改进
+            mFocusRect.left = left;
+            mFocusRect.top = top;
+            mFocusRect.right = right;
+            mFocusRect.bottom = bottom;
+
+            BarCodeUtil.d("Focus location : left = " + left + " top = " + top +
+                    " right = " + right + " bottom = " + bottom);
+        }
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setColor(mBorderColor);
+        mPaint.setStrokeWidth(mBorderStrokeWidth);
+        mCanvas.drawRect(mFocusRect, mPaint);
     }
 
     private void moveScanLine() {

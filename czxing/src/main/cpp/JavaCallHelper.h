@@ -15,7 +15,7 @@ public:
 
     ~JavaCallHelper();
 
-    void onResult(const ZXing::Result &result);
+    void onResult(const ZXing::Result &result, int scanType);
 
     void onFocus();
 

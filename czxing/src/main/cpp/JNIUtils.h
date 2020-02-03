@@ -25,7 +25,7 @@
 #include "zbar/zbar.h"
 
 #define ZX_LOG_TAG "ZXing"
-//#define DEBUG
+#define DEBUG
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, ZX_LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ZX_LOG_TAG, __VA_ARGS__)

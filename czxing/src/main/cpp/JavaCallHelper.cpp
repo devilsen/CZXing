@@ -15,7 +15,7 @@ JavaCallHelper::JavaCallHelper(JavaVM *_javaVM, JNIEnv *_env, jobject &_jobj) : 
         return;
     }
 
-    jmid_on_result = env->GetMethodID(jSdkClass, "onDecodeCallback", "(Ljava/lang/String;I[F)V");
+    jmid_on_result = env->GetMethodID(jSdkClass, "onDecodeCallback", "(Ljava/lang/String;I[FI)V");
     jmid_on_focus = env->GetMethodID(jSdkClass, "onFocusCallback", "()V");
     jmid_on_brightness = env->GetMethodID(jSdkClass, "onBrightnessCallback", "(Z)V");
 
@@ -30,7 +30,7 @@ JavaCallHelper::~JavaCallHelper() {
 //    DELETE(env);
 }
 
-void JavaCallHelper::onResult(const ZXing::Result &result) {
+void JavaCallHelper::onResult(const ZXing::Result &result, int scanType) {
     if (!result.isValid() && !result.isBlurry()) {
         return;
     }
@@ -54,6 +54,8 @@ void JavaCallHelper::onResult(const ZXing::Result &result) {
         contentWString = UnicodeToANSI(result.text());
         mJstring = env->NewStringUTF(contentWString.c_str());
         format = static_cast<int>(result.format());
+        LOGE("result! 11111111 point size = %d  scantype = %d", result.resultPoints().size(),
+             scanType);
     }
 
     if (result.isBlurry()) {
@@ -70,9 +72,11 @@ void JavaCallHelper::onResult(const ZXing::Result &result) {
         }
 
         env->SetFloatArrayRegion(pointsArray, 0, size, points);
+        LOGE("result! 2222222222");
+
     }
 
-    env->CallVoidMethod(jSdkObject, jmid_on_result, mJstring, format, pointsArray);
+    env->CallVoidMethod(jSdkObject, jmid_on_result, mJstring, format, pointsArray, scanType);
 
     //释放当前线程
     if (mNeedDetach) {

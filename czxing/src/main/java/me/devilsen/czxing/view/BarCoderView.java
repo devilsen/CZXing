@@ -276,6 +276,45 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     /**
+     * 显示获取到的二维码位置
+     *
+     * @param result 二维码定位信息
+     */
+    void showCodeBorder(CodeResult result) {
+        float[] points = result.getPoints();
+        if (points.length > 3) {
+            int left = 0;
+            int top = 0;
+            int right = 0;
+            int bottom = 0;
+            int scanType = result.getScanType();
+            if (scanType == 0) { // 正常
+                left = (int) points[0];
+                top = (int) points[5];
+                right = (int) points[4];
+                bottom = (int) points[1];
+            } else if (scanType == 1) { // 旋转90度
+                left = (int) points[2];
+                top = (int) points[3];
+                right = (int) points[4];
+                bottom = (int) points[5];
+            } else if (scanType == 2 || scanType == 4) { // 旋转180度
+                left = (int) points[2];
+                top = (int) points[5];
+                right = (int) points[0];
+                bottom = (int) points[1];
+            } else if (scanType == 3) { // 旋转270度
+                left = (int) points[4];
+                top = (int) points[5];
+                right = (int) points[2];
+                bottom = (int) points[3];
+            }
+
+            mScanBoxView.drawFocusRect(left, top, right, bottom);
+        }
+    }
+
+    /**
      * 没有查询到二维码结果，但是能基本能定位到二维码，根据返回的数据集，检验是否要放大
      *
      * @param result 二维码定位信息

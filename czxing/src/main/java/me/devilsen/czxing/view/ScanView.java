@@ -100,6 +100,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         if (result == null) {
             return;
         }
+//        showCodeBorder(result);
         BarCodeUtil.d("result : " + result.toString());
 
         if (!TextUtils.isEmpty(result.getText()) && !isStop) {
