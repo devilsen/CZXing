@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 //                .setBorderSize(BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 100))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
+//                .setHorizontalScanLine()
                 .setScanMode(ScanView.SCAN_MODE_BIG)
 //                .setBarcodeFormat(BarcodeFormat.EAN_13)
                 .setTitle("我的扫一扫")

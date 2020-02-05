@@ -112,6 +112,14 @@ public class ScannerManager {
     }
 
     /**
+     * 设置扫码线移动方向为水平（从左往右）
+     */
+    public ScannerManager setHorizontalScanLine() {
+        scanOption.scanHorizontal = true;
+        return this;
+    }
+
+    /**
      * 设置扫码界面标题
      *
      * @param title 标题内容
@@ -260,6 +268,7 @@ public class ScannerManager {
         private int scanMode;
         private String title;
         private boolean showAlbum = true;
+        private boolean scanHorizontal;
         private boolean continuousScan;
 
         private int flashLightOnDrawable;
@@ -312,6 +321,10 @@ public class ScannerManager {
             return continuousScan;
         }
 
+        public boolean isScanHorizontal() {
+            return scanHorizontal;
+        }
+
         public int getFlashLightOnDrawable() {
             return flashLightOnDrawable;
         }
@@ -360,6 +373,7 @@ public class ScannerManager {
             dest.writeInt(this.scanMode);
             dest.writeString(this.title);
             dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
+            dest.writeByte(this.scanHorizontal ? (byte) 1 : (byte) 0);
             dest.writeByte(this.continuousScan ? (byte) 1 : (byte) 0);
             dest.writeInt(this.flashLightOnDrawable);
             dest.writeInt(this.flashLightOffDrawable);
@@ -384,6 +398,7 @@ public class ScannerManager {
             this.scanMode = in.readInt();
             this.title = in.readString();
             this.showAlbum = in.readByte() != 0;
+            this.scanHorizontal = in.readByte() != 0;
             this.continuousScan = in.readByte() != 0;
             this.flashLightOnDrawable = in.readInt();
             this.flashLightOffDrawable = in.readInt();
@@ -408,6 +423,5 @@ public class ScannerManager {
                 return new ScanOption[size];
             }
         };
-
     }
 }

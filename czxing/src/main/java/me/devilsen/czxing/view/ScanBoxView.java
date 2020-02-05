@@ -29,6 +29,8 @@ import me.devilsen.czxing.util.BitmapUtil;
  */
 public class ScanBoxView extends View {
 
+    private static final int VERTICAL = 0;
+    private static final int HORIZONTAL = 1;
     private final int MAX_BOX_SIZE = BarCodeUtil.dp2px(getContext(), 300);
     private final int SCAN_LINE_HEIGHT = BarCodeUtil.dp2px(getContext(), 1.5f);
 
@@ -75,6 +77,8 @@ public class ScanBoxView extends View {
     private int mScanLineColor1;
     private int mScanLineColor2;
     private int mScanLineColor3;
+    // 扫码线方向
+    private int mScanlineOrientation;
 
     private Bitmap mLightOn;
     private Bitmap mLightOff;
@@ -312,18 +316,34 @@ public class ScanBoxView extends View {
      */
     private void drawScanLine(Canvas canvas) {
         if (mScanLineGradient == null) {
-            mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop,
-                    new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
-                    null,
-                    Shader.TileMode.CLAMP);
+            // 生成垂直方向的扫码线（从上往下）
+            if (mScanlineOrientation == VERTICAL) {
+                mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop,
+                        new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
+                        null,
+                        Shader.TileMode.CLAMP);
+            } else { // 生成水平方向的扫码线（从左往右）
+                mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft, mBoxTop + mBoxHeight,
+                        new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
+                        null,
+                        Shader.TileMode.CLAMP);
+            }
             mScanLinePaint.setShader(mScanLineGradient);
         }
 
-        canvas.drawRect(mBoxLeft,
-                mBoxTop + mScanLinePosition,
-                mBoxLeft + mBoxWidth,
-                mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT,
-                mScanLinePaint);
+        if (mScanlineOrientation == VERTICAL) {
+            canvas.drawRect(mBoxLeft,
+                    mBoxTop + mScanLinePosition,
+                    mBoxLeft + mBoxWidth,
+                    mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT,
+                    mScanLinePaint);
+        } else {
+            canvas.drawRect(mBoxLeft + mScanLinePosition,
+                    mBoxTop,
+                    mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT,
+                    mBoxTop + mBoxHeight,
+                    mScanLinePaint);
+        }
     }
 
     private void drawTipText(Canvas canvas) {
@@ -432,18 +452,33 @@ public class ScanBoxView extends View {
         if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
             return;
         }
-        mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxHeight - mBorderStrokeWidth * 2);
-        mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mScanLinePosition = (float) animation.getAnimatedValue();
-                // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
-                postInvalidateOnAnimation(mBoxLeft,
-                        ((int) (mBoxTop + mScanLinePosition - 10)),
-                        mBoxLeft + mBoxWidth,
-                        ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
-            }
-        });
+
+        if (mScanlineOrientation == VERTICAL) {
+            mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxHeight - mBorderStrokeWidth * 2);
+            mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    mScanLinePosition = (float) animation.getAnimatedValue();
+                    // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
+                    postInvalidateOnAnimation(mBoxLeft,
+                            ((int) (mBoxTop + mScanLinePosition - 10)),
+                            mBoxLeft + mBoxWidth,
+                            ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
+                }
+            });
+        } else {
+            mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxWidth - mBorderStrokeWidth * 2);
+            mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    mScanLinePosition = (float) animation.getAnimatedValue();
+                    postInvalidateOnAnimation((int) (mBoxLeft + mScanLinePosition - 10),
+                            mBoxTop,
+                            (int) (mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT + 10),
+                            mBoxTop + mBoxHeight);
+                }
+            });
+        }
         mScanLineAnimator.setDuration(2500);
         mScanLineAnimator.setInterpolator(new LinearInterpolator());
         mScanLineAnimator.setRepeatCount(ValueAnimator.INFINITE);
@@ -503,6 +538,13 @@ public class ScanBoxView extends View {
             return;
         }
         this.mBorderColor = color;
+    }
+
+    /**
+     * 将扫码线设置为水平
+     */
+    public void setHorizontalScanLine() {
+        this.mScanlineOrientation = HORIZONTAL;
     }
 
     /**
