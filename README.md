@@ -40,11 +40,10 @@ Scanner.with(this)
         .setMaskColor(resources.getColor(R.color.mask_color))   // 设置设置扫码框四周颜色
         .setBorderColor(resources.getColor(R.color.box_line))   // 扫码框边框颜色
         .setBorderSize(BarCodeUtil.dp2px(this, 200))            // 设置扫码框大小
-//        .setBorderSize(BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 100))
-  																															// 设置扫码框长宽（如果同时调用了两个setBorderSize方法优先使用上一个）
+//        .setBorderSize(BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 100))     // 设置扫码框长宽（如果同时调用了两个setBorderSize方法优先使用上一个）
         .setCornerColor(resources.getColor(R.color.corner))     // 扫码框角颜色
         .setScanLineColors(scanColors)                          // 扫描线颜色（这是一个渐变颜色）
-//        .setHorizontalScanLine()															// 设置扫码线为水平方向（从左到右）
+//        .setHorizontalScanLine()                              // 设置扫码线为水平方向（从左到右）
         .setScanMode(ScanView.SCAN_MODE_TINY)                   // 扫描区域 0：混合 1：只扫描框内 2：只扫描整个屏幕
 //        .setBarcodeFormat(BarcodeFormat.EAN_13)                 // 设置扫码格式
         .setTitle("My Scan View")                               // 扫码界面标题
