@@ -55,6 +55,6 @@
         android:onClick="openScanBox"
         android:text="openScanBox"
         android:textAllCaps="false"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 </LinearLayout>

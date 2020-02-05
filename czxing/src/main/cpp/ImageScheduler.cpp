@@ -147,7 +147,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
         if (scanIndex % 2 == 0) {
             decodeGrayPixels(gray);
         } else {
-//            decodeZBar(gray);
+            decodeZBar(gray);
         }
     } catch (const std::exception &e) {
         LOGE("preTreatMat error...");
@@ -268,7 +268,7 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
         LOGE("ZXing Adaptive Success, scanIndex = %d", scanIndex);
         javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
     } else {
-//        recognizerQrCode(gray);
+        recognizerQrCode(gray);
     }
 }
 

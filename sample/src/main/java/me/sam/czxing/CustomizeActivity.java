@@ -91,7 +91,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         // 设定扫描线的颜色
 //        scanBox.setScanLineColor();
         // 设置扫码线移动方向为水平（从左往右）
-//        scanBox.setHorizontalScanLine();
+        scanBox.setHorizontalScanLine();
         // 设置手电筒打开时的图标
 //        scanBox.setFlashLightOnDrawable();
         // 设置手电筒关闭时的图标
