@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,6 +78,8 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         ScanBoxView scanBox = mScanView.getScanBox();
         // 设置扫码框上下偏移量，可以为负数
         scanBox.setBoxTopOffset(-BarCodeUtil.dp2px(this, 100));
+        // 设置边框大小
+        scanBox.setBorderSize(BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 100));
         // 设置扫码框四周的颜色
         scanBox.setMaskColor(Color.parseColor("#9C272626"));
         // 设定四个角的颜色

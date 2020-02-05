@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMaskColor(resources.getColor(R.color.mask_color))
                 .setBorderColor(resources.getColor(R.color.box_line))
                 .setBorderSize(BarCodeUtil.dp2px(this, 200))
+//                .setBorderSize(BarCodeUtil.dp2px(this, 200), BarCodeUtil.dp2px(this, 100))
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
                 .setScanMode(ScanView.SCAN_MODE_BIG)

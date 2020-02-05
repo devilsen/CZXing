@@ -34,7 +34,8 @@ public class ScanBoxTestActivity extends Activity {
         scanBoxView.setScanLineColor(scanColors);
         scanBoxView.hideCardText();
         scanBoxView.setDark(true);
-        scanBoxView.setBorderSize(BarCodeUtil.dp2px(this, 200));
+//        scanBoxView.setBorderSize(BarCodeUtil.dp2px(this, 200));
+        scanBoxView.setBorderSize(BarCodeUtil.dp2px(this, 200),BarCodeUtil.dp2px(this, 100));
         scanBoxView.setBoxTopOffset(-BarCodeUtil.dp2px(this, 100));
         scanBoxView.setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp);
         scanBoxView.setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp);

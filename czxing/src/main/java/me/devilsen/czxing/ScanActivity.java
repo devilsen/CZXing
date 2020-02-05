@@ -93,6 +93,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         scanBox.setCornerColor(option.getCornerColor());
         scanBox.setBorderColor(option.getBorderColor());
         scanBox.setBorderSize(option.getBorderSize());
+        scanBox.setBorderSize(option.getBorderWidth(), option.getBorderHeight());
         scanBox.setScanLineColor(option.getScanLineColors());
         scanBox.setFlashLightOnDrawable(option.getFlashLightOnDrawable());
         scanBox.setFlashLightOffDrawable(option.getFlashLightOffDrawable());

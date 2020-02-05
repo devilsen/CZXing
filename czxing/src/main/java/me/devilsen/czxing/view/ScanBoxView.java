@@ -49,6 +49,8 @@ public class ScanBoxView extends View {
 
     private int mBorderColor;
     private int mBoxSize;
+    private int mBoxWidth;
+    private int mBoxHeight;
     private float mBorderStrokeWidth;
 
     private int mCornerColor;
@@ -208,15 +210,51 @@ public class ScanBoxView extends View {
         int viewWidth = getWidth();
         int viewHeight = getHeight();
         int minSize = Math.min(viewHeight, viewWidth);
+
+        // 默认使用正方形
+        if (mBoxSize != 0) {
+            calSquareRect(viewWidth, viewHeight, minSize);
+        } else if (mBoxWidth != 0 && mBoxHeight != 0) {
+            calRectangleRect(viewWidth, viewHeight);
+        } else {
+            calSquareRect(viewWidth, viewHeight, minSize);
+        }
+    }
+
+    /**
+     * 生成正方形扫码框
+     *
+     * @param viewWidth  屏幕宽
+     * @param viewHeight 屏幕高
+     * @param minSize    最小边长
+     */
+    private void calSquareRect(int viewWidth, int viewHeight, int minSize) {
         if (mBoxSize == 0) {
             mBoxSize = Math.min(minSize * 3 / 5, MAX_BOX_SIZE);
         } else if (mBoxSize > minSize) {
             mBoxSize = minSize;
         }
+
         mBoxLeft = (viewWidth - mBoxSize) / 2;
         mBoxTop = (viewHeight - mBoxSize) / 2 + mTopOffset;
         mBoxTop = mBoxTop < 0 ? 0 : mBoxTop;
+        mBoxWidth = mBoxSize;
+        mBoxHeight = mBoxSize;
         mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop + mBoxSize);
+    }
+
+    /**
+     * 生成长方形扫码框
+     *
+     * @param viewWidth  屏幕宽
+     * @param viewHeight 屏幕高
+     */
+    private void calRectangleRect(int viewWidth, int viewHeight) {
+        mBoxLeft = (viewWidth - mBoxWidth) / 2;
+        mBoxTop = (viewHeight - mBoxHeight) / 2 + mTopOffset;
+        mBoxTop = mBoxTop < 0 ? 0 : mBoxTop;
+        mBoxSize = mBoxWidth;
+        mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop + mBoxHeight);
     }
 
     private void drawMask(Canvas canvas) {
@@ -274,7 +312,7 @@ public class ScanBoxView extends View {
      */
     private void drawScanLine(Canvas canvas) {
         if (mScanLineGradient == null) {
-            mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop,
+            mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop,
                     new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
                     null,
                     Shader.TileMode.CLAMP);
@@ -283,7 +321,7 @@ public class ScanBoxView extends View {
 
         canvas.drawRect(mBoxLeft,
                 mBoxTop + mScanLinePosition,
-                mBoxLeft + mBoxSize,
+                mBoxLeft + mBoxWidth,
                 mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT,
                 mScanLinePaint);
     }
@@ -295,7 +333,7 @@ public class ScanBoxView extends View {
         if (!mDropFlashLight) {
             if (isDark || isLightOn) {
                 canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
-                        mFramingRect.left + (mBoxSize >> 1),
+                        mFramingRect.left + (mBoxWidth >> 1),
                         mFramingRect.bottom - mTextSize,
                         mTxtPaint);
 
@@ -304,7 +342,7 @@ public class ScanBoxView extends View {
         }
 
         canvas.drawText(mScanNoticeText,
-                mFramingRect.left + (mBoxSize >> 1),
+                mFramingRect.left + (mBoxWidth >> 1),
                 mFramingRect.bottom + mTextSize * 2,
                 mTxtPaint);
 
@@ -317,7 +355,7 @@ public class ScanBoxView extends View {
         mTxtPaint.setColor(mTextColorBig);
         String clickText = "我的名片";
         canvas.drawText(clickText,
-                mFramingRect.left + (mBoxSize >> 1),
+                mFramingRect.left + (mBoxWidth >> 1),
                 mFramingRect.bottom + mTextSize * 6,
                 mTxtPaint);
 
@@ -326,7 +364,7 @@ public class ScanBoxView extends View {
             mTxtPaint.getTextBounds(clickText, 0, clickText.length() - 1, mTextRect);
             int width = mTextRect.width();
             int height = mTextRect.height();
-            mTextRect.left = mFramingRect.left + (mBoxSize >> 1) - 10;
+            mTextRect.left = mFramingRect.left + (mBoxWidth >> 1) - 10;
             mTextRect.right = mTextRect.left + width + 10;
             mTextRect.top = mFramingRect.bottom + mTextSize * 6 - 10;
             mTextRect.bottom = mTextRect.top + height + 10;
@@ -394,7 +432,7 @@ public class ScanBoxView extends View {
         if (mScanLineAnimator != null && mScanLineAnimator.isRunning()) {
             return;
         }
-        mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxSize - mBorderStrokeWidth * 2);
+        mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxHeight - mBorderStrokeWidth * 2);
         mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -402,7 +440,7 @@ public class ScanBoxView extends View {
                 // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
                 postInvalidateOnAnimation(mBoxLeft,
                         ((int) (mBoxTop + mScanLinePosition - 10)),
-                        mBoxLeft + mBoxSize,
+                        mBoxLeft + mBoxWidth,
                         ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
             }
         });
@@ -435,8 +473,8 @@ public class ScanBoxView extends View {
     }
 
     public Point getScanBoxCenter() {
-        int centerX = mBoxLeft + (mBoxSize >> 1);
-        int centerY = mBoxTop + (mBoxSize >> 1);
+        int centerX = mBoxLeft + (mBoxWidth >> 1);
+        int centerY = mBoxTop + (mBoxHeight >> 1);
         return new Point(centerX, centerY);
     }
 
@@ -468,7 +506,7 @@ public class ScanBoxView extends View {
     }
 
     /**
-     * 设置边框长度
+     * 设置边框长度（优先使用正方形）
      *
      * @param borderSize px
      */
@@ -479,6 +517,20 @@ public class ScanBoxView extends View {
         this.mBoxSize = borderSize;
     }
 
+    /**
+     * 设置边框长度
+     *
+     * @param width  边框长
+     * @param height 边框高
+     */
+    public void setBorderSize(int width, int height) {
+        if (height < 0 || width < 0) {
+            return;
+        }
+        this.mBoxHeight = height;
+        this.mBoxWidth = width;
+        BarCodeUtil.d("border size: height = " + height + " width = " + width);
+    }
 
     /**
      * 设置边框长度

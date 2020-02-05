@@ -59,12 +59,30 @@ public class ScannerManager {
     }
 
     /**
-     * 设置边框长度(扫码框大小)
+     * 设置边框长度(扫码框大小,如果两个setBorderSize方法都调用了，优先使用正方形)
      *
      * @param borderSize px
      */
     public ScannerManager setBorderSize(int borderSize) {
+        if (borderSize <= 0) {
+            throw new IllegalArgumentException("scan box size must > 0");
+        }
         scanOption.borderSize = borderSize;
+        return this;
+    }
+
+    /**
+     * 设置边框长度(扫码框大小)
+     *
+     * @param borderWidth  px
+     * @param borderHeight px
+     */
+    public ScannerManager setBorderSize(int borderWidth, int borderHeight) {
+        if (borderWidth <= 0 || borderHeight <= 0) {
+            throw new IllegalArgumentException("scan box width or height must > 0");
+        }
+        scanOption.borderWidth = borderWidth;
+        scanOption.borderHeight = borderHeight;
         return this;
     }
 
@@ -237,6 +255,8 @@ public class ScannerManager {
         private int borderColor;
         private int maskColor;
         private int borderSize;
+        private int borderWidth;
+        private int borderHeight;
         private int scanMode;
         private String title;
         private boolean showAlbum = true;
@@ -266,6 +286,14 @@ public class ScannerManager {
 
         public int getBorderSize() {
             return borderSize;
+        }
+
+        public int getBorderWidth() {
+            return borderWidth;
+        }
+
+        public int getBorderHeight() {
+            return borderHeight;
         }
 
         public int getScanMode() {
@@ -327,6 +355,8 @@ public class ScannerManager {
             dest.writeInt(this.borderColor);
             dest.writeInt(this.maskColor);
             dest.writeInt(this.borderSize);
+            dest.writeInt(this.borderWidth);
+            dest.writeInt(this.borderHeight);
             dest.writeInt(this.scanMode);
             dest.writeString(this.title);
             dest.writeByte(this.showAlbum ? (byte) 1 : (byte) 0);
@@ -349,6 +379,8 @@ public class ScannerManager {
             this.borderColor = in.readInt();
             this.maskColor = in.readInt();
             this.borderSize = in.readInt();
+            this.borderWidth = in.readInt();
+            this.borderHeight = in.readInt();
             this.scanMode = in.readInt();
             this.title = in.readString();
             this.showAlbum = in.readByte() != 0;
