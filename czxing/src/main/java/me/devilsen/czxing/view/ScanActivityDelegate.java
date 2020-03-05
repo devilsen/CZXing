@@ -40,7 +40,7 @@ public class ScanActivityDelegate {
     }
 
     public interface OnScanDelegate {
-        void onScanResult(String result, BarcodeFormat format);
+        void onScanResult(Activity activity, String result, BarcodeFormat format);
     }
 
     public interface OnClickAlbumDelegate {

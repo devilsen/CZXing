@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setOnScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() {
                     @Override
-                    public void onScanResult(@NonNull String result, @NonNull BarcodeFormat format) {
+                    public void onScanResult(@NonNull final Activity activity, @NonNull final String result, @NonNull BarcodeFormat format) {
                         // 如果有回调，则必然有值,因为要避免AndroidX和support包的差异，所以没有默认的注解
 //                        Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
 //                        intent.putExtra("result", result);
@@ -123,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                if ("123".equals(result)) {
+                                    activity.finish();
+                                }
                                 Toast.makeText(MainActivity.this, showContent, Toast.LENGTH_SHORT).show();
                             }
                         });
