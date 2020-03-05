@@ -11,7 +11,8 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-implementation 'me.devilsen:CZXing:0.9.16'
+// 改为小写了，这样显得更整齐一些
+implementation 'me.devilsen:czxing:1.0.1'
 ```
 建议加入abiFilters
 ```gradle
@@ -71,7 +72,7 @@ Scanner.with(this)
         })
         .setOnScanResultDelegate(new ScanActivityDelegate.OnScanDelegate() { // 接管扫码成功的数据
             @Override
-            public void onScanResult(String result, BarcodeFormat format) {
+            public void onScanResult(Activity activity, String result, BarcodeFormat format) {
                 Intent intent = new Intent(MainActivity.this, DelegateActivity.class);
                 intent.putExtra("result", result);
                 startActivity(intent);
