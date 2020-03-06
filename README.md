@@ -1,5 +1,5 @@
 ![GitHub release](https://img.shields.io/github/release/devilsen/czxing.svg)
-![Bintray](https://img.shields.io/bintray/v/devilsen/Android/CZXing?color=1E88E5&label=version)
+![Bintray](https://img.shields.io/bintray/v/devilsen/Android/czxing?color=1E88E5&label=version)
 
 # CZXing
 C++ port of ZXing for Android
