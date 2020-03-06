@@ -43,7 +43,7 @@ ImageScheduler::~ImageScheduler() {
 void *prepareMethod(void *arg) {
     auto scheduler = static_cast<ImageScheduler *>(arg);
     scheduler->start();
-    return nullptr;
+    return 0;
 }
 
 void ImageScheduler::prepare() {
@@ -108,7 +108,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     frameData.bytes = bytes;
 
     frameQueue.enQueue(frameData);
-//    LOGE("frame data size : %d", frameQueue.size());
+    LOGE("frame data size : %d", frameQueue.size());
 }
 
 /**

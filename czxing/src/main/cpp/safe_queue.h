@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include "JNIUtils.h"
 
-//#define C11
+#define C11
 #ifdef C11
 #include <thread>
 #endif

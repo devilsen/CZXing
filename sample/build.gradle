@@ -57,8 +57,8 @@ android {
 dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
-//    implementation project(':czxing')
-    implementation 'me.devilsen:czxing:1.0.1'
+    implementation project(':czxing')
+//    implementation 'me.devilsen:czxing:1.0.1'
 
     implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
@@ -68,7 +68,7 @@ dependencies {
     implementation 'com.yanzhenjie.permission:x:2.0.1'
     // bugly
     implementation 'com.tencent.bugly:crashreport:3.1.0'
-//    implementation 'com.tencent.bugly:nativecrashreport:3.7.1'
+    implementation 'com.tencent.bugly:nativecrashreport:3.7.1'
     // rxJava
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
