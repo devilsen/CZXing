@@ -152,6 +152,9 @@ std::string UnicodeToANSI(const std::wstring &wstr) {
     return ret;
 }
 
+/**
+ * wstring转string
+ */
 std::wstring ANSIToUnicode(const std::string &str) {
     std::wstring ret;
     std::mbstate_t state = {};

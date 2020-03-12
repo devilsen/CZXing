@@ -7,6 +7,7 @@
 #include <src/BinaryBitmap.h>
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
+#include <unistd.h>
 
 int DEFAULT_MIN_LIGHT = 70;
 int SCAN_TYPE_GRAY = 0;
@@ -72,6 +73,7 @@ void ImageScheduler::start() {
             preTreatMat(frameData);
             isProcessing.store(false);
         }
+        usleep(50000);
     }
 }
 
