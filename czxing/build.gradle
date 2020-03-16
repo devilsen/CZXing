@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "1.0.1"
+        versionCode 28
+        versionName "1.0.2"
 
         externalNativeBuild {
             cmake {
