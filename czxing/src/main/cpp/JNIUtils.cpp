@@ -70,8 +70,7 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                                                                      cropHeight, pixels,
                                                                      bmInfo.stride, 4, 0, 1, 2);
                 break;
-            default:
-                LOGE("Unsupported format");
+            default: LOGE("Unsupported format");
                 return nullptr;
 //				throw std::runtime_error("Unsupported format");
         }
@@ -153,17 +152,29 @@ std::string UnicodeToANSI(const std::wstring &wstr) {
 }
 
 std::wstring ANSIToUnicode(const std::string &str) {
+//    LOGD("===>call ANSIToUnicode");
     std::wstring ret;
     std::mbstate_t state = {};
+//    LOGD("===>get str array");
     const char *src = str.data();
-    size_t len = std::mbsrtowcs(nullptr, &src, 0, &state);
-    if (static_cast<size_t>(-1) != len) {
-        std::unique_ptr<wchar_t[]> buff(new wchar_t[len + 1]);
-        len = std::mbsrtowcs(buff.get(), &src, len, &state);
-        if (static_cast<size_t>(-1) != len) {
-            ret.assign(buff.get(), len);
-        }
+    size_t str_len = strlen(src);
+//    LOGD("===>converted length");
+    if (str_len <= static_cast<size_t >(0)) {
+        return ret;
     }
+    //        std::unique_ptr<wchar_t[]> buff(new wchar_t[len + 1]);
+    wchar_t *buff = new wchar_t[str_len + 1];
+//    setlocale(LC_ALL,"zh_CN.UTF-8");
+//    LOGD("===>start copy data");
+    size_t len = std::mbsrtowcs(buff, &src, str_len, &state);
+//    LOGD("===>end copy data");
+
+    if (static_cast<size_t>(-1) != len) {
+        ret.assign(buff, len);
+//        LOGD("===>ret assign");
+    }
+    delete[] buff;
+    buff = NULL;
     return ret;
 }
 

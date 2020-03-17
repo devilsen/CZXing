@@ -15,6 +15,8 @@
 #include "QRCodeRecognizer.h"
 #include "safe_queue.h"
 #include "zbar/zbar.h"
+#include "ThreadPool.h"
+#include "pthread.h"
 
 using namespace cv;
 using namespace ZXing;
@@ -46,7 +48,7 @@ public:
 
     void stop();
 
-    void preTreatMat(const FrameData &frameData);
+    void preTreatMat(FrameData *frameData);
 
     void decodeGrayPixels(const Mat &gray);
 
@@ -65,13 +67,14 @@ public:
 private:
     JNIEnv *env;
     JavaCallHelper *javaCallHelper;
-    std::atomic<bool> isProcessing{};
     std::atomic<bool> stopProcessing{};
     double cameraLight{};
     QRCodeRecognizer *qrCodeRecognizer;
     SafeQueue<FrameData> frameQueue;
     int scanIndex;
     bool decodeQr;
+
+    std::threadpool *executor;
 
     pthread_t prepareThread{};
 
