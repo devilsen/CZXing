@@ -45,6 +45,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     private boolean isContinuousScan;
 
+    private boolean mSaveInstanceStateFlag;
     private ScanActivityDelegate.OnScanDelegate scanDelegate;
     private ScanActivityDelegate.OnClickAlbumDelegate clickAlbumDelegate;
 
@@ -126,6 +127,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @Override
     protected void onResume() {
         super.onResume();
+        mSaveInstanceStateFlag = false;
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
         mScanView.startScan();  // 显示扫描框，并开始识别
 
@@ -142,10 +144,20 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mSaveInstanceStateFlag = true;
+    }
+
+    @Override
     protected void onDestroy() {
         mScanView.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
+        // 可能是旋转窗口，不移除代理
+        if (mSaveInstanceStateFlag) {
+            return;
+        }
         ScanActivityDelegate.getInstance().setScanResultDelegate(null);
         ScanActivityDelegate.getInstance().setOnClickAlbumDelegate(null);
     }

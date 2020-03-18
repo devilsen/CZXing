@@ -148,6 +148,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
             mPreviewing = true;
             SurfaceHolder surfaceHolder = getHolder();
             surfaceHolder.setKeepScreenOn(true);
+            surfaceHolder.addCallback(this);
             mCamera.setPreviewDisplay(surfaceHolder);
 
             mCameraConfigurationManager.setDesiredCameraParameters(mCamera);
@@ -168,6 +169,9 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
         }
         try {
             mPreviewing = false;
+            if (getHolder() != null) {
+                getHolder().removeCallback(this);
+            }
             mCamera.cancelAutoFocus();
             mCamera.stopPreview();
             mCamera.setPreviewCallback(null);
