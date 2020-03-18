@@ -142,36 +142,35 @@ std::string UnicodeToANSI(const std::wstring &wstr) {
     const wchar_t *src = wstr.data();
     size_t len = std::wcsrtombs(nullptr, &src, 0, &state);
     if (static_cast<size_t>(-1) != len) {
-        std::unique_ptr<char[]> buff(new char[len + 1]);
-        len = std::wcsrtombs(buff.get(), &src, len, &state);
+//        std::unique_ptr<char[]> buff(new char[len + 1]);
+        char *buff = new char[len + 1];
+        len = std::wcsrtombs(buff, &src, len, &state);
         if (static_cast<size_t>(-1) != len) {
-            ret.assign(buff.get(), len);
+            ret.assign(buff, len);
         }
+        delete[] buff;
     }
     return ret;
 }
 
+/**
+ * wstring转string
+ */
 std::wstring ANSIToUnicode(const std::string &str) {
-//    LOGD("===>call ANSIToUnicode");
     std::wstring ret;
     std::mbstate_t state = {};
-//    LOGD("===>get str array");
     const char *src = str.data();
     size_t str_len = strlen(src);
-//    LOGD("===>converted length");
     if (str_len <= static_cast<size_t >(0)) {
         return ret;
     }
-    //        std::unique_ptr<wchar_t[]> buff(new wchar_t[len + 1]);
+//    std::unique_ptr<wchar_t[]> buff(new wchar_t[len + 1]);
     wchar_t *buff = new wchar_t[str_len + 1];
 //    setlocale(LC_ALL,"zh_CN.UTF-8");
-//    LOGD("===>start copy data");
     size_t len = std::mbsrtowcs(buff, &src, str_len, &state);
-//    LOGD("===>end copy data");
 
     if (static_cast<size_t>(-1) != len) {
         ret.assign(buff, len);
-//        LOGD("===>ret assign");
     }
     delete[] buff;
     buff = NULL;

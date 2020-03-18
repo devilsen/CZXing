@@ -8,6 +8,7 @@
 #include "ImageScheduler.h"
 #include "JNIUtils.h"
 #include "pthread.h"
+#include <unistd.h>
 
 int DEFAULT_MIN_LIGHT = 70;
 int SCAN_TYPE_GRAY = 0;
@@ -74,6 +75,7 @@ void ImageScheduler::start() {
         if (ret) {
             executor->commit(&decodeData, this, &frameData);
         }
+        usleep(50000);
     }
 }
 
