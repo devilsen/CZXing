@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -std=c++11 -pthread ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -std=c++11 -pthread")
 
 file(GLOB SOURCE ${CMAKE_SOURCE_DIR}/*.cpp)
 
@@ -49,7 +49,7 @@ target_link_libraries(
         czxing
         ZXingCore
 
-#        iconv
+        #        iconv
         zbar_core
 
         opencv_imgproc
@@ -58,7 +58,7 @@ target_link_libraries(
         tbb
         tegra_hal
 
-#        opencv_java4
+        #        opencv_java4
 
         jnigraphics
         android
