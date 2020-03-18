@@ -1,12 +1,15 @@
 package me.devilsen.czxing.view;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
@@ -150,7 +153,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     }
 
     public void resetZoom() {
-        setZoomValue(0);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            setZoomValue(0);
+        }
     }
 
     @Override

@@ -1,7 +1,9 @@
 package me.devilsen.czxing.view;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
@@ -12,6 +14,7 @@ import android.widget.FrameLayout;
 import me.devilsen.czxing.camera.CameraSurface;
 import me.devilsen.czxing.camera.CameraUtil;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
@@ -176,7 +179,10 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     public void openCamera() {
-        openCamera(mCameraId);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            openCamera(mCameraId);
+        }
     }
 
     public void openCamera(int cameraFacing) {
@@ -423,9 +429,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     }
 
     protected void setZoomValue(int zoom) {
-        Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setZoom(zoom);
-        mCamera.setParameters(parameters);
+        try {
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setZoom(zoom);
+            mCamera.setParameters(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

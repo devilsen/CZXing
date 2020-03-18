@@ -196,6 +196,9 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     @Override
     public void onOpenCameraError() {
         Log.e("onOpenCameraError", "onOpenCameraError");
+        // 对于一些不可知的问题，比如在一些手机上多次重复打开会出现打开错误，只能用这个方法来规避这个问题
+        // 在相机打开失败的情况下，停留在此页面也没有意义
+        finish();
     }
 
     private final Handler handler = new Handler(new Handler.Callback() {
