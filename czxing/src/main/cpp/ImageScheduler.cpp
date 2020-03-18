@@ -73,7 +73,8 @@ void ImageScheduler::start() {
             preTreatMat(frameData);
             isProcessing.store(false);
         }
-        usleep(50000);
+        // 在V7环境下会崩溃
+//        usleep(50000);
     }
 }
 
