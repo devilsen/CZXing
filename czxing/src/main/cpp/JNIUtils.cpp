@@ -70,7 +70,8 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                                                                      cropHeight, pixels,
                                                                      bmInfo.stride, 4, 0, 1, 2);
                 break;
-            default: LOGE("Unsupported format");
+            default:
+                LOGE("Unsupported format");
                 return nullptr;
 //				throw std::runtime_error("Unsupported format");
         }
@@ -111,7 +112,10 @@ BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) 
 void
 BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
     AndroidBitmapInfo bmInfo;
-    AndroidBitmap_getInfo(env, bitmap, &bmInfo);
+    if (AndroidBitmap_getInfo(env, bitmap, &bmInfo) != ANDROID_BITMAP_RESULT_SUCCESS) {
+        LOGE("nBitmapToMat: get bitmap info error");
+        return;
+    };
     cv::Mat &dst = mat;
 
     void *pixels = nullptr;

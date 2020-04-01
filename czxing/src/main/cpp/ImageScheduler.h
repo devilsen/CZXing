@@ -56,7 +56,7 @@ public:
 
     void decodeAdaptivePixels(const Mat &gray);
 
-    Result readBitmap(jobject bitmap, int left, int top, int width, int height);
+    Result readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height);
 
     void isDecodeQrCode(bool decodeQrCode);
 

@@ -361,7 +361,8 @@ void ImageScheduler::isDecodeQrCode(bool decodeQrCode) {
     this->decodeQr = decodeQrCode;
 }
 
-Result ImageScheduler::readBitmap(jobject bitmap, int left, int top, int width, int height) {
+Result
+ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height) {
 
     Mat src;
     BitmapToMat(env, bitmap, src);
