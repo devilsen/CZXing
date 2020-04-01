@@ -12,7 +12,7 @@ C++ port of ZXing for Android
 在gradle中:
 ``` groovy
 // 改为小写了，这样显得更整齐一些
-implementation 'me.devilsen:czxing:1.0.5'
+implementation 'me.devilsen:czxing:1.0.6'
 ```
 建议加入abiFilters
 ```gradle
@@ -145,7 +145,25 @@ private Bitmap write(String text, int width, int height, int color, BarcodeForma
 
 ```
 
-### 4. 测试Case
+### 4. 识别图片中的二维码 
+
+```java
+// 适当压缩图片
+Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
+// 这个方法因为要做bitmap的变换，所以比较耗时，推荐放到子线程执行
+CodeResult result = BarcodeReader.getInstance().read(bitmap);
+if (result == null) {
+  Log.d("Scan >>> ", "no code");
+  return;
+} else {
+  Log.d("Scan >>> ", result.getText());
+}
+```
+
+
+
+### 5. 测试Case
+
 | | | |
 :--:|:-:|:--:
 ![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_bar_code.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_black_boder.png)|![](https://github.com/devilsen/CZXing/blob/master/screenshots/case/test_color.png)

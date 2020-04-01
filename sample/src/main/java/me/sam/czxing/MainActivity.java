@@ -24,6 +24,7 @@ import com.yanzhenjie.permission.runtime.Permission;
 import java.util.Arrays;
 import java.util.List;
 
+import me.devilsen.czxing.BuildConfig;
 import me.devilsen.czxing.Scanner;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
@@ -42,13 +43,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BarCodeUtil.setDebug(BuildConfig.DEBUG);
 
         resultTxt = findViewById(R.id.text_view_result);
         requestPermission();
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_black_boder);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_select_from_album_1);
         CodeResult result = BarcodeReader.getInstance().read(bitmap);
 
         if (result == null) {
@@ -197,10 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 适当压缩图片
         Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
-        if (bitmap == null) {
-            return;
-        }
-
+        // 这个方法比较耗时，推荐放到子线程执行
         CodeResult result = BarcodeReader.getInstance().read(bitmap);
         if (result == null) {
             Log.e("Scan >>> ", "no code");

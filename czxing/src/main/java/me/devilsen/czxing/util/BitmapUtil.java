@@ -103,7 +103,7 @@ public class BitmapUtil {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(picturePath, options);
-            int sampleSize = options.outHeight / 700;
+            int sampleSize = Math.min(options.outHeight, options.outWidth) / 500;
             if (sampleSize <= 0) {
                 sampleSize = 1;
             }
@@ -117,6 +117,14 @@ public class BitmapUtil {
         }
     }
 
+    /**
+     * 放大bitmap
+     */
+    public static Bitmap zoomBitmap(Bitmap bitmap) {
+        Matrix matrix = new Matrix();
+        matrix.postScale(2.5f, 2.5f); //长和宽放大缩小的比例
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
 
     /**
      * 将彩色图转换为灰度图

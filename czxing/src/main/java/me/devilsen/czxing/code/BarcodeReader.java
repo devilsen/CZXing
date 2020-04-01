@@ -1,11 +1,9 @@
 package me.devilsen.czxing.code;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.SaveImageUtil;
+import me.devilsen.czxing.util.BitmapUtil;
 
 public class BarcodeReader {
 
@@ -49,12 +47,21 @@ public class BarcodeReader {
             BarCodeUtil.e("bitmap is null");
             return null;
         }
+        // 尝试放大，识别更复杂的二维码
+        if ((bitmap.getHeight() < 2000 || bitmap.getWidth() < 1100) && bitmap.getHeight() < 3000) {
+            BarCodeUtil.d("zoom bitmap");
+            bitmap = BitmapUtil.zoomBitmap(bitmap);
+        }
         // 避免某些情况无法获取图片格式的问题
         Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
         int imgWidth = newBitmap.getWidth();
         int imgHeight = newBitmap.getHeight();
+        BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
+
         Object[] result = new Object[2];
         int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, newBitmap, 0, 0, imgWidth, imgHeight, result);
+        bitmap.recycle();
+        newBitmap.recycle();
         if (resultFormat >= 0) {
             CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);
             if (result[1] != null) {
