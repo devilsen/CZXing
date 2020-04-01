@@ -107,17 +107,16 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
         int id = v.getId();
         switch (id) {
             case R.id.image_view_qr_code_1:
-                read(getBitmap(qrcodeImage));
+                readRxJava(getBitmap(qrcodeImage));
                 break;
             case R.id.image_view_qr_code_2:
-//                read(getBitmap(qrcodeLogoImage));
                 readRxJava(getBitmap(qrcodeLogoImage));
                 break;
             case R.id.image_view_bar_code_1:
-                read(getBitmap(barcodeImage));
+                readRxJava(getBitmap(barcodeImage));
                 break;
             case R.id.image_view_bar_code_2:
-                read(getBitmap(barcodeColorImage));
+                readRxJava(getBitmap(barcodeColorImage));
                 break;
         }
     }
