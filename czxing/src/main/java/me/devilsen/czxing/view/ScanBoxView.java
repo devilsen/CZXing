@@ -625,6 +625,9 @@ public class ScanBoxView extends View {
      * 设置手电筒打开时的图标
      */
     public void setFlashLightOnDrawable(int lightOnDrawable) {
+        if (lightOnDrawable == 0) {
+            return;
+        }
         mLightOn = BitmapUtil.getBitmap(getContext(), lightOnDrawable);
     }
 
@@ -632,6 +635,9 @@ public class ScanBoxView extends View {
      * 设置手电筒关闭时的图标
      */
     public void setFlashLightOffDrawable(int lightOffDrawable) {
+        if (lightOffDrawable == 0) {
+            return;
+        }
         mLightOff = BitmapUtil.getBitmap(getContext(), lightOffDrawable);
     }
 
