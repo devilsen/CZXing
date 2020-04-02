@@ -601,6 +601,9 @@ public class ScanBoxView extends View {
      * @param color 透明颜色
      */
     public void setMaskColor(int color) {
+        if (color == 0) {
+            return;
+        }
         mMaskColor = color;
     }
 
