@@ -12,7 +12,7 @@ C++ port of ZXing for Android
 在gradle中:
 ``` groovy
 // 改为小写了，这样显得更整齐一些
-implementation 'me.devilsen:czxing:1.0.7'
+implementation 'me.devilsen:czxing:1.0.8'
 ```
 建议加入abiFilters
 ```gradle
