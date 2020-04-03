@@ -96,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
                 .setFlashLightOnText("打开闪光灯")
                 .setFlashLightOffText("关闭闪光灯")
 //                .setFlashLightInvisible()
-//                .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
-//                .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
+                .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
+                .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
                 .continuousScan()
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
