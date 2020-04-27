@@ -348,7 +348,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     }
 
     public boolean isPreviewing() {
-        return mCamera != null && mPreviewing && mSurfaceCreated;
+        return mCamera != null && mPreviewing;
     }
 
     /**

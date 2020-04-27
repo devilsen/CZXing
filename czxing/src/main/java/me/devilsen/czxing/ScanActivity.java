@@ -223,7 +223,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults != null && grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mScanView.openCamera();
+                mScanView.stopScan();
                 mScanView.startScan();
             } else {
                 BarCodeUtil.e("request permission error");

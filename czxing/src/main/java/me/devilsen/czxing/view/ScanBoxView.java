@@ -500,6 +500,14 @@ public class ScanBoxView extends View {
         return mBoxSize + mBoxSizeOffset;
     }
 
+    public int getScanBoxWidthExpand() {
+        return mBoxWidth + mBoxSizeOffset;
+    }
+
+    public int getScanBoxHeightExpand() {
+        return mBoxHeight + mBoxSizeOffset;
+    }
+
     /**
      * 获取数据偏移量
      */
