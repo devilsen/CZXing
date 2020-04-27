@@ -17,20 +17,20 @@ android {
         applicationId rootProject.ext.applicationId
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a"
+                abiFilters "arm64-v8a"
             }
         }
 
         ndk {
             // 设置支持的SO库架构
-            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a"
         }
     }
 
@@ -65,7 +65,7 @@ dependencies {
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso
     // permission
-    implementation 'com.yanzhenjie.permission:x:2.0.1'
+    implementation 'com.yanzhenjie:permission:2.0.3'
     // bugly
     implementation 'com.tencent.bugly:crashreport:3.1.0'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.1'
