@@ -400,10 +400,10 @@ public class ScanBoxView extends View {
             return;
         }
         if (mLightOff == null) {
-            mLightOff = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_black_close_24dp);
+            mLightOff = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_close_24dp);
         }
         if (mLightOn == null) {
-            mLightOn = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_black_open_24dp);
+            mLightOn = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_open_24dp);
         }
         if (mFlashLightLeft == 0 && mLightOff != null) {
             mFlashLightLeft = mFramingRect.left + ((mFramingRect.width() - mLightOff.getWidth()) >> 1);

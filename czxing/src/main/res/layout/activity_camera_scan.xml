@@ -22,7 +22,7 @@
             android:padding="9dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:src="@drawable/ic_arrow_back_black_24dp" />
+            android:src="@drawable/ic_arrow_back_white_24dp" />
 
         <TextView
             android:id="@+id/text_view_scan_title"
