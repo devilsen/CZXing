@@ -460,10 +460,11 @@ public class ScanBoxView extends View {
                 public void onAnimationUpdate(ValueAnimator animation) {
                     mScanLinePosition = (float) animation.getAnimatedValue();
                     // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
-                    postInvalidateOnAnimation(mBoxLeft,
-                            ((int) (mBoxTop + mScanLinePosition - 10)),
-                            mBoxLeft + mBoxWidth,
-                            ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
+                    postInvalidateOnAnimation();
+//                    postInvalidateOnAnimation(mBoxLeft,
+//                            ((int) (mBoxTop + mScanLinePosition - 10)),
+//                            mBoxLeft + mBoxWidth,
+//                            ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
                 }
             });
         } else {
@@ -472,10 +473,11 @@ public class ScanBoxView extends View {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     mScanLinePosition = (float) animation.getAnimatedValue();
-                    postInvalidateOnAnimation((int) (mBoxLeft + mScanLinePosition - 10),
-                            mBoxTop,
-                            (int) (mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT + 10),
-                            mBoxTop + mBoxHeight);
+                    postInvalidateOnAnimation();
+//                    postInvalidateOnAnimation((int) (mBoxLeft + mScanLinePosition - 10),
+//                            mBoxTop,
+//                            (int) (mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT + 10),
+//                            mBoxTop + mBoxHeight);
                 }
             });
         }
