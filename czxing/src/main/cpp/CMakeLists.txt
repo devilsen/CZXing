@@ -36,10 +36,10 @@ set_target_properties(tegra_hal PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}
 #set_target_properties(opencv_java4 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}/libopencv_java4.so)
 
 # 导入zbar
-#add_library(iconv SHARED IMPORTED)
+add_library(iconv SHARED IMPORTED)
 add_library(zbar_core SHARED IMPORTED)
-#set_target_properties(iconv PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}/libiconv.so)
-set_target_properties(zbar_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}/libzbarjni.so)
+set_target_properties(iconv PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../zbar/${ANDROID_ABI}/libiconv.so)
+set_target_properties(zbar_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../zbar/${ANDROID_ABI}/libzbarjni.so)
 
 find_library(
         log-lib
@@ -49,7 +49,7 @@ target_link_libraries(
         czxing
         ZXingCore
 
-        #        iconv
+        iconv
         zbar_core
 
         opencv_imgproc
