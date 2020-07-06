@@ -271,6 +271,23 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
         LOGE("ZXing Adaptive Success, scanIndex = %d", scanIndex);
         javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
     } else {
+        decodeNegative(gray);
+    }
+}
+
+/**
+ * 2.3 处理反色图片
+ * @param gray
+ */
+void ImageScheduler::decodeNegative(const Mat &gray) {
+    Mat negativeMat;
+    bitwise_not(gray, negativeMat);
+
+    Result result = decodePixels(negativeMat);
+    if (result.isValid()) {
+        LOGE("ZXing Negative Success, scanIndex = %d", scanIndex);
+        javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
+    } else {
         recognizerQrCode(gray);
     }
 }
@@ -402,6 +419,3 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int w
 
     return reader->read(*binImage);
 }
-
-
-
