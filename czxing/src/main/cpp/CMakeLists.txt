@@ -8,10 +8,13 @@ add_library(
         SHARED
         ${SOURCE})
 
-add_subdirectory(zxing)
 include_directories(zxing)
-
 include_directories(include)
+
+#add_subdirectory(zxing)
+add_library(ZXingCore STATIC IMPORTED)
+set_target_properties(ZXingCore PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../zxing/${ANDROID_ABI}/libZXingCore.a)
+
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
 
 #add_compile_options(czxing "-O1" "-fPIC")
