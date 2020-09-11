@@ -229,6 +229,15 @@ public class ScannerManager {
     }
 
     /**
+     * 是否需要 OpenCV 介入，在远距离情况识别二维码轮廓，从而放大相机，默认开启
+     * @param enable 使用
+     */
+    public ScannerManager enableOpenCVDetect(boolean enable) {
+        scanOption.enableOpenCVDetect = enable;
+        return this;
+    }
+
+    /**
      * 设置扫码代理，获取扫码结果
      *
      * @param delegate 扫码代理
@@ -277,6 +286,7 @@ public class ScannerManager {
         private String flashLightOffText;
         private boolean dropFlashLight;
         private String scanNoticeText;
+        public boolean enableOpenCVDetect = true;
 
         private List<BarcodeFormat> barcodeFormats;
         private List<Integer> scanLineColors;
@@ -383,6 +393,7 @@ public class ScannerManager {
             dest.writeString(this.scanNoticeText);
             dest.writeList(this.barcodeFormats);
             dest.writeList(this.scanLineColors);
+            dest.writeByte(this.enableOpenCVDetect ? (byte) 1 : (byte) 0);
         }
 
         public ScanOption() {
@@ -410,6 +421,7 @@ public class ScannerManager {
             in.readList(this.barcodeFormats, BarcodeFormat.class.getClassLoader());
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
+            this.enableOpenCVDetect = in.readByte() != 0;
         }
 
         public static final Creator<ScanOption> CREATOR = new Creator<ScanOption>() {

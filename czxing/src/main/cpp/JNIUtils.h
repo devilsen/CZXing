@@ -24,7 +24,7 @@
 #include <opencv2/core/types.hpp>
 #include "zbar/zbar.h"
 
-#define ZX_LOG_TAG "ZXing"
+#define ZX_LOG_TAG "CZXing"
 //#define DEBUG
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, ZX_LOG_TAG, __VA_ARGS__)

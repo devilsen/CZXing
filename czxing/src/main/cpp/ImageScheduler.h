@@ -62,29 +62,38 @@ public:
 
     void isDecodeQrCode(bool decodeQrCode);
 
+    void setOpenCVDetectValue(int value);
+
     MultiFormatReader *reader;
 
 private:
     JNIEnv *env;
     JavaCallHelper *javaCallHelper;
+    QRCodeRecognizer *qrCodeRecognizer;
+    ImageScanner *zbarScanner;
+
+    SafeQueue<FrameData> frameQueue;
     std::atomic<bool> isProcessing{};
     std::atomic<bool> stopProcessing{};
     double cameraLight{};
-    QRCodeRecognizer *qrCodeRecognizer;
-    SafeQueue<FrameData> frameQueue;
     int scanIndex;
     bool decodeQr;
+    // openCV 探测强度，[0-10]，强度越低，验证越严格，越不容易放大
+    int openCVDetectValue = 10;
 
     pthread_t prepareThread{};
 
-    Result decodePixels(const Mat &mat);
-
     void recognizerQrCode(const Mat &mat);
 
-    Result *analyzeResult();
+    bool zxingDecode(const Mat &mat);
+
+    bool zbarDecode(const Mat &mat);
+
+    bool zbarDecode(const void *raw, unsigned int width, unsigned int height);
+
+    static void logDecode(int scanType, int treatType, int index);
 
     bool analysisBrightness(const Mat &gray);
-
 };
 
 #endif //CZXING_IMAGESCHEDULER_H

@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import me.devilsen.czxing.code.BarcodeFormat;
+import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -107,6 +108,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
             scanBox.invisibleFlashLightIcon();
         }
         scanBox.setScanNoticeText(option.getScanNoticeText());
+        BarcodeReader.getInstance().enableCVDetect(option.enableOpenCVDetect);
 
         // 标题栏
         String title = option.getTitle();

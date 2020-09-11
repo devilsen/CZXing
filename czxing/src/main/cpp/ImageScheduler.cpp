@@ -10,11 +10,15 @@
 #include <unistd.h>
 
 int DEFAULT_MIN_LIGHT = 70;
-int SCAN_TYPE_GRAY = 0;
-int SCAN_TYPE_THRESHOLD = 1;
-int SCAN_TYPE_ZBAR = 2;
-int SCAN_TYPE_ADAPTIVE = 3;
-int SCAN_TYPE_CUSTOMIZE = 4;
+
+int SCAN_ZXING = 0;
+int SCAN_ZBAR = 1;
+
+int SCAN_TREAT_GRAY = 0;
+int SCAN_TREAT_THRESHOLD = 1;
+int SCAN_TREAT_ADAPTIVE = 2;
+int SCAN_TREAT_NEGATIVE = 3;
+int SCAN_TREAT_CUSTOMIZE = 4;
 
 ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
                                JavaCallHelper *javaCallHelper) {
@@ -22,29 +26,33 @@ ImageScheduler::ImageScheduler(JNIEnv *env, MultiFormatReader *_reader,
     this->reader = _reader;
     this->javaCallHelper = javaCallHelper;
     qrCodeRecognizer = new QRCodeRecognizer();
+    zbarScanner = new ImageScanner();
+    zbarScanner->set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
+
     decodeQr = true;
     stopProcessing.store(false);
     isProcessing.store(false);
 }
 
 ImageScheduler::~ImageScheduler() {
-    DELETE(env);
-    DELETE(reader);
-    DELETE(javaCallHelper);
-    DELETE(qrCodeRecognizer);
+    DELETE(env)
+    DELETE(reader)
+    DELETE(javaCallHelper)
+    DELETE(qrCodeRecognizer)
     frameQueue.clear();
+    delete zbarScanner;
     delete &isProcessing;
     delete &stopProcessing;
     delete &cameraLight;
     delete &prepareThread;
     scanIndex = 0;
-    decodeQr = 0;
+    decodeQr = false;
 }
 
 void *prepareMethod(void *arg) {
     auto scheduler = static_cast<ImageScheduler *>(arg);
     scheduler->start();
-    return 0;
+    return nullptr;
 }
 
 void ImageScheduler::prepare() {
@@ -55,7 +63,7 @@ void ImageScheduler::start() {
     stopProcessing.store(false);
     isProcessing.store(false);
     frameQueue.setWork(1);
-    scanIndex = -1;
+    scanIndex = 0;
 
     while (true) {
         if (stopProcessing.load()) {
@@ -169,11 +177,9 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
     Mat mat;
     rotate(gray, mat, ROTATE_90_CLOCKWISE);
 
-    Result result = decodePixels(mat);
-
-    if (result.isValid()) {
-        javaCallHelper->onResult(result, SCAN_TYPE_GRAY);
-        LOGE("ZXing GrayPixels Success, scanIndex = %d", scanIndex);
+    bool result = zxingDecode(mat);
+    if (result) {
+        logDecode(SCAN_ZXING, SCAN_TREAT_GRAY, scanIndex);
     } else {
         decodeThresholdPixels(gray);
     }
@@ -199,10 +205,9 @@ void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
 
     threshold(mat, mat, 50, 255, CV_THRESH_OTSU);
 
-    Result result = decodePixels(mat);
-    if (result.isValid()) {
-        LOGE("ZXing Threshold Success, scanIndex = %d", scanIndex);
-        javaCallHelper->onResult(result, SCAN_TYPE_THRESHOLD);
+    bool result = zxingDecode(mat);
+    if (result) {
+        logDecode(SCAN_ZXING, SCAN_TREAT_THRESHOLD, scanIndex);
     } else {
         recognizerQrCode(gray);
     }
@@ -214,33 +219,12 @@ void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
  * @param gray
  */
 void ImageScheduler::decodeZBar(const Mat &gray) {
-    auto width = static_cast<unsigned int>(gray.cols);
-    auto height = static_cast<unsigned int>(gray.rows);
+    LOGE("start zbar gray...");
 
-    const void *raw = gray.data;
-    Image image(width, height, "Y800", raw, width * height);
-    ImageScanner zbarScanner;
-    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
-
-    // 检测到二维码
-    if (zbarScanner.scan(image) > 0) {
-        Image::SymbolIterator symbol = image.symbol_begin();
-        LOGE("zbar GrayPixels Success  Data = %s scanIndex = %d", symbol->get_data().c_str(),
-             scanIndex);
-
-        if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
-            Result result(DecodeStatus::NoError);
-            result.setFormat(BarcodeFormat::QR_CODE);
-            result.setText(ANSIToUnicode(symbol->get_data()));
-//            SymbolSet symbolSet = symbol->get_components();
-//            set points = symbolSet;
-//            points.
-//            set.zbar_symbol_set_t();
-            javaCallHelper->onResult(result, SCAN_TYPE_ZBAR);
-            image.set_data(nullptr, 0);
-        }
+    bool result = zbarDecode(gray);
+    if (result) {
+        logDecode(SCAN_ZBAR, SCAN_TREAT_GRAY, scanIndex);
     } else {
-        image.set_data(nullptr, 0);
         decodeAdaptivePixels(gray);
     }
 }
@@ -266,10 +250,9 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     adaptiveThreshold(lightMat, lightMat, 255, ADAPTIVE_THRESH_MEAN_C,
                       THRESH_BINARY, 55, 3);
 
-    Result result = decodePixels(lightMat);
-    if (result.isValid()) {
-        LOGE("ZXing Adaptive Success, scanIndex = %d", scanIndex);
-        javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
+    bool result = zbarDecode(lightMat);
+    if (result) {
+        logDecode(SCAN_ZBAR, SCAN_TREAT_ADAPTIVE, scanIndex);
     } else {
         decodeNegative(gray);
     }
@@ -283,10 +266,9 @@ void ImageScheduler::decodeNegative(const Mat &gray) {
     Mat negativeMat;
     bitwise_not(gray, negativeMat);
 
-    Result result = decodePixels(negativeMat);
-    if (result.isValid()) {
-        LOGE("ZXing Negative Success, scanIndex = %d", scanIndex);
-        javaCallHelper->onResult(result, SCAN_TYPE_ADAPTIVE);
+    bool result = zbarDecode(negativeMat);
+    if (result) {
+        logDecode(SCAN_ZBAR, SCAN_TREAT_NEGATIVE, scanIndex);
     } else {
         recognizerQrCode(gray);
     }
@@ -297,8 +279,10 @@ void ImageScheduler::decodeNegative(const Mat &gray) {
  * 不能使用内置的解析出来，使用自定的图片解析策略
  */
 void ImageScheduler::recognizerQrCode(const Mat &mat) {
-    LOGE("try to recognizerQrCode..., scanIndex = %d ", scanIndex);
-
+    // 强度为 0，外层不需要 openCV 介入
+    if (openCVDetectValue == 0) {
+        return;
+    }
     // 不需要解析二维码
     if (!decodeQr) {
         return;
@@ -311,7 +295,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 //    if (scanIndex % 3 != 0) {
 //        return;
 //    }
-    LOGE("start recognizerQrCode...");
+    LOGE("start to recognizerQrCode..., scanIndex = %d ", scanIndex);
 
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
@@ -332,26 +316,48 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
     Result result(DecodeStatus::NotFound);
     result.setResultPoints(std::move(points));
 
-    javaCallHelper->onResult(result, SCAN_TYPE_CUSTOMIZE);
+    javaCallHelper->onResult(result, SCAN_TREAT_CUSTOMIZE);
 
     LOGE("end recognizerQrCode..., scanIndex = %d height = %d width = %d", scanIndex, rect.height,
          rect.width);
 }
 
-Result ImageScheduler::decodePixels(const Mat &mat) {
-    try {
-//        Mat resultMat(height, width, CV_8UC1, pixels);
-//        imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
-
-        auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
-        return reader->read(*binImage);
-    } catch (const std::exception &e) {
-        ThrowJavaException(env, e.what());
-    } catch (...) {
-        ThrowJavaException(env, "Unknown exception");
+bool ImageScheduler::zxingDecode(const Mat &mat) {
+    auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
+    Result result = reader->read(*binImage);
+    if (result.isValid()) {
+        LOGE("zxing decode success, result data = %s", result.text().c_str());
+        javaCallHelper->onResult(result, SCAN_ZXING);
+        return true;
     }
+    return false;
+}
 
-    return Result(DecodeStatus::NotFound);
+bool ImageScheduler::zbarDecode(const Mat &gray) {
+    auto width = static_cast<unsigned int>(gray.cols);
+    auto height = static_cast<unsigned int>(gray.rows);
+    const void *raw = gray.data;
+    return zbarDecode(raw, width, height);
+}
+
+bool ImageScheduler::zbarDecode(const void *raw, unsigned int width, unsigned int height) {
+    Image image(width, height, "Y800", raw, width * height);
+
+    // 检测到二维码
+    if (zbarScanner->scan(image) > 0) {
+        Image::SymbolIterator symbol = image.symbol_begin();
+        LOGE("zbar decode success, result data = %s", symbol->get_data().c_str());
+
+        if (symbol->get_type() == ZBAR_QRCODE) {
+            Result result(DecodeStatus::NoError);
+            result.setFormat(BarcodeFormat::QR_CODE);
+            result.setText(ANSIToUnicode(symbol->get_data()));
+            javaCallHelper->onResult(result, SCAN_ZBAR);
+            return true;
+        }
+    }
+    image.set_data(nullptr, 0);
+    return false;
 }
 
 bool ImageScheduler::analysisBrightness(const Mat &gray) {
@@ -368,14 +374,23 @@ bool ImageScheduler::analysisBrightness(const Mat &gray) {
     return isDark;
 }
 
-Result *ImageScheduler::analyzeResult() {
-    Result *result = nullptr;
+//void saveMat(){
+//        Mat resultMat(height, width, CV_8UC1, pixels);
+//        imwrite("/storage/emulated/0/scan/result.jpg", mat);
+//}
 
-    return result;
+void ImageScheduler::logDecode(int scanType, int treatType, int index) {
+    String scanName = scanType == SCAN_ZXING ? "zxing" : "zbar";
+    LOGE("%s decode success, treat type = %d, scan index = %d",
+         scanName.c_str(), treatType, index);
 }
 
 void ImageScheduler::isDecodeQrCode(bool decodeQrCode) {
     this->decodeQr = decodeQrCode;
+}
+
+void ImageScheduler::setOpenCVDetectValue(int value) {
+    this->openCVDetectValue = value;
 }
 
 Result
@@ -393,9 +408,7 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int w
     Image image(gWidth, gHeight, "Y800", raw, gWidth * gHeight);
     LOGE("zbar Code cols = %d row = %d", gray.cols, gray.rows);
 
-    ImageScanner zbarScanner;
-    zbarScanner.set_config(ZBAR_QRCODE, ZBAR_CFG_ENABLE, 1);
-    if (zbarScanner.scan(image) > 0) {
+    if (zbarScanner->scan(image) > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
         LOGE("zbar Code Data = %s", symbol->get_data().c_str());
         if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {

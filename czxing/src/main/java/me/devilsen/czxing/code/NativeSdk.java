@@ -76,6 +76,8 @@ class NativeSdk {
 
     native void stopRead(long objPtr);
 
+    native void openCVDetectValue(long objPtr, int value);
+
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);
 

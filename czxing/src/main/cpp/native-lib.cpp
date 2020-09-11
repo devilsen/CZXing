@@ -163,6 +163,17 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance
 }
 
 extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_openCVDetectValue(JNIEnv *env, jobject thiz, jlong objPtr,
+                                                          jint value) {
+    if (objPtr == 0)
+        return;
+
+    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    imageScheduler->setOpenCVDetectValue(value);
+}
+
+extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_writeCode(JNIEnv *env, jobject instance, jstring content_,
                                                  jint width, jint height, jint color,

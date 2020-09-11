@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
                 .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
                 .continuousScan()
+                .enableOpenCVDetect(true)
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
                     public void onClickAlbum(Activity activity) {

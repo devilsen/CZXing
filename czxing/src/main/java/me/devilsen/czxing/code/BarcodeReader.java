@@ -81,6 +81,14 @@ public class BarcodeReader {
         return null;
     }
 
+    public void enableCVDetect(boolean enable) {
+        if (enable) {
+            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 10);
+        } else {
+            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 0);
+        }
+    }
+
     public void prepareRead() {
         NativeSdk.getInstance().prepareRead(_nativePtr);
     }
