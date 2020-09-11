@@ -184,21 +184,21 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     public void toggleFlashLight(boolean isDark) {
         if (mFlashLightIsOpen) {
             closeFlashlight();
-            mFlashLightIsOpen = false;
         } else if (isDark) {
             openFlashlight();
-            mFlashLightIsOpen = true;
         }
     }
 
 
     public void openFlashlight() {
+        mFlashLightIsOpen = true;
         if (flashLightAvailable()) {
             mCameraConfigurationManager.openFlashlight(mCamera);
         }
     }
 
     public void closeFlashlight() {
+        mFlashLightIsOpen = false;
         if (flashLightAvailable()) {
             mCameraConfigurationManager.closeFlashlight(mCamera);
         }

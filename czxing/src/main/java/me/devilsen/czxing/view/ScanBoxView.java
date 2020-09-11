@@ -695,6 +695,14 @@ public class ScanBoxView extends View {
         }
     }
 
+    /**
+     * 关闭闪光灯
+     */
+    void turnOffLight() {
+        isDark = false;
+        isLightOn = false;
+    }
+
     public void startAnim() {
         if (mScanLineAnimator != null && !mScanLineAnimator.isRunning()) {
             mScanLineAnimator.start();

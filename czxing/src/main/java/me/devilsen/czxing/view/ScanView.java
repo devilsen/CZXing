@@ -93,6 +93,8 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     @Override
     public void stopScan() {
         super.stopScan();
+        mScanBoxView.turnOffLight();
+        mCameraSurface.closeFlashlight();
         reader.stopRead();
         isStop = true;
         reader.setReadCodeListener(null);
