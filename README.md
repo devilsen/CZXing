@@ -56,6 +56,7 @@ Scanner.with(this)
         .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)    // 闪光灯关闭时的样式
         .setFlashLightInvisible()                               // 不使用闪光灯图标及提示
         .continuousScan()                                       // 连续扫码，不关闭扫码界面
+        .enableOpenCVDetect(false)                              // 关闭OpenCV探测，避免没有发现二维码也放大的现象，但是这样可能降低扫码的成功率，请结合业务关闭（默认开启）
         .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
             @Override
             public void onClickAlbum(Activity activity) {       // 点击右上角的相册按钮
