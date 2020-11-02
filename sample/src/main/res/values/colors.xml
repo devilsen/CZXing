@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#05C705</color>
+    <color name="colorPrimary">#00897B</color>
+    <color name="colorPrimaryDark">#00897B</color>
+    <color name="colorAccent">#43A047</color>
 
     <color name="black">#000000</color>
     <color name="text_white">#E6E5E5</color>
+
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
 
     <color name="corner">#2196F3</color>
     <color name="box_line">#64B5FA</color>

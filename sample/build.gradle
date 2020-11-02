@@ -17,6 +17,7 @@ android {
         applicationId rootProject.ext.applicationId
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        ndkVersion rootProject.ext.ndkVersion
         versionCode 2
         versionName "1.0.1"
 
@@ -57,13 +58,15 @@ android {
 dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
-//    implementation project(':czxing')
-    implementation 'me.devilsen:czxing:1.0.16'
+    implementation project(':czxing')
+//    implementation 'me.devilsen:czxing:1.0.16'
 
-    implementation rootProject.ext.appcompat
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso
+
+    implementation rootProject.ext.appcompat
+    implementation rootProject.ext.material
     // permission
     implementation 'com.yanzhenjie:permission:2.0.3'
     // bugly

@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="czxing"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\zxing\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="czxing">
+				<Option output="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/libczxing.dylib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing"/>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/include"/>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/12.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 czxing"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="czxing/fast">
+				<Option output="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/libczxing.dylib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing"/>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/include"/>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/12.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 czxing/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ZXingCore">
+				<Option output="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/libZXingCore.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/12.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 ZXingCore"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="ZXingCore/fast">
+				<Option output="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/libZXingCore.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/12.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 ZXingCore/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/cmake-build-debug/zxing/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/ImageScheduler.cpp">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/ImageScheduler.h">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/JNIUtils.cpp">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/JNIUtils.h">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/JavaCallHelper.cpp">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/JavaCallHelper.h">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/QRCodeRecognizer.cpp">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/QRCodeRecognizer.h">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/native-lib.cpp">
+			<Option target="czxing"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BarcodeFormat.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BarcodeFormat.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BinaryBitmap.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitArray.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitArray.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitHacks.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitMatrix.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitMatrix.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitSource.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/BitSource.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ByteArray.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ByteMatrix.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/CharacterSet.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/CharacterSetECI.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/CharacterSetECI.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/CustomData.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DecodeHints.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DecodeHints.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DecodeStatus.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DecodeStatus.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DecoderResult.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/DetectorResult.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericGF.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericGF.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericGFPoly.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericGFPoly.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericLuminanceSource.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GenericLuminanceSource.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GlobalHistogramBinarizer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GlobalHistogramBinarizer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GridSampler.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/GridSampler.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/HybridBinarizer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/HybridBinarizer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/LuminanceSource.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/LuminanceSource.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/MultiFormatWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/PerspectiveTransform.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/PerspectiveTransform.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ReedSolomonEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/Result.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/Result.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ResultMetadata.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ResultMetadata.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ResultPoint.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ResultPoint.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextUtfEncoding.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/TextUtfEncoding.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/WhiteRectDetector.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/WhiteRectDetector.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXBigInteger.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXBigInteger.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXConfig.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXContainerAlgorithms.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXNullable.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXNumeric.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXStrConvWorkaround.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/ZXTestSupport.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDetector.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDetector.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZDetectorResult.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZEncodingState.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZHighLevelEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZHighLevelEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZToken.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZToken.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/aztec/AZWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMBitMatrixParser.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMBitMatrixParser.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDataBlock.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDataBlock.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDefaultPlacement.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDefaultPlacement.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDetector.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMDetector.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMECB.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMECEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMECEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMEncoderContext.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMHighLevelEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMHighLevelEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMSymbolInfo.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMSymbolInfo.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMSymbolShape.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMVersion.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMVersion.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/datamatrix/DMWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCBitMatrixParser.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCBitMatrixParser.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/maxicode/MCReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCodabarWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Patterns.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Patterns.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Writer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode128Writer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Writer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode39Writer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Writer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODCode93Writer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Writer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN13Writer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Writer.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEAN8Writer.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEANManufacturerOrgSupport.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODEANManufacturerOrgSupport.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODITFWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODMultiUPCEANReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODMultiUPCEANReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSS14Reader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSS14Reader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSSExpandedReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRSSExpandedReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRowReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODRowReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCAWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANCommon.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANCommon.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANExtensionSupport.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANExtensionSupport.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEANReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODUPCEWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODWriterHelper.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/ODWriterHelper.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSDataCharacter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSExpandedBinaryDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSExpandedBinaryDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSExpandedPair.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSExpandedRow.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSFieldParser.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSFieldParser.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSFinderPattern.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSGenericAppIdDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSGenericAppIdDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSPair.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSReaderHelper.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/oned/rss/ODRSSReaderHelper.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBarcodeMetadata.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBarcodeValue.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBarcodeValue.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBoundingBox.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFBoundingBox.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFCodeword.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFCodewordDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFCodewordDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFCompaction.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDecodedBitStreamParser.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDecodedBitStreamParser.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDecoderResultExtra.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResult.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResult.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResultColumn.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetectionResultColumn.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetector.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFDetector.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFHighLevelEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFHighLevelEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusGF.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusGF.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusPoly.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFModulusPoly.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFScanningDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFScanningDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/pdf417/PDFWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPattern.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPattern.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPatternFinder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRAlignmentPatternFinder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRBitMatrixParser.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRBitMatrixParser.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRCodecMode.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRCodecMode.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataBlock.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataBlock.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataMask.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDataMask.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDecoderMetadata.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDetector.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRDetector.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRECB.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QREncodeResult.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QREncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QREncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRErrorCorrectionLevel.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRErrorCorrectionLevel.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPattern.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPattern.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPatternFinder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPatternFinder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFinderPatternInfo.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFormatInformation.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRFormatInformation.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMaskUtil.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMaskUtil.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMatrixUtil.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRMatrixUtil.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRReader.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRReader.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRVersion.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRVersion.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRWriter.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/qrcode/QRWriter.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5MapTable.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5MapTable.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/Big5TextEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/GBTextEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/JPTextEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRHangulMapping.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRHangulMapping.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextDecoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextDecoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextEncoder.cpp">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/src/textcodec/KRTextEncoder.h">
+			<Option target="ZXingCore"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/Devilsen/Documents/GitHub/Android/Me/QRCode/CZXing/czxing/src/main/cpp/zxing/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\zxing\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

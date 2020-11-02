@@ -22,7 +22,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.BarcodeWriter;
 import me.devilsen.czxing.code.CodeResult;
@@ -77,7 +76,10 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void read(Bitmap bitmap) {
-        CodeResult result = reader.read(bitmap);
+        CodeResult result = null;
+        for (int i = 0; i < 400; i++) {
+            result = reader.read(bitmap);
+        }
         if (result != null) {
             Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
         }

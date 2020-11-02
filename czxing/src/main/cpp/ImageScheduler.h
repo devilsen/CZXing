@@ -20,7 +20,7 @@ using namespace cv;
 using namespace ZXing;
 using namespace zbar;
 
-typedef struct FrameData {
+struct FrameData {
     jbyte *bytes;
     int left;
     int top;
@@ -28,7 +28,7 @@ typedef struct FrameData {
     int cropHeight;
     int rowWidth;
     int rowHeight;
-} FrameData;
+};
 
 class ImageScheduler {
 public:

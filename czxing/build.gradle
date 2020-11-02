@@ -6,6 +6,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        ndkVersion rootProject.ext.ndkVersion
         versionCode 34
         versionName "1.0.16"
 
