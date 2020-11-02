@@ -36,7 +36,7 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
     private Point focusCenter;
     private long mLastFrozenTime;
     private long mLastTouchTime;
-    private SensorController mSensorController;
+    private final SensorController mSensorController;
     private CameraConfigurationManager mCameraConfigurationManager;
     private SurfacePreviewListener scanListener;
 
@@ -226,8 +226,10 @@ public class CameraSurface extends SurfaceView implements SensorController.Camer
         }
         mLastFrozenTime = now;
 
-        BarCodeUtil.d("mCamera is frozen, start focus x = " + focusCenter.x + " y = " + focusCenter.y);
-        handleFocus(focusCenter.x, focusCenter.y);
+        if (focusCenter != null) {
+            BarCodeUtil.d("mCamera is frozen, start focus x = " + focusCenter.x + " y = " + focusCenter.y);
+            handleFocus(focusCenter.x, focusCenter.y);
+        }
     }
 
     /**

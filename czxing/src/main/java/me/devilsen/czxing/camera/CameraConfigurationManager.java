@@ -107,18 +107,22 @@ final class CameraConfigurationManager {
     }
 
     private void doSetTorch(Camera camera, boolean newSetting) {
-        Camera.Parameters parameters = camera.getParameters();
-        String flashMode;
-        /** 是否支持闪光灯 */
-        if (newSetting) {
-            flashMode = findSettableValue(parameters.getSupportedFlashModes(), Camera.Parameters.FLASH_MODE_TORCH, Camera.Parameters.FLASH_MODE_ON);
-        } else {
-            flashMode = findSettableValue(parameters.getSupportedFlashModes(), Camera.Parameters.FLASH_MODE_OFF);
+        try {
+            Camera.Parameters parameters = camera.getParameters();
+            String flashMode;
+            /* 是否支持闪光灯 */
+            if (newSetting) {
+                flashMode = findSettableValue(parameters.getSupportedFlashModes(), Camera.Parameters.FLASH_MODE_TORCH, Camera.Parameters.FLASH_MODE_ON);
+            } else {
+                flashMode = findSettableValue(parameters.getSupportedFlashModes(), Camera.Parameters.FLASH_MODE_OFF);
+            }
+            if (flashMode != null) {
+                parameters.setFlashMode(flashMode);
+            }
+            camera.setParameters(parameters);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (flashMode != null) {
-            parameters.setFlashMode(flashMode);
-        }
-        camera.setParameters(parameters);
     }
 
     private static String findSettableValue(Collection<String> supportedValues, String... desiredValues) {
