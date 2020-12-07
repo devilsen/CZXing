@@ -1,4 +1,4 @@
-package me.devilsen.czxing.camera;
+package me.devilsen.czxing.camera.camera1;
 
 import android.content.Context;
 import android.graphics.Point;

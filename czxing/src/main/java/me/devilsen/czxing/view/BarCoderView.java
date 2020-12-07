@@ -11,12 +11,12 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import me.devilsen.czxing.camera.CameraSurface;
-import me.devilsen.czxing.util.CameraUtil;
+import me.devilsen.czxing.camera.camera1.Camera1Surface;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.CameraUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 
 import static me.devilsen.czxing.view.ScanView.SCAN_MODE_MIX;
@@ -36,7 +36,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Camera mCamera;
-    CameraSurface mCameraSurface;
+    Camera1Surface mCameraSurface;
     ScanBoxView mScanBoxView;
 
     protected boolean mSpotAble;
@@ -66,8 +66,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private void init(Context context) {
         setBackground(null);
-        mCameraSurface = new CameraSurface(context);
-        mCameraSurface.setPreviewListener(new CameraSurface.SurfacePreviewListener() {
+        mCameraSurface = new Camera1Surface(context);
+        mCameraSurface.setPreviewListener(new Camera1Surface.SurfacePreviewListener() {
             @Override
             public void onStartPreview() {
                 setPreviewCallback();
@@ -522,7 +522,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      *
      * @return CameraSurface
      */
-    public CameraSurface getCameraSurface() {
+    public Camera1Surface getCameraSurface() {
         return mCameraSurface;
     }
 }
