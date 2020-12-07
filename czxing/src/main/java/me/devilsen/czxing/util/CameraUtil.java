@@ -1,4 +1,4 @@
-package me.devilsen.czxing.camera;
+package me.devilsen.czxing.util;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -8,8 +8,6 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.WindowManager;
-
-import me.devilsen.czxing.util.BarCodeUtil;
 
 /**
  * @author : dongSen
@@ -26,7 +24,7 @@ public class CameraUtil {
         return screenResolution.y > screenResolution.x;
     }
 
-    static Point getScreenResolution(Context context) {
+    public static Point getScreenResolution(Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point screenResolution = new Point();
@@ -37,7 +35,7 @@ public class CameraUtil {
     /**
      * 计算手指间距
      */
-    static float calculateFingerSpacing(MotionEvent event) {
+    public static float calculateFingerSpacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
@@ -56,7 +54,7 @@ public class CameraUtil {
      *                           <p>
      *                           https://www.cnblogs.com/panxiaochun/p/5802814.html
      */
-    static Rect calculateFocusMeteringArea(float coefficient,
+    public static Rect calculateFocusMeteringArea(float coefficient,
                                            float originFocusCenterX, float originFocusCenterY,
                                            int originFocusWidth, int originFocusHeight,
                                            int previewViewWidth, int previewViewHeight) {
@@ -75,7 +73,7 @@ public class CameraUtil {
                 Math.round(rectF.right), Math.round(rectF.bottom));
     }
 
-    static void printRect(String prefix, Rect rect) {
+    public static void printRect(String prefix, Rect rect) {
         BarCodeUtil.d(prefix + " centerX：" + rect.centerX() + " centerY：" + rect.centerY() + " width：" + rect.width() + " height：" + rect.height()
                 + " rectHalfWidth：" + rect.width() / 2 + " rectHalfHeight：" + rect.height() / 2
                 + " left：" + rect.left + " top：" + rect.top + " right：" + rect.right + " bottom：" + rect.bottom);
@@ -85,7 +83,7 @@ public class CameraUtil {
         return Math.min(Math.max(value, min), max);
     }
 
-    static int dp2px(Context context, float dpValue) {
+    public static int dp2px(Context context, float dpValue) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, context.getResources().getDisplayMetrics());
     }
 

@@ -1,9 +1,5 @@
 package me.devilsen.czxing.util;
 
-import android.content.Context;
-
-import me.devilsen.czxing.camera.CameraUtil;
-
 /**
  * desc : 分辨率转换util
  * date : 2019-08-20 17:07

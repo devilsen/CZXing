@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.CameraUtil;
+import me.devilsen.czxing.util.SensorController;
 
 /**
  * @author : dongSen

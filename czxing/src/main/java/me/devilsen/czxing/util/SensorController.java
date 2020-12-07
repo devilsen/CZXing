@@ -1,4 +1,4 @@
-package me.devilsen.czxing.camera;
+package me.devilsen.czxing.util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,30 +17,32 @@ import android.util.Log;
 public class SensorController implements SensorEventListener {
 
     private static final String TAG = "SensorController";
-    private static final int DELAY_DURATION = 500;
 
     private static final int STATUS_NONE = 0;
     private static final int STATUS_STATIC = 1;
     private static final int STATUS_MOVE = 2;
 
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
+    private static final long DELAY_TIME = 300;
+
+    private final SensorManager mSensorManager;
+    private final Sensor mSensor;
 
     private int mX, mY, mZ;
     private long lastStaticStamp = 0;
 
     private boolean isFocusing = false;
-    private boolean canFocusIn = false;  //内部是否能够对焦控制机制
     private boolean canFocus = false;
 
     private int statue = STATUS_NONE;
 
-    private int focusing = 1;           // 1 表示没有被锁定 0表示被锁定
+    // 1:表示没有被锁定 0:表示被锁定
+    private int focusing = STATUS_STATIC;
     private CameraFocusListener mCameraFocusListener;
 
-    SensorController(Context context) {
+    public SensorController(Context context) {
         mSensorManager = (SensorManager) context.getSystemService(Activity.SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);// TYPE_GRAVITY
+        // TYPE_GRAVITY
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
     public void setCameraFocusListener(CameraFocusListener mCameraFocusListener) {
@@ -75,7 +77,7 @@ public class SensorController implements SensorEventListener {
         }
 
         long now = System.currentTimeMillis();
-        if (now - lastStaticStamp < 300) {
+        if (now - lastStaticStamp < DELAY_TIME) {
             return;
         }
         lastStaticStamp = now;
@@ -90,13 +92,10 @@ public class SensorController implements SensorEventListener {
             int pz = Math.abs(mZ - z);
             double value = Math.sqrt(px * px + py * py + pz * pz);
             if (value > 1.4) {
-//                Log.i(TAG, "mobile moving");
                 statue = STATUS_MOVE;
             } else {
-//                Log.i(TAG, "mobile static");
                 if (statue == STATUS_MOVE) {
                     if (mCameraFocusListener != null) {
-//                        Log.i(TAG, "mobile static callback");
                         mCameraFocusListener.onFrozen();
                     }
                 }
@@ -111,7 +110,7 @@ public class SensorController implements SensorEventListener {
 
     private void restParams() {
         statue = STATUS_NONE;
-        canFocusIn = false;
+        //内部是否能够对焦控制机制
         mX = 0;
         mY = 0;
         mZ = 0;
@@ -145,8 +144,8 @@ public class SensorController implements SensorEventListener {
         Log.i(TAG, "unlockFocus");
     }
 
-    public void restFoucs() {
-        focusing = 1;
+    public void restFocus() {
+        focusing = STATUS_STATIC;
     }
 
     public interface CameraFocusListener {

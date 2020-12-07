@@ -74,7 +74,7 @@ void ImageScheduler::start() {
             continue;
         }
 
-        FrameData frameData;
+        FrameData frameData{};
         int ret = frameQueue.deQueue(frameData);
         if (ret) {
             isProcessing.store(true);
@@ -102,7 +102,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
         return;
     }
 
-    FrameData frameData;
+    FrameData frameData{};
     frameData.left = left;
     frameData.top = top;
     frameData.cropWidth = cropWidth;
@@ -119,7 +119,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     frameData.bytes = bytes;
 
     frameQueue.enQueue(frameData);
-    LOGE("frame data size : %d", frameQueue.size());
+    LOGE("frame data size : %d", frameQueue.size())
 }
 
 /**
@@ -128,7 +128,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
 void ImageScheduler::preTreatMat(const FrameData &frameData) {
     try {
         scanIndex++;
-        LOGE("start preTreatMat..., scanIndex = %d", scanIndex);
+        LOGE("start preTreatMat..., scanIndex = %d", scanIndex)
 
         Mat src(frameData.rowHeight + frameData.rowHeight / 2,
                 frameData.rowWidth, CV_8UC1,
@@ -161,7 +161,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
             decodeZBar(gray);
         }
     } catch (const std::exception &e) {
-        LOGE("preTreatMat error...");
+        LOGE("preTreatMat error...")
     }
 }
 
@@ -172,7 +172,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
  * @param gray
  */
 void ImageScheduler::decodeGrayPixels(const Mat &gray) {
-    LOGE("start GrayPixels...");
+    LOGE("start GrayPixels...")
 
     Mat mat;
     rotate(gray, mat, ROTATE_90_CLOCKWISE);
@@ -193,7 +193,7 @@ void ImageScheduler::decodeGrayPixels(const Mat &gray) {
  * @param gray
  */
 void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
-    LOGE("start ThresholdPixels...");
+    LOGE("start ThresholdPixels...")
 
     Mat mat;
     rotate(gray, mat, ROTATE_180);
@@ -219,7 +219,7 @@ void ImageScheduler::decodeThresholdPixels(const Mat &gray) {
  * @param gray
  */
 void ImageScheduler::decodeZBar(const Mat &gray) {
-    LOGE("start zbar gray...");
+    LOGE("start zbar gray...")
 
     bool result = zbarDecode(gray);
     if (result) {
@@ -238,7 +238,7 @@ void ImageScheduler::decodeAdaptivePixels(const Mat &gray) {
     if (scanIndex % 3 != 0) {
         return;
     }
-    LOGE("start AdaptivePixels...");
+    LOGE("start AdaptivePixels...")
 
     Mat mat;
     rotate(gray, mat, ROTATE_90_COUNTERCLOCKWISE);
@@ -295,7 +295,7 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
 //    if (scanIndex % 3 != 0) {
 //        return;
 //    }
-    LOGE("start to recognizerQrCode..., scanIndex = %d ", scanIndex);
+    LOGE("start to recognizerQrCode..., scanIndex = %d ", scanIndex)
 
     cv::Rect rect;
     qrCodeRecognizer->processData(mat, &rect);
@@ -319,14 +319,14 @@ void ImageScheduler::recognizerQrCode(const Mat &mat) {
     javaCallHelper->onResult(result, SCAN_TREAT_CUSTOMIZE);
 
     LOGE("end recognizerQrCode..., scanIndex = %d height = %d width = %d", scanIndex, rect.height,
-         rect.width);
+         rect.width)
 }
 
 bool ImageScheduler::zxingDecode(const Mat &mat) {
     auto binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
     Result result = reader->read(*binImage);
     if (result.isValid()) {
-        LOGE("zxing decode success, result data = %s", result.text().c_str());
+        LOGE("zxing decode success, result data = %s", result.text().c_str())
         javaCallHelper->onResult(result, SCAN_ZXING);
         return true;
     }
@@ -346,7 +346,7 @@ bool ImageScheduler::zbarDecode(const void *raw, unsigned int width, unsigned in
     // 检测到二维码
     if (zbarScanner->scan(image) > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
-        LOGE("zbar decode success, result data = %s", symbol->get_data().c_str());
+        LOGE("zbar decode success, result data = %s", symbol->get_data().c_str())
 
         if (symbol->get_type() == ZBAR_QRCODE) {
             Result result(DecodeStatus::NoError);
@@ -361,12 +361,12 @@ bool ImageScheduler::zbarDecode(const void *raw, unsigned int width, unsigned in
 }
 
 bool ImageScheduler::analysisBrightness(const Mat &gray) {
-    LOGE("start analysisBrightness...");
+    LOGE("start analysisBrightness...")
 
     // 平均亮度
     Scalar scalar = mean(gray);
     cameraLight = scalar.val[0];
-    LOGE("平均亮度 %lf", cameraLight);
+    LOGE("平均亮度 %lf", cameraLight)
     // 判断在时间范围 AMBIENT_BRIGHTNESS_WAIT_SCAN_TIME * lightSize 内是不是亮度过暗
     bool isDark = cameraLight < DEFAULT_MIN_LIGHT;
     javaCallHelper->onBrightness(isDark);
@@ -382,7 +382,7 @@ bool ImageScheduler::analysisBrightness(const Mat &gray) {
 void ImageScheduler::logDecode(int scanType, int treatType, int index) {
     String scanName = scanType == SCAN_ZXING ? "zxing" : "zbar";
     LOGE("%s decode success, treat type = %d, scan index = %d",
-         scanName.c_str(), treatType, index);
+         scanName.c_str(), treatType, index)
 }
 
 void ImageScheduler::isDecodeQrCode(bool decodeQrCode) {
@@ -406,17 +406,17 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int w
     auto gHeight = static_cast<unsigned int>(gray.rows);
     const void *raw = gray.data;
     Image image(gWidth, gHeight, "Y800", raw, gWidth * gHeight);
-    LOGE("zbar Code cols = %d row = %d", gray.cols, gray.rows);
+    LOGE("zbar Code cols = %d row = %d", gray.cols, gray.rows)
 
     if (zbarScanner->scan(image) > 0) {
         Image::SymbolIterator symbol = image.symbol_begin();
-        LOGE("zbar Code Data = %s", symbol->get_data().c_str());
+        LOGE("zbar Code Data = %s", symbol->get_data().c_str())
         if (symbol->get_type() == zbar_symbol_type_e::ZBAR_QRCODE) {
             Result resultBar(DecodeStatus::NoError);
             resultBar.setFormat(BarcodeFormat::QR_CODE);
             resultBar.setText(ANSIToUnicode(symbol->get_data()));
             image.set_data(nullptr, 0);
-            LOGE("zbar decode success");
+            LOGE("zbar decode success")
             return resultBar;
         }
     } else {
@@ -425,10 +425,10 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int w
 
     auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, left, top, width, height);
     if (!binImage) {
-        LOGE("create binary bitmap fail");
+        LOGE("create binary bitmap fail")
         return Result(DecodeStatus::NotFound);
     }
-    LOGE("zxing decode success");
+    LOGE("zxing decode success")
 
     return reader->read(*binImage);
 }

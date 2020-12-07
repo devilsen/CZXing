@@ -10,6 +10,8 @@ import android.view.WindowManager;
 import java.util.Collection;
 import java.util.List;
 
+import me.devilsen.czxing.util.CameraUtil;
+
 final class CameraConfigurationManager {
     private final Context mContext;
     private Point mCameraResolution;

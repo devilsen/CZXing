@@ -12,7 +12,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
 import me.devilsen.czxing.camera.CameraSurface;
-import me.devilsen.czxing.camera.CameraUtil;
+import me.devilsen.czxing.util.CameraUtil;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
