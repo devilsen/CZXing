@@ -467,4 +467,18 @@ public class ScanCamera2 extends ScanCamera {
         }
     }
 
+    @Override
+    public void doubleTap() {
+
+    }
+
+    @Override
+    public void touchFocus(float x, float y) {
+
+    }
+
+    @Override
+    public void zoom(float distance) {
+
+    }
 }

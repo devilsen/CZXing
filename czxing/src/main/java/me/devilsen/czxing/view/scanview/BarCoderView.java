@@ -29,12 +29,10 @@ import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
  */
 abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
 
-    private static final int NO_CAMERA_ID = -1;
     private static final int DEFAULT_ZOOM_SCALE = 3;
     private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
     private final static long DELAY_STEP_TIME = 10_000_000;
 
-    private int mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
     private Camera mCamera;
     Camera1Surface mCameraSurface;
     ScanBoxView mScanBoxView;
@@ -181,56 +179,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     public void openCamera() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-            openCamera(mCameraId);
-        }
-    }
-
-    public void openCamera(int cameraFacing) {
-        if (mCamera != null || Camera.getNumberOfCameras() == 0) {
-            return;
-        }
-        int ultimateCameraId = findCameraIdByFacing(cameraFacing);
-        if (ultimateCameraId != NO_CAMERA_ID) {
-            startCameraById(ultimateCameraId);
-            return;
-        }
-
-        if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-            ultimateCameraId = findCameraIdByFacing(Camera.CameraInfo.CAMERA_FACING_FRONT);
-        } else if (cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            ultimateCameraId = findCameraIdByFacing(Camera.CameraInfo.CAMERA_FACING_BACK);
-        }
-        if (ultimateCameraId != NO_CAMERA_ID) {
-            startCameraById(ultimateCameraId);
-        }
-    }
-
-    private int findCameraIdByFacing(int cameraFacing) {
-        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-        for (int cameraId = 0; cameraId < Camera.getNumberOfCameras(); cameraId++) {
-            try {
-                Camera.getCameraInfo(cameraId, cameraInfo);
-                if (cameraInfo.facing == cameraFacing) {
-                    return cameraId;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return NO_CAMERA_ID;
-    }
-
-    private void startCameraById(int cameraId) {
-        try {
-            mCameraId = cameraId;
-            mCamera = Camera.open(cameraId);
-            mCameraSurface.setCamera(mCamera);
-        } catch (Exception e) {
-            e.printStackTrace();
-            mSpotAble = false;
-            if (mScanListener != null) {
-                mScanListener.onOpenCameraError();
-            }
+            // TODO open camera
+//            openCamera(mCameraId);
         }
     }
 

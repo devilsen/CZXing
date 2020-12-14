@@ -1,10 +1,13 @@
 package me.devilsen.czxing.view;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.CameraUtil;
 
 /**
  * desc : CameraSurfaceView
@@ -15,6 +18,9 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class AutoFitSurfaceView extends SurfaceView {
 
     protected float mAspectRatio;
+    private long mLastTouchTime;
+    private float mOldDist = 1f;
+    private OnTouchListener mOnTouchListener;
 
     public AutoFitSurfaceView(Context context) {
         this(context, null);
@@ -72,6 +78,59 @@ public class AutoFitSurfaceView extends SurfaceView {
             BarCodeUtil.d("Measured dimensions set: " + newWidth + " x " + newHeight);
             setMeasuredDimension(newWidth, newHeight);
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getPointerCount() == 1) {
+            int action = event.getAction() & MotionEvent.ACTION_MASK;
+            if (action == MotionEvent.ACTION_DOWN) {
+                long now = SystemClock.uptimeMillis();
+                if (now - mLastTouchTime < 300) {
+                    if (mOnTouchListener != null) {
+                        mOnTouchListener.doubleTap();
+                    }
+                    mLastTouchTime = 0;
+                    return true;
+                }
+                mLastTouchTime = now;
+            } else if (action == MotionEvent.ACTION_UP) {
+                if (mOnTouchListener != null) {
+                    mOnTouchListener.touchFocus(event.getX(), event.getY());
+                }
+                BarCodeUtil.d("手指触摸，触发对焦测光");
+            }
+        } else if (event.getPointerCount() == 2) {
+            handleZoom(event);
+        }
+        return true;
+    }
+
+    private void handleZoom(MotionEvent event) {
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_POINTER_DOWN:
+                mOldDist = CameraUtil.calculateFingerSpacing(event);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float newDist = CameraUtil.calculateFingerSpacing(event);
+                float distance = newDist - mOldDist;
+                if (mOnTouchListener != null) {
+                    mOnTouchListener.zoom(distance);
+                }
+                break;
+        }
+    }
+
+    public void setOnTouchListener(OnTouchListener listener) {
+        mOnTouchListener = listener;
+    }
+
+    public interface OnTouchListener {
+        void doubleTap();
+
+        void touchFocus(float x, float y);
+
+        void zoom(float distance);
     }
 
 }

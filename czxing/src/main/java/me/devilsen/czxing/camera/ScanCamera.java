@@ -12,7 +12,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
  *
  * @author : dongSen
  */
-public abstract class ScanCamera implements SensorController.CameraFocusListener {
+public abstract class ScanCamera implements SensorController.CameraFocusListener,AutoFitSurfaceView.OnTouchListener {
 
     protected Context mContext;
     protected AutoFitSurfaceView mSurfaceView;
@@ -20,10 +20,15 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
     protected boolean mPreviewing;
     protected boolean mZoomOutFlag;
     protected ScanPreviewCallback mScanCallback;
+    protected final SensorController mSensorController;
 
     public ScanCamera(Context context, AutoFitSurfaceView surfaceView) {
         this.mContext = context;
         this.mSurfaceView = surfaceView;
+
+        surfaceView.setOnTouchListener(this);
+        mSensorController = new SensorController(context);
+        mSensorController.setCameraFocusListener(this);
     }
 
     public abstract void onCreate();
