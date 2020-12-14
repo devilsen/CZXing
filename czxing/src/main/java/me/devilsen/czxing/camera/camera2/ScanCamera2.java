@@ -45,10 +45,8 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ScanCamera2 extends ScanCamera {
 
-    /**
-     * Maximum number of images that will be held in the reader's buffer
-     */
-    private static final int IMAGE_BUFFER_SIZE = 3;
+    /** Maximum number of images that will be held in the reader's buffer */
+    private static final int IMAGE_BUFFER_SIZE = 2;
     private static final String FOCUS_TAG = "focus_tag";
 
     private final CameraManager mCameraManager;
@@ -56,17 +54,19 @@ public class ScanCamera2 extends ScanCamera {
     private CameraCharacteristics mCharacteristics;
 
     /** [HandlerThread] where all camera operations run */
-    private final HandlerThread cameraThread = new HandlerThread("CameraThread");
+    private final HandlerThread mCameraThread = new HandlerThread("CameraThread");
     /** [Handler] corresponding to [cameraThread] */
-    private Handler cameraHandler;
+    private Handler mCameraHandler;
     /** Readers used as buffers for camera still shots */
-    private ImageReader imageReader;
-
+    private ImageReader mImageReader;
+    /** Camera2 */
     private CameraDevice mCamera;
     /** Internal reference to the ongoing [CameraCaptureSession] configured with our parameters */
-    private CameraCaptureSession session;
+    private CameraCaptureSession mCaptureSession;
     /** Builder for capture request */
     private CaptureRequest.Builder mCaptureBuilder;
+    /** Focus Array size */
+    private Rect mSensorArraySize;
 
     /** Is support flash light */
     private boolean isFlashSupported;
@@ -76,8 +76,8 @@ public class ScanCamera2 extends ScanCamera {
     private boolean isAFSupported;
     /** AE stands for AutoExposure */
     private boolean isAESupported;
+    /** Manual focus is engaging */
     private boolean mManualFocusEngaged;
-    private Rect sensorArraySize;
 
     public ScanCamera2(Context context, AutoFitSurfaceView surfaceView) {
         super(context, surfaceView);
@@ -86,7 +86,7 @@ public class ScanCamera2 extends ScanCamera {
 
     @Override
     public void onCreate() {
-
+        createCamera();
     }
 
     @Override
@@ -107,20 +107,20 @@ public class ScanCamera2 extends ScanCamera {
     @Override
     public void onDestroy() {
         synchronized (ScanCamera2.class) {
-            if (session != null) {
-                session.close();
-                session = null;
+            if (mCaptureSession != null) {
+                mCaptureSession.close();
+                mCaptureSession = null;
             }
-            cameraHandler.removeCallbacksAndMessages(null);
-            cameraThread.quitSafely();
-            if (imageReader != null) {
-                imageReader.close();
-                imageReader = null;
+            mCameraHandler.removeCallbacksAndMessages(null);
+            mCameraThread.quitSafely();
+            if (mImageReader != null) {
+                mImageReader.close();
+                mImageReader = null;
             }
         }
     }
 
-    public void createCamera() {
+    private void createCamera() {
         setUpCameraId();
         setupCallback();
     }
@@ -190,9 +190,9 @@ public class ScanCamera2 extends ScanCamera {
             return;
         }
 
-        if (!cameraThread.isAlive()) {
-            cameraThread.start();
-            cameraHandler = new Handler(cameraThread.getLooper());
+        if (!mCameraThread.isAlive()) {
+            mCameraThread.start();
+            mCameraHandler = new Handler(mCameraThread.getLooper());
         }
 
         try {
@@ -215,7 +215,7 @@ public class ScanCamera2 extends ScanCamera {
                 public void onError(@NonNull CameraDevice camera, int error) {
                     BarCodeUtil.e("Open camera error, code = " + error);
                 }
-            }, cameraHandler);
+            }, mCameraHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -234,7 +234,7 @@ public class ScanCamera2 extends ScanCamera {
         isAFSupported = afRegion != null && afRegion >= 1;
         Integer aeState = mCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE);
         isAESupported = aeState != null && aeState >= 1;
-        sensorArraySize = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        mSensorArraySize = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
 
         Size maxSize = new Size(0, 0);
         int area = 0;
@@ -246,22 +246,21 @@ public class ScanCamera2 extends ScanCamera {
             }
         }
 
-        imageReader = ImageReader.newInstance(maxSize.getWidth(), maxSize.getHeight(), pixelFormat, IMAGE_BUFFER_SIZE);
-        imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+        mImageReader = ImageReader.newInstance(maxSize.getWidth(), maxSize.getHeight(), pixelFormat, IMAGE_BUFFER_SIZE);
+        mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
-                BarCodeUtil.d("onImageAvailable");
-//                Bitmap bitmap = SaveImageUtil.rawByteArray2RGBABitmap(Camera2Helper.readYuv(reader), imageReader.getWidth(), imageReader.getHeight());
-//                SaveImageUtil.saveImage(mContext, bitmap);
-                Camera2Helper.readYuv(reader);
+                if (mScanCallback != null) {
+                    mScanCallback.onPreviewFrame(Camera2Helper.readYuv(reader), mImageReader.getWidth(), mImageReader.getHeight());
+                }
             }
         }, null);
 
         List<Surface> targets = new ArrayList<>(2);
         targets.add(mSurfaceView.getHolder().getSurface());
-        targets.add(imageReader.getSurface());
+        targets.add(mImageReader.getSurface());
 
-        createCaptureSession(mCamera, targets, cameraHandler);
+        createCaptureSession(mCamera, targets, mCameraHandler);
     }
 
     /**
@@ -272,7 +271,7 @@ public class ScanCamera2 extends ScanCamera {
             device.createCaptureSession(targets, new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
-                    ScanCamera2.this.session = session;
+                    ScanCamera2.this.mCaptureSession = session;
 
                     createCapture(device, session);
                 }
@@ -293,10 +292,10 @@ public class ScanCamera2 extends ScanCamera {
     private void createCapture(CameraDevice device, CameraCaptureSession session) {
         try {
             mCaptureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            mCaptureBuilder.addTarget(imageReader.getSurface());
+            mCaptureBuilder.addTarget(mImageReader.getSurface());
             mCaptureBuilder.addTarget(mSurfaceView.getHolder().getSurface());
 
-            session.setRepeatingRequest(mCaptureBuilder.build(), null, cameraHandler);
+            session.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -319,7 +318,7 @@ public class ScanCamera2 extends ScanCamera {
         }
         try {
             mCaptureBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
-            session.setRepeatingRequest(mCaptureBuilder.build(), null, cameraHandler);
+            mCaptureSession.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
             isTorchOn = true;
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -333,7 +332,7 @@ public class ScanCamera2 extends ScanCamera {
         }
         try {
             mCaptureBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF);
-            session.setRepeatingRequest(mCaptureBuilder.build(), null, cameraHandler);
+            mCaptureSession.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
             isTorchOn = false;
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -350,14 +349,15 @@ public class ScanCamera2 extends ScanCamera {
     }
 
     private void setFocusArea(int focusPointX, int focusPointY) throws CameraAccessException {
+        if (focusPointX < 0 || focusPointY < 0) return;
         if (mManualFocusEngaged) return;
 
         int y = focusPointX;
         int x = focusPointY;
 
-        if (sensorArraySize != null) {
-            y = (int) (((float) focusPointX / mSurfaceView.getWidth()) * (float) sensorArraySize.height());
-            x = (int) (((float) focusPointY / mSurfaceView.getHeight()) * (float) sensorArraySize.width());
+        if (mSensorArraySize != null) {
+            y = (int) (((float) focusPointX / mSurfaceView.getWidth()) * (float) mSensorArraySize.height());
+            x = (int) (((float) focusPointY / mSurfaceView.getHeight()) * (float) mSensorArraySize.width());
         }
 
         final int halfTouchLength = 150;
@@ -368,10 +368,10 @@ public class ScanCamera2 extends ScanCamera {
                 halfTouchLength * 2,
                 MeteringRectangle.METERING_WEIGHT_MAX - 1);
 
-        session.stopRepeating(); // Destroy current session
+        mCaptureSession.stopRepeating(); // Destroy current session
         mCaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_IDLE);
         mCaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START);
-        session.capture(mCaptureBuilder.build(), mCaptureCallback, cameraHandler); //Set all settings for once
+        mCaptureSession.capture(mCaptureBuilder.build(), mCaptureCallback, mCameraHandler); //Set all settings for once
 
         if (isAESupported) {
             mCaptureBuilder.set(CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{focusArea});
@@ -382,7 +382,7 @@ public class ScanCamera2 extends ScanCamera {
         }
 
         mCaptureBuilder.setTag(FOCUS_TAG); //it will be checked inside mCaptureCallback
-        session.capture(mCaptureBuilder.build(), mCaptureCallback, cameraHandler);
+        mCaptureSession.capture(mCaptureBuilder.build(), mCaptureCallback, mCameraHandler);
 
         mManualFocusEngaged = true;
     }
@@ -402,7 +402,7 @@ public class ScanCamera2 extends ScanCamera {
                 mCaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL);
                 mCaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, null);// As documentation says AF_trigger can be null in some device
                 try {
-                    session.setRepeatingRequest(mCaptureBuilder.build(), null, cameraHandler);
+                    session.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
                 } catch (CameraAccessException e) {
                     e.printStackTrace();
                 }
@@ -440,7 +440,7 @@ public class ScanCamera2 extends ScanCamera {
             Rect zoom = new Rect(cropW, cropH, m.width() - cropW, m.height() - cropH);
 
             mCaptureBuilder.set(CaptureRequest.SCALER_CROP_REGION, zoom);
-            session.setRepeatingRequest(mCaptureBuilder.build(), null, cameraHandler);
+            mCaptureSession.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -459,7 +459,12 @@ public class ScanCamera2 extends ScanCamera {
 
     @Override
     public void onFrozen() {
-
+        if (mSurfaceView == null || mSurfaceView.getWidth() == 0) return;
+        try {
+            setFocusArea(mSurfaceView.getWidth() / 2, mSurfaceView.getHeight() / 2);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
     }
 
 }

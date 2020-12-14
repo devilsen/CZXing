@@ -122,6 +122,11 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     LOGE("frame data size : %d", frameQueue.size())
 }
 
+void saveMat(const Mat &mat) {
+    const Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
+    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+}
+
 /**
  * 预处理二进制数据
  */
@@ -141,6 +146,8 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
             gray = gray(
                     Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
         }
+
+        saveMat(gray);
 
         // 分析亮度，如果亮度过低，不进行处理
         analysisBrightness(gray);
@@ -373,11 +380,6 @@ bool ImageScheduler::analysisBrightness(const Mat &gray) {
 
     return isDark;
 }
-
-//void saveMat(){
-//        Mat resultMat(height, width, CV_8UC1, pixels);
-//        imwrite("/storage/emulated/0/scan/result.jpg", mat);
-//}
 
 void ImageScheduler::logDecode(int scanType, int treatType, int index) {
     String scanName = scanType == SCAN_ZXING ? "zxing" : "zbar";

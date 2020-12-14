@@ -17,23 +17,23 @@ include_directories(include)
 #add_compile_options(czxing "-O1" "-fPIC")
 
 # 静态方式导入库
-add_library(opencv_core STATIC IMPORTED)
-add_library(opencv_imgproc STATIC IMPORTED)
-
-add_library(cpufeatures STATIC IMPORTED)
-add_library(tbb STATIC IMPORTED)
-add_library(tegra_hal STATIC IMPORTED)
+#add_library(opencv_core STATIC IMPORTED)
+#add_library(opencv_imgproc STATIC IMPORTED)
+#
+#add_library(cpufeatures STATIC IMPORTED)
+#add_library(tbb STATIC IMPORTED)
+#add_library(tegra_hal STATIC IMPORTED)
 
 ## 设置库路径
-set_target_properties(opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_core.a)
-set_target_properties(opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_imgproc.a)
+#set_target_properties(opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_core.a)
+#set_target_properties(opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_imgproc.a)
+#
+#set_target_properties(cpufeatures PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libcpufeatures.a)
+#set_target_properties(tbb PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtbb.a)
+#set_target_properties(tegra_hal PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtegra_hal.a)
 
-set_target_properties(cpufeatures PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libcpufeatures.a)
-set_target_properties(tbb PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtbb.a)
-set_target_properties(tegra_hal PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtegra_hal.a)
-
-#add_library(opencv_java4 SHARED IMPORTED)
-#set_target_properties(opencv_java4 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../libs/${ANDROID_ABI}/libopencv_java4.so)
+add_library(opencv_java4 SHARED IMPORTED)
+set_target_properties(opencv_java4 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_java4.so)
 
 # 导入zbar
 add_library(iconv SHARED IMPORTED)
@@ -52,13 +52,13 @@ target_link_libraries(
         iconv
         zbar_core
 
-        opencv_imgproc
-        opencv_core
-        cpufeatures
-        tbb
-        tegra_hal
+#        opencv_imgproc
+#        opencv_core
+#        cpufeatures
+#        tbb
+#        tegra_hal
 
-        #        opencv_java4
+        opencv_java4
 
         jnigraphics
         android

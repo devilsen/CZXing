@@ -19,7 +19,7 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
     protected Point mFocusCenter;
     protected boolean mPreviewing;
     protected boolean mZoomOutFlag;
-    protected SurfacePreviewListener mScanListener;
+    protected ScanPreviewCallback mScanCallback;
 
     public ScanCamera(Context context, AutoFitSurfaceView surfaceView) {
         this.mContext = context;
@@ -66,13 +66,12 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
         return mZoomOutFlag;
     }
 
-
-    public void setPreviewListener(SurfacePreviewListener listener) {
-        this.mScanListener = listener;
+    public void setPreviewListener(ScanPreviewCallback listener) {
+        this.mScanCallback = listener;
     }
 
-    public interface SurfacePreviewListener {
-        void onStartPreview();
+    public interface ScanPreviewCallback {
+        void onPreviewFrame(byte[] data, int rowWidth, int rowHeight);
     }
 
 }

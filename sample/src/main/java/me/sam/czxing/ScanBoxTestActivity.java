@@ -6,7 +6,11 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import me.devilsen.czxing.camera.ScanCamera;
 import me.devilsen.czxing.camera.camera2.ScanCamera2;
+import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 
 /**
@@ -19,6 +23,7 @@ public class ScanBoxTestActivity extends AppCompatActivity {
 
     private AutoFitSurfaceView mSurface;
     private ScanCamera2 camera2;
+    private BarcodeReader reader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +54,7 @@ public class ScanBoxTestActivity extends AppCompatActivity {
 //                Log.e("ScanBox", "onFlashLightClick");
 //            }
 //        });
-
+        reader = BarcodeReader.getInstance();
         testCamera2();
     }
 
@@ -58,8 +63,33 @@ public class ScanBoxTestActivity extends AppCompatActivity {
 
         camera2 = new ScanCamera2(this, mSurface);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            camera2.createCamera();
+            camera2.onCreate();
         }
+
+        camera2.setPreviewListener(new ScanCamera.ScanPreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
+                int bisSize = Math.min(rowWidth, rowHeight);
+                reader.read(data, 0, 0, bisSize, bisSize, rowHeight,rowWidth );
+            }
+        });
+
+        reader.setReadCodeListener(new BarcodeReader.ReadCodeListener() {
+            @Override
+            public void onReadCodeResult(CodeResult result) {
+                BarCodeUtil.d("result : " + result.toString());
+            }
+
+            @Override
+            public void onFocus() {
+                BarCodeUtil.d("not found code too many times , try focus");
+            }
+
+            @Override
+            public void onAnalysisBrightness(boolean isDark) {
+                BarCodeUtil.d("isDark : " + isDark);
+            }
+        });
     }
 
     @Override
