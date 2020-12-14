@@ -93,7 +93,7 @@ Scanner.with(this)
 
 或者使用ScanView来自定义你的界面
 ```xml
-<me.devilsen.czxing.view.ScanView
+<me.devilsen.czxing.view.scanview.ScanView
     android:id="@+id/surface_view_scan"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />

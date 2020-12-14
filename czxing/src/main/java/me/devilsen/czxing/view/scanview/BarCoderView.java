@@ -1,4 +1,4 @@
-package me.devilsen.czxing.view;
+package me.devilsen.czxing.view.scanview;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
@@ -19,8 +19,8 @@ import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.CameraUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 
-import static me.devilsen.czxing.view.ScanView.SCAN_MODE_MIX;
-import static me.devilsen.czxing.view.ScanView.SCAN_MODE_TINY;
+import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_MIX;
+import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
 
 /**
  * @author : dongSen

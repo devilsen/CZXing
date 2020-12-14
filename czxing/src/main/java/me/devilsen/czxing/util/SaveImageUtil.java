@@ -1,11 +1,11 @@
 package me.devilsen.czxing.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.os.Environment;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public class SaveImageUtil {
 
-    public static void saveData(byte[] data, int left, int top, int width, int height, int rowWidth) {
+    public static void saveData(Context context, byte[] data, int left, int top, int width, int height, int rowWidth) {
         if (System.currentTimeMillis() - time < 5000) {
             return;
         }
@@ -40,7 +40,7 @@ public class SaveImageUtil {
         // 当长宽不一样时，要注意图像的正反
         Bitmap bmp = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
         bmp.setPixels(rgba, 0, height, 0, 0, height, width);
-        saveImage(bmp);
+        saveImage(context, bmp);
 
 //        bmp = getBinaryzationBitmap(bmp);
 //        Bitmap bmp = rawByteArray2RGBABitmap2(data, rowWidth, width);
@@ -103,6 +103,7 @@ public class SaveImageUtil {
      * 对图片进行二值化处理
      *
      * @param bm 原始图片
+     *
      * @return 二值化处理后的图片
      */
     public static Bitmap getBinaryzationBitmap(Bitmap bm) {
@@ -180,16 +181,21 @@ public class SaveImageUtil {
 
     private static long time;
 
-    public static void saveImage(Bitmap bitmap) {
+    public static void saveImage(Context context, Bitmap bitmap) {
         String thumbPath = System.currentTimeMillis() + ".jpg";
-        String fold = Environment.getExternalStorageDirectory().getAbsolutePath() + "/scan/";
+        String fold = context.getExternalCacheDir().getAbsolutePath() + "/scan/";
         File file = new File(fold, thumbPath);
 
         FileOutputStream out = null;
 
         try {
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                boolean mkdirs = file.getParentFile().mkdirs();
+                if (mkdirs) {
+                    Log.d("save >>> ", "make dir success ");
+                } else {
+                    Log.e("save >>> ", "make dir fail ");
+                }
             }
             if (!file.exists()) {
                 file.createNewFile();
@@ -200,7 +206,7 @@ public class SaveImageUtil {
             if (bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)) {
                 out.flush();
                 out.close();
-                Log.e("save >>> ", "save image success");
+                Log.d("save >>> ", "save image success, path = " + file.getAbsolutePath());
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.devilsen.czxing.code.BarcodeFormat;
-import me.devilsen.czxing.view.ScanActivityDelegate;
+import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 
 /**
  * desc : 扫码API管理

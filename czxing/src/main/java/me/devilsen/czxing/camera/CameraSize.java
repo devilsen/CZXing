@@ -73,7 +73,7 @@ public class CameraSize {
      * https://d.android.com/reference/android/hardware/camera2/CameraDevice and
      * https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
      */
-    public <T> Size getPreviewOutputSize(
+    public static <T> Size getPreviewOutputSize(
             Display display,
             CameraCharacteristics characteristics,
             Class<T> targetClass) {

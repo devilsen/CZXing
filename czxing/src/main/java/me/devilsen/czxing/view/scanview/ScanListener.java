@@ -1,4 +1,4 @@
-package me.devilsen.czxing.view;
+package me.devilsen.czxing.view.scanview;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 

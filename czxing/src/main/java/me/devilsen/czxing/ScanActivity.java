@@ -21,10 +21,10 @@ import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
-import me.devilsen.czxing.view.ScanActivityDelegate;
-import me.devilsen.czxing.view.ScanBoxView;
-import me.devilsen.czxing.view.ScanListener;
-import me.devilsen.czxing.view.ScanView;
+import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
+import me.devilsen.czxing.view.scanview.ScanBoxView;
+import me.devilsen.czxing.view.scanview.ScanListener;
+import me.devilsen.czxing.view.scanview.ScanView;
 
 
 /**

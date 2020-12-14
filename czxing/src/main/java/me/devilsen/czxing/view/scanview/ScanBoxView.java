@@ -1,4 +1,4 @@
-package me.devilsen.czxing.view;
+package me.devilsen.czxing.view.scanview;
 
 import android.animation.ValueAnimator;
 import android.content.Context;

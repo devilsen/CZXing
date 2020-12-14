@@ -31,8 +31,8 @@ import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
-import me.devilsen.czxing.view.ScanActivityDelegate;
-import me.devilsen.czxing.view.ScanView;
+import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
+import me.devilsen.czxing.view.scanview.ScanView;
 
 public class MainActivity extends AppCompatActivity {
 

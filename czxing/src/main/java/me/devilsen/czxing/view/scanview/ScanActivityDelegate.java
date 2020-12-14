@@ -1,4 +1,4 @@
-package me.devilsen.czxing.view;
+package me.devilsen.czxing.view.scanview;
 
 import android.app.Activity;
 import android.content.Intent;
