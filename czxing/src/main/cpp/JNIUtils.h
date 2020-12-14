@@ -33,7 +33,7 @@
 
 #ifdef DEBUG
 #define LOGE(...)                                                                                  \
-    __android_log_print(ANDROID_LOG_ERROR, ZX_LOG_TAG, __VA_ARGS__)
+    __android_log_print(ANDROID_LOG_ERROR, ZX_LOG_TAG, __VA_ARGS__);
 #else
 #define LOGE(...)                                                                                  \
 {}

@@ -46,7 +46,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
 public class ScanCamera2 extends ScanCamera {
 
     /** Maximum number of images that will be held in the reader's buffer */
-    private static final int IMAGE_BUFFER_SIZE = 2;
+    private static final int IMAGE_BUFFER_SIZE = 1;
     private static final String FOCUS_TAG = "focus_tag";
 
     private final CameraManager mCameraManager;

@@ -70,7 +70,7 @@ public class ScanBoxTestActivity extends AppCompatActivity {
             @Override
             public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
                 int bisSize = Math.min(rowWidth, rowHeight);
-                reader.read(data, 0, 0, bisSize, bisSize, rowHeight,rowWidth );
+                reader.read(data, 0, 0, bisSize, bisSize, rowWidth,rowHeight );
             }
         });
 
@@ -93,11 +93,18 @@ public class ScanBoxTestActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        reader.prepareRead();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             camera2.onStop();
         }
+        reader.stopRead();
     }
 
     @Override

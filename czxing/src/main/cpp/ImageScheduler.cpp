@@ -147,7 +147,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
                     Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
         }
 
-        saveMat(gray);
+//        saveMat(gray);
 
         // 分析亮度，如果亮度过低，不进行处理
         analysisBrightness(gray);
