@@ -1,16 +1,14 @@
 package me.devilsen.czxing.view.scanview;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
-import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.util.SaveImageUtil;
 
 /**
  * @author : dongSen
@@ -20,17 +18,11 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
         BarcodeReader.ReadCodeListener {
 
-    /**
-     * 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
-     */
+    /** 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容 */
     public static final int SCAN_MODE_MIX = 0;
-    /**
-     * 只扫描扫码框里的内容
-     */
+    /** 只扫描扫码框里的内容 */
     public static final int SCAN_MODE_TINY = 1;
-    /**
-     * 扫描以屏幕宽为边长的内容
-     */
+    /** 扫描以屏幕宽为边长的内容 */
     public static final int SCAN_MODE_BIG = 2;
 
     private static final int DARK_LIST_SIZE = 4;
@@ -38,7 +30,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     private boolean isStop;
     private boolean isDark;
     private int showCounter;
-    private BarcodeReader reader;
+    private final BarcodeReader reader;
     private ScanListener.AnalysisBrightnessListener brightnessListener;
 
     public ScanView(Context context) {
@@ -60,13 +52,12 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         if (isStop) {
             return;
         }
-
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
-//        SaveImageUtil.saveData(data, left, top, width, height, rowWidth);
+        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
     }
 
     /**
-     * 设置亮度分析会调
+     * 设置亮度分析回调
      */
     public void setAnalysisBrightnessListener(ScanListener.AnalysisBrightnessListener brightnessListener) {
         this.brightnessListener = brightnessListener;
@@ -93,8 +84,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     @Override
     public void stopScan() {
         super.stopScan();
-        mScanBoxView.turnOffLight();
-        mCameraSurface.closeFlashlight();
         reader.stopRead();
         isStop = true;
         reader.setReadCodeListener(null);
@@ -122,7 +111,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     @Override
     public void onFocus() {
         BarCodeUtil.d("not found code too many times , try focus");
-        mCameraSurface.onFrozen();
+        mCamera.onFrozen();
     }
 
     @Override
@@ -131,10 +120,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
 
         if (isDark) {
             showCounter++;
-            showCounter = showCounter > DARK_LIST_SIZE ? DARK_LIST_SIZE : showCounter;
+            showCounter = Math.min(showCounter, DARK_LIST_SIZE);
         } else {
             showCounter--;
-            showCounter = showCounter < 0 ? 0 : showCounter;
+            showCounter = Math.max(showCounter, 0);
         }
 
         if (this.isDark) {
@@ -154,16 +143,13 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         }
     }
 
-    public void resetZoom() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            setZoomValue(0);
-        }
-    }
-
     @Override
     public void onFlashLightClick() {
-        mCameraSurface.toggleFlashLight(isDark);
+        if (mCamera.isFlashLighting()) {
+            closeFlashlight();
+        } else if (isDark) {
+            openFlashlight();
+        }
     }
 
 }

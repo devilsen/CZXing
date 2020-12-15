@@ -2,6 +2,7 @@ package me.devilsen.czxing.camera;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.SystemClock;
 
 import me.devilsen.czxing.util.SensorController;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
@@ -12,15 +13,22 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
  *
  * @author : dongSen
  */
-public abstract class ScanCamera implements SensorController.CameraFocusListener,AutoFitSurfaceView.OnTouchListener {
+public abstract class ScanCamera implements SensorController.CameraFocusListener,
+        AutoFitSurfaceView.OnTouchListener {
 
-    protected Context mContext;
-    protected AutoFitSurfaceView mSurfaceView;
-    protected Point mFocusCenter;
-    protected boolean mPreviewing;
-    protected boolean mZoomOutFlag;
-    protected ScanPreviewCallback mScanCallback;
+    private static final long ONE_SECOND = 1000;
+
+    protected final Context mContext;
+    protected final AutoFitSurfaceView mSurfaceView;
     protected final SensorController mSensorController;
+
+    private long mLastFrozenTime;
+    protected Point mFocusCenter;
+    protected boolean mZoomOutFlag;
+    protected boolean mIsFlashLighting;
+    protected boolean mPreviewing;
+
+    protected ScanPreviewCallback mScanCallback;
 
     public ScanCamera(Context context, AutoFitSurfaceView surfaceView) {
         this.mContext = context;
@@ -35,7 +43,7 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
 
     public abstract void onResume();
 
-    public abstract void onStop();
+    public abstract void onPause();
 
     public abstract void onDestroy();
 
@@ -47,20 +55,27 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
         return mPreviewing;
     }
 
-    public abstract void startCameraPreview();
-
-    public abstract void stopCameraPreview();
-
     public abstract void openFlashlight();
 
     public abstract void closeFlashlight();
 
-    public abstract void focus(int focusPointX, int focusPointY);
+    public boolean isFlashLighting() {
+        return mIsFlashLighting;
+    }
 
-    /**
-     * 放大缩小
-     */
-    public abstract int zoom(int zoomValue);
+    public abstract void focus(float focusPointX, float focusPointY);
+
+    /** 是否支持缩放 */
+    public abstract boolean isZoomSupported();
+
+    /** 最大缩放倍数 */
+    public abstract float getMaxZoom();
+
+    /** 获取当前缩放 */
+    public abstract float getZoom();
+
+    /** 缩放镜头 */
+    public abstract float zoom(float zoomValue);
 
     /**
      * 是否有过缩小操作
@@ -69,6 +84,32 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
      */
     public boolean hadZoomOut() {
         return mZoomOutFlag;
+    }
+
+    @Override
+    public void touchFocus(float x, float y) {
+        focus(x, y);
+    }
+
+    @Override
+    public void onFrozen() {
+        if (mSurfaceView == null || mSurfaceView.getWidth() == 0) return;
+        long now = SystemClock.uptimeMillis();
+        if (now - mLastFrozenTime < ONE_SECOND) {
+            return;
+        }
+        mLastFrozenTime = now;
+
+        int x, y;
+        if (mFocusCenter != null) {
+            x = mFocusCenter.x;
+            y = mFocusCenter.y;
+        } else {
+            x = mSurfaceView.getWidth() / 2;
+            y = mSurfaceView.getHeight() / 2;
+        }
+
+        focus(x, y);
     }
 
     public void setPreviewListener(ScanPreviewCallback listener) {

@@ -114,8 +114,8 @@ public class AutoFitSurfaceView extends SurfaceView {
             case MotionEvent.ACTION_MOVE:
                 float newDist = CameraUtil.calculateFingerSpacing(event);
                 float distance = newDist - mOldDist;
-                if (mOnTouchListener != null) {
-                    mOnTouchListener.zoom(distance);
+                if (mOnTouchListener != null && distance != 0) {
+                    mOnTouchListener.touchZoom(distance);
                 }
                 break;
         }
@@ -130,7 +130,7 @@ public class AutoFitSurfaceView extends SurfaceView {
 
         void touchFocus(float x, float y);
 
-        void zoom(float distance);
+        void touchZoom(float distance);
     }
 
 }

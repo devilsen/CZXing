@@ -124,7 +124,7 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
 
 void saveMat(const Mat &mat) {
     const Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
-    imwrite("/storage/emulated/0/scan/result.jpg", resultMat);
+    imwrite("/storage/emulated/0/Android/data/me.devilsen.czxing/cache/scan/result.jpg", resultMat);
 }
 
 /**
@@ -147,7 +147,7 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
                     Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
         }
 
-//        saveMat(gray);
+        saveMat(gray);
 
         // 分析亮度，如果亮度过低，不进行处理
         analysisBrightness(gray);

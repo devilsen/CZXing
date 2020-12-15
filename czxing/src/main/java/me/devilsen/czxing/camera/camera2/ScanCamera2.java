@@ -46,7 +46,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
 public class ScanCamera2 extends ScanCamera {
 
     /** Maximum number of images that will be held in the reader's buffer */
-    private static final int IMAGE_BUFFER_SIZE = 1;
+    private static final int IMAGE_BUFFER_SIZE = 3;
     private static final String FOCUS_TAG = "focus_tag";
 
     private final CameraManager mCameraManager;
@@ -70,14 +70,17 @@ public class ScanCamera2 extends ScanCamera {
 
     /** Is support flash light */
     private boolean isFlashSupported;
-    /** Is the flash opening */
-    private boolean isTorchOn;
     /** AF stands for AutoFocus */
     private boolean isAFSupported;
     /** AE stands for AutoExposure */
     private boolean isAESupported;
     /** Manual focus is engaging */
     private boolean mManualFocusEngaged;
+
+    private float mZoomLevel;
+    private float mMaxZoomLevel;
+    private boolean mCameraOping;
+    private boolean mCameraClosed;
 
     public ScanCamera2(Context context, AutoFitSurfaceView surfaceView) {
         super(context, surfaceView);
@@ -86,21 +89,30 @@ public class ScanCamera2 extends ScanCamera {
 
     @Override
     public void onCreate() {
-        createCamera();
+        if (mCamera != null || mCameraOping) return;
+        setUpCameraId();
+        setupCallback();
     }
 
     @Override
     public void onResume() {
-
+        mCameraClosed = false;
+        mSensorController.onStart();
     }
 
     @Override
-    public void onStop() {
-        isTorchOn = false;
+    public void onPause() {
+        if (mCameraClosed) return;
+        mCameraClosed = true;
+
+        mIsFlashLighting = false;
+        closeFlashlight();
+        mSensorController.onStop();
         try {
             mCamera.close();
         } catch (Throwable throwable) {
             BarCodeUtil.e("Error closing camera" + throwable);
+            mCameraClosed = false;
         }
     }
 
@@ -120,16 +132,12 @@ public class ScanCamera2 extends ScanCamera {
         }
     }
 
-    private void createCamera() {
-        setUpCameraId();
-        setupCallback();
-    }
-
     /**
      * 1. get the back camera id
      */
     private void setUpCameraId() {
         try {
+            mCameraOping = true;
             String[] cameraIdList = mCameraManager.getCameraIdList();
 
             for (String cameraId : cameraIdList) {
@@ -294,6 +302,7 @@ public class ScanCamera2 extends ScanCamera {
             mCaptureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mCaptureBuilder.addTarget(mImageReader.getSurface());
             mCaptureBuilder.addTarget(mSurfaceView.getHolder().getSurface());
+            mCameraOping = false;
 
             session.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
         } catch (CameraAccessException e) {
@@ -302,24 +311,14 @@ public class ScanCamera2 extends ScanCamera {
     }
 
     @Override
-    public void startCameraPreview() {
-
-    }
-
-    @Override
-    public void stopCameraPreview() {
-
-    }
-
-    @Override
     public void openFlashlight() {
-        if (!isFlashSupported || isTorchOn) {
+        if (!isFlashSupported || mIsFlashLighting) {
             return;
         }
         try {
             mCaptureBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
             mCaptureSession.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
-            isTorchOn = true;
+            mIsFlashLighting = true;
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -327,43 +326,44 @@ public class ScanCamera2 extends ScanCamera {
 
     @Override
     public void closeFlashlight() {
-        if (!isFlashSupported || !isTorchOn) {
+        if (!isFlashSupported || !mIsFlashLighting) {
             return;
         }
         try {
             mCaptureBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF);
             mCaptureSession.setRepeatingRequest(mCaptureBuilder.build(), null, mCameraHandler);
-            isTorchOn = false;
+            mIsFlashLighting = false;
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void focus(int focusPointX, int focusPointY) {
+    public void focus(float focusPointX, float focusPointY) {
         try {
+            BarCodeUtil.d("Focus x = " + focusPointX + " y = " + focusPointY);
             setFocusArea(focusPointX, focusPointY);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
     }
 
-    private void setFocusArea(int focusPointX, int focusPointY) throws CameraAccessException {
+    private void setFocusArea(float focusPointX, float focusPointY) throws CameraAccessException {
         if (focusPointX < 0 || focusPointY < 0) return;
         if (mManualFocusEngaged) return;
 
-        int y = focusPointX;
-        int x = focusPointY;
+        float y = focusPointX;
+        float x = focusPointY;
 
         if (mSensorArraySize != null) {
-            y = (int) (((float) focusPointX / mSurfaceView.getWidth()) * (float) mSensorArraySize.height());
-            x = (int) (((float) focusPointY / mSurfaceView.getHeight()) * (float) mSensorArraySize.width());
+            y = (int) ((focusPointX / mSurfaceView.getWidth()) * (float) mSensorArraySize.height());
+            x = (int) ((focusPointY / mSurfaceView.getHeight()) * (float) mSensorArraySize.width());
         }
 
         final int halfTouchLength = 150;
         MeteringRectangle focusArea = new MeteringRectangle(
-                Math.max(x - halfTouchLength, 0),
-                Math.max(y - halfTouchLength, 0),
+                (int) Math.max(x - halfTouchLength, 0),
+                (int) Math.max(y - halfTouchLength, 0),
                 halfTouchLength * 2,
                 halfTouchLength * 2,
                 MeteringRectangle.METERING_WEIGHT_MAX - 1);
@@ -418,7 +418,15 @@ public class ScanCamera2 extends ScanCamera {
     };
 
     @Override
-    public int zoom(int zoomLevel) {
+    public boolean isZoomSupported() {
+        return mSensorArraySize != null;
+    }
+
+    @Override
+    public float zoom(float zoomLevel) {
+        if (mCharacteristics == null || mCaptureBuilder == null || mCaptureSession == null) {
+            return 0;
+        }
         try {
             float maxZoom = getMaxZoom();
             Rect m = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
@@ -428,13 +436,17 @@ public class ScanCamera2 extends ScanCamera {
             if (zoomLevel > maxZoom) {
                 return (int) maxZoom;
             }
+            if (zoomLevel < mZoomLevel) {
+                mZoomOutFlag = true;
+            }
+            mZoomLevel = zoomLevel;
 
             int minW = (int) (m.width() / maxZoom);
             int minH = (int) (m.height() / maxZoom);
             int difW = m.width() - minW;
             int difH = m.height() - minH;
-            int cropW = difW / 100 * zoomLevel;
-            int cropH = difH / 100 * zoomLevel;
+            int cropW = (int) (difW / 100 * zoomLevel);
+            int cropH = (int) (difH / 100 * zoomLevel);
             cropW -= cropW & 3;
             cropH -= cropH & 3;
             Rect zoom = new Rect(cropW, cropH, m.width() - cropW, m.height() - cropH);
@@ -448,37 +460,32 @@ public class ScanCamera2 extends ScanCamera {
         return zoomLevel;
     }
 
-    private float maxZoom;
-
-    private float getMaxZoom() {
-        if (maxZoom == 0) {
-            maxZoom = (mCharacteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)) * 7;
+    @Override
+    public float getMaxZoom() {
+        if (mMaxZoomLevel == 0) {
+            mMaxZoomLevel = (mCharacteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)) * 7;
         }
-        return maxZoom;
+        return mMaxZoomLevel;
     }
 
     @Override
-    public void onFrozen() {
-        if (mSurfaceView == null || mSurfaceView.getWidth() == 0) return;
-        try {
-            setFocusArea(mSurfaceView.getWidth() / 2, mSurfaceView.getHeight() / 2);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
+    public float getZoom() {
+        return mZoomLevel;
     }
 
     @Override
     public void doubleTap() {
-
+        mZoomLevel = mZoomLevel + 5;
+        zoom(mZoomLevel);
     }
 
     @Override
-    public void touchFocus(float x, float y) {
-
-    }
-
-    @Override
-    public void zoom(float distance) {
-
+    public void touchZoom(float distance) {
+        if (distance > 0) {
+            mZoomLevel++;
+        } else {
+            mZoomLevel--;
+        }
+        zoom(mZoomLevel);
     }
 }

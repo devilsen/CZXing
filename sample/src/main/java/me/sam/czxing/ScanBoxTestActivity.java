@@ -22,7 +22,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
 public class ScanBoxTestActivity extends AppCompatActivity {
 
     private AutoFitSurfaceView mSurface;
-    private ScanCamera2 camera2;
+    private ScanCamera camera2;
     private BarcodeReader reader;
 
     @Override
@@ -70,7 +70,7 @@ public class ScanBoxTestActivity extends AppCompatActivity {
             @Override
             public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
                 int bisSize = Math.min(rowWidth, rowHeight);
-                reader.read(data, 0, 0, bisSize, bisSize, rowWidth,rowHeight );
+                reader.read(data, 0, 0, bisSize, bisSize, rowWidth, rowHeight);
             }
         });
 
@@ -96,13 +96,16 @@ public class ScanBoxTestActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         reader.prepareRead();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            camera2.onResume();
+        }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            camera2.onStop();
+            camera2.onPause();
         }
         reader.stopRead();
     }
@@ -135,11 +138,11 @@ public class ScanBoxTestActivity extends AppCompatActivity {
 
     public void zoomIn(View view) {
         zoomValue = zoomValue + 5;
-        zoomValue = camera2.zoom(zoomValue);
+        zoomValue = (int) camera2.zoom(zoomValue);
     }
 
     public void zoomOut(View view) {
         zoomValue = zoomValue - 5;
-        zoomValue = camera2.zoom(zoomValue);
+        zoomValue = (int) camera2.zoom(zoomValue);
     }
 }

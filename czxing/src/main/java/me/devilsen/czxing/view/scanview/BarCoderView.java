@@ -5,19 +5,24 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
-import android.hardware.Camera;
+import android.os.Build;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
-import me.devilsen.czxing.camera.camera1.Camera1Surface;
+import me.devilsen.czxing.camera.ScanCamera;
+import me.devilsen.czxing.camera.camera1.ScanCamera1;
+import me.devilsen.czxing.camera.camera2.ScanCamera2;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.CameraUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
+import me.devilsen.czxing.view.AutoFitSurfaceView;
+import me.devilsen.czxing.view.resultview.ScanResultView;
 
 import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_MIX;
 import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
@@ -27,15 +32,15 @@ import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
  * date : 2019-06-29 15:35
  * desc : 二维码扫描界面，包括Surface和Box
  */
-abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallback {
+abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPreviewCallback {
 
     private static final int DEFAULT_ZOOM_SCALE = 3;
-    private static final long ONE_HUNDRED_MILLISECONDS = 100_000_000;
-    private final static long DELAY_STEP_TIME = 10_000_000;
+    private static final long ONE_HUNDRED_MILLISECONDS = 100;
 
-    private Camera mCamera;
-    Camera1Surface mCameraSurface;
-    ScanBoxView mScanBoxView;
+    protected ScanCamera mCamera;
+    private AutoFitSurfaceView mCameraSurface;
+    protected ScanBoxView mScanBoxView;
+    private ScanResultView mScanResultView;
 
     protected boolean mSpotAble;
     private int scanSequence;
@@ -45,7 +50,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private long processLastTime;
     private long mLastAutoZoomTime;
-    private long mDelayTime = ONE_HUNDRED_MILLISECONDS;
     private ResolutionAdapterUtil resolutionAdapter;
     private int scanMode;
 
@@ -64,15 +68,16 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
 
     private void init(Context context) {
         setBackground(null);
-        mCameraSurface = new Camera1Surface(context);
-        mCameraSurface.setPreviewListener(new Camera1Surface.SurfacePreviewListener() {
-            @Override
-            public void onStartPreview() {
-                setPreviewCallback();
-            }
-        });
+        mCameraSurface = new AutoFitSurfaceView(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mCamera = new ScanCamera2(context, mCameraSurface);
+        } else {
+            mCamera = new ScanCamera1(context, mCameraSurface);
+        }
+        mCamera.onCreate();
+        mCamera.setPreviewListener(this);
 
-        FrameLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         addView(mCameraSurface, params);
 
@@ -86,13 +91,13 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         resolutionAdapter.setResolutionSize(right - left, bottom - top);
-        mCameraSurface.setScanBoxPoint(mScanBoxView.getScanBoxCenter());
+        mCamera.setScanBoxPoint(mScanBoxView.getScanBoxCenter());
     }
 
     @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        long now = System.nanoTime();
-        if (Math.abs(now - processLastTime) < mDelayTime) {
+    public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
+        long now = SystemClock.uptimeMillis();
+        if ((now - processLastTime) < ONE_HUNDRED_MILLISECONDS) {
             return;
         }
         processLastTime = now;
@@ -101,13 +106,9 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
             Rect scanBoxRect = mScanBoxView.getScanBoxRect();
             int scanBoxSize = mScanBoxView.getScanBoxSizeExpand();
             int expandTop = mScanBoxView.getExpandTop();
-            Camera.Parameters parameters = mCamera.getParameters();
-            Camera.Size size = parameters.getPreviewSize();
 
             int left;
             int top;
-            int rowWidth = size.width;
-            int rowHeight = size.height;
             // 这里需要把得到的数据也翻转
             boolean portrait = CameraUtil.isPortrait(getContext());
             if (portrait) {
@@ -137,14 +138,14 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 onPreviewFrame(data, left, top, width, height, rowWidth, rowHeight);
             } else {
                 scanSequence = -1;
-                int bisSize = rowWidth < rowHeight ? rowWidth : rowHeight;
+                int bisSize = Math.min(rowWidth, rowHeight);
                 onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
             }
             scanSequence++;
         } else if (scanMode == SCAN_MODE_TINY) {
             onPreviewFrame(data, left, top, width, height, rowWidth, rowHeight);
         } else {
-            int bisSize = rowWidth < rowHeight ? rowWidth : rowHeight;
+            int bisSize = Math.min(rowWidth, rowHeight);
             onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
         }
     }
@@ -155,64 +156,26 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         mScanListener = listener;
     }
 
+    public void openCamera() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            mCamera.onCreate();
+        }
+    }
+
+    public void closeCamera() {
+        mCamera.onPause();
+    }
+
     public void startScan() {
         mSpotAble = true;
-        openCamera();
-        setPreviewCallback();
         mScanBoxView.startAnim();
     }
 
     public void stopScan() {
         mSpotAble = false;
         mScanBoxView.stopAnim();
-
-        if (mCamera == null) {
-            return;
-        }
-        try {
-            mCamera.setPreviewCallback(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void openCamera() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            // TODO open camera
-//            openCamera(mCameraId);
-        }
-    }
-
-    /**
-     * 添加摄像头获取图像数据的回调
-     */
-    private void setPreviewCallback() {
-        if (mSpotAble && mCameraSurface.isPreviewing()) {
-            try {
-                mCamera.setPreviewCallback(this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * 关闭摄像头预览
-     */
-    public void closeCamera() {
-        try {
-            stopSpotAndHiddenRect();
-            if (mCamera != null) {
-                mCameraSurface.closeFlashlight();
-                mCameraSurface.stopCameraPreview();
-                mCameraSurface.setCamera(null);
-                mCamera.release();
-                mCamera = null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mScanBoxView.turnOffLight();
     }
 
     /**
@@ -220,7 +183,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      */
     public void stopSpotAndHiddenRect() {
         stopScan();
-//        hiddenScanRect();
     }
 
     /**
@@ -228,7 +190,6 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      */
     public void startSpotAndShowRect() {
         startScan();
-//        showScanRect();
     }
 
     /**
@@ -308,7 +269,7 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         try {
             BarCodeUtil.d("len: " + len);
 
-            if (mCamera == null || mScanBoxView == null || len <= 0 || mCameraSurface.hadZoomOut()) {
+            if (mCamera == null || mScanBoxView == null || len <= 0 || mCamera.hadZoomOut()) {
                 return;
             }
 
@@ -329,27 +290,26 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
                 return;
             }
 
-            if (System.currentTimeMillis() - mLastAutoZoomTime < 220) {
+            if (SystemClock.uptimeMillis() - mLastAutoZoomTime < 220) {
                 return;
             }
 
-            Camera.Parameters parameters = mCamera.getParameters();
-            if (!parameters.isZoomSupported()) {
+            if (!mCamera.isZoomSupported()) {
                 return;
             }
 
             // 二维码在扫描框中的宽度小于扫描框的 1/4，放大镜头
-            final int maxZoom = parameters.getMaxZoom();
+            final int maxZoom = (int) mCamera.getMaxZoom();
             // 在一些低端机上放太大，可能会造成画面过于模糊，无法识别
             final int maxCanZoom = maxZoom / 2;
             final int zoomStep = maxZoom / 6;
-            final int zoom = parameters.getZoom();
+            final int zoom = (int) mCamera.getZoom();
 //        BarCodeUtil.d("maxZoom: " + maxZoom + " maxCanZoom:" + maxCanZoom + " current: " + zoom + " len:" + len);
 
             ExecutorUtil.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    startAutoZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom));
+                    startAnimationZoom(zoom, Math.min(zoom + zoomStep, maxCanZoom));
                 }
             });
         } catch (Exception e) {
@@ -357,34 +317,28 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
     }
 
-
-    private void startAutoZoom(int oldZoom, int newZoom) {
+    private void startAnimationZoom(int oldZoom, int newZoom) {
         mAutoZoomAnimator = ValueAnimator.ofInt(oldZoom, newZoom);
         mAutoZoomAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                if (mCameraSurface == null || !mCameraSurface.isPreviewing()) {
+                if (mCameraSurface == null) {
                     return;
                 }
                 int zoom = (int) animation.getAnimatedValue();
-                Camera.Parameters parameters = mCamera.getParameters();
-                parameters.setZoom(zoom);
-                mCamera.setParameters(parameters);
+                mCamera.zoom(zoom);
             }
         });
         mAutoZoomAnimator.setDuration(200);
         mAutoZoomAnimator.setInterpolator(new DecelerateInterpolator());
         mAutoZoomAnimator.start();
-        mLastAutoZoomTime = System.currentTimeMillis();
+        mLastAutoZoomTime = SystemClock.uptimeMillis();
     }
 
-    protected void setZoomValue(int zoom) {
-        try {
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setZoom(zoom);
-            mCamera.setParameters(parameters);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public void resetZoom() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            mCamera.zoom(0);
         }
     }
 
@@ -396,32 +350,11 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
         }
     }
 
-    /**
-     * 设置时间回调处理间隔
-     *
-     * @param queueSize 阻塞线程中正在处理的线程数
-     */
-    void setQueueSize(int queueSize) {
-        if (queueSize == 0 && mDelayTime > ONE_HUNDRED_MILLISECONDS) {
-            mDelayTime -= DELAY_STEP_TIME * 10;
-        }
-
-        if (queueSize > 1) {
-            mDelayTime += DELAY_STEP_TIME * 50;
-        }
-
-        BarCodeUtil.d("delay time : " + mDelayTime / 1000000);
-    }
-
-    public ScanBoxView getScanBox() {
-        return mScanBoxView;
-    }
-
     public void onDestroy() {
         if (mScanBoxView != null) {
             mScanBoxView.onDestroy();
         }
-        closeCamera();
+        mCamera.onDestroy();
         mScanListener = null;
     }
 
@@ -453,8 +386,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      * 打开闪光灯
      */
     public void openFlashlight() {
-        if (mCameraSurface != null) {
-            mCameraSurface.openFlashlight();
+        if (mCamera != null) {
+            mCamera.openFlashlight();
         }
     }
 
@@ -462,8 +395,8 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      * 关闭闪光灯
      */
     public void closeFlashlight() {
-        if (mCameraSurface != null) {
-            mCameraSurface.closeFlashlight();
+        if (mCamera != null) {
+            mCamera.closeFlashlight();
         }
     }
 
@@ -472,7 +405,12 @@ abstract class BarCoderView extends FrameLayout implements Camera.PreviewCallbac
      *
      * @return CameraSurface
      */
-    public Camera1Surface getCameraSurface() {
+    public AutoFitSurfaceView getCameraSurface() {
         return mCameraSurface;
     }
+
+    public ScanBoxView getScanBox() {
+        return mScanBoxView;
+    }
+
 }
