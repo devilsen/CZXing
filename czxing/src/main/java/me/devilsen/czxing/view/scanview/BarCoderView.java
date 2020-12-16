@@ -78,11 +78,11 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
     private void init(Context context) {
         setBackground(null);
         mCameraSurface = new AutoFitSurfaceView(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mCamera = new ScanCamera2(context, mCameraSurface);
-        } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            mCamera = new ScanCamera2(context, mCameraSurface);
+//        } else {
             mCamera = new ScanCamera1(context, mCameraSurface);
-        }
+//        }
         mCamera.onCreate();
         mCamera.setPreviewListener(this);
 

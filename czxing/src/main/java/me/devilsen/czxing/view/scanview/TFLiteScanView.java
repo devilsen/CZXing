@@ -54,8 +54,8 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
 
     private static final float TEXT_SIZE_DIP = 10;
     private static final int TF_OD_API_INPUT_SIZE = 416;
-    private static final String TF_OD_API_MODEL_FILE = "yolov4-416-fp32.tflite";
-    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/coco.txt";
+    private static final String TF_OD_API_MODEL_FILE = "yolov4-416-qrcode.tflite";
+    private static final String TF_OD_API_LABELS_FILE = "file:///android_asset/qrcode_coco.txt";
     private static final boolean TF_OD_API_IS_QUANTIZED = false;
     private static final boolean MAINTAIN_ASPECT = false;
     private static final boolean SAVE_PREVIEW_BITMAP = false;
@@ -229,6 +229,7 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
         computingDetection = true;
         BarCodeUtil.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
+        if(rgbFrameBitmap == null) return;
         rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
 
         readyForNextImage();
