@@ -46,7 +46,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
 public class ScanCamera2 extends ScanCamera {
 
     /** Maximum number of images that will be held in the reader's buffer */
-    private static final int IMAGE_BUFFER_SIZE = 3;
+    private static final int IMAGE_BUFFER_SIZE = 2;
     private static final String FOCUS_TAG = "focus_tag";
 
     private final CameraManager mCameraManager;
@@ -81,6 +81,7 @@ public class ScanCamera2 extends ScanCamera {
     private float mMaxZoomLevel;
     private boolean mCameraOping;
     private boolean mCameraClosed;
+    private Size mPreviewSize;
 
     public ScanCamera2(Context context, AutoFitSurfaceView surfaceView) {
         super(context, surfaceView);
@@ -164,10 +165,10 @@ public class ScanCamera2 extends ScanCamera {
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
-                Size previewSize = CameraSize.getPreviewOutputSize(mSurfaceView.getDisplay(), mCharacteristics, SurfaceHolder.class);
+                mPreviewSize = CameraSize.getPreviewOutputSize(mSurfaceView.getDisplay(), mCharacteristics, SurfaceHolder.class);
                 BarCodeUtil.d("View finder size: " + mSurfaceView.getWidth() + " x " + mSurfaceView.getHeight());
-                BarCodeUtil.d("Selected preview size: " + previewSize);
-                mSurfaceView.setAspectRatio(previewSize.getWidth(), previewSize.getHeight());
+                BarCodeUtil.d("Selected preview size: " + mPreviewSize);
+                mSurfaceView.setAspectRatio(mPreviewSize.getWidth(), mPreviewSize.getHeight());
 
                 mSurfaceView.post(new Runnable() {
                     @Override
@@ -244,21 +245,22 @@ public class ScanCamera2 extends ScanCamera {
         isAESupported = aeState != null && aeState >= 1;
         mSensorArraySize = mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
 
-        Size maxSize = new Size(0, 0);
-        int area = 0;
-        for (Size size : outputSizes) {
-            int areaTemp = size.getWidth() * size.getHeight();
-            if (areaTemp > area) {
-                area = areaTemp;
-                maxSize = size;
-            }
-        }
-
-        mImageReader = ImageReader.newInstance(maxSize.getWidth(), maxSize.getHeight(), pixelFormat, IMAGE_BUFFER_SIZE);
+//        Size maxSize = new Size(0, 0);
+//        int area = 0;
+//        for (Size size : outputSizes) {
+//            int areaTemp = size.getWidth() * size.getHeight();
+//            if (areaTemp > area) {
+//                area = areaTemp;
+//                maxSize = size;
+//            }
+//        }
+        BarCodeUtil.d("image reader-preview size: width = " + mPreviewSize.getWidth() + " height = " + mPreviewSize.getHeight());
+        mImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), pixelFormat, IMAGE_BUFFER_SIZE);
         mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
                 if (mScanCallback != null) {
+//                    BarCodeUtil.d("image reader: width  = " + mImageReader.getWidth() + " height = " + mImageReader.getHeight());
                     mScanCallback.onPreviewFrame(Camera2Helper.readYuv(reader), mImageReader.getWidth(), mImageReader.getHeight());
                 }
             }
@@ -424,7 +426,7 @@ public class ScanCamera2 extends ScanCamera {
 
     @Override
     public float zoom(float zoomLevel) {
-        if (mCharacteristics == null || mCaptureBuilder == null || mCaptureSession == null) {
+        if (mCharacteristics == null || mCaptureBuilder == null || mCaptureSession == null || mCameraClosed) {
             return 0;
         }
         try {

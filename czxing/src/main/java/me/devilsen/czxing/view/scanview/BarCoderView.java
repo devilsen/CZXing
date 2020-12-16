@@ -19,7 +19,6 @@ import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.CameraUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 import me.devilsen.czxing.view.resultview.ScanResultView;
@@ -110,8 +109,9 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
             int left;
             int top;
             // 这里需要把得到的数据也翻转
-            boolean portrait = CameraUtil.isPortrait(getContext());
-            if (portrait) {
+            boolean portrait = rowWidth > rowHeight;
+//            BarCodeUtil.d("is portrait = " + portrait);
+            if (portrait) {// 横向数据，left 和 top 反转
                 left = scanBoxRect.top - expandTop;
                 top = scanBoxRect.left;
             } else {
@@ -139,14 +139,22 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
             } else {
                 scanSequence = -1;
                 int bisSize = Math.min(rowWidth, rowHeight);
-                onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
+                int gap = left + bisSize - rowWidth;
+                if (gap > 0) {
+                    left -= gap;
+                }
+                onPreviewFrame(data, left, 0, bisSize, bisSize, rowWidth, rowHeight);
             }
             scanSequence++;
         } else if (scanMode == SCAN_MODE_TINY) {
             onPreviewFrame(data, left, top, width, height, rowWidth, rowHeight);
         } else {
             int bisSize = Math.min(rowWidth, rowHeight);
-            onPreviewFrame(data, 0, top, bisSize, bisSize, rowWidth, rowHeight);
+            int gap = left + bisSize - rowWidth;
+            if (gap > 0) {
+                left -= gap;
+            }
+            onPreviewFrame(data, left, 0, bisSize, bisSize, rowWidth, rowHeight);
         }
     }
 

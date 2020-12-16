@@ -122,9 +122,25 @@ ImageScheduler::process(jbyte *bytes, int left, int top, int cropWidth, int crop
     LOGE("frame data size : %d", frameQueue.size())
 }
 
+unsigned int fileIndex = 0;
+
 void saveMat(const Mat &mat) {
-    const Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
-    imwrite("/storage/emulated/0/Android/data/me.devilsen.czxing/cache/scan/result.jpg", resultMat);
+    std::string fileName = to_string(fileIndex);
+    std::string filePath =
+            "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/scan/" + fileName + ".jpg";
+    bool saveResult = imwrite(filePath, mat);
+    fileIndex++;
+    if (saveResult) {
+        LOGE("save result success filePath = %s", filePath.c_str())
+    } else {
+        LOGE("save result fail")
+    }
+}
+
+void saveMatSrc(const Mat &mat) {
+//    const Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
+    imwrite("/storage/emulated/0/Android/data/me.devilsen.czxing/cache/scan/src.jpg",
+            mat);
 }
 
 /**
@@ -134,20 +150,26 @@ void ImageScheduler::preTreatMat(const FrameData &frameData) {
     try {
         scanIndex++;
         LOGE("start preTreatMat..., scanIndex = %d", scanIndex)
+        LOGE("save left = %d top = %d width = %d height = %d rowWidth = %d rowHeight = %d",
+             frameData.left, frameData.top,
+             frameData.cropWidth, frameData.cropHeight, frameData.rowWidth, frameData.rowHeight)
 
         Mat src(frameData.rowHeight + frameData.rowHeight / 2,
-                frameData.rowWidth, CV_8UC1,
+                frameData.rowWidth,
+                CV_8UC1,
                 frameData.bytes);
+//        saveMatSrc(src);
 
         Mat gray;
         cvtColor(src, gray, COLOR_YUV2GRAY_NV21);
 
         if (frameData.left != 0) {
             gray = gray(
-                    Rect(frameData.left, frameData.top, frameData.cropWidth, frameData.cropHeight));
+                    Rect(frameData.left, frameData.top,
+                         frameData.cropWidth, frameData.cropHeight));
         }
 
-        saveMat(gray);
+//        saveMat(gray);
 
         // 分析亮度，如果亮度过低，不进行处理
         analysisBrightness(gray);

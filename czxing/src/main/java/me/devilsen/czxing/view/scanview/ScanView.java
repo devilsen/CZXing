@@ -8,7 +8,6 @@ import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.SaveImageUtil;
 
 /**
  * @author : dongSen
@@ -53,7 +52,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             return;
         }
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
-        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
+//        Log.e("save >>> ", "left = " + left + " top= " + top +
+//                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
+
+//        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
     }
 
     /**
@@ -87,6 +89,11 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         reader.stopRead();
         isStop = true;
         reader.setReadCodeListener(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

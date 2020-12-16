@@ -27,9 +27,9 @@ public class ResolutionAdapterUtil {
         this.cameraWidth = cameraWidth;
         this.cameraHeight = cameraHeight;
         if (portrait) {
-            int temp = this.cameraWidth;
-            this.cameraWidth = this.cameraHeight;
-            this.cameraHeight = temp;
+            int temp = resolutionHeight;
+            resolutionHeight = resolutionWidth;
+            resolutionWidth = temp;
         }
         setRatio();
     }
