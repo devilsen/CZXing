@@ -29,6 +29,12 @@ public class BarCodeUtil {
         }
     }
 
+    public static void i(String msg) {
+        if (debug) {
+            Log.d(TAG, msg);
+        }
+    }
+
     public static void w(String msg) {
         if (debug) {
             Log.w(TAG, msg);

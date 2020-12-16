@@ -50,6 +50,9 @@ dependencies {
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso
+
+    implementation 'org.tensorflow:tensorflow-lite:2.2.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.2.0'
 }
 
 apply from: "bintrayUpload.gradle"

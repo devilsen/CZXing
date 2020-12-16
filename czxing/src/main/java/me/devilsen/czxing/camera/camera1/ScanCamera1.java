@@ -87,6 +87,11 @@ public class ScanCamera1 extends ScanCamera implements Camera.PreviewCallback {
         }
     }
 
+    @Override
+    public void addCallbackBuffer(byte[] data) {
+        mCamera.addCallbackBuffer(data);
+    }
+
     public void openCamera() {
         int cameraFacing = mCameraId;
         if (mCamera != null || Camera.getNumberOfCameras() == 0) {

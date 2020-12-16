@@ -24,7 +24,7 @@ import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanListener;
-import me.devilsen.czxing.view.scanview.ScanView;
+import me.devilsen.czxing.view.scanview.TFLiteScanView;
 
 
 /**
@@ -41,7 +41,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     private TextView titleTxt;
     private TextView albumTxt;
-    private ScanView mScanView;
+    private TFLiteScanView mScanView;
     private SoundPoolUtil mSoundPoolUtil;
 
     private boolean isContinuousScan;

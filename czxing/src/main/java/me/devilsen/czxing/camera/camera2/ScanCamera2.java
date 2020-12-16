@@ -133,6 +133,11 @@ public class ScanCamera2 extends ScanCamera {
         }
     }
 
+    @Override
+    public void addCallbackBuffer(byte[] data) {
+
+    }
+
     /**
      * 1. get the back camera id
      */

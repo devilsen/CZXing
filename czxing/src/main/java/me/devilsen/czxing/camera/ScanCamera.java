@@ -47,6 +47,8 @@ public abstract class ScanCamera implements SensorController.CameraFocusListener
 
     public abstract void onDestroy();
 
+    public abstract void addCallbackBuffer(byte[] data);
+
     public void setScanBoxPoint(Point boxCenterPoint) {
         mFocusCenter = boxCenterPoint;
     }

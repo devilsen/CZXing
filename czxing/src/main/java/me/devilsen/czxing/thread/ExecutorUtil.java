@@ -13,6 +13,7 @@ public class ExecutorUtil {
 
     private static Executor sMainExecutor;
     private static Handler sMainHandler;
+    private static Executor sBackgroundExecutor;
     private static Executor sIOExecutor;
 
 
@@ -31,10 +32,20 @@ public class ExecutorUtil {
 
     public synchronized static Executor getIOExecutor() {
         if (sIOExecutor == null) {
-            sIOExecutor = new ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+            int processors = Runtime.getRuntime().availableProcessors() * 2;
+            sIOExecutor = new ThreadPoolExecutor(processors, processors, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
             ((ThreadPoolExecutor) sIOExecutor).allowCoreThreadTimeOut(true);
         }
         return sIOExecutor;
+    }
+
+    public synchronized static Executor getBackgroundExecutor() {
+        if (sBackgroundExecutor == null) {
+            int processors = Runtime.getRuntime().availableProcessors();
+            sBackgroundExecutor = new ThreadPoolExecutor(processors, processors, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+            ((ThreadPoolExecutor) sBackgroundExecutor).allowCoreThreadTimeOut(true);
+        }
+        return sBackgroundExecutor;
     }
 
     public static void runOnUiThread(Runnable runnable) {
@@ -46,6 +57,13 @@ public class ExecutorUtil {
         } else {
             runnable.run();
         }
+    }
+
+    public static void runInBackground(Runnable runnable) {
+        if (runnable == null) {
+            return;
+        }
+        getBackgroundExecutor().execute(runnable);
     }
 
     public static ThreadFactory threadFactory(final String name, final boolean daemon) {
