@@ -163,9 +163,25 @@ Java_me_devilsen_czxing_code_NativeSdk_readBarcode(JNIEnv *env, jobject instance
 }
 
 extern "C"
+JNIEXPORT jint JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_readDetectBarcode(JNIEnv *env, jobject instance,
+                                                         jlong objPtr, jobject bitmap) {
+
+    try {
+        auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+        imageScheduler->readBitmap(env, bitmap);
+    } catch (const std::exception &e) {
+        ThrowJavaException(env, e.what());
+    } catch (...) {
+        ThrowJavaException(env, "Unknown exception");
+    }
+    return -1;
+}
+
+extern "C"
 JNIEXPORT void JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_openCVDetectValue(JNIEnv *env, jobject thiz, jlong objPtr,
-                                                          jint value) {
+                                                         jint value) {
     if (objPtr == 0)
         return;
 

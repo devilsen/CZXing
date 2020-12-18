@@ -73,6 +73,7 @@ final class CameraConfigurationManager {
      *
      * @param camera            the camera to select a frames per second range from
      * @param desiredPreviewFps the desired frames per second for the camera preview frames
+     *
      * @return the selected preview frames per second range
      */
     private int[] selectPreviewFpsRange(Camera camera, float desiredPreviewFps) {

@@ -58,6 +58,7 @@ public class CodeResult {
     }
 
     private String getPointsString() {
+        if (points == null) return "";
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
         for (float list : points) {

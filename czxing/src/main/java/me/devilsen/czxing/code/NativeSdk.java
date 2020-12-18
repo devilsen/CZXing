@@ -70,6 +70,8 @@ class NativeSdk {
 
     native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
+    native int readDetectBarcode(long objPtr, Bitmap bitmap);
+
     native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight);
 
     native void prepareRead(long objPtr);

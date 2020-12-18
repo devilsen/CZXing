@@ -60,6 +60,8 @@ public:
 
     Result readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height);
 
+    void readBitmap(JNIEnv *env,jobject bitmap);
+
     void isDecodeQrCode(bool decodeQrCode);
 
     void setOpenCVDetectValue(int value);

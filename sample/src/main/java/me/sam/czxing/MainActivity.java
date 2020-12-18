@@ -142,6 +142,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void testDetect(View view) {
+        Intent intent = new Intent(this, DetectTestActivity.class);
+        startActivity(intent);
+    }
+
     /**
      * 测试复杂二维码
      */

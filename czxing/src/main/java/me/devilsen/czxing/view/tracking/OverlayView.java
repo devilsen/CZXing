@@ -3,6 +3,7 @@ package me.devilsen.czxing.view.tracking;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import java.util.LinkedList;
@@ -22,6 +23,12 @@ public class OverlayView extends View {
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        Log.e("TAG", "OverlayView size:  height = " + getHeight() + " width = " + getWidth());
+    }
+
+    @Override
     public synchronized void draw(final Canvas canvas) {
         super.draw(canvas);
         for (final DrawCallback callback : callbacks) {
@@ -31,7 +38,7 @@ public class OverlayView extends View {
 
     /** Interface defining the callback for client classes. */
     public interface DrawCallback {
-        public void drawCallback(final Canvas canvas);
+        void drawCallback(final Canvas canvas);
     }
 
 }

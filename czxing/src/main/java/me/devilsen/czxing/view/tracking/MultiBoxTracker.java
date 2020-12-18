@@ -159,7 +159,7 @@ public class MultiBoxTracker {
             BarCodeUtil.i(
                     "Result! Frame: " + result.getLocation() + " mapped to screen:" + detectionScreenRect);
 
-            screenRects.add(new Pair<Float, RectF>(result.getConfidence(), detectionScreenRect));
+            screenRects.add(new Pair<>(result.getConfidence(), detectionScreenRect));
 
             if (detectionFrameRect.width() < MIN_SIZE || detectionFrameRect.height() < MIN_SIZE) {
                 BarCodeUtil.w("Degenerate rectangle! " + detectionFrameRect);

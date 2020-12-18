@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.YuvImage;
 import android.util.Log;
 
@@ -218,6 +219,23 @@ public class SaveImageUtil {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void saveImage(Context context, Bitmap bitmap, RectF location) {
+        BarCodeUtil.d("location : " + location.toString());
+
+        int height = (int) location.height();
+        int width = (int) location.width();
+
+        Bitmap bmp = Bitmap.createBitmap(bitmap, (int) location.left, (int) location.top, width, height);
+        saveImage(context, bmp);
+    }
+
+    public static Bitmap getScaleBitmap(Bitmap bitmap, RectF location) {
+        int height = (int) location.height();
+        int width = (int) location.width();
+
+        return Bitmap.createBitmap(bitmap, (int) location.left, (int) location.top, width, height);
     }
 
 }

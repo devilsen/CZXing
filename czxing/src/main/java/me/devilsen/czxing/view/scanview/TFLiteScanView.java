@@ -3,9 +3,7 @@ package me.devilsen.czxing.view.scanview;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.SystemClock;
@@ -28,12 +26,12 @@ import me.devilsen.czxing.tflite.YoloV4Classifier;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ImageUtils;
+import me.devilsen.czxing.util.SaveImageUtil;
 import me.devilsen.czxing.view.tracking.BorderedText;
 import me.devilsen.czxing.view.tracking.MultiBoxTracker;
 import me.devilsen.czxing.view.tracking.OverlayView;
 
 import static me.devilsen.czxing.tflite.YoloV4Classifier.MINIMUM_CONFIDENCE_TF_OD_API;
-import static me.devilsen.czxing.util.BarCodeUtil.isDebug;
 
 /**
  * @author : dongSen
@@ -42,13 +40,6 @@ import static me.devilsen.czxing.util.BarCodeUtil.isDebug;
  */
 public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
         BarcodeReader.ReadCodeListener {
-
-    /** 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容 */
-    public static final int SCAN_MODE_MIX = 0;
-    /** 只扫描扫码框里的内容 */
-    public static final int SCAN_MODE_TINY = 1;
-    /** 扫描以屏幕宽为边长的内容 */
-    public static final int SCAN_MODE_BIG = 2;
 
     private static final int DARK_LIST_SIZE = 4;
 
@@ -166,13 +157,11 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
         int cropSize = TF_OD_API_INPUT_SIZE;
 
         try {
-            detector =
-                    YoloV4Classifier.create(
-                            getContext().getAssets(),
-                            TF_OD_API_MODEL_FILE,
-                            TF_OD_API_LABELS_FILE,
-                            TF_OD_API_IS_QUANTIZED);
-            cropSize = TF_OD_API_INPUT_SIZE;
+            detector = YoloV4Classifier.create(
+                    getContext().getAssets(),
+                    TF_OD_API_MODEL_FILE,
+                    TF_OD_API_LABELS_FILE,
+                    TF_OD_API_IS_QUANTIZED);
         } catch (final IOException e) {
             e.printStackTrace();
             BarCodeUtil.e(e.toString() + "Exception initializing classifier!");
@@ -206,9 +195,9 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
                     @Override
                     public void drawCallback(final Canvas canvas) {
                         tracker.draw(canvas);
-                        if (isDebug()) {
-                            tracker.drawDebug(canvas);
-                        }
+//                        if (isDebug()) {
+//                            tracker.drawDebug(canvas);
+//                        }
                     }
                 });
 
@@ -229,7 +218,7 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
         computingDetection = true;
         BarCodeUtil.i("Preparing image " + currTimestamp + " for detection in bg thread.");
 
-        if(rgbFrameBitmap == null) return;
+        if (rgbFrameBitmap == null) return;
         rgbFrameBitmap.setPixels(getRgbBytes(), 0, previewWidth, 0, 0, previewWidth, previewHeight);
 
         readyForNextImage();
@@ -253,17 +242,20 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
                         Log.e("CHECK", "run: " + results.size());
 
                         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-                        final Canvas canvas = new Canvas(cropCopyBitmap);
-                        final Paint paint = new Paint();
-                        paint.setColor(Color.RED);
-                        paint.setStyle(Paint.Style.STROKE);
-                        paint.setStrokeWidth(2.0f);
+//                        final Canvas canvas = new Canvas(cropCopyBitmap);
+//                        final Paint paint = new Paint();
+//                        paint.setColor(Color.RED);
+//                        paint.setStyle(Paint.Style.STROKE);
+//                        paint.setStrokeWidth(2.0f);
 
                         final List<Classifier.Recognition> mappedRecognitions = new LinkedList<>();
                         for (final Classifier.Recognition result : results) {
                             final RectF location = result.getLocation();
                             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
-                                canvas.drawRect(location, paint);
+//                                canvas.drawRect(location, paint);
+
+                                Bitmap scaleBitmap = SaveImageUtil.getScaleBitmap(cropCopyBitmap, location);
+                                BarcodeReader.getInstance().readDetect(scaleBitmap);
 
                                 cropToFrameTransform.mapRect(location);
 
@@ -302,7 +294,7 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
         if (result == null) {
             return;
         }
-//        showCodeBorder(result);
+        showCodeBorder(result);
         BarCodeUtil.d("result : " + result.toString());
 
         if (!TextUtils.isEmpty(result.getText()) && !isStop) {

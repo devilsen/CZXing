@@ -456,3 +456,13 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int w
 
     return reader->read(*binImage);
 }
+
+void ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
+    Mat src;
+    BitmapToMat(env, bitmap, src);
+
+    Mat gray;
+    cvtColor(src, gray, COLOR_RGBA2GRAY);
+
+    decodeGrayPixels(gray);
+}

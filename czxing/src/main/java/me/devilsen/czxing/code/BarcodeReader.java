@@ -72,6 +72,19 @@ public class BarcodeReader {
         return null;
     }
 
+    public void readDetect(Bitmap bitmap) {
+        if (bitmap == null) {
+            BarCodeUtil.e("bitmap is null");
+            return;
+        }
+        int imgWidth = bitmap.getWidth();
+        int imgHeight = bitmap.getHeight();
+        BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
+
+        NativeSdk.getInstance().readDetectBarcode(_nativePtr, bitmap);
+        bitmap.recycle();
+    }
+
     public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         try {
             NativeSdk.getInstance().readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
