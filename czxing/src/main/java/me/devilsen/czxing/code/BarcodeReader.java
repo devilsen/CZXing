@@ -59,9 +59,34 @@ public class BarcodeReader {
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
         Object[] result = new Object[2];
-        int resultFormat = NativeSdk.getInstance().readBarcode(_nativePtr, newBitmap, 0, 0, imgWidth, imgHeight, result);
+        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap, 0, 0, imgWidth, imgHeight, result);
         bitmap.recycle();
         newBitmap.recycle();
+        return processResult(resultFormat, result);
+    }
+
+    public CodeResult readDetect(Bitmap bitmap) {
+        if (bitmap == null) {
+            BarCodeUtil.e("bitmap is null");
+            return null;
+        }
+        int imgWidth = bitmap.getWidth();
+        int imgHeight = bitmap.getHeight();
+        BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
+
+        Object[] result = new Object[2];
+        int resultFormat = NativeSdk.getInstance().readFullBitmap(_nativePtr, bitmap, result);
+        bitmap.recycle();
+        return processResult(resultFormat, result);
+    }
+
+    public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
+        Object[] result = new Object[2];
+        int resultFormat = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
+        return processResult(resultFormat, result);
+    }
+
+    private CodeResult processResult(int resultFormat, Object[] result) {
         if (resultFormat >= 0) {
             CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);
             if (result[1] != null) {
@@ -72,42 +97,23 @@ public class BarcodeReader {
         return null;
     }
 
-    public void readDetect(Bitmap bitmap) {
-        if (bitmap == null) {
-            BarCodeUtil.e("bitmap is null");
-            return;
-        }
-        int imgWidth = bitmap.getWidth();
-        int imgHeight = bitmap.getHeight();
-        BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
-
-        NativeSdk.getInstance().readDetectBarcode(_nativePtr, bitmap);
-        bitmap.recycle();
-    }
-
-    public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
-        try {
-            NativeSdk.getInstance().readBarcodeByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
+    @Deprecated
     public void enableCVDetect(boolean enable) {
-        if (enable) {
-            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 10);
-        } else {
-            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 0);
-        }
+//        if (enable) {
+//            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 10);
+//        } else {
+//            NativeSdk.getInstance().openCVDetectValue(_nativePtr, 0);
+//        }
     }
 
+    @Deprecated
     public void prepareRead() {
-        NativeSdk.getInstance().prepareRead(_nativePtr);
+//        NativeSdk.getInstance().prepareRead(_nativePtr);
     }
 
+    @Deprecated
     public void stopRead() {
-        NativeSdk.getInstance().stopRead(_nativePtr);
+//        NativeSdk.getInstance().stopRead(_nativePtr);
     }
 
     @Override

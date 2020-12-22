@@ -64,21 +64,15 @@ class NativeSdk {
     // read
     native long createInstance(int[] formats);
 
-    native void setFormat(long objPtr, int[] formats);
-
     native void destroyInstance(long objPtr);
 
-    native int readBarcode(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
+    native int readByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight, Object[] result);
 
-    native int readDetectBarcode(long objPtr, Bitmap bitmap);
+    native int readBitmap(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
 
-    native int readBarcodeByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight);
+    native int readFullBitmap(long objPtr, Bitmap bitmap, Object[] result);
 
-    native void prepareRead(long objPtr);
-
-    native void stopRead(long objPtr);
-
-    native void openCVDetectValue(long objPtr, int value);
+    native void setFormat(long objPtr, int[] formats);
 
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);

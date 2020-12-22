@@ -22,6 +22,7 @@ enum class DecodeStatus
 	NoError = 0,
 	NotFound,
 	FormatError,
+	TooDark,
 	ChecksumError,
 	PositionFound,
 };

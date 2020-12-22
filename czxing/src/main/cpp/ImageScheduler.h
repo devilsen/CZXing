@@ -5,97 +5,63 @@
 #ifndef CZXING_IMAGESCHEDULER_H
 #define CZXING_IMAGESCHEDULER_H
 
-
 #include <jni.h>
+#include <unistd.h>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/opencv.hpp>
 #include <src/MultiFormatReader.h>
 #include <src/BinaryBitmap.h>
-#include "Result.h"
-#include "JavaCallHelper.h"
-#include "QRCodeRecognizer.h"
-#include "safe_queue.h"
+#include <src/DecodeHints.h>
 #include "zbar/zbar.h"
-
-using namespace cv;
-using namespace ZXing;
-using namespace zbar;
-
-struct FrameData {
-    jbyte *bytes;
-    int left;
-    int top;
-    int cropWidth;
-    int cropHeight;
-    int rowWidth;
-    int rowHeight;
-};
+#include "Result.h"
+#include "JNIUtils.h"
 
 class ImageScheduler {
 public:
-    ImageScheduler(JNIEnv *env, MultiFormatReader *_reader, JavaCallHelper *javaCallHelper);
+    ImageScheduler(const ZXing::DecodeHints &hints);
 
     ~ImageScheduler();
 
-    void
-    process(jbyte *bytes, int left, int top, int width, int height, int rowWidth,
-            int rowHeight);
+    ZXing::Result
+    readByte(JNIEnv *env, jbyte *bytes, int left, int top, int width, int height, int rowWidth,
+             int rowHeight);
 
-    void prepare();
+    ZXing::Result
+    readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height);
 
-    void start();
+    ZXing::Result readBitmap(JNIEnv *env, jobject bitmap);
 
-    void stop();
-
-    void preTreatMat(const FrameData &frameData);
-
-    void decodeGrayPixels(const Mat &gray);
-
-    void decodeZBar(const Mat &gray);
-
-    void decodeThresholdPixels(const Mat &gray);
-
-    void decodeAdaptivePixels(const Mat &gray);
-
-    void decodeNegative(const Mat &gray);
-
-    Result readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height);
-
-    void readBitmap(JNIEnv *env,jobject bitmap);
-
-    void isDecodeQrCode(bool decodeQrCode);
-
-    void setOpenCVDetectValue(int value);
-
-    MultiFormatReader *reader;
+    void setFormat(JNIEnv *env, jintArray formats);
 
 private:
-    JNIEnv *env;
-    JavaCallHelper *javaCallHelper;
-    QRCodeRecognizer *qrCodeRecognizer;
-    ImageScanner *zbarScanner;
+    ZXing::MultiFormatReader *reader;
+    zbar::ImageScanner *zbarScanner;
+    double m_CameraLight;
+    unsigned int m_FileIndex;
 
-    SafeQueue<FrameData> frameQueue;
-    std::atomic<bool> isProcessing{};
-    std::atomic<bool> stopProcessing{};
-    double cameraLight{};
-    int scanIndex;
-    bool decodeQr;
-    // openCV 探测强度，[0-10]，强度越低，验证越严格，越不容易放大
-    int openCVDetectValue = 10;
+    ZXing::Result startRead(const cv::Mat &gray, int dataType);
 
-    pthread_t prepareThread{};
+    ZXing::Result decodeZBar(const cv::Mat &gray, int dataType);
 
-    void recognizerQrCode(const Mat &mat);
+    ZXing::Result decodeThresholdPixels(const cv::Mat &gray, int dataType);
 
-    bool zxingDecode(const Mat &mat);
+    ZXing::Result decodeAdaptivePixels(const cv::Mat &gray, int dataType);
 
-    bool zbarDecode(const Mat &mat);
+    ZXing::Result decodeNegative(const cv::Mat &gray, int dataType);
 
-    bool zbarDecode(const void *raw, unsigned int width, unsigned int height);
+    double analysisBrightness(const cv::Mat &gray);
 
-    static void logDecode(int scanType, int treatType, int index);
+    ZXing::Result zxingDecode(const cv::Mat &mat, int dataType);
 
-    bool analysisBrightness(const Mat &gray);
+    ZXing::Result zbarDecode(const cv::Mat &mat);
+
+    ZXing::Result zbarDecode(const void *raw, unsigned int width, unsigned int height);
+
+    void logDecode(int scanType, int treatType);
+
+    void saveMat(const cv::Mat &mat, const std::string &fileName = "src");
+
+    void saveIncreaseMat(const cv::Mat &mat);
 };
 
 #endif //CZXING_IMAGESCHEDULER_H

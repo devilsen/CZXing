@@ -22,6 +22,8 @@
 #include <string>
 #include <src/ResultPoint.h>
 #include <opencv2/core/types.hpp>
+#include <src/BarcodeFormat.h>
+#include <src/Result.h>
 #include "zbar/zbar.h"
 
 #define ZX_LOG_TAG "CZXing"
@@ -51,7 +53,7 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                            int cropHeight);
 
 std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytesC4(JNIEnv *env, void *rgbScale, int cropLeft, int cropTop, int cropWidth,
+BinaryBitmapFromBytesC4(void *rgbScale, int cropLeft, int cropTop, int cropWidth,
                         int cropHeight);
 
 std::shared_ptr<ZXing::BinaryBitmap>
@@ -69,3 +71,28 @@ void ThrowJavaException(JNIEnv *env, const char *message);
 jstring ToJavaString(JNIEnv *env, const std::wstring &str);
 
 jfloatArray ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &vector);
+
+static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
+    std::vector<ZXing::BarcodeFormat> result;
+    jsize len = env->GetArrayLength(formats);
+    if (len > 0) {
+        std::vector<jint> elems(len);
+        env->GetIntArrayRegion(formats, 0, elems.size(), elems.data());
+        result.resize(len);
+        for (jsize i = 0; i < len; ++i) {
+            result[i] = ZXing::BarcodeFormat(elems[i]);
+        }
+    }
+    return result;
+}
+
+static int processResult(JNIEnv *env, ZXing::Result scanResult, jobjectArray result) {
+    if (scanResult.isValid()) {
+        env->SetObjectArrayElement(result, 0, ToJavaString(env, scanResult.text()));
+        if (!scanResult.resultPoints().empty()) {
+            env->SetObjectArrayElement(result, 1, ToJavaArray(env, scanResult.resultPoints()));
+        }
+        return static_cast<int>(scanResult.format());
+    }
+    return -1;
+}

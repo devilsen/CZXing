@@ -8,8 +8,8 @@ package me.devilsen.czxing.code;
  */
 public class CodeResult {
 
-    private BarcodeFormat format;
-    private String text;
+    private final BarcodeFormat format;
+    private final String text;
     private float[] points;
     private int scanType;
 

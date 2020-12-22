@@ -24,6 +24,7 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgproc.hpp>
 #include <src/TextUtfEncoding.h>
+#include <src/BarcodeFormat.h>
 
 namespace {
 
@@ -82,7 +83,7 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
 }
 
 std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytesC4(JNIEnv *env, void *pixels, int cropLeft, int cropTop, int cropWidth,
+BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
                         int cropHeight) {
     using namespace ZXing;
     LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
@@ -209,4 +210,3 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
 
     return array;
 }
-
