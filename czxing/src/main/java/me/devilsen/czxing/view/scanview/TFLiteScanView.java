@@ -99,7 +99,7 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
         if (isStop) {
             return;
         }
-        reader.read(data, left, top, width, height, rowWidth, rowHeight);
+        CodeResult codeResult = reader.read(data, left, top, width, height, rowWidth, rowHeight);
 //        Log.e("save >>> ", "left = " + left + " top= " + top +
 //                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
 
@@ -242,20 +242,24 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
                         Log.e("CHECK", "run: " + results.size());
 
                         cropCopyBitmap = Bitmap.createBitmap(croppedBitmap);
-//                        final Canvas canvas = new Canvas(cropCopyBitmap);
-//                        final Paint paint = new Paint();
-//                        paint.setColor(Color.RED);
-//                        paint.setStyle(Paint.Style.STROKE);
-//                        paint.setStrokeWidth(2.0f);
 
                         final List<Classifier.Recognition> mappedRecognitions = new LinkedList<>();
                         for (final Classifier.Recognition result : results) {
                             final RectF location = result.getLocation();
                             if (location != null && result.getConfidence() >= MINIMUM_CONFIDENCE_TF_OD_API) {
-//                                canvas.drawRect(location, paint);
-
                                 Bitmap scaleBitmap = SaveImageUtil.getScaleBitmap(cropCopyBitmap, location);
-                                BarcodeReader.getInstance().readDetect(scaleBitmap);
+                                final CodeResult codeResult = BarcodeReader.getInstance().readDetect(scaleBitmap);
+                                if (codeResult != null) {
+                                    BarCodeUtil.e(codeResult.toString());
+                                    ExecutorUtil.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+//                                            Toast.makeText(getContext(), codeResult.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    BarCodeUtil.e("not found");
+                                }
 
                                 cropToFrameTransform.mapRect(location);
 
@@ -269,15 +273,6 @@ public class TFLiteScanView extends BarCoderView implements ScanBoxView.ScanBoxC
 
                         computingDetection = false;
 
-//                        ExecutorUtil.runOnUiThread(
-//                                new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        showFrameInfo(previewWidth + "x" + previewHeight);
-//                                        showCropInfo(cropCopyBitmap.getWidth() + "x" + cropCopyBitmap.getHeight());
-//                                        showInference(lastProcessingTimeMs + "ms");
-//                                    }
-//                                });
                         printDetectInfo();
                     }
                 });

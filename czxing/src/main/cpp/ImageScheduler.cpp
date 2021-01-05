@@ -80,9 +80,11 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int c
 ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
     cv::Mat src;
     BitmapToMat(env, bitmap, src);
+    saveMat(src, "src");
 
     cv::Mat gray;
     cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
+    saveMat(gray, "gray");
 
     return startRead(gray, DATA_TYPE_BITMAP);
 }
@@ -105,7 +107,8 @@ ZXing::Result ImageScheduler::startRead(const cv::Mat &gray, int dataType) {
         return ZXing::Result(ZXing::DecodeStatus::TooDark);
     }
 
-    return decodeZBar(gray, dataType);
+//    return decodeZBar(gray, dataType);
+    return decodeThresholdPixels(gray, dataType);
 }
 
 /**
@@ -200,6 +203,7 @@ ZXing::Result ImageScheduler::decodeNegative(const cv::Mat &gray, int dataType) 
 
 ZXing::Result ImageScheduler::zxingDecode(const cv::Mat &mat, int dataType) {
     std::shared_ptr<ZXing::BinaryBitmap> binImage;
+    LOGE("zxing decode, data type = %d", dataType)
     if (dataType == DATA_TYPE_BYTE) {
         binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
     } else {
@@ -254,8 +258,9 @@ void ImageScheduler::logDecode(int scanType, int treatType) {
 
 void ImageScheduler::saveMat(const cv::Mat &mat, const std::string &fileName) {
     std::string filePath =
-            "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/debug/" + fileName +
+            "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/" + fileName +
             ".jpg";
+//    cv::Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
     bool saveResult = imwrite(filePath, mat);
     if (saveResult) {
         LOGE("save result success filePath = %s", filePath.c_str())

@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExecutorUtil {
 
@@ -33,7 +34,8 @@ public class ExecutorUtil {
     public synchronized static Executor getIOExecutor() {
         if (sIOExecutor == null) {
             int processors = Runtime.getRuntime().availableProcessors() * 2;
-            sIOExecutor = new ThreadPoolExecutor(processors, processors, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+            sIOExecutor = new ThreadPoolExecutor(processors, processors, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+                    new DefaultThreadFactory());
             ((ThreadPoolExecutor) sIOExecutor).allowCoreThreadTimeOut(true);
         }
         return sIOExecutor;
@@ -42,7 +44,8 @@ public class ExecutorUtil {
     public synchronized static Executor getBackgroundExecutor() {
         if (sBackgroundExecutor == null) {
             int processors = Runtime.getRuntime().availableProcessors();
-            sBackgroundExecutor = new ThreadPoolExecutor(processors, processors, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+            sBackgroundExecutor = new ThreadPoolExecutor(processors, processors, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+                    new DefaultThreadFactory());
             ((ThreadPoolExecutor) sBackgroundExecutor).allowCoreThreadTimeOut(true);
         }
         return sBackgroundExecutor;
@@ -76,5 +79,36 @@ public class ExecutorUtil {
             }
         };
     }
+
+    /**
+     * The default thread factory.
+     */
+    private static class DefaultThreadFactory implements ThreadFactory {
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        DefaultThreadFactory() {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            namePrefix = "CZXingPool-" +
+                    poolNumber.getAndIncrement() +
+                    "-thread-";
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r,
+                    namePrefix + threadNumber.getAndIncrement(),
+                    0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+    }
+
 
 }

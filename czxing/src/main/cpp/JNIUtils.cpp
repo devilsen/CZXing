@@ -72,7 +72,8 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                                                                      cropHeight, pixels,
                                                                      bmInfo.stride, 4, 0, 1, 2);
                 break;
-            default: LOGE("Unsupported format");
+            default:
+                LOGE("Unsupported format");
                 return nullptr;
 //				throw std::runtime_error("Unsupported format");
         }
@@ -86,13 +87,13 @@ std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
                         int cropHeight) {
     using namespace ZXing;
-    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
+    LOGE("BinaryBitmapFromBytesC4 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
          cropHeight);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             cropLeft, cropTop, cropWidth,
             cropHeight, pixels,
-            cropWidth * sizeof(int), 4, 0, 1, 2);
+            cropWidth * 4, 4, 0, 1, 2);
 
     return std::make_shared<HybridBinarizer>(luminance);
 }
@@ -100,7 +101,7 @@ BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
 std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
     using namespace ZXing;
-    LOGE("cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
+    LOGE("BinaryBitmapFromBytesC1 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
          height);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
@@ -117,7 +118,6 @@ BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
         LOGE("nBitmapToMat: get bitmap info error");
         return;
     };
-    cv::Mat &dst = mat;
 
     void *pixels = nullptr;
     if (AndroidBitmap_lockPixels(env, bitmap, &pixels) == ANDROID_BITMAP_RESUT_SUCCESS) {
@@ -126,12 +126,12 @@ BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
         if (bmInfo.format == ANDROID_BITMAP_FORMAT_RGBA_8888) {
             LOGE("nBitmapToMat: RGB_8888 -> CV_8UC4");
             cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC4, pixels);
-            tmp.copyTo(dst);
+            tmp.copyTo(mat);
         } else {
             // info.format == ANDROID_BITMAP_FORMAT_RGB_565
             LOGE("nBitmapToMat: RGB_565 -> CV_8UC4");
             cv::Mat tmp(bmInfo.height, bmInfo.width, CV_8UC4, pixels);
-            tmp.copyTo(dst);
+            tmp.copyTo(mat);
         }
     } else {
         throw std::runtime_error("Failed to read bitmap's data");

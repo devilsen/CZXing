@@ -2,6 +2,9 @@ package me.devilsen.czxing.code;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.CheckResult;
+import androidx.annotation.Nullable;
+
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 
@@ -42,6 +45,8 @@ public class BarcodeReader {
         return nativeFormats;
     }
 
+    @Nullable
+    @CheckResult
     public CodeResult read(Bitmap bitmap) {
         if (bitmap == null) {
             BarCodeUtil.e("bitmap is null");
@@ -65,6 +70,8 @@ public class BarcodeReader {
         return processResult(resultFormat, result);
     }
 
+    @Nullable
+    @CheckResult
     public CodeResult readDetect(Bitmap bitmap) {
         if (bitmap == null) {
             BarCodeUtil.e("bitmap is null");
@@ -80,12 +87,16 @@ public class BarcodeReader {
         return processResult(resultFormat, result);
     }
 
+    @Nullable
+    @CheckResult
     public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         Object[] result = new Object[2];
         int resultFormat = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
         return processResult(resultFormat, result);
     }
 
+    @Nullable
+    @CheckResult
     private CodeResult processResult(int resultFormat, Object[] result) {
         if (resultFormat >= 0) {
             CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);

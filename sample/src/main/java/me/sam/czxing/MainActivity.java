@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_select_from_album_1);
-        CodeResult result = BarcodeReader.getInstance().read(bitmap);
+        CodeResult result = BarcodeReader.getInstance().readDetect(bitmap);
 
         if (result == null) {
             Log.e("Scan >>> ", "no code");
