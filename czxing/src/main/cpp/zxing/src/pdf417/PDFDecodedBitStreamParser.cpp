@@ -15,8 +15,8 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFDecodedBitStreamParser.h"
-#include "pdf417/PDFDecoderResultExtra.h"
+#include "PDFDecodedBitStreamParser.h"
+#include "PDFDecoderResultExtra.h"
 #include "CharacterSetECI.h"
 #include "CharacterSet.h"
 #include "TextDecoder.h"
@@ -29,9 +29,9 @@
 
 #include <array>
 #include <cassert>
+#include <utility>
 
-namespace ZXing {
-namespace Pdf417 {
+namespace ZXing::Pdf417 {
 
 enum class Mode {
 	ALPHA,
@@ -425,7 +425,7 @@ static int ByteCompaction(int mode, const std::vector<int>& codewords, Character
 			}
 		}
 	}
-	TextDecoder::Append(result, decodedBytes.data(), decodedBytes.length(), encoding);
+	TextDecoder::Append(result, decodedBytes.data(), Size(decodedBytes), encoding);
 	return codeIndex;
 }
 
@@ -646,10 +646,9 @@ DecodeStatus DecodeMacroBlock(const std::vector<int>& codewords, int codeIndex, 
 				status = DecodeStatus::FormatError;
 				break;
 			}
-
-			if (StatusIsError(status)) {
-				return status;
-			}
+		}
+		if (StatusIsError(status)) {
+			return status;
 		}
 	}
 
@@ -731,7 +730,7 @@ DecodedBitStreamParser::Decode(const std::vector<int>& codewords, int ecLevel)
 			break;
 		}
 		}
-		if (codeIndex < (int)codewords.size()) {
+		if (codeIndex < Size(codewords)) {
 			code = codewords[codeIndex++];
 		}
 		else {
@@ -749,5 +748,4 @@ DecodedBitStreamParser::Decode(const std::vector<int>& codewords, int ecLevel)
 		.setExtra(resultMetadata);
 }
 
-} // Pdf417
-} // ZXing
+} // namespace ZXing::Pdf417

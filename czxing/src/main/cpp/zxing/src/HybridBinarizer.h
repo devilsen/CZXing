@@ -18,6 +18,8 @@
 
 #include "GlobalHistogramBinarizer.h"
 
+#include <memory>
+
 namespace ZXing {
 
 /**
@@ -40,7 +42,7 @@ namespace ZXing {
 class HybridBinarizer : public GlobalHistogramBinarizer
 {
 public:
-	explicit HybridBinarizer(const std::shared_ptr<const LuminanceSource>& source, bool pureBarcode = false);
+	explicit HybridBinarizer(const std::shared_ptr<const LuminanceSource>& source);
 	~HybridBinarizer() override;
 
 	std::shared_ptr<const BitMatrix> getBlackMatrix() const override;

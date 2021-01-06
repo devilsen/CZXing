@@ -2,6 +2,7 @@
 // Created by Devilsen on 2019-08-09.
 //
 
+#include <src/ReadBarcode.h>
 #include "ImageScheduler.h"
 
 #define DEFAULT_MIN_LIGHT 30
@@ -86,6 +87,14 @@ ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
     cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
     saveMat(gray, "gray");
 
+    // TODO test
+//    auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, 0, 0, gray.cols, gray.rows);
+//    ZXing::Result result = reader->read(*binImage);
+//    if (result.isValid()) {
+//        LOGE("zxing decode success, result data = %s", result.text().c_str())
+//    }
+//    return result;
+
     return startRead(gray, DATA_TYPE_BITMAP);
 }
 
@@ -95,7 +104,8 @@ void ImageScheduler::setFormat(JNIEnv *env, jintArray formats_) {
         std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
         hints.setPossibleFormats(formats);
     }
-    reader->setFormat(hints);
+    // TODO 添加此方法
+//    reader->setFormat(hints);
 }
 
 /**
@@ -104,7 +114,7 @@ void ImageScheduler::setFormat(JNIEnv *env, jintArray formats_) {
 ZXing::Result ImageScheduler::startRead(const cv::Mat &gray, int dataType) {
     // 分析亮度，如果亮度过低，不进行处理
     if (analysisBrightness(gray) < DEFAULT_MIN_LIGHT) {
-        return ZXing::Result(ZXing::DecodeStatus::TooDark);
+        return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
 
 //    return decodeZBar(gray, dataType);
@@ -204,12 +214,22 @@ ZXing::Result ImageScheduler::decodeNegative(const cv::Mat &gray, int dataType) 
 ZXing::Result ImageScheduler::zxingDecode(const cv::Mat &mat, int dataType) {
     std::shared_ptr<ZXing::BinaryBitmap> binImage;
     LOGE("zxing decode, data type = %d", dataType)
-    if (dataType == DATA_TYPE_BYTE) {
-        binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
-    } else {
-        binImage = BinaryBitmapFromBytesC4(mat.data, 0, 0, mat.cols, mat.rows);
-    }
-    ZXing::Result result = reader->read(*binImage);
+//    if (dataType == DATA_TYPE_BYTE) {
+//        binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
+//    } else {
+//        binImage = BinaryBitmapFromBytesC4(mat.data, 0, 0, mat.cols, mat.rows);
+//    }
+//    ZXing::Result result = reader->read(*binImage);
+//    if (result.isValid()) {
+//        LOGE("zxing decode success, result data = %s", result.text().c_str())
+//    }
+//    return result;
+
+    ZXing::DecodeHints hints;
+    hints.setFormats(ZXing::BarcodeFormat::QRCode);
+
+    ZXing::ImageView imageView(mat.data, mat.cols, mat.rows, ZXing::ImageFormat::RGB);
+    ZXing::Result result = ZXing::ReadBarcode(imageView, hints);
     if (result.isValid()) {
         LOGE("zxing decode success, result data = %s", result.text().c_str())
     }
@@ -233,7 +253,7 @@ ZXing::Result ImageScheduler::zbarDecode(const void *raw, unsigned int width, un
 
         ZXing::Result result(ZXing::DecodeStatus::NoError);
         if (symbol->get_type() == zbar::ZBAR_QRCODE) {
-            result.setFormat(ZXing::BarcodeFormat::QR_CODE);
+            result.setFormat(ZXing::BarcodeFormat::QRCode);
         }
         result.setText(ANSIToUnicode(symbol->get_data()));
         image.set_data(nullptr, 0);

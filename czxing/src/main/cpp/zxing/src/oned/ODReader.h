@@ -17,12 +17,12 @@
 */
 
 #include "Reader.h"
-#include <vector>
+
 #include <memory>
+#include <vector>
 
 namespace ZXing {
 
-enum class BarcodeFormat;
 class DecodeHints;
 
 namespace OneD {
@@ -36,7 +36,6 @@ class RowReader;
 class Reader : public ZXing::Reader
 {
 public:
-	// Only POSSIBLE_FORMATS is read here, and the same hint is ignored in decode().
 	explicit Reader(const DecodeHints& hints);
     ~Reader() override;
 
@@ -46,6 +45,7 @@ private:
 	std::vector<std::unique_ptr<RowReader>> _readers;
 	bool _tryHarder;
 	bool _tryRotate;
+	bool _isPure;
 };
 
 } // OneD

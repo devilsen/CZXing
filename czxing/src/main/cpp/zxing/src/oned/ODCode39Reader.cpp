@@ -15,20 +15,19 @@
 * limitations under the License.
 */
 
-#include "oned/ODCode39Reader.h"
-#include "Result.h"
+#include "ODCode39Reader.h"
+
 #include "BitArray.h"
 #include "DecodeHints.h"
+#include "Result.h"
 #include "ZXContainerAlgorithms.h"
 
-#include <algorithm>
 #include <array>
+#include <limits>
 
-namespace ZXing {
+namespace ZXing::OneD {
 
-namespace OneD {
-
-static const char ALPHABET_STRING[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*";
+static const char ALPHABET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*";
 
 /**
 * Each character consists of 5 bars and 4 spaces, 3 of which are wide (i.e. 6 are narrow).
@@ -45,9 +44,7 @@ static const int CHARACTER_ENCODINGS[] = {
 	0x0A2, 0x08A, 0x02A, 0x094 // /-% , *
 };
 
-static_assert(Length(ALPHABET_STRING) - 1 == Length(CHARACTER_ENCODINGS), "table size mismatch");
-
-static const int ASTERISK_ENCODING = 0x094;
+static_assert(Size(ALPHABET) - 1 == Size(CHARACTER_ENCODINGS), "table size mismatch");
 
 static const char PERCENTAGE_MAPPING[26] = {
 	'A' - 38, 'B' - 38, 'C' - 38, 'D' - 38, 'E' - 38,	// %A to %E map to control codes ESC to USep
@@ -60,64 +57,8 @@ static const char PERCENTAGE_MAPPING[26] = {
 
 using CounterContainer = std::array<int, 9>;
 
-// For efficiency, returns -1 on failure. Not throwing here saved as many as 700 exceptions
-// per image when using some of our blackbox images.
-static int
-ToNarrowWidePattern(const CounterContainer& counters)
-{
-	int numCounters = static_cast<int>(counters.size());
-	int maxNarrowCounter = 0;
-	int wideCounters;
-	do {
-		int minCounter = std::numeric_limits<int>::max();
-		for (int i = 0; i < numCounters; ++i) {
-			if (counters[i] < minCounter && counters[i] > maxNarrowCounter) {
-				minCounter = counters[i];
-			}
-		}
-		maxNarrowCounter = minCounter;
-		wideCounters = 0;
-		int totalWideCountersWidth = 0;
-		int pattern = 0;
-		for (int i = 0; i < numCounters; ++i) {
-			if (counters[i] > maxNarrowCounter) {
-				pattern |= 1 << (numCounters - 1 - i);
-				wideCounters++;
-				totalWideCountersWidth += counters[i];
-			}
-		}
-		if (wideCounters == 3) {
-			// Found 3 wide counters, but are they close enough in width?
-			// We can perform a cheap, conservative check to see if any individual
-			// counter is more than 1.5 times the average:
-			for (int i = 0; i < numCounters && wideCounters > 0; ++i) {
-				if (counters[i] > maxNarrowCounter) {
-					wideCounters--;
-					// totalWideCountersWidth = 3 * average, so this checks if counter >= 3/2 * average
-					if ((counters[i] * 2) >= totalWideCountersWidth) {
-						return -1;
-					}
-				}
-			}
-			return pattern;
-		}
-	} while (wideCounters > 3);
-	return -1;
-}
-
-static BitArray::Range
-FindAsteriskPattern(const BitArray& row)
-{
-	CounterContainer counters;
-
-	return RowReader::FindPattern(
-	    row.getNextSet(row.begin()), row.end(), counters,
-	    [&row](BitArray::Iterator begin, BitArray::Iterator end, const CounterContainer& counters) {
-		    // Look for whitespace before start pattern, >= 50% of width of start pattern
-		    return row.hasQuiteZone(begin, - (end - begin) / 2) &&
-				ToNarrowWidePattern(counters) == ASTERISK_ENCODING;
-	    });
-}
+// each character has 5 bars and 4 spaces
+constexpr int CHAR_LEN = 9;
 
 /** Decode the extended string in place. Return false if FormatError occured.
  * ctrl is either "$%/+" for code39 or "abcd" for code93. */
@@ -148,64 +89,64 @@ DecodeExtendedCode39AndCode93(std::string& encoded, const char ctrl[4])
 
 
 Code39Reader::Code39Reader(const DecodeHints& hints) :
-	_extendedMode(hints.shouldTryCode39ExtendedMode()),
-	_usingCheckDigit(hints.shouldAssumeCode39CheckDigit())
+	_extendedMode(hints.tryCode39ExtendedMode()),
+	_usingCheckDigit(hints.assumeCode39CheckDigit())
 {
 }
 
-Result
-Code39Reader::decodeRow(int rowNumber, const BitArray& row, std::unique_ptr<DecodingState>&) const
+Result Code39Reader::decodePattern(int rowNumber, const PatternView& row, std::unique_ptr<RowReader::DecodingState>&) const
 {
-	auto range = FindAsteriskPattern(row);
-	if (!range)
+	// minimal number of characters that must be present (including start, stop and checksum characters)
+	int minCharCount = _usingCheckDigit ? 4 : 3;
+	auto isStartOrStopSymbol = [](char c) { return c == '*'; };
+
+	// provide the indices with the narrow bars/spaces wich have to be equally wide
+	constexpr auto START_PATTERN = FixedSparcePattern<CHAR_LEN, 6>{0, 2, 3, 5, 7, 8};
+	// quite zone is half the width of a character symbol
+	constexpr float QUITE_ZONE_SCALE = 0.5f;
+
+	auto next = FindLeftGuard(row, minCharCount * CHAR_LEN, START_PATTERN, QUITE_ZONE_SCALE * 12);
+	if (!next.isValid())
 		return Result(DecodeStatus::NotFound);
 
-	int xStart = range.begin - row.begin();
-	CounterContainer theCounters = {};
-	std::string result;
-	result.reserve(20);
+	if (!isStartOrStopSymbol(DecodeNarrowWidePattern(next, CHARACTER_ENCODINGS, ALPHABET))) // read off the start pattern
+		return Result(DecodeStatus::NotFound);
+
+	int xStart = next.pixelsInFront();
+	int maxInterCharacterSpace = next.sum() / 2; // spec actually says 1 narrow space, width/2 is about 4
+
+	std::string txt;
+	txt.reserve(20);
 
 	do {
-		// Read off white space
-		range = RecordPattern(row.getNextSet(range.end), row.end(), theCounters);
-		if (!range)
+		// check remaining input width and inter-character space
+		if (!next.skipSymbol() || !next.skipSingle(maxInterCharacterSpace))
 			return Result(DecodeStatus::NotFound);
 
-		int pattern = ToNarrowWidePattern(theCounters);
-		if (pattern < 0)
+		txt += DecodeNarrowWidePattern(next, CHARACTER_ENCODINGS, ALPHABET);
+		if (txt.back() == 0)
 			return Result(DecodeStatus::NotFound);
+	} while (!isStartOrStopSymbol(txt.back()));
 
-		int i = IndexOf(CHARACTER_ENCODINGS, pattern);
-		if (i < 0)
-			return Result(DecodeStatus::NotFound);
+	txt.pop_back(); // remove asterisk
 
-		result += ALPHABET_STRING[i];
-	} while (result.back() != '*');
-
-	result.pop_back(); // remove asterisk
-
-	// Require at least one payload character and a quite zone of half the last pattern size.
-	if (result.size() < (_usingCheckDigit ? 2 : 1) || !row.hasQuiteZone(range.end, range.size() / 2)) {
+	// check txt length and whitespace after the last char. See also FindStartPattern.
+	if (Size(txt) < minCharCount - 2 || !next.hasQuiteZoneAfter(QUITE_ZONE_SCALE))
 		return Result(DecodeStatus::NotFound);
-	}
 
 	if (_usingCheckDigit) {
-		auto checkDigit = result.back();
-		result.pop_back();
-		int checksum = TransformReduce(result, 0, [](char c) { return IndexOf(ALPHABET_STRING, c); });
-		if (checkDigit != ALPHABET_STRING[checksum % 43]) {
+		auto checkDigit = txt.back();
+		txt.pop_back();
+		int checksum = TransformReduce(txt, 0, [](char c) { return IndexOf(ALPHABET, c); });
+		if (checkDigit != ALPHABET[checksum % 43])
 			return Result(DecodeStatus::ChecksumError);
-		}
 	}
 
-	if (_extendedMode && !DecodeExtendedCode39AndCode93(result, "$%/+"))
+	if (_extendedMode && !DecodeExtendedCode39AndCode93(txt, "$%/+"))
 		return Result(DecodeStatus::FormatError);
 
-	int xStop = range.end - row.begin() - 1;
-	return Result(result, rowNumber, xStart, xStop, BarcodeFormat::CODE_39);
+	int xStop = next.pixelsTillEnd();
+	return Result(txt, rowNumber, xStart, xStop, BarcodeFormat::Code39);
 }
 
-
-
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

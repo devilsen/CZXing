@@ -15,14 +15,15 @@
 * limitations under the License.
 */
 
-#include "oned/ODUPCEWriter.h"
-#include "oned/ODUPCEANCommon.h"
-#include "oned/ODWriterHelper.h"
+#include "ODUPCEWriter.h"
 
+#include "ODUPCEANCommon.h"
+#include "ODWriterHelper.h"
+
+#include <stdexcept>
 #include <vector>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
 static const int CODE_WIDTH = 3 + // start guard
                               (7 * 6) + // bars
@@ -32,7 +33,7 @@ BitMatrix
 UPCEWriter::encode(const std::wstring& contents, int width, int height) const
 {
 	auto digits = UPCEANCommon::DigitString2IntArray<8>(
-		contents, UPCEANCommon::ComputeChecksum(UPCEANCommon::ConvertUPCEtoUPCA(contents), contents.size() == 8));
+		contents, GTIN::ComputeCheckDigit(UPCEANCommon::ConvertUPCEtoUPCA(contents), contents.size() == 8));
 
 	int firstDigit = digits[0];
 	if (firstDigit != 0 && firstDigit != 1) {
@@ -57,5 +58,4 @@ UPCEWriter::encode(const std::wstring& contents, int width, int height) const
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 9);
 }
 
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

@@ -15,15 +15,24 @@
 * limitations under the License.
 */
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1915)
+#pragma warning(disable : 4996)
+#endif
+
 #include "GenericLuminanceSource.h"
+
 #include "ByteArray.h"
+#include "ZXContainerAlgorithms.h"
 
 #include <algorithm>
+#include <cstdint>
+#include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace ZXing {
 
-inline static uint8_t RGBToGray(unsigned r, unsigned g, unsigned b)
+static uint8_t RGBToGray(unsigned r, unsigned g, unsigned b)
 {
 	// This optimization is not necessary as the computation below is cheap enough.
 	//if (r == g && g == b) {
@@ -51,13 +60,13 @@ static std::shared_ptr<ByteArray> MakeCopy(const void* src, int rowBytes, int le
 
 static std::shared_ptr<ByteArray> MakeCopy(const ByteArray& pixels, int rowBytes, int left, int top, int width, int height)
 {
-	if (top == 0 && left == 0 && width * height == (int)pixels.size()) {
+	if (top == 0 && left == 0 && width * height == Size(pixels)) {
 		return std::make_shared<ByteArray>(pixels);
 	}
 	return MakeCopy(pixels.data(), rowBytes, left, top, width, height);
 }
 
-GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex) :
+GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex, void*) :
 	_left(0),	// since we copy the pixels
 	_top(0),
 	_width(width),
@@ -68,31 +77,20 @@ GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int
 		throw std::out_of_range("Requested offset is outside the image");
 	}
 
-	auto pixels = std::make_shared<ByteArray>();
-	pixels->resize(width * height);
-	const uint8_t *rgbSource = static_cast<const uint8_t*>(bytes) + top * rowBytes;
-	uint8_t *destRow = pixels->data();
-	for (int y = 0; y < height; ++y, rgbSource += rowBytes, destRow += width) {
-		const uint8_t *src = rgbSource + left * pixelBytes;
-		for (int x = 0; x < width; ++x, src += pixelBytes) {
-			destRow[x] = RGBToGray(src[redIndex], src[greenIndex], src[blueIndex]);
+	if (pixelBytes == 1)
+		_pixels = MakeCopy(bytes, rowBytes, left, top, width, height);
+	else {
+		auto pixels = std::make_shared<ByteArray>(width * height);
+		const uint8_t *rgbSource = static_cast<const uint8_t*>(bytes) + top * rowBytes;
+		uint8_t *destRow = pixels->data();
+		for (int y = 0; y < height; ++y, rgbSource += rowBytes, destRow += width) {
+			const uint8_t *src = rgbSource + left * pixelBytes;
+			for (int x = 0; x < width; ++x, src += pixelBytes) {
+				destRow[x] = RGBToGray(src[redIndex], src[greenIndex], src[blueIndex]);
+			}
 		}
+		_pixels = std::move(pixels);
 	}
-	_pixels = pixels;
-}
-
-GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes) :
-	_left(0),	// since we copy the pixels
-	_top(0),
-	_width(width),
-	_height(height),
-	_rowBytes(width)
-{
-	if (left < 0 || top < 0 || width < 0 || height < 0) {
-		throw std::out_of_range("Requested offset is outside the image");
-	}
-
-	_pixels = MakeCopy(bytes, rowBytes, left, top, width, height);
 }
 
 GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, std::shared_ptr<const ByteArray> pixels, int rowBytes) :
@@ -108,6 +106,29 @@ GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int
 	}
 }
 
+// Definied here instead of inlining in header to avoid link error since WINDOWS_EXPORT_ALL_SYMBOLS does not cover vtable.
+GenericLuminanceSource::GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex) :
+	GenericLuminanceSource(0, 0, width, height, bytes, rowBytes, pixelBytes, redIndex, greenIndex, blueIndex, nullptr)
+{
+}
+
+// Definied here instead of inlining in header to avoid link error since WINDOWS_EXPORT_ALL_SYMBOLS does not cover vtable.
+GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex) :
+	GenericLuminanceSource(left, top, width, height, bytes, rowBytes, pixelBytes, redIndex, greenIndex, blueIndex, nullptr)
+{
+}
+
+// Definied here instead of inlining in header to avoid link error since WINDOWS_EXPORT_ALL_SYMBOLS does not cover vtable.
+GenericLuminanceSource::GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes) :
+	GenericLuminanceSource(0, 0, width, height, bytes, rowBytes, 1, 0, 0, 0, nullptr)
+{
+}
+
+// Definied here instead of inlining in header to avoid link error since WINDOWS_EXPORT_ALL_SYMBOLS does not cover vtable.
+GenericLuminanceSource::GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes) :
+	GenericLuminanceSource(left, top, width, height, bytes, rowBytes, 1, 0, 0, 0, nullptr)
+{
+}
 
 int
 GenericLuminanceSource::width() const

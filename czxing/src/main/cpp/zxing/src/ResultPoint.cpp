@@ -16,29 +16,10 @@
 */
 
 #include "ResultPoint.h"
+
 #include <cmath>
-#include <utility>
 
 namespace ZXing {
-
-  /**
-  * @param pattern1 first pattern
-  * @param pattern2 second pattern
-  * @return distance between two points
-  */
-float ResultPoint::Distance(const ResultPoint& a, const ResultPoint& b)
-{
-	auto dx = a.x() - b.x();
-	auto dy = a.y() - b.y();
-	return std::sqrt(dx*dx + dy*dy);
-}
-
-float ResultPoint::Distance(float aX, float aY, float bX, float bY)
-{
-	auto dx = aX - bX;
-	auto dy = aY - bY;
-	return std::sqrt(dx * dx + dy * dy);
-}
 
 float ResultPoint::Distance(int aX, int aY, int bX, int bY)
 {
@@ -46,13 +27,5 @@ float ResultPoint::Distance(int aX, int aY, int bX, int bY)
 	auto dy = static_cast<float>(aY - bY);
 	return std::sqrt(dx * dx + dy * dy);
 }
-
-float ResultPoint::SquaredDistance(const ResultPoint& a, const ResultPoint& b)
-{
-	auto dx = a.x() - b.x();
-	auto dy = a.y() - b.y();
-	return dx * dx + dy * dy;
-}
-
 
 } // ZXing

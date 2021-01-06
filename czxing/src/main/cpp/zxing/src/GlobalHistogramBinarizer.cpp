@@ -16,14 +16,18 @@
 */
 
 #include "GlobalHistogramBinarizer.h"
-#include "LuminanceSource.h"
+
 #include "BitArray.h"
 #include "BitMatrix.h"
 #include "ByteArray.h"
-#include "DecodeStatus.h"
+#include "LuminanceSource.h"
 
+#include <algorithm>
 #include <array>
+#include <cassert>
+#include <functional>
 #include <mutex>
+#include <utility>
 
 namespace ZXing {
 
@@ -38,22 +42,13 @@ struct GlobalHistogramBinarizer::DataCache
 	std::shared_ptr<const BitMatrix> matrix;
 };
 
-GlobalHistogramBinarizer::GlobalHistogramBinarizer(std::shared_ptr<const LuminanceSource> source, bool pureBarcode) :
+GlobalHistogramBinarizer::GlobalHistogramBinarizer(std::shared_ptr<const LuminanceSource> source) :
 	_source(std::move(source)),
-	_pureBarcode(pureBarcode),
 	_cache(new DataCache)
 {
 }
 
-GlobalHistogramBinarizer::~GlobalHistogramBinarizer()
-{
-}
-
-bool
-GlobalHistogramBinarizer::isPureBarcode() const
-{
-	return _pureBarcode;
-}
+GlobalHistogramBinarizer::~GlobalHistogramBinarizer() = default;
 
 int
 GlobalHistogramBinarizer::width() const
@@ -116,53 +111,52 @@ static int EstimateBlackPoint(const std::array<int, LUMINANCE_BUCKETS>& buckets)
 	return bestValley << LUMINANCE_SHIFT;
 }
 
-// Applies simple sharpening to the row data to improve performance of the 1D Readers.
-bool
-GlobalHistogramBinarizer::getBlackRow(int y, BitArray& row) const
+bool GlobalHistogramBinarizer::getPatternRow(int y, PatternRow& res) const
 {
 	int width = _source->width();
-	if (row.size() != width)
-		row = BitArray(width);
-	else
-		row.clearBits();
+	if (width < 3)
+		return false; // special casing the code below for a width < 3 makes no sense
+
+	res.clear();
 
 	ByteArray buffer;
 	const uint8_t* luminances = _source->getRow(y, buffer);
 	std::array<int, LUMINANCE_BUCKETS> buckets = {};
 	for (int x = 0; x < width; x++) {
-		int pixel = luminances[x];
-		buckets[pixel >> LUMINANCE_SHIFT]++;
+		buckets[luminances[x] >> LUMINANCE_SHIFT]++;
 	}
 	int blackPoint = EstimateBlackPoint(buckets);
-	if (blackPoint >= 0) {
-		if (width < 3) {
-			// Special case for very small images
-			for (int x = 0; x < width; x++) {
-				if (luminances[x] < blackPoint) {
-					row.set(x);
-				}
-			}
+	if (blackPoint <= 0)
+		return false;
+
+	auto* lastPos = luminances;
+	bool lastVal = luminances[0] < blackPoint;
+	if (lastVal)
+		res.push_back(0); // first value is number of white pixels, here 0
+
+	auto process = [&](bool val, const uint8_t* p) {
+		if (val != lastVal) {
+			res.push_back(static_cast<PatternRow::value_type>(p - lastPos));
+			lastVal = val;
+			lastPos = p;
 		}
-		else {
-			if (luminances[0] < blackPoint)
-				row.set(0);
-			int left = luminances[0];
-			int center = luminances[1];
-			for (int x = 1; x < width - 1; x++) {
-				int right = luminances[x + 1];
-				// A simple -1 4 -1 box filter with a weight of 2.
-				if (((center * 4) - left - right) / 2 < blackPoint) {
-					row.set(x);
-				}
-				left = center;
-				center = right;
-			}
-			if (luminances[width-1] < blackPoint)
-				row.set(width-1);
-		}
-		return true;
-	}
-	return false;
+	};
+
+	for (auto* p = luminances + 1; p < luminances + width - 1; ++p)
+		process((-*(p - 1) + (int(*p) * 4) - *(p + 1)) / 2 < blackPoint, p);
+
+	auto* backPos = luminances + width - 1;
+	bool backVal = *backPos < blackPoint;
+	process(backVal, backPos);
+
+	res.push_back(static_cast<PatternRow::value_type>(backPos - lastPos + 1));
+
+	if (backVal)
+		res.push_back(0); // last value is number of white pixels, here 0
+
+	assert(res.size() % 2 == 1);
+
+	return true;
 }
 
 static void InitBlackMatrix(const LuminanceSource& source, std::shared_ptr<const BitMatrix>& outMatrix)
@@ -181,31 +175,30 @@ static void InitBlackMatrix(const LuminanceSource& source, std::shared_ptr<const
 			const uint8_t* luminances = source.getRow(row, buffer);
 			int right = (width * 4) / 5;
 			for (int x = width / 5; x < right; x++) {
-				int pixel = luminances[x];
-				localBuckets[pixel >> LUMINANCE_SHIFT]++;
+				localBuckets[luminances[x] >> LUMINANCE_SHIFT]++;
 			}
 		}
 	}
 
 	int blackPoint = EstimateBlackPoint(localBuckets);
-	if (blackPoint >= 0) {
-		// We delay reading the entire image luminance until the black point estimation succeeds.
-		// Although we end up reading four rows twice, it is consistent with our motto of
-		// "fail quickly" which is necessary for continuous scanning.
-		ByteArray buffer;
-		int stride;
-		const uint8_t* luminances = source.getMatrix(buffer, stride);
-		for (int y = 0; y < height; y++) {
-			int offset = y * stride;
-			for (int x = 0; x < width; x++) {
-				int pixel = luminances[offset + x];
-				if (pixel < blackPoint) {
-					matrix->set(x, y);
-				}
+	if (blackPoint <= 0)
+		return;
+
+	// We delay reading the entire image luminance until the black point estimation succeeds.
+	// Although we end up reading four rows twice, it is consistent with our motto of
+	// "fail quickly" which is necessary for continuous scanning.
+	ByteArray buffer;
+	int stride;
+	const uint8_t* luminances = source.getMatrix(buffer, stride);
+	for (int y = 0; y < height; y++) {
+		int offset = y * stride;
+		for (int x = 0; x < width; x++) {
+			if (luminances[offset + x] < blackPoint) {
+				matrix->set(x, y);
 			}
 		}
-		outMatrix = matrix;
 	}
+	outMatrix = matrix;
 }
 
 // Does not sharpen the data, as this call is intended to only be used by 2D Readers.
@@ -243,7 +236,7 @@ GlobalHistogramBinarizer::rotated(int degreeCW) const
 std::shared_ptr<BinaryBitmap>
 GlobalHistogramBinarizer::newInstance(const std::shared_ptr<const LuminanceSource>& source) const
 {
-	return std::make_shared<GlobalHistogramBinarizer>(source, _pureBarcode);
+	return std::make_shared<GlobalHistogramBinarizer>(source);
 }
 
 

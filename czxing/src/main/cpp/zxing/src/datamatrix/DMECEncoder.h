@@ -15,6 +15,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 namespace ZXing {
 
 class ByteArray;
@@ -24,20 +25,13 @@ namespace DataMatrix {
 class SymbolInfo;
 
 /**
-* Error Correction Code for ECC200.
-*/
-class ECEncoder
-{
-public:
-	/**
-	* Creates the ECC200 error correction for an encoded message.
-	*
-	* @param codewords  the codewords
-	* @param symbolInfo information about the symbol to be encoded
-	* @return the codewords with interleaved error correction.
-	*/
-	static void EncodeECC200(ByteArray& codewords, const SymbolInfo& symbolInfo);
-};
+ * Creates and interleaves the ECC200 error correction for an encoded message.
+ *
+ * @param codewords  the codewords
+ * @param symbolInfo information about the symbol to be encoded
+ * @return the codewords with interleaved error correction.
+ */
+void EncodeECC200(ByteArray& codewords, const SymbolInfo& symbolInfo);
 
 } // DataMatrix
 } // ZXing

@@ -15,10 +15,11 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+#include "BitMatrix.h"
 #include "ByteArray.h"
-#include "ByteMatrix.h"
-#include "qrcode/QRCodecMode.h"
-#include "qrcode/QRVersion.h"
+#include "QRCodecMode.h"
+#include "QRVersion.h"
 
 namespace ZXing {
 namespace QRCode {
@@ -34,10 +35,10 @@ class EncodeResult
 {
 public:
 	ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel::Invalid;
-	CodecMode::Mode mode = CodecMode::TERMINATOR;
+	CodecMode mode = CodecMode::TERMINATOR;
 	const Version* version = nullptr;
 	int maskPattern = -1;
-	ByteMatrix matrix;
+	BitMatrix matrix;
 };
 
 } // QRCode

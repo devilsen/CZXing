@@ -14,13 +14,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include "oned/ODITFWriter.h"
-#include "oned/ODWriterHelper.h"
+
+#include "ODITFWriter.h"
+
+#include "ODWriterHelper.h"
 
 #include <array>
+#include <stdexcept>
+#include <vector>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
 static const std::array<int, 4> START_PATTERN = { 1, 1, 1, 1 };
 static const std::array<int, 3> END_PATTERN = { 3, 1, 1 };
@@ -77,5 +80,4 @@ ITFWriter::encode(const std::wstring& contents, int width, int height) const
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
 }
 
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

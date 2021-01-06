@@ -16,10 +16,14 @@
 * limitations under the License.
 */
 
-#include <cstdint>
-#include <vector>
-
+#include "Matrix.h"
+#include "Point.h"
 #include "ZXConfig.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <utility>
+#include <vector>
 
 namespace ZXing {
 
@@ -47,26 +51,40 @@ class BitMatrix
 	int _height = 0;
 	int _rowSize = 0;
 #ifdef ZX_FAST_BIT_STORAGE
-	std::vector<uint8_t> _bits;
+	using data_t = uint8_t;
+	//TODO: c++17 inline
+	static constexpr data_t SET_V = 0xff; // allows playing with SIMD binarization
+	static constexpr data_t UNSET_V = 0;
 #else
-	std::vector<uint32_t> _bits;
+	using data_t = uint32_t;
 #endif
+	std::vector<data_t> _bits;
 	// There is nothing wrong to support this but disable to make it explicit since we may copy something very big here.
 	// Use copy() below.
 	BitMatrix(const BitMatrix&) = default;
 	BitMatrix& operator=(const BitMatrix&) = delete;
 
+	const data_t& get(int i) const {
+#if 1
+		return _bits.at(i);
+#else
+		return _bits[i];
+#endif
+	}
+
+	data_t& get(int i) { return const_cast<data_t&>(static_cast<const BitMatrix*>(this)->get(i)); }
+
 public:
-	BitMatrix() {}
+	BitMatrix() = default;
 #ifdef ZX_FAST_BIT_STORAGE
-	BitMatrix(int width, int height) : _width(width), _height(height), _rowSize(width), _bits(width * height, 0) {}
+	static bool isSet(data_t v) { return v != 0; } // see SET_V above
+
+	BitMatrix(int width, int height) : _width(width), _height(height), _rowSize(width), _bits(width * height, UNSET_V) {}
 #else
 	BitMatrix(int width, int height) : _width(width), _height(height), _rowSize((width + 31) / 32), _bits(((width + 31) / 32) * _height, 0) {}
 #endif
 
 	explicit BitMatrix(int dimension) : BitMatrix(dimension, dimension) {} // Construct a square matrix.
-
-	BitMatrix(const ByteMatrix& other, int blackValue);
 
 	BitMatrix(BitMatrix&& other) noexcept : _width(other._width), _height(other._height), _rowSize(other._rowSize), _bits(std::move(other._bits)) {}
 
@@ -82,6 +100,22 @@ public:
 		return *this;
 	}
 
+	[[deprecated]]
+	ByteMatrix toByteMatrix(int black = 0, int white = 255) const;
+
+#ifdef ZX_FAST_BIT_STORAGE
+	// experimental iterator based access
+	template<typename iterator>
+	struct Row
+	{
+		iterator _begin, _end;
+		iterator begin() noexcept { return _begin; }
+		iterator end() noexcept { return _end; }
+	};
+	Row<data_t*> row(int y) { return {_bits.data() + y * _width, _bits.data() + (y + 1) * _width}; }
+	Row<const data_t*> row(int y) const { return {_bits.data() + y * _width, _bits.data() + (y + 1) * _width}; }
+#endif
+
 	/**
 	* <p>Gets the requested bit, where true means black.</p>
 	*
@@ -91,9 +125,9 @@ public:
 	*/
 	bool get(int x, int y) const {
 #ifdef ZX_FAST_BIT_STORAGE
-		return _bits.at(y * _width + x) != 0;
+		return isSet(get(y * _width + x));
 #else
-		return ((_bits.at(y * _rowSize + (x / 32)) >> (x & 0x1f)) & 1) != 0;
+		return ((get(y * _rowSize + (x / 32)) >> (x & 0x1f)) & 1) != 0;
 #endif
 	}
 
@@ -105,17 +139,25 @@ public:
 	*/
 	void set(int x, int y) {
 #ifdef ZX_FAST_BIT_STORAGE
-		_bits.at(y * _width + x) = 1;
+		get(y * _width + x) = SET_V;
 #else
-		_bits.at(y * _rowSize + (x / 32)) |= 1 << (x & 0x1f);
+		get(y * _rowSize + (x / 32)) |= 1 << (x & 0x1f);
 #endif
 	}
 
 	void unset(int x, int y) {
 #ifdef ZX_FAST_BIT_STORAGE
-		_bits.at(y * _width + x) = 0;
+		get(y * _width + x) = UNSET_V;
 #else
-		_bits.at(y * _rowSize + (x / 32)) &= ~(1 << (x & 0x1f));
+		get(y * _rowSize + (x / 32)) &= ~(1 << (x & 0x1f));
+#endif
+	}
+
+	void set(int x, int y, bool val) {
+#ifdef ZX_FAST_BIT_STORAGE
+		get(y * _width + x) = val ? SET_V : UNSET_V;
+#else
+		val ? set(x, y) : unset(x, y);
 #endif
 	}
 
@@ -127,10 +169,10 @@ public:
 	*/
 	void flip(int x, int y) {
 #ifdef ZX_FAST_BIT_STORAGE
-		auto& v =_bits.at(y * _width + x);
+		auto& v =get(y * _width + x);
 		v = !v;
 #else
-		_bits.at(y * _rowSize + (x / 32)) ^= 1 << (x & 0x1f);
+		get(y * _rowSize + (x / 32)) ^= 1 << (x & 0x1f);
 #endif
 	}
 
@@ -139,14 +181,6 @@ public:
 			i = ~i;
 		}
 	}
-
-	/**
-	* Exclusive-or (XOR): Flip the bit in this {@code BitMatrix} if the corresponding
-	* mask bit is set.
-	*
-	* @param mask XOR mask
-	*/
-	//void xor(const BitMatrix& mask);
 
 	/**
 	* Clears all bits (sets to false).
@@ -176,12 +210,6 @@ public:
 	void getRow(int y, BitArray& row) const;
 
 	/**
-	* @param y row to set
-	* @param row {@link BitArray} to copy from
-	*/
-	void setRow(int y, const BitArray& row);
-
-	/**
 	* Modifies this {@code BitMatrix} to represent the same but rotated 90 degrees clockwise
 	*/
 	void rotate90();
@@ -194,11 +222,11 @@ public:
 	void mirror();
 
 	/**
-	* This is useful in detecting the enclosing rectangle of a 'pure' barcode.
+	* Find the rectangle that contains all non-white pixels. Useful for detection of 'pure' barcodes.
 	*
-	* @return {@code left,top,width,height} enclosing rectangle of all 1 bits, or null if it is all white
+	* @return True iff this rectangle is at least minWidth x minHeight pixels big
 	*/
-	bool getEnclosingRectangle(int &left, int& top, int& width, int& height) const;
+	bool findBoundingBox(int &left, int& top, int& width, int& height, int minSize = 1) const;
 
 	/**
 	* This is useful in detecting a corner of a 'pure' barcode.
@@ -208,6 +236,10 @@ public:
 	bool getTopLeftOnBit(int &left, int& top) const;
 
 	bool getBottomRightOnBit(int &right, int& bottom) const;
+
+#ifdef ZX_FAST_BIT_STORAGE
+	void getPatternRow(int r, std::vector<uint16_t>& p_row) const;
+#endif
 
 	/**
 	* @return The width of the matrix
@@ -238,6 +270,17 @@ public:
 	{
 		return a._width == b._width && a._height == b._height && a._rowSize == b._rowSize && a._bits == b._bits;
 	}
+
+	template <typename T>
+	bool isIn(PointT<T> p, int b = 0) const noexcept
+	{
+		return b <= p.x && p.x < width() - b && b <= p.y && p.y < height() - b;
+	}
+
+	bool get(PointI p) const { return get(p.x, p.y); }
+	bool get(PointF p) const { return get(PointI(p)); }
+	void set(PointI p, bool v = true) { set(p.x, p.y, v); }
+	void set(PointF p, bool v = true) { set(PointI(p), v); }
 };
 
 /**
@@ -260,6 +303,27 @@ BitMatrix Inflate(BitMatrix&& input, int width, int height, int quietZone);
  * @param subSampling typically the module size
  * @return deflated input
  */
-BitMatrix Deflate(const BitMatrix& matrix, int width, int height, int top, int left, int subSampling);
+BitMatrix Deflate(const BitMatrix& matrix, int width, int height, float top, float left, float subSampling);
+
+template<typename T>
+BitMatrix ToBitMatrix(const Matrix<T>& in, T trueValue = {true})
+{
+	BitMatrix out(in.width(), in.height());
+	for (int y = 0; y < in.height(); ++y)
+		for (int x = 0; x < in.width(); ++x)
+			if (in.get(x, y) == trueValue)
+				out.set(x, y);
+	return out;
+}
+
+template<typename T>
+Matrix<T> ToMatrix(const BitMatrix& in, T black = 0, T white = ~0)
+{
+	Matrix<T> res(in.width(), in.height());
+	for (int y = 0; y < in.height(); ++y)
+		for (int x = 0; x < in.width(); ++x)
+			res.set(x, y, in.get(x, y) ? black : white);
+	return res;
+}
 
 } // ZXing

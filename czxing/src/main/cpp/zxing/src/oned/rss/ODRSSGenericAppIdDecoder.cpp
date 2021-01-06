@@ -15,35 +15,24 @@
 * limitations under the License.
 */
 
-#include "oned/rss/ODRSSGenericAppIdDecoder.h"
-#include "oned/rss/ODRSSFieldParser.h"
+#include "ODRSSGenericAppIdDecoder.h"
+
 #include "BitArray.h"
 #include "DecodeStatus.h"
+#include "ODRSSFieldParser.h"
 #include "ZXStrConvWorkaround.h"
 
-#include <algorithm>
+#include <limits>
 #include <stdexcept>
+#include <utility>
 
-namespace ZXing {
-namespace OneD {
-namespace RSS {
-
-int
-GenericAppIdDecoder::ExtractNumeric(const BitArray& bits, int pos, int count)
-{
-	int value = 0;
-	auto bitIter = bits.iterAt(pos);
-	for (int i = 0; i < count; ++i, ++bitIter) {
-		value = (value << 1) | static_cast<int>(*bitIter);
-	}
-	return value;
-}
+namespace ZXing::OneD::DataBar {
 
 struct DecodedValue
 {
 	int newPosition = std::numeric_limits<int>::max();
 	
-	DecodedValue() {}
+	DecodedValue() = default;
 	explicit DecodedValue(int np) : newPosition(np) {}
 	bool isValid() const { return newPosition != std::numeric_limits<int>::max(); }
 };
@@ -58,7 +47,7 @@ struct DecodedChar : public DecodedValue
 
 	char value = '\0';
 
-	DecodedChar() {}
+	DecodedChar() = default;
 	DecodedChar(int np, char c) : DecodedValue(np), value(c) {}
 	
 	bool isFNC1() const { return value == FNC1; }
@@ -73,9 +62,9 @@ struct DecodedInformation : public DecodedValue
 	std::string newString;
 	int remainingValue = -1;
 
-	DecodedInformation() {}
-	DecodedInformation(int np, const std::string& s) : DecodedValue(np), newString(s) {}
-	DecodedInformation(int np, const std::string& s, int r) : DecodedValue(np), newString(s), remainingValue(r) {}
+	DecodedInformation() = default;
+	DecodedInformation(int np, std::string s) : DecodedValue(np), newString(std::move(s)) {}
+	DecodedInformation(int np, std::string s, int r) : DecodedValue(np), newString(std::move(s)), remainingValue(r) {}
 
 	bool isRemaining() const { return remainingValue >= 0; }
 };
@@ -91,7 +80,7 @@ struct DecodedNumeric : public DecodedValue
 	int firstDigit = 0;
 	int secondDigit = 0;
 
-	DecodedNumeric() {}
+	DecodedNumeric() = default;
 	DecodedNumeric(int newPosition, int first, int second) : DecodedValue(newPosition), firstDigit(first), secondDigit(second) {
 		if (firstDigit < 0 || firstDigit > 10 || secondDigit < 0 || secondDigit > 10) {
 			*this = DecodedNumeric();
@@ -129,8 +118,6 @@ struct ParsingState
 	State encoding = NUMERIC;
 };
 
-#define ExtractNumeric GenericAppIdDecoder::ExtractNumeric
-
 static bool
 IsStillAlpha(const BitArray& bits, int pos)
 {
@@ -139,7 +126,7 @@ IsStillAlpha(const BitArray& bits, int pos)
 	}
 
 	// We now check if it's a valid 5-bit value (0..9 and FNC1)
-	int fiveBitValue = ExtractNumeric(bits, pos, 5);
+	int fiveBitValue = ToInt(bits, pos, 5);
 	if (fiveBitValue >= 5 && fiveBitValue < 16) {
 		return true;
 	}
@@ -148,7 +135,7 @@ IsStillAlpha(const BitArray& bits, int pos)
 		return false;
 	}
 
-	int sixBitValue = ExtractNumeric(bits, pos, 6);
+	int sixBitValue = ToInt(bits, pos, 6);
 	return sixBitValue >= 16 && sixBitValue < 63; // 63 not included
 }
 
@@ -159,7 +146,7 @@ IsStillIsoIec646(const BitArray& bits, int pos)
 		return false;
 	}
 
-	int fiveBitValue = ExtractNumeric(bits, pos, 5);
+	int fiveBitValue = ToInt(bits, pos, 5);
 	if (fiveBitValue >= 5 && fiveBitValue < 16) {
 		return true;
 	}
@@ -168,7 +155,7 @@ IsStillIsoIec646(const BitArray& bits, int pos)
 		return false;
 	}
 
-	int sevenBitValue = ExtractNumeric(bits, pos, 7);
+	int sevenBitValue = ToInt(bits, pos, 7);
 	if (sevenBitValue >= 64 && sevenBitValue < 116) {
 		return true;
 	}
@@ -177,7 +164,7 @@ IsStillIsoIec646(const BitArray& bits, int pos)
 		return false;
 	}
 
-	int eightBitValue = ExtractNumeric(bits, pos, 8);
+	int eightBitValue = ToInt(bits, pos, 8);
 	return eightBitValue >= 232 && eightBitValue < 253;
 }
 
@@ -201,7 +188,7 @@ IsStillNumeric(const BitArray& bits, int pos)
 static DecodedChar
 DecodeAlphanumeric(const BitArray& bits, int pos)
 {
-	int fiveBitValue = ExtractNumeric(bits, pos, 5);
+	int fiveBitValue = ToInt(bits, pos, 5);
 	if (fiveBitValue == 15) {
 		return DecodedChar(pos + 5, DecodedChar::FNC1);
 	}
@@ -210,7 +197,7 @@ DecodeAlphanumeric(const BitArray& bits, int pos)
 		return DecodedChar(pos + 5, (char)('0' + fiveBitValue - 5));
 	}
 
-	int sixBitValue = ExtractNumeric(bits, pos, 6);
+	int sixBitValue = ToInt(bits, pos, 6);
 
 	if (sixBitValue >= 32 && sixBitValue < 58) {
 		return DecodedChar(pos + 6, (char)(sixBitValue + 33));
@@ -310,7 +297,7 @@ ParseAlphaBlock(const BitArray& bits, ParsingState& state, std::string& buffer)
 static DecodedChar
 DecodeIsoIec646(const BitArray& bits, int pos)
 {
-	int fiveBitValue = ExtractNumeric(bits,pos, 5);
+	int fiveBitValue = ToInt(bits,pos, 5);
 	if (fiveBitValue == 15) {
 		return DecodedChar(pos + 5, DecodedChar::FNC1);
 	}
@@ -319,7 +306,7 @@ DecodeIsoIec646(const BitArray& bits, int pos)
 		return DecodedChar(pos + 5, (char)('0' + fiveBitValue - 5));
 	}
 
-	int sevenBitValue = ExtractNumeric(bits, pos, 7);
+	int sevenBitValue = ToInt(bits, pos, 7);
 
 	if (sevenBitValue >= 64 && sevenBitValue < 90) {
 		return DecodedChar(pos + 7, (char)(sevenBitValue + 1));
@@ -329,7 +316,7 @@ DecodeIsoIec646(const BitArray& bits, int pos)
 		return DecodedChar(pos + 7, (char)(sevenBitValue + 7));
 	}
 
-	int eightBitValue = ExtractNumeric(bits, pos, 8);
+	int eightBitValue = ToInt(bits, pos, 8);
 	if (eightBitValue < 232 || eightBitValue > 252)
 		throw std::runtime_error("Decoding invalid ISO-IEC-646 value");
 
@@ -371,13 +358,13 @@ static DecodedNumeric
 DecodeNumeric(const BitArray& bits, int pos)
 {
 	if (pos + 7 > bits.size()) {
-		int numeric = ExtractNumeric(bits, pos, 4);
+		int numeric = ToInt(bits, pos, 4);
 		if (numeric == 0) {
 			return DecodedNumeric(bits.size(), DecodedNumeric::FNC1, DecodedNumeric::FNC1);
 		}
 		return DecodedNumeric(bits.size(), numeric - 1, DecodedNumeric::FNC1);
 	}
-	int numeric = ExtractNumeric(bits, pos, 7);
+	int numeric = ToInt(bits, pos, 7);
 	int digit1 = (numeric - 8) / 11;
 	int digit2 = (numeric - 8) % 11;
 
@@ -389,6 +376,8 @@ ParseNumericBlock(const BitArray& bits, ParsingState& state, std::string& buffer
 {
 	while (IsStillNumeric(bits, state.position)) {
 		DecodedNumeric numeric = DecodeNumeric(bits, state.position);
+		if (!numeric.isValid())
+			break;
 		state.position = numeric.newPosition;
 
 		if (numeric.isFirstDigitFNC1()) {
@@ -446,7 +435,7 @@ DoDecodeGeneralPurposeField(ParsingState& state, const BitArray& bits, std::stri
 }
 
 DecodeStatus
-GenericAppIdDecoder::DecodeGeneralPurposeField(const BitArray& bits, int pos, std::string& result)
+DecodeAppIdGeneralPurposeField(const BitArray& bits, int pos, std::string& result)
 {
 	try
 	{
@@ -462,7 +451,7 @@ GenericAppIdDecoder::DecodeGeneralPurposeField(const BitArray& bits, int pos, st
 }
 
 DecodeStatus
-GenericAppIdDecoder::DecodeAllCodes(const BitArray& bits, int pos, std::string& result)
+DecodeAppIdAllCodes(const BitArray& bits, int pos, std::string& result)
 {
 	try
 	{
@@ -472,9 +461,13 @@ GenericAppIdDecoder::DecodeAllCodes(const BitArray& bits, int pos, std::string& 
 			state.position = pos;
 			DecodedInformation info = DoDecodeGeneralPurposeField(state, bits, remaining);
 			std::string parsedFields;
-			auto status = FieldParser::ParseFieldsInGeneralPurpose(info.newString, parsedFields);
+			auto status = ParseFieldsInGeneralPurpose(info.newString, parsedFields);
 			if (StatusIsError(status)) {
-				return status;
+				if (result.empty() && remaining.empty()){
+					result = info.newString;
+					return DecodeStatus::NoError;
+				} else
+					return status;
 			}
 			result += parsedFields;
 			if (info.isRemaining()) {
@@ -497,6 +490,4 @@ GenericAppIdDecoder::DecodeAllCodes(const BitArray& bits, int pos, std::string& 
 	return DecodeStatus::FormatError;
 }
 
-} // RSS
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD::RSS

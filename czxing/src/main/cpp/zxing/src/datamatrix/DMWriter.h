@@ -15,6 +15,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include <string>
 
 namespace ZXing {
@@ -30,8 +31,14 @@ class Writer
 public:
 	Writer();
 
+	Writer& setMargin(int margin) {
+		_quiteZone = margin;
+		return *this;
+	}
+
 	Writer& setShapeHint(SymbolShape shape) {
-		_shapeHint = shape; return *this;
+		_shapeHint = shape;
+		return *this;
 	}
 
 	Writer& setMinSize(int width, int height) {
@@ -50,7 +57,7 @@ public:
 
 private:
 	SymbolShape _shapeHint;
-	int _minWidth, _minHeight, _maxWidth, _maxHeight;
+	int _quiteZone = 1, _minWidth = -1, _minHeight = -1, _maxWidth = -1, _maxHeight = -1;
 };
 
 } // DataMatrix

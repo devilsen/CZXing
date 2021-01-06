@@ -18,6 +18,9 @@
 
 #include "LuminanceSource.h"
 
+#include <cstdint>
+#include <memory>
+
 namespace ZXing {
 
 /**
@@ -26,32 +29,38 @@ namespace ZXing {
 class GenericLuminanceSource : public LuminanceSource
 {
 public:
+	virtual ~GenericLuminanceSource() = default;
+
+	// Don't use in client code. Used internally for now to prevent lots of deprecation warning noise until the GenericLuminanceSource is completely removed.
+	GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex, void* deprecation_tag);
 	/**
 	* Init with a RGB source.
 	*/
-	GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex) :
-		GenericLuminanceSource(0, 0, width, height, bytes, rowBytes, pixelBytes, redIndex, greenIndex, blueIndex) {}
+	[[deprecated]] // please use interface from ReadBarcode.h
+	GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex);
 
 	/**
-	* Init with a RGB source, left, top, with, height specify the subregion area in orignal image; 'bytes' should still point the begining of image buffer (i.e. pixel (0,0)).
+	* Init with a RGB source, left, top, width, height specify the subregion area in orignal image; 'bytes' points to the begining of image buffer (i.e. pixel (0,0)).
 	*/
+	[[deprecated]] // please use interface from ReadBarcode.h
 	GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes, int pixelBytes, int redIndex, int greenIndex, int blueIndex);
 
 	/**
 	* Init with a grayscale source.
 	*/
-	GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes) :
-		GenericLuminanceSource(0, 0, width, height, bytes, rowBytes) {}
+	[[deprecated]] // please use interface from ReadBarcode.h
+	GenericLuminanceSource(int width, int height, const void* bytes, int rowBytes);
 
 	/**
-	* Init with a grayscale source, left, top, with, height specify the subregion area in orignal image; 'bytes' should still point the begining of image buffer (i.e. pixel (0,0)).
+	* Init with a grayscale source, left, top, width, height specify the subregion area in orignal image; 'bytes' points to the begining of image buffer (i.e. pixel (0,0)).
 	*/
+	[[deprecated]] // please use interface from ReadBarcode.h
 	GenericLuminanceSource(int left, int top, int width, int height, const void* bytes, int rowBytes);
 
-
 	/**
-	* Init with a grayscale source, left, top, with, height specify the subregion area in orignal image; 'bytes' should still point the begining of image buffer (i.e. pixel (0,0)).
+	* Init with a grayscale source, left, top, width, height specify the subregion area in orignal image; 'bytes' points the begining of image buffer (i.e. pixel (0,0)).
 	*/
+	[[deprecated]] // please use interface from ReadBarcode.h
 	GenericLuminanceSource(int left, int top, int width, int height, std::shared_ptr<const ByteArray> pixels, int rowBytes);
 
 	virtual int width() const override;

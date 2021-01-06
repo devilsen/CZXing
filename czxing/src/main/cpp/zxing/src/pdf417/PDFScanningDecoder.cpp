@@ -15,19 +15,18 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFScanningDecoder.h"
-#include "pdf417/PDFBoundingBox.h"
-#include "pdf417/PDFDetectionResultColumn.h"
-#include "pdf417/PDFCodewordDecoder.h"
-#include "pdf417/PDFBarcodeMetadata.h"
-#include "pdf417/PDFDetectionResult.h"
-#include "pdf417/PDFBarcodeValue.h"
-#include "pdf417/PDFDecodedBitStreamParser.h"
-#include "pdf417/PDFModulusGF.h"
+#include "PDFScanningDecoder.h"
+#include "PDFBoundingBox.h"
+#include "PDFDetectionResultColumn.h"
+#include "PDFCodewordDecoder.h"
+#include "PDFBarcodeMetadata.h"
+#include "PDFDetectionResult.h"
+#include "PDFBarcodeValue.h"
+#include "PDFDecodedBitStreamParser.h"
+#include "PDFModulusGF.h"
 #include "ResultPoint.h"
 #include "ZXNullable.h"
 #include "BitMatrix.h"
-#include "DecoderResult.h"
 #include "DecodeStatus.h"
 #include "DecoderResult.h"
 #include "ZXTestSupport.h"
@@ -97,7 +96,7 @@ static ModuleBitCountType GetBitCountForCodeword(int codeword)
     ModuleBitCountType result;
     result.fill(0);
 	int previousValue = 0;
-	int i = static_cast<int>(result.size()) - 1;
+	int i = Size(result) - 1;
 	while (true) {
 		if ((codeword & 0x1) != previousValue) {
 			previousValue = codeword & 0x1;
@@ -134,7 +133,7 @@ static Nullable<Codeword> DetectCodeword(const BitMatrix& image, int minColumn, 
 		return nullptr;
 	}
 	int endColumn;
-	int codewordBitCount = std::accumulate(moduleBitCount.begin(), moduleBitCount.end(), 0);
+	int codewordBitCount = Reduce(moduleBitCount);
 	if (leftToRight) {
 		endColumn = startColumn + codewordBitCount;
 	}
@@ -248,13 +247,13 @@ static bool AdjustBoundingBox(Nullable<DetectionResultColumn>& rowIndicatorColum
 		missingStartRows--;
 	}
 	int missingEndRows = 0;
-	for (int row = (int)rowHeights.size() - 1; row >= 0; row--) {
+	for (int row = Size(rowHeights) - 1; row >= 0; row--) {
 		missingEndRows += maxRowHeight - rowHeights[row];
 		if (rowHeights[row] > 0) {
 			break;
 		}
 	}
-	for (int row = (int)codewords.size() - 1; missingEndRows > 0 && codewords[row] == nullptr; row--) {
+	for (int row = Size(codewords) - 1; missingEndRows > 0 && codewords[row] == nullptr; row--) {
 		missingEndRows--;
 	}
 	BoundingBox box;
@@ -336,7 +335,7 @@ static std::vector<std::vector<BarcodeValue>> CreateBarcodeMatrix(DetectionResul
 				if (codeword != nullptr) {
 					int rowNumber = codeword.value().rowNumber();
 					if (rowNumber >= 0) {
-						if (rowNumber >= (int)barcodeMatrix.size()) {
+						if (rowNumber >= Size(barcodeMatrix)) {
 							// We have more rows than the barcode metadata allows for, ignore them.
 							continue;
 						}
@@ -496,7 +495,7 @@ bool DecodeErrorCorrection(std::vector<int>& received, int numECCodewords, const
 
 	ModulusPoly knownErrors = field.one();
 	for (int erasure : erasures) {
-		int b = field.exp(static_cast<int>(received.size()) - 1 - erasure);
+		int b = field.exp(Size(received) - 1 - erasure);
 		// Add (1 - bx) term:
 		ModulusPoly term(field, { field.subtract(0, b), 1 });
 		knownErrors = knownErrors.multiply(term);
@@ -519,7 +518,7 @@ bool DecodeErrorCorrection(std::vector<int>& received, int numECCodewords, const
 
 	std::vector<int> errorMagnitudes = FindErrorMagnitudes(omega, sigma, errorLocations);
 
-	int receivedSize = static_cast<int>(received.size());
+	int receivedSize = Size(received);
 	for (size_t i = 0; i < errorLocations.size(); i++) {
 		int position = receivedSize - 1 - field.log(errorLocations[i]);
 		if (position < 0) {
@@ -527,7 +526,7 @@ bool DecodeErrorCorrection(std::vector<int>& received, int numECCodewords, const
 		}
 		received[position] = field.subtract(received[position], errorMagnitudes[i]);
 	}
-	nbErrors = static_cast<int>(errorLocations.size());
+	nbErrors = Size(errorLocations);
 	return true;
 }
 
@@ -544,7 +543,7 @@ bool DecodeErrorCorrection(std::vector<int>& received, int numECCodewords, const
 */
 static bool CorrectErrors(std::vector<int>& codewords, const std::vector<int>& erasures, int numECCodewords, int& errorCount)
 {
-	if ((int)erasures.size() > numECCodewords / 2 + MAX_ERRORS ||
+	if (Size(erasures) > numECCodewords / 2 + MAX_ERRORS ||
 		numECCodewords < 0 ||
 		numECCodewords > MAX_EC_CODEWORDS) {
 		// Too many errors or EC Codewords is corrupted
@@ -567,13 +566,13 @@ static bool VerifyCodewordCount(std::vector<int>& codewords, int numECCodewords)
 	// codewords in the symbol, including the Symbol Length Descriptor itself, data codewords and pad
 	// codewords, but excluding the number of error correction codewords.
 	int numberOfCodewords = codewords[0];
-	if (numberOfCodewords > (int)codewords.size()) {
+	if (numberOfCodewords > Size(codewords)) {
 		return false;
 	}
 	if (numberOfCodewords == 0) {
 		// Reset to the length of the array - 8 (Allow for at least level 3 Error Correction (8 Error Codewords)
-		if (numECCodewords < (int)codewords.size()) {
-			codewords[0] = (int)codewords.size() - numECCodewords;
+		if (numECCodewords < Size(codewords)) {
+			codewords[0] = Size(codewords) - numECCodewords;
 		}
 		else {
 			return false;
@@ -582,7 +581,7 @@ static bool VerifyCodewordCount(std::vector<int>& codewords, int numECCodewords)
 	return true;
 }
 
-static DecoderResult DecodeCodewords(std::vector<int>& codewords, int ecLevel, const std::vector<int>& erasures)
+DecoderResult DecodeCodewords(std::vector<int>& codewords, int ecLevel, const std::vector<int>& erasures)
 {
 	if (codewords.empty()) {
 		return DecodeStatus::FormatError;
@@ -600,7 +599,7 @@ static DecoderResult DecodeCodewords(std::vector<int>& codewords, int ecLevel, c
 	auto result = DecodedBitStreamParser::Decode(codewords, ecLevel);
 	if (result.isValid()) {
 		result.setErrorsCorrected(correctedErrorsCount);
-		result.setErasures(static_cast<int>(erasures.size()));
+		result.setErasures(Size(erasures));
 	}
 	return result;
 }
@@ -637,7 +636,7 @@ static DecoderResult CreateDecoderResultFromAmbiguousValues(int ecLevel, std::ve
 			return DecodeStatus::ChecksumError;
 		}
 		for (size_t i = 0; i < ambiguousIndexCount.size(); i++) {
-			if (ambiguousIndexCount[i] < (int)ambiguousIndexValues[i].size() - 1) {
+			if (ambiguousIndexCount[i] < Size(ambiguousIndexValues[i]) - 1) {
 				ambiguousIndexCount[i]++;
 				break;
 			}

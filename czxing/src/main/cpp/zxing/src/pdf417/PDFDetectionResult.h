@@ -16,9 +16,9 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFBarcodeMetadata.h"
-#include "pdf417/PDFBoundingBox.h"
-#include "pdf417/PDFDetectionResultColumn.h"
+#include "PDFBarcodeMetadata.h"
+#include "PDFBoundingBox.h"
+#include "PDFDetectionResultColumn.h"
 #include "ZXNullable.h"
 #include <vector>
 
@@ -35,7 +35,7 @@ class DetectionResult
 	Nullable<BoundingBox> _boundingBox;
 
 public:
-	DetectionResult() {}
+	DetectionResult() = default;
 	DetectionResult(const BarcodeMetadata& barcodeMetadata, const Nullable<BoundingBox>& boundingBox);
 
 	void init(const BarcodeMetadata& barcodeMetadata, const Nullable<BoundingBox>& boundingBox);

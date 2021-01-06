@@ -15,12 +15,11 @@
 * limitations under the License.
 */
 
-#include "qrcode/QRErrorCorrectionLevel.h"
+#include "QRErrorCorrectionLevel.h"
 
 #include <cassert>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
 const wchar_t* ToString(ErrorCorrectionLevel l)
 {
@@ -54,5 +53,4 @@ int BitsFromECLevel(ErrorCorrectionLevel l)
 	return BITS[(int)l];
 }
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

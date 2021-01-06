@@ -16,6 +16,9 @@
 * limitations under the License.
 */
 
+#include "ZXContainerAlgorithms.h"
+
+#include <utility>
 #include <vector>
 
 namespace ZXing {
@@ -35,7 +38,7 @@ class ModulusPoly
 public:
 	// Build a invalid object, so that this can be used in container or return by reference,
 	// any access to invalid object is undefined behavior.
-	ModulusPoly() {}
+	ModulusPoly() = default;
 
 	ModulusPoly(const ModulusGF& field, const std::vector<int>& coefficients);
 
@@ -47,7 +50,7 @@ public:
 	* @return degree of this polynomial
 	*/
 	int degree() const {
-		return static_cast<int>(_coefficients.size()) - 1;
+		return Size(_coefficients) - 1;
 	}
 
 	/**

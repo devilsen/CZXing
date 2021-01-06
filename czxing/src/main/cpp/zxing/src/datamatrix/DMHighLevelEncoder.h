@@ -15,8 +15,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include <string>
-#include <vector>
 
 namespace ZXing {
 
@@ -30,12 +30,8 @@ enum class SymbolShape;
 * DataMatrix ECC 200 data encoder following the algorithm described in ISO/IEC 16022:200(E) in
 * annex S.
 */
-class HighLevelEncoder
-{
-public:
-	static ByteArray Encode(const std::wstring& msg);
-	static ByteArray Encode(const std::wstring& msg, SymbolShape shape, int minWdith, int minHeight, int maxWidth, int maxHeight);
-};
+ByteArray Encode(const std::wstring& msg);
+ByteArray Encode(const std::wstring& msg, SymbolShape shape, int minWdith, int minHeight, int maxWidth, int maxHeight);
 
 } // DataMatrix
 } // ZXing

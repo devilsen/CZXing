@@ -16,46 +16,29 @@
 */
 
 #include "HybridBinarizer.h"
-#include "LuminanceSource.h"
-#include "ByteArray.h"
-#include "BitArray.h"
+
 #include "BitMatrix.h"
-#include "DecodeStatus.h"
-#include "ZXNumeric.h"
+#include "BitMatrixIO.h"
+#include "ByteArray.h"
+#include "LuminanceSource.h"
+#include "Matrix.h"
+#include "ZXContainerAlgorithms.h"
 
 #include <cassert>
-#include <array>
+#include <cstdint>
+#include <functional>
+#include <memory>
 #include <mutex>
+#include <utility>
+#include <vector>
 
 namespace ZXing {
 
 // This class uses 5x5 blocks to compute local luminance, where each block is 8x8 pixels.
 // So this is the smallest dimension in each axis we can accept.
-static const int BLOCK_SIZE_POWER = 3;
-static const int BLOCK_SIZE = 1 << BLOCK_SIZE_POWER; // ...0100...00
-static const int BLOCK_SIZE_MASK = BLOCK_SIZE - 1;   // ...0011...11
+static const int BLOCK_SIZE = 8;
 static const int MINIMUM_DIMENSION = BLOCK_SIZE * 5;
 static const int MIN_DYNAMIC_RANGE = 24;
-
-template <typename T>
-class Matrix : std::vector<T>
-{
-	int _width, _height;
-
-public:
-	Matrix(int width, int height) : std::vector<T>(width*height), _width(width), _height(height) {}
-
-	T& operator()(int x, int y)
-	{
-		assert(x < _width && y < _height);
-		return std::vector<T>::operator[](y* _width + x);
-	}
-	const T& operator()(int x, int y) const
-	{
-		assert(x < _width && y < _height);
-		return std::vector<T>::operator[](y* _width + x);
-	}
-};
 
 struct HybridBinarizer::DataCache
 {
@@ -63,15 +46,13 @@ struct HybridBinarizer::DataCache
 	std::shared_ptr<const BitMatrix> matrix;
 };
 
-HybridBinarizer::HybridBinarizer(const std::shared_ptr<const LuminanceSource>& source, bool pureBarcode) :
-	GlobalHistogramBinarizer(source, pureBarcode),
+HybridBinarizer::HybridBinarizer(const std::shared_ptr<const LuminanceSource>& source) :
+	GlobalHistogramBinarizer(source),
 	_cache(new DataCache)
 {
 }
 
-HybridBinarizer::~HybridBinarizer()
-{
-}
+HybridBinarizer::~HybridBinarizer() = default;
 
 /**
 * Calculates a single black point for each block of pixels and saves it away.
@@ -83,31 +64,18 @@ static Matrix<int> CalculateBlackPoints(const uint8_t* luminances, int subWidth,
 	Matrix<int>	blackPoints(subWidth, subHeight);
 
 	for (int y = 0; y < subHeight; y++) {
-		int yoffset = y << BLOCK_SIZE_POWER;
-		int maxYOffset = height - BLOCK_SIZE;
-		if (yoffset > maxYOffset) {
-			yoffset = maxYOffset;
-		}
+		int yoffset = std::min(y * BLOCK_SIZE, height - BLOCK_SIZE);
 		for (int x = 0; x < subWidth; x++) {
-			int xoffset = x << BLOCK_SIZE_POWER;
-			int maxXOffset = width - BLOCK_SIZE;
-			if (xoffset > maxXOffset) {
-				xoffset = maxXOffset;
-			}
+			int xoffset = std::min(x * BLOCK_SIZE, width - BLOCK_SIZE);
 			int sum = 0;
-			int min = 0xFF;
-			int max = 0;
+			uint8_t min = 0xFF;
+			uint8_t max = 0;
 			for (int yy = 0, offset = yoffset * stride + xoffset; yy < BLOCK_SIZE; yy++, offset += stride) {
 				for (int xx = 0; xx < BLOCK_SIZE; xx++) {
-					int pixel = luminances[offset + xx];
+					auto pixel = luminances[offset + xx];
 					sum += pixel;
-					// still looking for good contrast
-					if (pixel < min) {
-						min = pixel;
-					}
-					if (pixel > max) {
-						max = pixel;
-					}
+					min = min < pixel ? min : pixel;
+					max = max > pixel ? max : pixel;
 				}
 				// short-circuit min/max tests once dynamic range is met
 				if (max - min > MIN_DYNAMIC_RANGE) {
@@ -121,7 +89,7 @@ static Matrix<int> CalculateBlackPoints(const uint8_t* luminances, int subWidth,
 			}
 
 			// The default estimate is the average of the values in the block.
-			int average = sum >> (BLOCK_SIZE_POWER * 2);
+			int average = sum / (BLOCK_SIZE * BLOCK_SIZE);
 			if (max - min <= MIN_DYNAMIC_RANGE) {
 				// If variation within the block is low, assume this is a block with only light or only
 				// dark pixels. In that case we do not want to use the average, as it would divide this
@@ -158,6 +126,14 @@ static Matrix<int> CalculateBlackPoints(const uint8_t* luminances, int subWidth,
 */
 static void ThresholdBlock(const uint8_t* luminances, int xoffset, int yoffset, int threshold, int stride, BitMatrix& matrix)
 {
+#ifdef ZX_FAST_BIT_STORAGE
+	for (int y = yoffset; y < yoffset + BLOCK_SIZE; ++y) {
+		auto* src = luminances + y * stride + xoffset;
+		auto* const dstBegin = matrix.row(y).begin() + xoffset;
+		for (auto* dst = dstBegin; dst < dstBegin + BLOCK_SIZE; ++dst, ++src)
+			*dst = *src <= threshold;
+	}
+#else
 	for (int y = 0, offset = yoffset * stride + xoffset; y < BLOCK_SIZE; y++, offset += stride) {
 		for (int x = 0; x < BLOCK_SIZE; x++) {
 			// Comparison needs to be <= so that black == 0 pixels are black even if the threshold is 0.
@@ -166,6 +142,7 @@ static void ThresholdBlock(const uint8_t* luminances, int xoffset, int yoffset, 
 			}
 		}
 	}
+#endif
 }
 
 /**
@@ -177,19 +154,11 @@ static void CalculateThresholdForBlock(const uint8_t* luminances, int subWidth, 
                                        int stride, const Matrix<int>& blackPoints, BitMatrix& matrix)
 {
 	for (int y = 0; y < subHeight; y++) {
-		int yoffset = y << BLOCK_SIZE_POWER;
-		int maxYOffset = height - BLOCK_SIZE;
-		if (yoffset > maxYOffset) {
-			yoffset = maxYOffset;
-		}
+		int yoffset = std::min(y * BLOCK_SIZE, height - BLOCK_SIZE);
 		for (int x = 0; x < subWidth; x++) {
-			int xoffset = x << BLOCK_SIZE_POWER;
-			int maxXOffset = width - BLOCK_SIZE;
-			if (xoffset > maxXOffset) {
-				xoffset = maxXOffset;
-			}
-			int left = Clamp(x, 2, subWidth - 3);
-			int top = Clamp(y, 2, subHeight - 3);
+			int xoffset = std::min(x * BLOCK_SIZE, width - BLOCK_SIZE);
+			int left = std::clamp(x, 2, subWidth - 3);
+			int top = std::clamp(y, 2, subHeight - 3);
 			int sum = 0;
 			for (int dy = -2; dy <= 2; ++dy) {
 				for (int dx = -2; dx <= 2; ++dx) {
@@ -215,19 +184,13 @@ static void InitBlackMatrix(const LuminanceSource& source, std::shared_ptr<const
 	ByteArray buffer;
 	int stride;
 	const uint8_t* luminances = source.getMatrix(buffer, stride);
-	int subWidth = width >> BLOCK_SIZE_POWER;
-	if ((width & BLOCK_SIZE_MASK) != 0) {
-		subWidth++;
-	}
-	int subHeight = height >> BLOCK_SIZE_POWER;
-	if ((height & BLOCK_SIZE_MASK) != 0) {
-		subHeight++;
-	}
+	int subWidth = (width + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(width/BS)
+	int subHeight = (height + BLOCK_SIZE - 1) / BLOCK_SIZE; // ceil(height/BS)
 	auto blackPoints = CalculateBlackPoints(luminances, subWidth, subHeight, width, height, stride);
 
 	auto matrix = std::make_shared<BitMatrix>(width, height);
 	CalculateThresholdForBlock(luminances, subWidth, subHeight, width, height, stride, blackPoints, *matrix);
-	outMatrix = matrix;
+	outMatrix = std::move(matrix);
 }
 
 std::shared_ptr<const BitMatrix>
@@ -248,7 +211,7 @@ HybridBinarizer::getBlackMatrix() const
 std::shared_ptr<BinaryBitmap>
 HybridBinarizer::newInstance(const std::shared_ptr<const LuminanceSource>& source) const
 {
-	return std::make_shared<HybridBinarizer>(source, _pureBarcode);
+	return std::make_shared<HybridBinarizer>(source);
 }
 
 } // ZXing

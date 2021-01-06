@@ -1,6 +1,7 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
+* Copyright 2017 Axel Waggershauser
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,30 +17,35 @@
 */
 
 #include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
-#include "DecodeStatus.h"
 
-#include <memory>
+#include "GenericGF.h"
+#include "ZXConfig.h"
+
+#include <algorithm>
+#include <stdexcept>
+#include <utility>
 
 namespace ZXing {
 
-// May throw ReedSolomonException
 static bool
-RunEuclideanAlgorithm(const GenericGF& field, std::vector<int>&& rCoefs, int R, GenericGFPoly& sigma, GenericGFPoly& omega)
+RunEuclideanAlgorithm(const GenericGF& field, std::vector<int>&& rCoefs, GenericGFPoly& sigma, GenericGFPoly& omega)
 {
+	int R = Size(rCoefs); // == numECCodeWords
 	GenericGFPoly r(field, std::move(rCoefs));
-	GenericGFPoly& tLast = omega;
-	GenericGFPoly& t = sigma;
+	GenericGFPoly& tLast = omega.setField(field);
+	GenericGFPoly& t = sigma.setField(field);
 	ZX_THREAD_LOCAL GenericGFPoly q, rLast;
 
-	field.setMonomial(rLast, R, 1);
-	field.setZero(tLast);
-	field.setOne(t);
+	rLast.setField(field);
+	q.setField(field);
+
+	rLast.setMonomial(1, R);
+	tLast.setMonomial(0);
+	t.setMonomial(1);
 
 	// Assume r's degree is < rLast's
-	if (r.degree() >= rLast.degree()) {
+	if (r.degree() >= rLast.degree())
 		swap(r, rLast);
-	}
 
 	// Run Euclidean algorithm until r's degree is less than R/2
 	while (r.degree() >= R / 2) {
@@ -47,11 +53,8 @@ RunEuclideanAlgorithm(const GenericGF& field, std::vector<int>&& rCoefs, int R, 
 		swap(rLast, r);
 
 		// Divide rLastLast by rLast, with quotient in q and remainder in r
-		if (rLast.isZero()) {
-			// Oops, Euclidean algorithm already terminated?
-			//throw ReedSolomonException("r_{i-1} was zero");
-			return false;
-		}
+		if (rLast.isZero())
+			return false; // Oops, Euclidean algorithm already terminated?
 
 		r.divide(rLast, q);
 
@@ -59,98 +62,76 @@ RunEuclideanAlgorithm(const GenericGF& field, std::vector<int>&& rCoefs, int R, 
 		q.addOrSubtract(t);
 		swap(t, q); // t = q
 
-		if (r.degree() >= rLast.degree()) {
+		if (r.degree() >= rLast.degree())
 			throw std::runtime_error("Division algorithm failed to reduce polynomial?");
-		}
 	}
 
-	int sigmaTildeAtZero = t.coefficient(0);
-	if (sigmaTildeAtZero == 0) {
+	int sigmaTildeAtZero = t.constant();
+	if (sigmaTildeAtZero == 0)
 		return false;
-	}
 
 	int inverse = field.inverse(sigmaTildeAtZero);
-	t.multiply(inverse);
-	r.multiply(inverse);
+	t.multiplyByMonomial(inverse);
+	r.multiplyByMonomial(inverse);
 
 	// sigma is t
 	omega = std::move(r);
 	return true;
 }
 
-// May throw ReedSolomonException
 static std::vector<int>
 FindErrorLocations(const GenericGF& field, const GenericGFPoly& errorLocator)
 {
 	// This is a direct application of Chien's search
 	int numErrors = errorLocator.degree();
-	std::vector<int> outLocations(numErrors);
-	if (numErrors == 1) { // shortcut
-		outLocations[0] = errorLocator.coefficient(1);
-	}
-	int e = 0;
-	for (int i = 1; i < field.size() && e < numErrors; i++) {
-		if (errorLocator.evaluateAt(i) == 0) {
-			outLocations[e] = field.inverse(i);
-			e++;
-		}
-	}
-	if (e != numErrors) {
-		//throw ReedSolomonException("Error locator degree does not match number of roots");
-		return {};
-	}
-	return outLocations;
+	std::vector<int> res;
+	res.reserve(numErrors);
+
+	for (int i = 1; i < field.size() && Size(res) < numErrors; i++)
+		if (errorLocator.evaluateAt(i) == 0)
+			res.push_back(field.inverse(i));
+
+	if (Size(res) != numErrors)
+		return {}; // Error locator degree does not match number of roots
+
+	return res;
 }
 
 static std::vector<int>
 FindErrorMagnitudes(const GenericGF& field, const GenericGFPoly& errorEvaluator, const std::vector<int>& errorLocations)
 {
 	// This is directly applying Forney's Formula
-	size_t s = errorLocations.size();
-	std::vector<int> outMagnitudes(s);
-	for (size_t i = 0; i < s; ++i) {
+	int s = Size(errorLocations);
+	std::vector<int> res(s);
+	for (int i = 0; i < s; ++i) {
 		int xiInverse = field.inverse(errorLocations[i]);
-		int denominator = 1;
-		for (size_t j = 0; j < s; ++j) {
-			if (i != j) {
-				//denominator = field.multiply(denominator,
-				//    GenericGF.addOrSubtract(1, field.multiply(errorLocations[j], xiInverse)));
-				// Above should work but fails on some Apple and Linux JDKs due to a Hotspot bug.
-				// Below is a funny-looking workaround from Steven Parkes
-				int term = field.multiply(errorLocations[j], xiInverse);
-				int termPlus1 = (term & 0x1) == 0 ? term | 1 : term & ~1;
-				denominator = field.multiply(denominator, termPlus1);
-			}
-		}
-		outMagnitudes[i] = field.multiply(errorEvaluator.evaluateAt(xiInverse), field.inverse(denominator));
-		if (field.generatorBase() != 0) {
-			outMagnitudes[i] = field.multiply(outMagnitudes[i], xiInverse);
-		}
+		int denom = 1;
+		for (int j = 0; j < s; ++j)
+			if (i != j)
+				denom = field.multiply(denom, 1 ^ field.multiply(errorLocations[j], xiInverse));
+		res[i] = field.multiply(errorEvaluator.evaluateAt(xiInverse), field.inverse(denom));
+		if (field.generatorBase() != 0)
+			res[i] = field.multiply(res[i], xiInverse);
 	}
-	return outMagnitudes;
+	return res;
 }
 
-
 bool
-ReedSolomonDecoder::Decode(const GenericGF& field, std::vector<int>& received, int twoS)
+ReedSolomonDecode(const GenericGF& field, std::vector<int>& message, int numECCodeWords)
 {
-	GenericGFPoly poly(field, received);
-	std::vector<int> syndromeCoefficients(twoS, 0);
-	bool noError = true;
-	for (int i = 0; i < twoS; i++) {
-		int eval = poly.evaluateAt(field.exp(i + field.generatorBase()));
-		syndromeCoefficients[twoS - 1 - i] = eval;
-		if (eval != 0) {
-			noError = false;
-		}
-	}
-	if (noError) {
+	GenericGFPoly poly(field, message);
+
+	std::vector<int> syndromes(numECCodeWords);
+	for (int i = 0; i < numECCodeWords; i++)
+		syndromes[numECCodeWords - 1 - i] = poly.evaluateAt(field.exp(i + field.generatorBase()));
+
+	// if all syndromes are 0 there is no error to correct
+	if (std::all_of(syndromes.begin(), syndromes.end(), [](int c) { return c == 0; }))
 		return true;
-	}
 
 	ZX_THREAD_LOCAL GenericGFPoly sigma, omega;
 
-	if (!RunEuclideanAlgorithm(field, std::move(syndromeCoefficients), twoS, sigma, omega))
+	if (!RunEuclideanAlgorithm(field, std::move(syndromes), sigma, omega))
 		return false;
 
 	auto errorLocations = FindErrorLocations(field, sigma);
@@ -159,15 +140,15 @@ ReedSolomonDecoder::Decode(const GenericGF& field, std::vector<int>& received, i
 
 	auto errorMagnitudes = FindErrorMagnitudes(field, omega, errorLocations);
 
-	int receivedCount = static_cast<int>(received.size());
-	for (size_t i = 0; i < errorLocations.size(); ++i) {
-		int position = receivedCount - 1 - field.log(errorLocations[i]);
+	int msgLen = Size(message);
+	for (int i = 0; i < Size(errorLocations); ++i) {
+		int position = msgLen - 1 - field.log(errorLocations[i]);
 		if (position < 0)
 			return false;
 
-		received[position] = field.addOrSubtract(received[position], errorMagnitudes[i]);
+		message[position] ^= errorMagnitudes[i];
 	}
 	return true;
 }
 
-} // ZXing
+} // namespace ZXing

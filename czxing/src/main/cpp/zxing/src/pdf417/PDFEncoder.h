@@ -16,7 +16,9 @@
 * limitations under the License.
 */
 #include "CharacterSet.h"
-#include "pdf417/PDFCompaction.h"
+#include "PDFCompaction.h"
+#include "ZXContainerAlgorithms.h"
+
 #include <string>
 #include <vector>
 
@@ -118,7 +120,7 @@ public:
 	void getScaledMatrix(int xScale, int yScale, std::vector<std::vector<bool>>& output)
 	{
 		output.resize(_matrix.size() * yScale);
-		int yMax = static_cast<int>(output.size());
+		int yMax = Size(output);
 		for (int i = 0; i < yMax; i++) {
 			_matrix[i / yScale].getScaledRow(xScale, output[yMax - i - 1]);
 		}

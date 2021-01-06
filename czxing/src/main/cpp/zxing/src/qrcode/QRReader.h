@@ -18,7 +18,6 @@
 
 #include "Reader.h"
 
-#include <sstream>
 #include <string>
 
 namespace ZXing {
@@ -39,7 +38,7 @@ public:
 	Result decode(const BinaryBitmap& image) const override;
 
 private:
-	bool _tryHarder;
+	bool _tryHarder, _isPure;
 	std::string _charset;
 };
 

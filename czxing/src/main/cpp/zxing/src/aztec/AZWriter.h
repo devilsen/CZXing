@@ -15,6 +15,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 #include <string>
 
 namespace ZXing {
@@ -28,6 +29,11 @@ class Writer
 {
 public:
 	Writer();
+
+	Writer& setMargin(int margin) {
+		_margin = margin;
+		return *this;
+	}
 
 	Writer& setEncoding(CharacterSet encoding) {
 		_encoding = encoding;
@@ -50,6 +56,7 @@ private:
 	CharacterSet _encoding;
 	int _eccPercent;
 	int _layers;
+	int _margin = 0;
 };
 
 } // Aztec

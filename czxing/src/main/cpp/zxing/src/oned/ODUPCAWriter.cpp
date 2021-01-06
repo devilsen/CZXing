@@ -15,14 +15,14 @@
 * limitations under the License.
 */
 
+#include "ODUPCAWriter.h"
+
 #include "BitMatrix.h"
-#include "oned/ODUPCAWriter.h"
-#include "oned/ODEAN13Writer.h"
+#include "ODEAN13Writer.h"
 
 #include <stdexcept>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
 BitMatrix
 UPCAWriter::encode(const std::wstring& contents, int width, int height) const
@@ -35,5 +35,4 @@ UPCAWriter::encode(const std::wstring& contents, int width, int height) const
 	return EAN13Writer().setMargin(_sidesMargin).encode(L'0' + contents, width, height);
 }
 
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

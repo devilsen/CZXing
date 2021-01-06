@@ -16,30 +16,28 @@
 */
 
 #include "Result.h"
+
+#include "DecoderResult.h"
 #include "TextDecoder.h"
+
+#include <cmath>
+#include <utility>
 
 namespace ZXing {
 
-Result::Result(std::wstring&& text, std::vector<ResultPoint>&& resultPoints, BarcodeFormat format, ByteArray&& rawBytes)
-    : _text(std::move(text)),
-      _rawBytes(std::move(rawBytes)),
-      _resultPoints(std::move(resultPoints)),
-      _format(format)
+Result::Result(std::wstring&& text, Position&& position, BarcodeFormat format, ByteArray&& rawBytes)
+	: _format(format), _text(std::move(text)), _position(std::move(position)), _rawBytes(std::move(rawBytes))
 {
-	_numBits = static_cast<int>(_rawBytes.size()) * 8;
+	_numBits = Size(_rawBytes) * 8;
 }
 
 Result::Result(const std::string& text, int y, int xStart, int xStop, BarcodeFormat format, ByteArray&& rawBytes)
-    : Result(TextDecoder::FromLatin1(text), {ResultPoint(xStart, y), ResultPoint(xStop, y)}, format, std::move(rawBytes))
+	: Result(TextDecoder::FromLatin1(text), Line(y, xStart, xStop), format, std::move(rawBytes))
 {}
 
-Result::Result(DecoderResult&& decodeResult, std::vector<ResultPoint>&& resultPoints, BarcodeFormat format)
-    : _status(decodeResult.errorCode()),
-      _text(std::move(decodeResult).text()),
-      _rawBytes(std::move(decodeResult).rawBytes()),
-      _numBits(decodeResult.numBits()),
-      _resultPoints(std::move(resultPoints)),
-      _format(format)
+Result::Result(DecoderResult&& decodeResult, Position&& position, BarcodeFormat format)
+	: _status(decodeResult.errorCode()), _format(format), _text(std::move(decodeResult).text()),
+	  _position(std::move(position)), _rawBytes(std::move(decodeResult).rawBytes()), _numBits(decodeResult.numBits())
 {
 	if (!isValid())
 		return;
@@ -61,10 +59,10 @@ Result::Result(DecoderResult&& decodeResult, std::vector<ResultPoint>&& resultPo
 	//TODO: what about the other optional data in DecoderResult?
 }
 
-void
-Result::addResultPoints(const std::vector<ResultPoint>& points)
+int Result::orientation() const
 {
-	_resultPoints.insert(resultPoints().end(), points.begin(), points.end());
+	constexpr auto std_numbers_pi_v = 3.14159265358979323846; // TODO: c++20 <numbers>
+	return std::lround(_position.orientation() * 180 / std_numbers_pi_v);
 }
 
 } // ZXing

@@ -15,80 +15,84 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-#include <cstddef>
-#include <sstream>
+
+#include "Flags.h"
+
 #include <string>
+#include <vector>
 
 namespace ZXing {
 
 /**
-* Enumerates barcode formats known to this package. Please keep alphabetized.
-*
-* @author Sean Owen
+* Enumerates barcode formats known to this package.
 */
 enum class BarcodeFormat
 {
-	/** Aztec 2D barcode format. */
-	AZTEC,
+	// The values are an implementation detail. The c++ use-case (ZXing::Flags) could have been designed such that it
+	// would not have been necessary to explicitly set the values to single bit constants. This has been done to ease
+	// the interoperability with C-like interfaces, the python and the Qt wrapper.
+	None            = 0,         ///< Used as a return value if no valid barcode has been detected
+	Aztec           = (1 << 0),  ///< Aztec (2D)
+	Codabar         = (1 << 1),  ///< Codabar (1D)
+	Code39          = (1 << 2),  ///< Code39 (1D)
+	Code93          = (1 << 3),  ///< Code93 (1D)
+	Code128         = (1 << 4),  ///< Code128 (1D)
+	DataBar         = (1 << 5),  ///< GS1 DataBar, formerly known as RSS 14
+	DataBarExpanded = (1 << 6),  ///< GS1 DataBar Expanded, formerly known as RSS EXPANDED
+	DataMatrix      = (1 << 7),  ///< DataMatrix (2D)
+	EAN8            = (1 << 8),  ///< EAN-8 (1D)
+	EAN13           = (1 << 9),  ///< EAN-13 (1D)
+	ITF             = (1 << 10), ///< ITF (Interleaved Two of Five) (1D)
+	MaxiCode        = (1 << 11), ///< MaxiCode (2D)
+	PDF417          = (1 << 12), ///< PDF417 (1D) or (2D)
+	QRCode          = (1 << 13), ///< QR Code (2D)
+	UPCA            = (1 << 14), ///< UPC-A (1D)
+	UPCE            = (1 << 15), ///< UPC-E (1D)
 
-	/** CODABAR 1D format. */
-	CODABAR,
+	OneDCodes = Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | DataBar | DataBarExpanded | UPCA | UPCE,
+	TwoDCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode,
+	Any       = OneDCodes | TwoDCodes,
 
-	/** Code 39 1D format. */
-	CODE_39,
+	// Deprecated names, kept for compatibility at the moment
+	NONE [[deprecated]]         = None,
+	AZTEC [[deprecated]]        = Aztec,
+	CODABAR [[deprecated]]      = Codabar,
+	CODE_39 [[deprecated]]      = Code39,
+	CODE_93 [[deprecated]]      = Code93,
+	CODE_128 [[deprecated]]     = Code128,
+	DATA_MATRIX [[deprecated]]  = DataMatrix,
+	EAN_8 [[deprecated]]        = EAN8,
+	EAN_13 [[deprecated]]       = EAN13,
+	MAXICODE [[deprecated]]     = MaxiCode,
+	PDF_417 [[deprecated]]      = PDF417,
+	QR_CODE [[deprecated]]      = QRCode,
+	RSS_14 [[deprecated]]       = DataBar,
+	RSS_EXPANDED [[deprecated]] = DataBarExpanded,
+	UPC_A [[deprecated]]        = UPCA,
+	UPC_E [[deprecated]]        = UPCE,
 
-	/** Code 93 1D format. */
-	CODE_93,
-
-	/** Code 128 1D format. */
-	CODE_128,
-
-	/** Data Matrix 2D barcode format. */
-	DATA_MATRIX,
-
-	/** EAN-8 1D format. */
-	EAN_8,
-
-	/** EAN-13 1D format. */
-	EAN_13,
-
-	/** ITF (Interleaved Two of Five) 1D format. */
-	ITF,
-
-	/** MaxiCode 2D barcode format. */
-	MAXICODE,
-
-	/** PDF417 format. */
-	PDF_417,
-
-	/** QR Code 2D barcode format. */
-	QR_CODE,
-
-	/** RSS 14 */
-	RSS_14,
-
-	/** RSS EXPANDED */
-	RSS_EXPANDED,
-
-	/** UPC-A 1D format. */
-	UPC_A,
-
-	/** UPC-E 1D format. */
-	UPC_E,
-
-	/** UPC/EAN extension format. Not a stand-alone format. */
-	UPC_EAN_EXTENSION,
-
-
-
-	// Not valid value, used to count the number of formats, thus should be always the last listed here
-	FORMAT_COUNT,
+	FORMAT_COUNT [[deprecated]] = None, ///> DEPRECATED: will be removed
+	_max                        = UPCE, ///> implementation detail, don't use
 };
 
-const char* ToString(BarcodeFormat format);
+ZX_DECLARE_FLAGS(BarcodeFormats, BarcodeFormat)
 
-// Return FORMAT_COUNT if str is unexpected
+const char* ToString(BarcodeFormat format);
+std::string ToString(BarcodeFormats formats);
+
+/**
+ * @brief Parse a string into a BarcodeFormat. '-' and '_' are optional.
+ * @return None if str can not be parsed as a valid enum value
+ */
 BarcodeFormat BarcodeFormatFromString(const std::string& str);
 
-} // ZXing
+/**
+ * @brief Parse a string into a set of BarcodeFormats.
+ * Separators can be (any combination of) '|', ',' or ' '.
+ * Underscors are optional and input can be lower case.
+ * e.g. "EAN-8 qrcode, Itf" would be parsed into [EAN8, QRCode, ITF].
+ * @throws std::invalid_parameter Throws if the string can not be fully parsed.
+ */
+BarcodeFormats BarcodeFormatsFromString(const std::string& str);
 
+} // ZXing

@@ -15,68 +15,24 @@
 * limitations under the License.
 */
 
-#include "datamatrix/DMReader.h"
-#include "datamatrix/DMDecoder.h"
-#include "datamatrix/DMDetector.h"
-#include "Result.h"
-#include "BitMatrix.h"
+#include "DMReader.h"
+
 #include "BinaryBitmap.h"
+#include "BitMatrix.h"
+#include "DMDecoder.h"
+#include "DMDetector.h"
 #include "DecodeHints.h"
 #include "DecoderResult.h"
 #include "DetectorResult.h"
+#include "Result.h"
 
-namespace ZXing {
-namespace DataMatrix {
+#include <utility>
+#include <vector>
 
-static int
-GetModuleSize(int x, int y, const BitMatrix& image)
-{
-	int oldX = x;
-	int width = image.width();
-	while (x < width && image.get(x, y)) {
-		x++;
-	}
-	if (x == width) {
-		return 0;
-	}
-	return x - oldX;
-}
+namespace ZXing::DataMatrix {
 
-/**
-* This method detects a code in a "pure" image -- that is, pure monochrome image
-* which contains only an unrotated, unskewed, image of a code, with some white border
-* around it. This is a specialized method that works exceptionally fast in this special
-* case.
-*
-* @see com.google.zxing.qrcode.QRCodeReader#extractPureBits(BitMatrix)
-*/
-static BitMatrix
-ExtractPureBits(const BitMatrix& image)
-{
-	int left, top, right, bottom;
-	if (!image.getTopLeftOnBit(left, top) || !image.getBottomRightOnBit(right, bottom)) {
-		return {};
-	}
-
-	int moduleSize = GetModuleSize(left, top, image);
-	int matrixWidth = (right - left + 1) / moduleSize;
-	int matrixHeight = (bottom - top + 1) / moduleSize;
-	if (matrixWidth <= 0 || matrixHeight <= 0) {
-		return {};
-	}
-
-	// Push in the "border" by half the module width so that we start
-	// sampling in the middle of the module. Just in case the image is a
-	// little off, this will help recover.
-	int nudge = moduleSize / 2;
-	top += nudge;
-	left += nudge;
-
-	// Now just read off the bits (this is a crop + subsample)
-	return Deflate(image, matrixWidth, matrixHeight, top, left, moduleSize);
-}
-
-Reader::Reader(const DecodeHints& hints) : _tryRotate(hints.shouldTryRotate()), _tryHarder(hints.shouldTryHarder())
+Reader::Reader(const DecodeHints& hints)
+	: _tryRotate(hints.tryRotate()), _tryHarder(hints.tryHarder()), _isPure(hints.isPure())
 {
 }
 
@@ -96,26 +52,11 @@ Reader::decode(const BinaryBitmap& image) const
 		return Result(DecodeStatus::NotFound);
 	}
 
-	DecoderResult decoderResult;
-	std::vector<ResultPoint> points;
-	if (image.isPureBarcode()) {
-		BitMatrix bits = ExtractPureBits(*binImg);
-		if (bits.empty())
-			return Result(DecodeStatus::NotFound);
+	auto detectorResult = Detect(*binImg, _tryHarder, _tryRotate, _isPure);
+	if (!detectorResult.isValid())
+		return Result(DecodeStatus::NotFound);
 
-		decoderResult = Decoder::Decode(bits);
-	}
-	else {
-		DetectorResult detectorResult = Detector::Detect(*binImg, _tryHarder, _tryRotate);
-		if (!detectorResult.isValid())
-			return Result(DecodeStatus::NotFound);
-
-		decoderResult = Decoder::Decode(detectorResult.bits());
-		points = detectorResult.points();
-	}
-
-	return Result(std::move(decoderResult), std::move(points), BarcodeFormat::DATA_MATRIX);
+	return Result(Decode(detectorResult.bits()), std::move(detectorResult).position(), BarcodeFormat::DataMatrix);
 }
 
-} // DataMatrix
-} // ZXing
+} // namespace ZXing::DataMatrix

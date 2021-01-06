@@ -15,12 +15,13 @@
 * limitations under the License.
 */
 
-#include "aztec/AZToken.h"
+#include "AZToken.h"
+
 #include "BitArray.h"
+
 #include <algorithm>
 
-namespace ZXing {
-namespace Aztec {
+namespace ZXing::Aztec {
 
 void
 Token::appendTo(BitArray& bitArray, const std::string& text) const
@@ -51,5 +52,4 @@ Token::appendTo(BitArray& bitArray, const std::string& text) const
 	}
 }
 
-} // Aztec
-} // ZXing
+} // namespace ZXing::Aztec

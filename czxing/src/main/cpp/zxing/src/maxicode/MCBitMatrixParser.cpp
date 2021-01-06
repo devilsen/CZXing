@@ -15,14 +15,14 @@
 * limitations under the License.
 */
 
-#include "maxicode/MCBitMatrixParser.h"
-#include "ByteArray.h"
+#include "MCBitMatrixParser.h"
+
 #include "BitMatrix.h"
+#include "ByteArray.h"
 
 #include <array>
 
-namespace ZXing {
-namespace MaxiCode {
+namespace ZXing::MaxiCode {
 
 static const std::array<std::array<int, BitMatrixParser::MATRIX_WIDTH>, BitMatrixParser::MATRIX_HEIGHT> BITNR = {
 	121,120,127,126,133,132,139,138,145,144,151,150,157,156,163,162,169,168,175,174,181,180,187,186,193,192,199,198, -2, -2,
@@ -76,6 +76,4 @@ ByteArray BitMatrixParser::ReadCodewords(const BitMatrix& image)
 	return result;
 }
 
-
-} // MaxiCode
-} // ZXing
+} // namespace ZXing::MaxiCode

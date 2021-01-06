@@ -15,16 +15,19 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFDetector.h"
+#include "PDFDetector.h"
 #include "BinaryBitmap.h"
 #include "DecodeStatus.h"
 #include "BitMatrix.h"
 #include "ZXNullable.h"
+#include "Pattern.h"
 
-#include <list>
+#include <algorithm>
 #include <array>
-#include <limits>
 #include <cstdlib>
+#include <limits>
+#include <list>
+#include <vector>
 
 namespace ZXing {
 namespace Pdf417 {
@@ -46,7 +49,7 @@ static const int MAX_PATTERN_DRIFT = 5;
 static const int SKIPPED_ROW_COUNT_MAX = 25;
 // A PDF471 barcode should have at least 3 rows, with each row being >= 3 times the module width. Therefore it should be at least
 // 9 pixels tall. To be conservative, we use about half the size to ensure we don't miss it.
-static const int ROW_STEP = 5;
+static const int ROW_STEP = 8; // used to be 5, but 8 is enough for conforming symbols
 static const int BARCODE_MIN_HEIGHT = 10;
 
 /**
@@ -108,7 +111,7 @@ static bool
 FindGuardPattern(const BitMatrix& matrix, int column, int row, int width, bool whiteFirst, const std::vector<int>& pattern, std::vector<int>& counters, int& startPos, int& endPos)
 {
 	std::fill(counters.begin(), counters.end(), 0);
-	int patternLength = static_cast<int>(pattern.size());
+	int patternLength = Size(pattern);
 	bool isWhite = whiteFirst;
 	int patternStart = column;
 	int pixelDrift = 0;
@@ -244,8 +247,13 @@ static std::array<Nullable<ResultPoint>, 8> FindVertices(const BitMatrix& matrix
 	if (result[4] != nullptr) {
 		startColumn = static_cast<int>(result[4].value().x());
 		startRow = static_cast<int>(result[4].value().y());
+#if 1 // 2x speed improvement for images with no PDF417 symbol by not looking for symbols without start guard (which are not conforming to spec anyway)
+		CopyToResult(result, FindRowsWithPattern(matrix, height, width, startRow, startColumn, STOP_PATTERN, tmp), INDEXES_STOP_PATTERN);
+	}
+#else
 	}
 	CopyToResult(result, FindRowsWithPattern(matrix, height, width, startRow, startColumn, STOP_PATTERN, tmp), INDEXES_STOP_PATTERN);
+#endif
 	return result;
 }
 
@@ -305,6 +313,27 @@ static std::list<std::array<Nullable<ResultPoint>, 8>> DetectBarcode(const BitMa
 	return barcodeCoordinates;
 }
 
+#ifdef ZX_FAST_BIT_STORAGE
+bool HasStartPattern(const BitMatrix& m)
+{
+	constexpr FixedPattern<8, 17> START_PATTERN = { 8, 1, 1, 1, 1, 1, 1, 3 };
+	constexpr int minSymbolWidth = 3*8+1; // compact symbol
+
+	PatternRow row;
+
+	for (int r = ROW_STEP; r < m.height(); r += ROW_STEP) {
+		m.getPatternRow(r, row);
+
+		if (FindLeftGuard(row, minSymbolWidth, START_PATTERN, 2).isValid())
+			return true;
+		std::reverse(row.begin(), row.end());
+		if (FindLeftGuard(row, minSymbolWidth, START_PATTERN, 2).isValid())
+			return true;
+	}
+
+	return false;
+}
+#endif
 
 /**
 * <p>Detects a PDF417 Code in an image. Only checks 0 and 180 degree rotations.</p>
@@ -319,14 +348,15 @@ static std::list<std::array<Nullable<ResultPoint>, 8>> DetectBarcode(const BitMa
 DecodeStatus
 Detector::Detect(const BinaryBitmap& image, bool multiple, Result& result)
 {
-	// TODO detection improvement, tryHarder could try several different luminance thresholds/blackpoints or even 
-	// different binarizers
-	//boolean tryHarder = hints != null && hints.containsKey(DecodeHintType.TRY_HARDER);
-
 	auto binImg = image.getBlackMatrix();
 	if (binImg == nullptr) {
 		return DecodeStatus::NotFound;
 	}
+
+#if defined(ZX_FAST_BIT_STORAGE)
+	if (!HasStartPattern(*binImg))
+		return DecodeStatus::NotFound;
+#endif
 
 	auto barcodeCoordinates = DetectBarcode(*binImg, multiple);
 	if (barcodeCoordinates.empty()) {

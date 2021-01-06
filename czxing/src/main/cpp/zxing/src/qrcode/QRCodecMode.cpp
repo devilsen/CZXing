@@ -15,61 +15,42 @@
 * limitations under the License.
 */
 
-#include "qrcode/QRCodecMode.h"
-#include "qrcode/QRVersion.h"
+#include "QRCodecMode.h"
 
+#include "QRVersion.h"
+
+#include <array>
 #include <stdexcept>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
-namespace {
-
-static const int CHAR_COUNT_PER_MODE[] = {
-	0, 0, 0,
-	10, 12, 14,
-	9, 11, 13,
-	0, 0, 0,
-	8, 16, 16,
-	0, 0, 0,
-	0, 0, 0,
-	0, 0, 0,
-	8, 10, 12,
-	0, 0, 0,
-	0, 0, 0,
-	0, 0, 0,
-	0, 0, 0,
-	8, 10, 12,
-};
-
-} // anonymous
-
-CodecMode::Mode
-CodecMode::ModeForBits(int bits)
+CodecMode CodecModeForBits(int bits)
 {
 	if ((bits >= 0x00 && bits <= 0x05) || (bits >= 0x07 && bits <= 0x09) || bits == 0x0d)
-	{
-		return static_cast<Mode>(bits);
-	}
+		return static_cast<CodecMode>(bits);
+
 	throw std::invalid_argument("Invalid mode");
 }
 
-int
-CodecMode::CharacterCountBits(Mode mode, const Version& version)
+int CharacterCountBits(CodecMode mode, const Version& version)
 {
 	int number = version.versionNumber();
-	int offset;
-	if (number <= 9) {
-		offset = 0;
+	int i;
+	if (number <= 9)
+		i = 0;
+	else if (number <= 26)
+		i = 1;
+	else
+		i = 2;
+
+	switch (mode) {
+	case CodecMode::NUMERIC: return std::array{10, 12, 14}[i];
+	case CodecMode::ALPHANUMERIC: return std::array{9, 11, 13}[i];
+	case CodecMode::BYTE: return std::array{8, 16, 16}[i];
+	case CodecMode::KANJI: [[fallthrough]];
+	case CodecMode::HANZI: return std::array{8, 10, 12}[i];
+	default: return 0;
 	}
-	else if (number <= 26) {
-		offset = 1;
-	}
-	else {
-		offset = 2;
-	}
-	return CHAR_COUNT_PER_MODE[static_cast<int>(mode) * 3 + offset];
 }
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

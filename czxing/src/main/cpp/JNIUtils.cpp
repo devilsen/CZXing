@@ -68,6 +68,7 @@ BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTo
                                                                      bmInfo.stride);
                 break;
             case ANDROID_BITMAP_FORMAT_RGBA_8888:
+                LOGE("bmInfo.stride = %d", bmInfo.stride)
                 luminance = std::make_shared<GenericLuminanceSource>(cropLeft, cropTop, cropWidth,
                                                                      cropHeight, pixels,
                                                                      bmInfo.stride, 4, 0, 1, 2);
@@ -87,8 +88,9 @@ std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
                         int cropHeight) {
     using namespace ZXing;
-    LOGE("BinaryBitmapFromBytesC4 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft, cropTop, cropWidth,
-         cropHeight);
+    LOGE("BinaryBitmapFromBytesC4 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft,
+         cropTop, cropWidth,
+         cropHeight)
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
             cropLeft, cropTop, cropWidth,
@@ -101,7 +103,8 @@ BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
 std::shared_ptr<ZXing::BinaryBitmap>
 BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
     using namespace ZXing;
-    LOGE("BinaryBitmapFromBytesC1 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top, width,
+    LOGE("BinaryBitmapFromBytesC1 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top,
+         width,
          height);
 
     std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(

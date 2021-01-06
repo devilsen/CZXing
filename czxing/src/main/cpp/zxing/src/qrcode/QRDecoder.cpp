@@ -15,32 +15,33 @@
 * limitations under the License.
 */
 
-#include "qrcode/QRDecoder.h"
-#include "qrcode/QRBitMatrixParser.h"
-#include "qrcode/QRVersion.h"
-#include "qrcode/QRFormatInformation.h"
-#include "qrcode/QRDecoderMetadata.h"
-#include "qrcode/QRDataMask.h"
-#include "qrcode/QRDataBlock.h"
-#include "qrcode/QRCodecMode.h"
-#include "DecoderResult.h"
+#include "QRDecoder.h"
+
 #include "BitMatrix.h"
-#include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
 #include "BitSource.h"
-#include "TextDecoder.h"
 #include "CharacterSet.h"
 #include "CharacterSetECI.h"
-#include "DecodeHints.h"
 #include "DecodeStatus.h"
+#include "DecoderResult.h"
+#include "GenericGF.h"
+#include "QRBitMatrixParser.h"
+#include "QRCodecMode.h"
+#include "QRDataBlock.h"
+#include "QRDataMask.h"
+#include "QRDecoderMetadata.h"
+#include "QRFormatInformation.h"
+#include "ReedSolomonDecoder.h"
+#include "TextDecoder.h"
 #include "ZXContainerAlgorithms.h"
 #include "ZXTestSupport.h"
 
+#include <algorithm>
 #include <list>
-#include <type_traits>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
 /**
 * <p>Given data and error-correction codewords received, possibly corrupted by errors, attempts to
@@ -56,8 +57,8 @@ CorrectErrors(ByteArray& codewordBytes, int numDataCodewords)
 	// First read into an array of ints
 	std::vector<int> codewordsInts(codewordBytes.begin(), codewordBytes.end());
 
-	int numECCodewords = codewordBytes.length() - numDataCodewords;
-	if (!ReedSolomonDecoder::Decode(GenericGF::QRCodeField256(), codewordsInts, numECCodewords))
+	int numECCodewords = Size(codewordBytes) - numDataCodewords;
+	if (!ReedSolomonDecode(GenericGF::QRCodeField256(), codewordsInts, numECCodewords))
 		return false;
 
 	// Copy back into array of bytes -- only need to worry about the bytes that were data
@@ -99,7 +100,7 @@ DecodeHanziSegment(BitSource& bits, int count, std::wstring& result)
 		count--;
 	}
 
-	TextDecoder::Append(result, buffer.data(), buffer.length(), CharacterSet::GB2312);
+	TextDecoder::Append(result, buffer.data(), Size(buffer), CharacterSet::GB2312);
 	return DecodeStatus::NoError;
 }
 
@@ -132,7 +133,7 @@ DecodeKanjiSegment(BitSource& bits, int count, std::wstring& result)
 		count--;
 	}
 
-	TextDecoder::Append(result, buffer.data(), buffer.length(), CharacterSet::Shift_JIS);
+	TextDecoder::Append(result, buffer.data(), Size(buffer), CharacterSet::Shift_JIS);
 	return DecodeStatus::NoError;
 }
 
@@ -160,10 +161,10 @@ DecodeByteSegment(BitSource& bits, int count, CharacterSet currentCharset, const
 		}
 		if (currentCharset == CharacterSet::Unknown)
 		{
-			currentCharset = TextDecoder::GuessEncoding(readBytes.data(), readBytes.length());
+			currentCharset = TextDecoder::GuessEncoding(readBytes.data(), Size(readBytes));
 		}
 	}
-	TextDecoder::Append(result, readBytes.data(), readBytes.length(), currentCharset);
+	TextDecoder::Append(result, readBytes.data(), Size(readBytes), currentCharset);
 	byteSegments.push_back(readBytes);
 	return DecodeStatus::NoError;
 }
@@ -181,7 +182,7 @@ ToAlphaNumericChar(int value)
 		' ', '$', '%', '*', '+', '-', '.', '/', ':'
 	};
 
-	if (value < 0 || value >= Length(ALPHANUMERIC_CHARS)) {
+	if (value < 0 || value >= Size(ALPHANUMERIC_CHARS)) {
 		throw std::out_of_range("ToAlphaNumericChar: out of range");
 	}
 	return ALPHANUMERIC_CHARS[value];
@@ -320,7 +321,7 @@ DecodeBitStream(ByteArray&& bytes, const Version& version, ErrorCorrectionLevel 
 	{
 		CharacterSet currentCharset = CharacterSet::Unknown;
 		bool fc1InEffect = false;
-		CodecMode::Mode mode;
+		CodecMode mode;
 		do {
 			// While still another segment to read...
 			if (bits.available() < 4) {
@@ -328,7 +329,7 @@ DecodeBitStream(ByteArray&& bytes, const Version& version, ErrorCorrectionLevel 
 				mode = CodecMode::TERMINATOR;
 			}
 			else {
-				mode = CodecMode::ModeForBits(bits.readBits(4)); // mode is encoded by 4 bits
+				mode = CodecModeForBits(bits.readBits(4)); // mode is encoded by 4 bits
 			}
 			switch (mode) {
 			case CodecMode::TERMINATOR:
@@ -365,7 +366,7 @@ DecodeBitStream(ByteArray&& bytes, const Version& version, ErrorCorrectionLevel 
 				// First handle Hanzi mode which does not start with character count
 				// chinese mode contains a sub set indicator right after mode indicator
 				int subset = bits.readBits(4);
-				int countHanzi = bits.readBits(CodecMode::CharacterCountBits(mode, version));
+				int countHanzi = bits.readBits(CharacterCountBits(mode, version));
 				if (subset == GB2312_SUBSET) {
 					auto status = DecodeHanziSegment(bits, countHanzi, result);
 					if (StatusIsError(status)) {
@@ -377,7 +378,7 @@ DecodeBitStream(ByteArray&& bytes, const Version& version, ErrorCorrectionLevel 
 			default: {
 				// "Normal" QR code modes:
 				// How many characters will follow, encoded in this mode?
-				int count = bits.readBits(CodecMode::CharacterCountBits(mode, version));
+				int count = bits.readBits(CharacterCountBits(mode, version));
 				DecodeStatus status;
 				switch (mode) {
 				case CodecMode::NUMERIC:
@@ -418,17 +419,19 @@ DecodeBitStream(ByteArray&& bytes, const Version& version, ErrorCorrectionLevel 
 }
 
 static DecoderResult
-DoDecode(const BitMatrix& bits, const Version& version, const FormatInformation& formatInfo, const std::string& hintedCharset)
+DoDecode(const BitMatrix& bits, const Version& version, const std::string& hintedCharset, bool mirrored)
 {
-	auto ecLevel = formatInfo.errorCorrectionLevel();
+	auto formatInfo = ReadFormatInformation(bits, mirrored);
+	if (!formatInfo.isValid())
+		return DecodeStatus::FormatError;
 
 	// Read codewords
-	ByteArray codewords = BitMatrixParser::ReadCodewords(bits, version);
+	ByteArray codewords = ReadCodewords(bits, version, formatInfo.dataMask(), mirrored);
 	if (codewords.empty())
 		return DecodeStatus::FormatError;
 
 	// Separate into data blocks
-	std::vector<DataBlock> dataBlocks = DataBlock::GetDataBlocks(codewords, version, ecLevel);
+	std::vector<DataBlock> dataBlocks = DataBlock::GetDataBlocks(codewords, version, formatInfo.errorCorrectionLevel());
 	if (dataBlocks.empty())
 		return DecodeStatus::FormatError;
 
@@ -453,61 +456,25 @@ DoDecode(const BitMatrix& bits, const Version& version, const FormatInformation&
 	}
 
 	// Decode the contents of that stream of bytes
-	return DecodeBitStream(std::move(resultBytes), version, ecLevel, hintedCharset);
+	return DecodeBitStream(std::move(resultBytes), version, formatInfo.errorCorrectionLevel(), hintedCharset);
 }
 
-static void
-ReMask(BitMatrix& bitMatrix, const FormatInformation& formatInfo)
+DecoderResult Decode(const BitMatrix& bits, const std::string& hintedCharset)
 {
-	int dimension = bitMatrix.height();
-	DataMask(formatInfo.dataMask()).unmaskBitMatrix(bitMatrix, dimension);
+	const Version* version = ReadVersion(bits);
+	if (!version)
+		return DecodeStatus::FormatError;
+
+	auto res = DoDecode(bits, *version, hintedCharset, false);
+	if (res.isValid())
+		return res;
+
+	if (auto resMirrored = DoDecode(bits, *version, hintedCharset, true); resMirrored.isValid()) {
+		resMirrored.setExtra(std::make_shared<DecoderMetadata>(true));
+		return resMirrored;
+	}
+
+	return res;
 }
 
-
-DecoderResult
-Decoder::Decode(const BitMatrix& bits_, const std::string& hintedCharset)
-{
-	BitMatrix bits = bits_.copy();
-
-	// Construct a parser and read version, error-correction level
-	const Version* version = BitMatrixParser::ReadVersion(bits, false);
-	FormatInformation formatInfo = BitMatrixParser::ReadFormatInformation(bits, false);
-
-	if (version != nullptr && formatInfo.isValid()) {
-		ReMask(bits, formatInfo);
-		auto result = DoDecode(bits, *version, formatInfo, hintedCharset);
-		if (result.isValid()) {
-			return result;
-		}
-	}
-
-	if (version != nullptr) {
-		// Revert the bit matrix
-		ReMask(bits, formatInfo);
-	}
-
-	version = BitMatrixParser::ReadVersion(bits, true);
-	formatInfo = BitMatrixParser::ReadFormatInformation(bits, true);
-
-	if (version != nullptr && formatInfo.isValid()) {
-		/*
-		* Since we're here, this means we have successfully detected some kind
-		* of version and format information when mirrored. This is a good sign,
-		* that the QR code may be mirrored, and we should try once more with a
-		* mirrored content.
-		*/
-		// Prepare for a mirrored reading.
-		bits.mirror();
-
-		ReMask(bits, formatInfo);
-		auto result = DoDecode(bits, *version, formatInfo, hintedCharset);
-		if (result.isValid())
-			result.setExtra(std::make_shared<DecoderMetadata>(true));
-
-		return result;
-	}
-	return DecodeStatus::FormatError;
-}
-
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

@@ -47,7 +47,7 @@ find_library(
 
 target_link_libraries(
         czxing
-        ZXingCore
+        ZXing
 
         iconv
         zbar_core

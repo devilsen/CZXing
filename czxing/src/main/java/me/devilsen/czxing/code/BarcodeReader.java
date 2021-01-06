@@ -99,7 +99,7 @@ public class BarcodeReader {
     @CheckResult
     private CodeResult processResult(int resultFormat, Object[] result) {
         if (resultFormat >= 0) {
-            CodeResult decodeResult = new CodeResult(BarcodeFormat.values()[resultFormat], (String) result[0]);
+            CodeResult decodeResult = new CodeResult(BarcodeFormat.valueOf(resultFormat), (String) result[0]);
             if (result[1] != null) {
                 decodeResult.setPoint((float[]) result[1]);
             }

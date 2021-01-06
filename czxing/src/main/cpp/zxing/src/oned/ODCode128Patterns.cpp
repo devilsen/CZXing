@@ -15,13 +15,11 @@
 * limitations under the License.
 */
 
-#include "oned/ODCode128Patterns.h"
+#include "ODCode128Patterns.h"
 
-namespace ZXing {
-namespace OneD {
-namespace Code128 {
+namespace ZXing::OneD::Code128 {
 
-const std::array<std::vector<int>, 107> CODE_PATTERNS = { {
+const std::array<std::array<int, 6>, 107> CODE_PATTERNS = { {
 	{ 2, 1, 2, 2, 2, 2 }, // 0
 	{ 2, 2, 2, 1, 2, 2 },
 	{ 2, 2, 2, 2, 2, 1 },
@@ -128,9 +126,7 @@ const std::array<std::vector<int>, 107> CODE_PATTERNS = { {
 	{ 2, 1, 1, 4, 1, 2 },
 	{ 2, 1, 1, 2, 1, 4 },
 	{ 2, 1, 1, 2, 3, 2 }, // 105
-	{ 2, 3, 3, 1, 1, 1, 2 }
+	{ 2, 3, 3, 1, 1, 1 }  // STOP_CODE followed by 2-wide termination bar
 } };
 
-} // Code128
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD::Code128

@@ -16,14 +16,15 @@
 */
 
 #include "CharacterSetECI.h"
+
 #include "CharacterSet.h"
 
+#include <cctype>
 #include <map>
-#include <cstring>
+#include <utility>
+#include <algorithm>
 
-namespace ZXing {
-
-namespace {
+namespace ZXing::CharacterSetECI {
 
 static const std::map<int, CharacterSet> ECI_VALUE_TO_CHARSET = {
 	{0,  CharacterSet::Cp437},
@@ -58,13 +59,23 @@ static const std::map<int, CharacterSet> ECI_VALUE_TO_CHARSET = {
 	{170, CharacterSet::ASCII},
 };
 
-struct StringCmp {
-	bool operator()(char const *a, char const *b) const {
-		return std::strcmp(a, b) < 0;
+struct CompareNoCase {
+	bool operator ()(const char* a, const char* b) const {
+		while (*a != '\0' && *b != '\0') {
+			auto ca = std::tolower(*a++);
+			auto cb = std::tolower(*b++);
+			if (ca < cb) {
+				return true;
+			}
+			else if (ca > cb) {
+				return false;
+			}
+		}
+		return *a == '\0' && *b != '\0';
 	}
 };
 
-static const std::map<const char*, CharacterSet, StringCmp> ECI_NAME_TO_CHARSET = {
+static const std::map<const char *, CharacterSet, CompareNoCase> ECI_NAME_TO_CHARSET = {
 	{"Cp437",		CharacterSet::Cp437},
 	{"ISO8859_1",	CharacterSet::ISO8859_1},
 	{"ISO-8859-1",	CharacterSet::ISO8859_1},
@@ -123,41 +134,32 @@ static const std::map<const char*, CharacterSet, StringCmp> ECI_NAME_TO_CHARSET 
 	{"EUC-KR",		CharacterSet::EUC_KR },
 };
 
-} // anonymous
-
-CharacterSet
-CharacterSetECI::CharsetFromValue(int value)
+CharacterSet CharsetFromValue(int value)
 {
 	auto it = ECI_VALUE_TO_CHARSET.find(value);
-	if (it != ECI_VALUE_TO_CHARSET.end())
-	{
+	if (it != ECI_VALUE_TO_CHARSET.end()) {
 		return it->second;
 	}
 	return CharacterSet::Unknown;
 }
 
-int
-CharacterSetECI::ValueForCharset(CharacterSet charset)
+int ValueForCharset(CharacterSet charset)
 {
-	for (auto& entry : ECI_VALUE_TO_CHARSET)
-	{
-		if (entry.second == charset)
-		{
-			return entry.first;
+	for (auto& [key, value] : ECI_VALUE_TO_CHARSET) {
+		if (value == charset) {
+			return key;
 		}
 	}
 	return 0;
 }
 
-CharacterSet
-CharacterSetECI::CharsetFromName(const char* name)
+CharacterSet CharsetFromName(const char* name)
 {
 	auto it = ECI_NAME_TO_CHARSET.find(name);
-	if (it != ECI_NAME_TO_CHARSET.end())
-	{
+	if (it != ECI_NAME_TO_CHARSET.end()) {
 		return it->second;
 	}
 	return CharacterSet::Unknown;
 };
 
-} // ZXing
+} // namespace ZXing::CharacterSetECI

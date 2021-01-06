@@ -15,17 +15,15 @@
 * limitations under the License.
 */
 
-#include "qrcode/QRVersion.h"
-#include "qrcode/QRECB.h"
+#include "QRVersion.h"
+
 #include "BitHacks.h"
 #include "BitMatrix.h"
+#include "QRECB.h"
 
 #include <limits>
 
-namespace ZXing {
-namespace QRCode {
-
-namespace {
+namespace ZXing::QRCode {
 
 	/**
 	* See ISO 18004:2006 Annex D.
@@ -40,9 +38,6 @@ namespace {
 		0x209D5, 0x216F0, 0x228BA, 0x2379F, 0x24B0B,
 		0x2542E, 0x26A64, 0x27541, 0x28C69
 	};
-
-
-} // anonymous
 
 const Version *
 Version::AllVersions()
@@ -356,11 +351,10 @@ Version::DecodeVersionInformation(int versionBits)
 /**
 * See ISO 18004:2006 Annex E
 */
-void
-Version::buildFunctionPattern(BitMatrix& bitMatrix) const
+BitMatrix Version::buildFunctionPattern() const
 {
 	int dimension = dimensionForVersion();
-	bitMatrix = BitMatrix(dimension, dimension);
+	BitMatrix bitMatrix(dimension, dimension);
 
 	// Top left finder pattern + separator + format
 	bitMatrix.setRegion(0, 0, 9, 9);
@@ -393,7 +387,8 @@ Version::buildFunctionPattern(BitMatrix& bitMatrix) const
 		// Version info, bottom left
 		bitMatrix.setRegion(0, dimension - 11, 6, 3);
 	}
+
+	return bitMatrix;
 }
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

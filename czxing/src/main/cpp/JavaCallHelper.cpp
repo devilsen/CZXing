@@ -31,7 +31,7 @@ JavaCallHelper::~JavaCallHelper() {
 }
 
 void JavaCallHelper::onResult(const ZXing::Result &result, int scanType) {
-    if (!result.isValid() && !result.isBlurry()) {
+    if (!result.isValid()) {
         return;
     }
 
@@ -58,23 +58,23 @@ void JavaCallHelper::onResult(const ZXing::Result &result, int scanType) {
              scanType);
     }
 
-    if (result.isBlurry()) {
-        std::vector<ZXing::ResultPoint> resultPoints = result.resultPoints();
-        int size = static_cast<int>(result.resultPoints().size() * 2);
-        pointsArray = env->NewFloatArray(size);
-
-        jfloat points[size];
-
-        int index = 0;
-        for (auto point : resultPoints) {
-            points[index++] = point.x();
-            points[index++] = point.y();
-        }
-
-        env->SetFloatArrayRegion(pointsArray, 0, size, points);
-        LOGE("result! 2222222222");
-
-    }
+//    if (result.isBlurry()) {
+//        std::vector<ZXing::ResultPoint> resultPoints = result.resultPoints();
+//        int size = static_cast<int>(result.resultPoints().size() * 2);
+//        pointsArray = env->NewFloatArray(size);
+//
+//        jfloat points[size];
+//
+//        int index = 0;
+//        for (auto point : resultPoints) {
+//            points[index++] = point.x();
+//            points[index++] = point.y();
+//        }
+//
+//        env->SetFloatArrayRegion(pointsArray, 0, size, points);
+//        LOGE("result! 2222222222");
+//
+//    }
 
     env->CallVoidMethod(jSdkObject, jmid_on_result, mJstring, format, pointsArray, scanType);
 

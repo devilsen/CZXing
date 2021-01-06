@@ -16,11 +16,10 @@
 */
 
 #include <cstdlib>
-#include <type_traits>
-#include <vector>
-#include <sstream>
 #include <string>
-#include <iosfwd>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace ZXing {
 
@@ -52,7 +51,7 @@ public:
 	std::string toString() const;
 	int toInt() const;
 
-	inline BigInteger& operator+=(BigInteger&& a) {
+	BigInteger& operator+=(BigInteger&& a) {
 		if (mag.empty())
 			*this = std::move(a);
 		else
@@ -60,26 +59,22 @@ public:
 		return *this;
 	}
 
-	friend inline BigInteger operator+(const BigInteger& a, const BigInteger& b) {
+	friend BigInteger operator+(const BigInteger& a, const BigInteger& b) {
 		BigInteger c;
 		BigInteger::Add(a, b, c);
 		return c;
 	}
 
-	friend inline BigInteger operator-(const BigInteger& a, const BigInteger& b) {
+	friend BigInteger operator-(const BigInteger& a, const BigInteger& b) {
 		BigInteger c;
 		BigInteger::Subtract(a, b, c);
 		return c;
 	}
 
-	friend inline BigInteger operator*(const BigInteger& a, const BigInteger& b) {
+	friend BigInteger operator*(const BigInteger& a, const BigInteger& b) {
 		BigInteger c;
 		BigInteger::Multiply(a, b, c);
 		return c;
-	}
-
-	friend inline std::ostream& operator<<(std::ostream& out, const BigInteger& x) {
-		return out << x.toString();
 	}
 
 	static void Add(const BigInteger& a, const BigInteger &b, BigInteger& c);

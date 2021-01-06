@@ -16,16 +16,16 @@
 */
 
 #include "MultiFormatReader.h"
-#include "DecodeHints.h"
-#include "BarcodeFormat.h"
-#include "Result.h"
 
-#include "oned/ODReader.h"
-#include "qrcode/QRReader.h"
-#include "datamatrix/DMReader.h"
+#include "BarcodeFormat.h"
+#include "DecodeHints.h"
+#include "Result.h"
 #include "aztec/AZReader.h"
+#include "datamatrix/DMReader.h"
 #include "maxicode/MCReader.h"
+#include "oned/ODReader.h"
 #include "pdf417/PDFReader.h"
+#include "qrcode/QRReader.h"
 
 #include <memory>
 
@@ -33,68 +33,31 @@ namespace ZXing {
 
 MultiFormatReader::MultiFormatReader(const DecodeHints& hints)
 {
-	setFormat(hints);
-}
-
-MultiFormatReader::~MultiFormatReader()
-{
-}
-
-void MultiFormatReader::setFormat(const DecodeHints &hints)
-{
-	_readers.clear();
-	bool tryHarder = hints.shouldTryHarder();
-	bool addOneDReader =
-			hints.hasFormat(BarcodeFormat::UPC_A) ||
-			hints.hasFormat(BarcodeFormat::UPC_E) ||
-			hints.hasFormat(BarcodeFormat::EAN_13) ||
-			hints.hasFormat(BarcodeFormat::EAN_8) ||
-			hints.hasFormat(BarcodeFormat::CODABAR) ||
-			hints.hasFormat(BarcodeFormat::CODE_39) ||
-			hints.hasFormat(BarcodeFormat::CODE_93) ||
-			hints.hasFormat(BarcodeFormat::CODE_128) ||
-			hints.hasFormat(BarcodeFormat::ITF) ||
-			hints.hasFormat(BarcodeFormat::RSS_14) ||
-			hints.hasFormat(BarcodeFormat::RSS_EXPANDED);
+	bool tryHarder = hints.tryHarder();
+	auto formats = hints.formats().empty() ? BarcodeFormat::Any : hints.formats();
 
 	// Put 1D readers upfront in "normal" mode
-	if (addOneDReader && !tryHarder) {
+	if (formats.testFlags(BarcodeFormat::OneDCodes) && !tryHarder)
 		_readers.emplace_back(new OneD::Reader(hints));
-	}
-	if (hints.hasFormat(BarcodeFormat::QR_CODE)) {
-		_readers.emplace_back(new QRCode::Reader(hints));
-	}
-	if (hints.hasFormat(BarcodeFormat::DATA_MATRIX)) {
-		_readers.emplace_back(new DataMatrix::Reader(hints));
-	}
-	if (hints.hasFormat(BarcodeFormat::AZTEC)) {
-		_readers.emplace_back(new Aztec::Reader());
-	}
-	if (hints.hasFormat(BarcodeFormat::PDF_417)) {
-		_readers.emplace_back(new Pdf417::Reader());
-	}
-	if (hints.hasFormat(BarcodeFormat::MAXICODE)) {
-		_readers.emplace_back(new MaxiCode::Reader());
-	}
-	// At end in "try harder" mode
-	if (addOneDReader && tryHarder) {
-		_readers.emplace_back(new OneD::Reader(hints));
-	}
 
-	if (_readers.empty()) {
-		if (!tryHarder) {
-			_readers.emplace_back(new OneD::Reader(hints));
-		}
+	if (formats.testFlag(BarcodeFormat::QRCode))
 		_readers.emplace_back(new QRCode::Reader(hints));
+	if (formats.testFlag(BarcodeFormat::DataMatrix))
 		_readers.emplace_back(new DataMatrix::Reader(hints));
-		_readers.emplace_back(new Aztec::Reader());
-		_readers.emplace_back(new Pdf417::Reader());
-		_readers.emplace_back(new MaxiCode::Reader());
-		if (tryHarder) {
-			_readers.emplace_back(new OneD::Reader(hints));
-		}
+	if (formats.testFlag(BarcodeFormat::Aztec))
+		_readers.emplace_back(new Aztec::Reader(hints));
+	if (formats.testFlag(BarcodeFormat::PDF417))
+		_readers.emplace_back(new Pdf417::Reader(hints));
+	if (formats.testFlag(BarcodeFormat::MaxiCode))
+		_readers.emplace_back(new MaxiCode::Reader(hints));
+
+	// At end in "try harder" mode
+	if (formats.testFlags(BarcodeFormat::OneDCodes) && tryHarder) {
+		_readers.emplace_back(new OneD::Reader(hints));
 	}
 }
+
+MultiFormatReader::~MultiFormatReader() = default;
 
 Result
 MultiFormatReader::read(const BinaryBitmap& image) const
@@ -106,12 +69,10 @@ MultiFormatReader::read(const BinaryBitmap& image) const
 
 	for (const auto& reader : _readers) {
 		Result r = reader->decode(image);
-  		if (r.isValid() || r.isNeedScale())
+  		if (r.isValid())
 			return r;
 	}
 	return Result(DecodeStatus::NotFound);
 }
-
-
 
 } // ZXing

@@ -15,23 +15,27 @@
 * limitations under the License.
 */
 
-#include "maxicode/MCDecoder.h"
-#include "maxicode/MCBitMatrixParser.h"
+#include "MCDecoder.h"
+
 #include "ByteArray.h"
-#include "DecoderResult.h"
-#include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
 #include "DecodeStatus.h"
+#include "DecoderResult.h"
+#include "GenericGF.h"
+#include "MCBitMatrixParser.h"
+#include "ReedSolomonDecoder.h"
 #include "TextDecoder.h"
 #include "ZXStrConvWorkaround.h"
 
-#include <array>
-#include <sstream>
-#include <iomanip>
 #include <algorithm>
+#include <array>
+#include <cstdint>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-namespace ZXing {
-namespace MaxiCode {
+namespace ZXing::MaxiCode {
 
 static const int ALL = 0;
 static const int EVEN = 1;
@@ -52,7 +56,7 @@ static bool CorrectErrors(ByteArray& codewordBytes, int start, int dataCodewords
 		}
 	}
 
-	if (!ReedSolomonDecoder::Decode(GenericGF::MaxiCodeField64(), codewordsInts, ecCodewords / divisor))
+	if (!ReedSolomonDecode(GenericGF::MaxiCodeField64(), codewordsInts, ecCodewords / divisor))
 		return false;
 
 	// Copy back into array of bytes -- only need to worry about the bytes that were data
@@ -139,7 +143,7 @@ namespace DecodedBitStreamParser
 
 	static int GetInt(const ByteArray& bytes, const ByteArray& x)
 	{
-		int len = x.length();
+		int len = Size(x);
 		int val = 0;
 		for (int i = 0; i < len; i++) {
 			val += GetBit(x[i], bytes) << (len - i - 1);
@@ -314,5 +318,4 @@ Decoder::Decode(const BitMatrix& bits)
 	return DecodedBitStreamParser::Decode(std::move(datawords), mode);
 }
 
-} // MaxiCode
-} // ZXing
+} // namespace ZXing::MaxiCode

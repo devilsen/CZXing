@@ -15,21 +15,27 @@
 * limitations under the License.
 */
 
-#include "aztec/AZDetector.h"
-#include "aztec/AZDetectorResult.h"
+#include "AZDetector.h"
+
+#include "AZDetectorResult.h"
 #include "BitHacks.h"
-#include "ZXNumeric.h"
-#include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
-#include "WhiteRectDetector.h"
-#include "GridSampler.h"
-#include "DecodeStatus.h"
 #include "BitMatrix.h"
+#include "GenericGF.h"
+#include "GridSampler.h"
+#include "ReedSolomonDecoder.h"
+#include "ResultPoint.h"
+#include "WhiteRectDetector.h"
 
 #include <array>
+#include <utility>
 
-namespace ZXing {
-namespace Aztec {
+namespace ZXing::Aztec {
+
+template <typename T, typename = typename std::enable_if<std::is_floating_point<T>::value>::type>
+static int RoundToNearest(T x)
+{
+	return static_cast<int>(std::lround(x));
+}
 
 static const int EXPECTED_CORNER_BITS[] = {
 	0xee0,  // 07340  XXX .XX X.. ...
@@ -71,23 +77,15 @@ static int GetRotation(const std::array<int, 4>& sides, int length)
 	return -1;
 }
 
-inline static bool IsValidPoint(int x, int y, int imgWidth, int imgHeight)
+static bool IsValidPoint(int x, int y, int imgWidth, int imgHeight)
 {
 	return x >= 0 && x < imgWidth && y > 0 && y < imgHeight;
 }
 
-inline static bool IsValidPoint(const ResultPoint& point, int imgWidth, int imgHeight)
+static bool IsValidPoint(const ResultPoint& point, int imgWidth, int imgHeight)
 {
 	return IsValidPoint(RoundToNearest(point.x()), RoundToNearest(point.y()), imgWidth, imgHeight);
 }
-
-//private static float distance(Point a, Point b) {
-//	return MathUtils.distance(a.getX(), a.getY(), b.getX(), b.getY());
-//}
-//
-//private static float distance(ResultPoint a, ResultPoint b) {
-//	return MathUtils.distance(a.getX(), a.getY(), b.getX(), b.getY());
-//}
 
 /**
 * Samples a line.
@@ -101,7 +99,7 @@ static int SampleLine(const BitMatrix& image, const ResultPoint& p1, const Resul
 {
 	int result = 0;
 
-	float d = ResultPoint::Distance(p1, p2);
+	float d = static_cast<float>(distance(p1, p2));
 	float moduleSize = d / size;
 	float px = p1.x();
 	float py = p1.y();
@@ -141,7 +139,7 @@ static bool GetCorrectedParameterData(int64_t parameterData, bool compact, int& 
 		parameterWords[i] = (int)parameterData & 0xF;
 		parameterData >>= 4;
 	}
-	if (!ReedSolomonDecoder::Decode(GenericGF::AztecParam(), parameterWords, numECCodewords))
+	if (!ReedSolomonDecode(GenericGF::AztecParam(), parameterWords, numECCodewords))
 		return false;
 
 	// Toss the error correction.  Just return the data as an integer
@@ -218,33 +216,19 @@ static bool ExtractParameters(const BitMatrix& image, const std::array<ResultPoi
 	return true;
 }
 
-struct PixelPoint
-{
-	int x;
-	int y;
-
-	ResultPoint toResultPoint() const { return {x, y}; }
-};
-
-
-inline static float Distance(const PixelPoint& a, const PixelPoint& b)
-{
-	return ResultPoint::Distance(a.x, a.y, b.x, b.y);
-}
-
 
 /**
 * Gets the color of a segment
 *
 * @return 1 if segment more than 90% black, -1 if segment is more than 90% white, 0 else
 */
-static int GetColor(const BitMatrix& image, const PixelPoint& p1, const PixelPoint& p2)
+static int GetColor(const BitMatrix& image, const PointI& p1, const PointI& p2)
 {
 	if (!IsValidPoint(p1.x, p1.y, image.width(), image.height()) ||
 		!IsValidPoint(p2.x, p2.y, image.width(), image.height()))
 		return 0;
 
-	float d = Distance(p1, p2);
+	float d = static_cast<float>(distance(p1, p2));
 	float dx = (p2.x - p1.x) / d;
 	float dy = (p2.y - p1.y) / d;
 	int error = 0;
@@ -275,14 +259,14 @@ static int GetColor(const BitMatrix& image, const PixelPoint& p1, const PixelPoi
 * @return true if the border of the rectangle passed in parameter is compound of white points only
 *         or black points only
 */
-static bool IsWhiteOrBlackRectangle(const BitMatrix& image, const PixelPoint& pt1, const PixelPoint& pt2, const PixelPoint& pt3, const PixelPoint& pt4) {
+static bool IsWhiteOrBlackRectangle(const BitMatrix& image, const PointI& pt1, const PointI& pt2, const PointI& pt3, const PointI& pt4) {
 
 	int corr = 3;
 
-	PixelPoint p1{ pt1.x - corr, pt1.y + corr };
-	PixelPoint p2{ pt2.x - corr, pt2.y - corr };
-	PixelPoint p3{ pt3.x + corr, pt3.y - corr };
-	PixelPoint p4{ pt4.x + corr, pt4.y + corr };
+	PointI p1{ pt1.x - corr, pt1.y + corr };
+	PointI p2{ pt2.x - corr, pt2.y - corr };
+	PointI p3{ pt3.x + corr, pt3.y - corr };
+	PointI p4{ pt4.x + corr, pt4.y + corr };
 
 	int cInit = GetColor(image, p4, p1);
 
@@ -311,7 +295,7 @@ static bool IsWhiteOrBlackRectangle(const BitMatrix& image, const PixelPoint& pt
 /**
 * Gets the coordinate of the first point with a different color in the given direction
 */
-static PixelPoint GetFirstDifferent(const BitMatrix& image, const PixelPoint& init, bool color, int dx, int dy) {
+static PointI GetFirstDifferent(const BitMatrix& image, const PointI& init, bool color, int dx, int dy) {
 	int x = init.x + dx;
 	int y = init.y + dy;
 
@@ -333,7 +317,7 @@ static PixelPoint GetFirstDifferent(const BitMatrix& image, const PixelPoint& in
 	}
 	y -= dy;
 
-	return PixelPoint{ x, y };
+	return PointI{ x, y };
 }
 
 /**
@@ -373,26 +357,26 @@ static void ExpandSquare(std::array<ResultPoint, 4>& cornerPoints, float oldSide
 * @return The corners of the bull-eye
 * @throws NotFoundException If no valid bull-eye can be found
 */
-static bool GetBullsEyeCorners(const BitMatrix& image, const PixelPoint& pCenter, std::array<ResultPoint, 4>& result, bool& compact, int& nbCenterLayers)
+static bool GetBullsEyeCorners(const BitMatrix& image, const PointI& pCenter, std::array<ResultPoint, 4>& result, bool& compact, int& nbCenterLayers)
 {
-	PixelPoint pina = pCenter;
-	PixelPoint pinb = pCenter;
-	PixelPoint pinc = pCenter;
-	PixelPoint pind = pCenter;
+	PointI pina = pCenter;
+	PointI pinb = pCenter;
+	PointI pinc = pCenter;
+	PointI pind = pCenter;
 
 	bool color = true;
 	for (nbCenterLayers = 1; nbCenterLayers < 9; nbCenterLayers++) {
-		PixelPoint pouta = GetFirstDifferent(image, pina, color, 1, -1);
-		PixelPoint poutb = GetFirstDifferent(image, pinb, color, 1, 1);
-		PixelPoint poutc = GetFirstDifferent(image, pinc, color, -1, 1);
-		PixelPoint poutd = GetFirstDifferent(image, pind, color, -1, -1);
+		PointI pouta = GetFirstDifferent(image, pina, color, 1, -1);
+		PointI poutb = GetFirstDifferent(image, pinb, color, 1, 1);
+		PointI poutc = GetFirstDifferent(image, pinc, color, -1, 1);
+		PointI poutd = GetFirstDifferent(image, pind, color, -1, -1);
 
 		//d      a
 		//
 		//c      b
 
 		if (nbCenterLayers > 2) {
-			float q = Distance(poutd, pouta) * nbCenterLayers / (Distance(pind, pina) * (nbCenterLayers + 2));
+			auto q = distance(poutd, pouta) * nbCenterLayers / (distance(pind, pina) * (nbCenterLayers + 2.0));
 			if (q < 0.75 || q > 1.25 || !IsWhiteOrBlackRectangle(image, pouta, poutb, poutc, poutd)) {
 				break;
 			}
@@ -430,19 +414,19 @@ static bool GetBullsEyeCorners(const BitMatrix& image, const PixelPoint& pCenter
 *
 * @return the center point
 */
-static PixelPoint GetMatrixCenter(const BitMatrix& image)
+static PointI GetMatrixCenter(const BitMatrix& image)
 {
 	//Get a white rectangle that can be the border of the matrix in center bull's eye or
 	ResultPoint pointA, pointB, pointC, pointD;
-	if (!WhiteRectDetector::Detect(image, pointA, pointB, pointC, pointD)) {
+	if (!DetectWhiteRect(image, pointA, pointB, pointC, pointD)) {
 		// This exception can be in case the initial rectangle is white
 		// In that case, surely in the bull's eye, we try to expand the rectangle.
 		int cx = image.width() / 2;
 		int cy = image.height() / 2;
-		pointA = GetFirstDifferent(image, { cx + 7, cy - 7 }, false, 1, -1).toResultPoint();
-		pointB = GetFirstDifferent(image, { cx + 7, cy + 7 }, false, 1, 1).toResultPoint();
-		pointC = GetFirstDifferent(image, { cx - 7, cy + 7 }, false, -1, 1).toResultPoint();
-		pointD = GetFirstDifferent(image, { cx - 7, cy - 7 }, false, -1, -1).toResultPoint();
+		pointA = GetFirstDifferent(image, { cx + 7, cy - 7 }, false, 1, -1);
+		pointB = GetFirstDifferent(image, { cx + 7, cy + 7 }, false, 1, 1);
+		pointC = GetFirstDifferent(image, { cx - 7, cy + 7 }, false, -1, 1);
+		pointD = GetFirstDifferent(image, { cx - 7, cy - 7 }, false, -1, -1);
 	}
 
 	//Compute the center of the rectangle
@@ -452,13 +436,13 @@ static PixelPoint GetMatrixCenter(const BitMatrix& image)
 	// Redetermine the white rectangle starting from previously computed center.
 	// This will ensure that we end up with a white rectangle in center bull's eye
 	// in order to compute a more accurate center.
-	if (!WhiteRectDetector::Detect(image, 15, cx, cy, pointA, pointB, pointC, pointD)) {
+	if (!DetectWhiteRect(image, 15, cx, cy, pointA, pointB, pointC, pointD)) {
 		// This exception can be in case the initial rectangle is white
 		// In that case we try to expand the rectangle.
-		pointA = GetFirstDifferent(image, { cx + 7, cy - 7 }, false, 1, -1).toResultPoint();
-		pointB = GetFirstDifferent(image, { cx + 7, cy + 7 }, false, 1, 1).toResultPoint();
-		pointC = GetFirstDifferent(image, { cx - 7, cy + 7 }, false, -1, 1).toResultPoint();
-		pointD = GetFirstDifferent(image, { cx - 7, cy - 7 }, false, -1, -1).toResultPoint();
+		pointA = GetFirstDifferent(image, { cx + 7, cy - 7 }, false, 1, -1);
+		pointB = GetFirstDifferent(image, { cx + 7, cy + 7 }, false, 1, 1);
+		pointC = GetFirstDifferent(image, { cx - 7, cy + 7 }, false, -1, 1);
+		pointD = GetFirstDifferent(image, { cx - 7, cy - 7 }, false, -1, -1);
 	}
 
 	// Recompute the center of the rectangle
@@ -468,27 +452,20 @@ static PixelPoint GetMatrixCenter(const BitMatrix& image)
 	return{ cx, cy };
 }
 
+static PointI GetMatrixCenterPure(const BitMatrix& image)
+{
+	int left, top, width, height;
+	if (!image.findBoundingBox(left, top, width, height, 11))
+		return {};
+	return {left + width / 2, top + height / 2};
+}
+
 static int GetDimension(bool compact, int nbLayers)
 {
 	if (compact) {
 		return 4 * nbLayers + 11;
 	}
-	if (nbLayers <= 4) {
-		return 4 * nbLayers + 15;
-	}
-	return 4 * nbLayers + 2 * ((nbLayers - 4) / 8 + 1) + 15;
-}
-
-
-/**
-* Gets the Aztec code corners from the bull's eye corners and the parameters.
-*
-* @param bullsEyeCorners the array of bull's eye corners
-* @return the array of aztec code corners
-*/
-static void GetMatrixCornerPoints(std::array<ResultPoint, 4>& bullsEyeCorners, bool compact, int nbLayers, int nbCenterLayers)
-{
-	ExpandSquare(bullsEyeCorners, static_cast<float>(2 * nbCenterLayers), static_cast<float>(GetDimension(compact, nbLayers)));
+	return 4 * nbLayers + 2 * ((2 * nbLayers + 6) / 15) + 15;
 }
 
 /**
@@ -496,31 +473,22 @@ static void GetMatrixCornerPoints(std::array<ResultPoint, 4>& bullsEyeCorners, b
 * topLeft, topRight, bottomRight, and bottomLeft are the centers of the squares on the
 * diagonal just outside the bull's eye.
 */
-static BitMatrix SampleGrid(const BitMatrix& image, const ResultPoint& topLeft, const ResultPoint& topRight, const ResultPoint& bottomRight, const ResultPoint& bottomLeft, bool compact, int nbLayers, int nbCenterLayers)
+static ZXing::DetectorResult SampleGrid(const BitMatrix& image, const ResultPoint& topLeft, const ResultPoint& topRight, const ResultPoint& bottomRight, const ResultPoint& bottomLeft, bool compact, int nbLayers, int nbCenterLayers)
 {
 	int dimension = GetDimension(compact, nbLayers);
 
 	float low = dimension / 2.0f - nbCenterLayers;
 	float high = dimension / 2.0f + nbCenterLayers;
 
-	return GridSampler::Instance()->sampleGrid(image,
-		dimension,
-		dimension,
-		low, low,   // topleft
-		high, low,  // topright
-		high, high, // bottomright
-		low, high,  // bottomleft
-		topLeft.x(), topLeft.y(),
-		topRight.x(), topRight.y(),
-		bottomRight.x(), bottomRight.y(),
-		bottomLeft.x(), bottomLeft.y());
+	return SampleGrid(image, dimension, dimension,
+					  PerspectiveTransform{{PointF{low, low}, {high, low}, {high, high}, {low, high}},
+										   {topLeft, topRight, bottomRight, bottomLeft}});
 }
 
-
-DetectorResult Detector::Detect(const BitMatrix& image, bool isMirror)
+DetectorResult Detector::Detect(const BitMatrix& image, bool isMirror, bool isPure)
 {
 	// 1. Get the center of the aztec matrix
-	auto pCenter = GetMatrixCenter(image);
+	auto pCenter = isPure ? GetMatrixCenterPure(image) : GetMatrixCenter(image);
 
 	// 2. Get the center points of the four diagonal points just outside the bull's eye
 	//  [topRight, bottomRight, bottomLeft, topLeft]
@@ -544,15 +512,10 @@ DetectorResult Detector::Detect(const BitMatrix& image, bool isMirror)
 	}
 
 	// 4. Sample the grid
-	auto bits = SampleGrid(image, bullsEyeCorners[shift % 4], bullsEyeCorners[(shift + 1) % 4], bullsEyeCorners[(shift + 2) % 4], bullsEyeCorners[(shift + 3) % 4], compact, nbLayers, nbCenterLayers);
-	if (bits.empty())
-		return {};
-
-	// 5. Get the corners of the matrix.
-	GetMatrixCornerPoints(bullsEyeCorners, compact, nbLayers, nbCenterLayers);
-
-	return {std::move(bits), {bullsEyeCorners.begin(), bullsEyeCorners.end()}, compact, nbDataBlocks, nbLayers};
+	return {SampleGrid(image, bullsEyeCorners[(shift + 0) % 4], bullsEyeCorners[(shift + 1) % 4],
+					   bullsEyeCorners[(shift + 2) % 4], bullsEyeCorners[(shift + 3) % 4], compact, nbLayers,
+					   nbCenterLayers),
+			compact, nbDataBlocks, nbLayers};
 }
 
-} // Aztec
-} // ZXing
+} // namespace ZXing::Aztec

@@ -15,12 +15,15 @@
 */
 
 #include "TextDecoder.h"
+
 #include "CharacterSet.h"
 #include "TextUtfEncoding.h"
-#include "textcodec/JPTextDecoder.h"
-#include "textcodec/GBTextDecoder.h"
 #include "textcodec/Big5TextDecoder.h"
+#include "textcodec/GBTextDecoder.h"
+#include "textcodec/JPTextDecoder.h"
 #include "textcodec/KRTextDecoder.h"
+
+#include <vector>
 
 namespace ZXing {
 
@@ -305,7 +308,6 @@ TextDecoder::Append(std::wstring& str, const uint8_t* bytes, size_t length, Char
 		std::vector<uint16_t> buf;
 		KRTextDecoder::AppendEucKr(buf, bytes, length);
 		TextUtfEncoding::AppendUtf16(str, buf.data(), buf.size());
-		break;
 		break;
 	}
 	case CharacterSet::UnicodeBig:

@@ -16,60 +16,84 @@
 
 package me.devilsen.czxing.code;
 
+import java.util.HashMap;
+
 /**
  * Enumerates barcode formats known to this package.
  * Note that this should be keep synchronized with native (C++) side.
  */
 public enum BarcodeFormat {
 
-	/** Aztec 2D barcode format. */
-	AZTEC,
+    /** Aztec 2D barcode format. */
+    AZTEC(1),
 
-	/** CODABAR 1D format. */
-	CODABAR,
+    /** CODABAR 1D format. */
+    CODABAR(1 << 1),
 
-	/** Code 39 1D format. */
-	CODE_39,
+    /** Code 39 1D format. */
+    CODE_39(1 << 2),
 
-	/** Code 93 1D format. */
-	CODE_93,
+    /** Code 93 1D format. */
+    CODE_93(1 << 3),
 
-	/** Code 128 1D format. */
-	CODE_128,
+    /** Code 128 1D format. */
+    CODE_128(1 << 4),
 
-	/** Data Matrix 2D barcode format. */
-	DATA_MATRIX,
+    /** Code DataBar 1D format. */
+    DATA_BAR(1 << 5),
 
-	/** EAN-8 1D format. */
-	EAN_8,
+    /** RSS 14 */
+    RSS_14(1 << 5),
 
-	/** EAN-13 1D format. */
-	EAN_13,
+    /** Code DataBarExpanded 1D format. */
+    DATA_BAR_EXPANDED(1 << 6),
 
-	/** ITF (Interleaved Two of Five) 1D format. */
-	ITF,
+    /** RSS EXPANDED */
+    RSS_EXPANDED(1 << 6),
 
-	/** MaxiCode 2D barcode format. */
-	MAXICODE,
+    /** Data Matrix 2D barcode format. */
+    DATA_MATRIX(1 << 7),
 
-	/** PDF417 format. */
-	PDF_417,
+    /** EAN-8 1D format. */
+    EAN_8(1 << 8),
 
-	/** QR Code 2D barcode format. */
-	QR_CODE,
+    /** EAN-13 1D format. */
+    EAN_13(1 << 9),
 
-	/** RSS 14 */
-	RSS_14,
+    /** ITF (Interleaved Two of Five) 1D format. */
+    ITF(1 << 10),
 
-	/** RSS EXPANDED */
-	RSS_EXPANDED,
+    /** MaxiCode 2D barcode format. */
+    MAXICODE(1 << 11),
 
-	/** UPC-A 1D format. */
-	UPC_A,
+    /** PDF417 format. */
+    PDF_417(1 << 12),
 
-	/** UPC-E 1D format. */
-	UPC_E,
+    /** QR Code 2D barcode format. */
+    QR_CODE(1 << 13),
 
-	/** UPC/EAN extension format. Not a stand-alone format. */
-	UPC_EAN_EXTENSION
+    /** UPC-A 1D format. */
+    UPC_A(1 << 14),
+
+    /** UPC-E 1D format. */
+    UPC_E(1 << 15);
+
+    private static final HashMap<Integer, BarcodeFormat> FORMAT_CACHE = new HashMap<>(32);
+
+    static {
+        for (BarcodeFormat format : values()) {
+            FORMAT_CACHE.put(format.value, format);
+        }
+    }
+
+    public static BarcodeFormat valueOf(int value) {
+        return FORMAT_CACHE.get(value);
+    }
+
+    private final int value;
+
+    BarcodeFormat(int value) {
+        this.value = value;
+    }
+
 }

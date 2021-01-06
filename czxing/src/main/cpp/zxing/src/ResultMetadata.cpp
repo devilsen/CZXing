@@ -16,13 +16,16 @@
 */
 
 #include "ResultMetadata.h"
+
 #include "ByteArray.h"
+
+#include <utility>
 
 namespace ZXing {
 
 struct ResultMetadata::Value
 {
-	virtual ~Value() {}
+	virtual ~Value() = default;
 	virtual int toInteger(int fallback) const {
 		return fallback;
 	}

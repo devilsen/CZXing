@@ -15,15 +15,15 @@
 * limitations under the License.
 */
 
-#include "aztec/AZWriter.h"
-#include "aztec/AZEncoder.h"
+#include "AZWriter.h"
+
+#include "AZEncoder.h"
 #include "CharacterSet.h"
 #include "TextEncoder.h"
 
-#include <algorithm>
+#include <utility>
 
-namespace ZXing {
-namespace Aztec {
+namespace ZXing::Aztec {
 
 Writer::Writer() :
 	_encoding(CharacterSet::ISO8859_1),
@@ -37,9 +37,7 @@ Writer::encode(const std::wstring& contents, int width, int height) const
 {
 	std::string bytes = TextEncoder::FromUnicode(contents, _encoding);
 	EncodeResult aztec = Encoder::Encode(bytes, _eccPercent, _layers);
-	// Minimum required quite zone for Aztec is 0
-	return Inflate(std::move(aztec.matrix), width, height, 0);
+	return Inflate(std::move(aztec.matrix), width, height, _margin);
 }
 
-} // Aztec
-} // ZXing
+} // namespace ZXing::Aztec

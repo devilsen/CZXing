@@ -16,7 +16,9 @@
 */
 
 #include "BitSource.h"
+
 #include "ByteArray.h"
+#include "ZXContainerAlgorithms.h"
 
 #include <stdexcept>
 
@@ -25,7 +27,7 @@ namespace ZXing {
 int
 BitSource::available() const
 {
-	return 8 * (_bytes.length() - _byteOffset) - _bitOffset;
+	return 8 * (Size(_bytes) - _byteOffset) - _bitOffset;
 }
 
 int

@@ -15,12 +15,13 @@
 * limitations under the License.
 */
 
-#include "oned/ODWriterHelper.h"
+#include "ODWriterHelper.h"
+
 #include "BitMatrix.h"
+
 #include <algorithm>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
 /**
 * @return a byte array of horizontal pixels (0 = white, 1 = black)
@@ -28,7 +29,7 @@ namespace OneD {
 BitMatrix
 WriterHelper::RenderResult(const std::vector<bool>& code, int width, int height, int sidesMargin)
 {
-	int inputWidth = static_cast<int>(code.size());
+	int inputWidth = Size(code);
 	// Add quiet zone on both sides.
 	int fullWidth = inputWidth + sidesMargin;
 	int outputWidth = std::max(width, fullWidth);
@@ -69,5 +70,4 @@ WriterHelper::AppendPattern(std::vector<bool>& target, int pos, const int* patte
 	return numAdded;
 }
 
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

@@ -16,46 +16,97 @@
 */
 
 #include "BarcodeFormat.h"
+
+#include "BitHacks.h"
 #include "ZXContainerAlgorithms.h"
 
-#include <type_traits>
+#include <algorithm>
+#include <cctype>
+#include <iterator>
 #include <sstream>
+#include <stdexcept>
 #include <string>
-#include <functional>
 
 namespace ZXing {
 
-static const char* FORMAT_STR[] = {
-	"AZTEC",
-	"CODABAR",
-	"CODE_39",
-	"CODE_93",
-	"CODE_128",
-	"DATA_MATRIX",
-	"EAN_8",
-	"EAN_13",
-	"ITF",
-	"MAXICODE",
-	"PDF_417",
-	"QR_CODE",
-	"RSS_14",
-	"RSS_EXPANDED",
-	"UPC_A",
-	"UPC_E",
-	"UPC_EAN_EXTENSION",
+struct BarcodeFormatName
+{
+	BarcodeFormat format;
+	const char* name;
 };
 
-static_assert(Length(FORMAT_STR) == (int)BarcodeFormat::FORMAT_COUNT, "FORMAT_STR array is out of sync with BarcodeFormat");
+static BarcodeFormatName NAMES[] = {
+	{BarcodeFormat::None, "None"},
+	{BarcodeFormat::Aztec, "Aztec"},
+	{BarcodeFormat::Codabar, "Codabar"},
+	{BarcodeFormat::Code39, "Code39"},
+	{BarcodeFormat::Code93, "Code93"},
+	{BarcodeFormat::Code128, "Code128"},
+	{BarcodeFormat::DataBar, "DataBar"},
+	{BarcodeFormat::DataBarExpanded, "DataBarExpanded"},
+	{BarcodeFormat::DataMatrix, "DataMatrix"},
+	{BarcodeFormat::EAN8, "EAN-8"},
+	{BarcodeFormat::EAN13, "EAN-13"},
+	{BarcodeFormat::ITF, "ITF"},
+	{BarcodeFormat::MaxiCode, "MaxiCode"},
+	{BarcodeFormat::PDF417, "PDF417"},
+	{BarcodeFormat::QRCode, "QRCode"},
+	{BarcodeFormat::UPCA, "UPC-A"},
+	{BarcodeFormat::UPCE, "UPC-E"},
+	{BarcodeFormat::OneDCodes, "1D-Codes"},
+	{BarcodeFormat::TwoDCodes, "2D-Codes"},
+};
 
-const char * ToString(BarcodeFormat format)
+const char* ToString(BarcodeFormat format)
 {
-	return FORMAT_STR[(int)format];
+	auto i = FindIf(NAMES, [format](auto& v) { return v.format == format; });
+	return i == std::end(NAMES) ? nullptr : i->name;
+}
+
+std::string ToString(BarcodeFormats formats)
+{
+	if (formats.empty())
+		return ToString(BarcodeFormat::None);
+	std::string res;
+	for (auto f : formats)
+		res += ToString(f) + std::string("|");
+	return res.substr(0, res.size() - 1);
+}
+
+static std::string NormalizeFormatString(std::string str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), [](char c) { return (char)std::tolower(c); });
+	str.erase(std::remove_if(str.begin(), str.end(), [](char c) { return c == '_' || c == '-'; }), str.end());
+	return str;
+}
+
+static BarcodeFormat ParseFormatString(const std::string& str)
+{
+	auto i = FindIf(NAMES, [str](auto& v) { return NormalizeFormatString(v.name) == str; });
+	return i == std::end(NAMES) ? BarcodeFormat::None : i->format;
 }
 
 BarcodeFormat BarcodeFormatFromString(const std::string& str)
 {
-	return BarcodeFormat(std::distance(std::begin(FORMAT_STR),
-	                                   std::find(std::begin(FORMAT_STR), std::end(FORMAT_STR), str)));
+	return ParseFormatString(NormalizeFormatString(str));
+}
+
+BarcodeFormats BarcodeFormatsFromString(const std::string& str)
+{
+	auto normalized = NormalizeFormatString(str);
+	std::replace_if(
+		normalized.begin(), normalized.end(), [](char c) { return Contains(" ,", c); }, '|');
+	std::istringstream input(normalized);
+	BarcodeFormats res;
+	for (std::string token; std::getline(input, token, '|');) {
+		if(!token.empty()) {
+			auto bc = ParseFormatString(token);
+			if (bc == BarcodeFormat::None)
+				throw std::invalid_argument("This is not a valid barcode format: " + token);
+			res |= bc;
+		}
+	}
+	return res;
 }
 
 } // ZXing

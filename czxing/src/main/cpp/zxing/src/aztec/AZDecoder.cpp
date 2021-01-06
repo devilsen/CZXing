@@ -15,21 +15,26 @@
 * limitations under the License.
 */
 
-#include "aztec/AZDecoder.h"
-#include "aztec/AZDetectorResult.h"
-#include "DecoderResult.h"
-#include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
-#include "DecodeStatus.h"
+#include "AZDecoder.h"
+
+#include "AZDetectorResult.h"
+#include "BitArray.h"
 #include "BitMatrix.h"
+#include "DecodeStatus.h"
+#include "DecoderResult.h"
+#include "GenericGF.h"
+#include "ReedSolomonDecoder.h"
 #include "TextDecoder.h"
 #include "ZXTestSupport.h"
 
-#include <numeric>
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <numeric>
+#include <string>
+#include <vector>
 
-namespace ZXing {
-namespace Aztec {
+namespace ZXing::Aztec {
 
 enum class Table {
 	UPPER,
@@ -65,7 +70,7 @@ static const char* DIGIT_TABLE[] = {
 	"CTRL_PS", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ".", "CTRL_UL", "CTRL_US"
 };
 
-inline static int TotalBitsInLayer(int layers, bool compact)
+static int TotalBitsInLayer(int layers, bool compact)
 {
 	return ((compact ? 88 : 112) + 16 * layers) * layers;
 }
@@ -132,9 +137,9 @@ static std::vector<bool> ExtractBits(const DetectorResult& ddata)
 static int ReadCode(const std::vector<bool>& rawbits, int startIndex, int length)
 {
 	int res = 0;
-	for (int i = startIndex; i < startIndex + length; i++) {
-		res = (res << 1) | static_cast<int>(rawbits[i]);
-	}
+	for (int i = startIndex; i < startIndex + length; i++)
+		AppendBit(res, rawbits[i]);
+
 	return res;
 }
 
@@ -167,7 +172,7 @@ static bool CorrectBits(const DetectorResult& ddata, const std::vector<bool>& ra
 	}
 
 	int numDataCodewords = ddata.nbDatablocks();
-	int numCodewords = static_cast<int>(rawbits.size()) / codewordSize;
+	int numCodewords = Size(rawbits) / codewordSize;
 	if (numCodewords < numDataCodewords) {
 		return false;
 	}
@@ -180,7 +185,7 @@ static bool CorrectBits(const DetectorResult& ddata, const std::vector<bool>& ra
 		dataWords[i] = ReadCode(rawbits, offset, codewordSize);
 	}
 
-	if (!ReedSolomonDecoder::Decode(*gf, dataWords, numECCodewords))
+	if (!ReedSolomonDecode(*gf, dataWords, numECCodewords))
 		return false;
 
 	// Now perform the unstuffing operation.
@@ -271,7 +276,7 @@ static const char* GetCharacter(Table table, int code)
 ZXING_EXPORT_TEST_ONLY
 std::string GetEncodedData(const std::vector<bool>& correctedBits)
 {
-	int endIndex = static_cast<int>(correctedBits.size());
+	int endIndex = Size(correctedBits);
 	Table latchTable = Table::UPPER; // table most recently latched to
 	Table shiftTable = Table::UPPER; // table to use for the next read
 	std::string result;
@@ -337,7 +342,7 @@ std::string GetEncodedData(const std::vector<bool>& correctedBits)
 */
 static uint8_t ReadByte(const std::vector<bool>& rawbits, int startIndex)
 {
-	int n = static_cast<int>(rawbits.size()) - startIndex;
+	int n = Size(rawbits) - startIndex;
 	if (n >= 8) {
 		return static_cast<uint8_t>(ReadCode(rawbits, startIndex, 8));
 	}
@@ -349,8 +354,8 @@ static uint8_t ReadByte(const std::vector<bool>& rawbits, int startIndex)
 */
 static ByteArray ConvertBoolArrayToByteArray(const std::vector<bool>& boolArr)
 {
-	ByteArray byteArr(((int)boolArr.size() + 7) / 8);
-	for (int i = 0; i < byteArr.length(); ++i) {
+	ByteArray byteArr((Size(boolArr) + 7) / 8);
+	for (int i = 0; i < Size(byteArr); ++i) {
 		byteArr[i] = ReadByte(boolArr, 8 * i);
 	}
 	return byteArr;
@@ -363,12 +368,11 @@ DecoderResult Decoder::Decode(const DetectorResult& detectorResult)
 	if (CorrectBits(detectorResult, rawbits, correctedBits)) {
 		return DecoderResult(ConvertBoolArrayToByteArray(correctedBits),
 							 TextDecoder::FromLatin1(GetEncodedData(correctedBits)))
-		        .setNumBits(static_cast<int>(correctedBits.size()));
+		        .setNumBits(Size(correctedBits));
 	}
 	else {
 		return DecodeStatus::FormatError;
 	}
 }
 
-} // Aztec
-} // ZXing
+} // namespace ZXing::Aztec

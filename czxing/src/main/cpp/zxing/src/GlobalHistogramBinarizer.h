@@ -18,6 +18,8 @@
 
 #include "BinaryBitmap.h"
 
+#include <memory>
+
 namespace ZXing {
 
 class LuminanceSource;
@@ -37,16 +39,14 @@ class GlobalHistogramBinarizer : public BinaryBitmap
 {
 protected:
 	std::shared_ptr<const LuminanceSource> _source;
-	bool _pureBarcode;
 
 public:
-	explicit GlobalHistogramBinarizer(std::shared_ptr<const LuminanceSource> source, bool pureBarcode = false);
+	explicit GlobalHistogramBinarizer(std::shared_ptr<const LuminanceSource> source);
 	~GlobalHistogramBinarizer() override;
 
-	bool isPureBarcode() const override;
 	int width() const override;
 	int height() const override;
-	bool getBlackRow(int y, BitArray& row) const override;
+	bool getPatternRow(int y, PatternRow &res) const override;
 	std::shared_ptr<const BitMatrix> getBlackMatrix() const override;
 	bool canCrop() const override;
 	std::shared_ptr<BinaryBitmap> cropped(int left, int top, int width, int height) const override;

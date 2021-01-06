@@ -16,12 +16,12 @@
 * limitations under the License.
 */
 
-#include "ZXConfig.h"
+#include "ZXContainerAlgorithms.h"
 
-#include <cassert>
-#include <vector>
-#include <utility>
 #include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <vector>
 
 namespace ZXing {
 
@@ -62,7 +62,7 @@ class GenericGFPoly
 public:
 	// Build a invalid object, so that this can be used in container or return by reference,
 	// any access to invalid object is undefined behavior.
-	GenericGFPoly() {}
+	GenericGFPoly() = default;
 
 	/**
 	* @param field the {@link GenericGF} instance representing the field to use
@@ -96,15 +96,19 @@ public:
 		*this = other;
 	}
 
-	const std::vector<int>& coefficients() const {
-		return _coefficients;
+	GenericGFPoly& setField(const GenericGF& field)
+	{
+		_field = &field;
+		return *this;
 	}
+	const GenericGF& field() const noexcept { return *_field; }
+	const auto& coefficients() const noexcept { return _coefficients; }
 
 	/**
 	* @return degree of this polynomial
 	*/
 	int degree() const {
-		return static_cast<int>(_coefficients.size()) - 1;
+		return Size(_coefficients) - 1;
 	}
 
 	/**
@@ -114,11 +118,26 @@ public:
 		return _coefficients[0] == 0;
 	}
 
+	int leadingCoefficient() const noexcept {
+		return _coefficients.front();
+	}
+
+	int constant() const noexcept {
+		return _coefficients.back();
+	}
+
 	/**
-	* @return coefficient of x^degree term in this polynomial
-	*/
-	int coefficient(int degree) const {
-		return _coefficients[_coefficients.size() - 1 - degree];
+	 * @brief set to the monomial representing coefficient * x^degree
+	 */
+	GenericGFPoly& setMonomial(int coefficient, int degree = 0)
+	{
+		assert(degree >= 0 && (coefficient != 0 || degree == 0));
+
+		_coefficients.resize(degree + 1);
+		std::fill(_coefficients.begin(), _coefficients.end(), 0);
+		_coefficients.front() = coefficient;
+
+		return *this;
 	}
 
 	/**
@@ -128,8 +147,7 @@ public:
 
 	GenericGFPoly& addOrSubtract(GenericGFPoly& other);
 	GenericGFPoly& multiply(const GenericGFPoly& other);
-	GenericGFPoly& multiply(int scalar);
-	GenericGFPoly& multiplyByMonomial(int degree, int coefficient);
+	GenericGFPoly& multiplyByMonomial(int coefficient, int degree = 0);
 	GenericGFPoly& divide(const GenericGFPoly& other, GenericGFPoly& quotient);
 
 	friend void swap(GenericGFPoly& a, GenericGFPoly& b)
@@ -139,8 +157,6 @@ public:
 	}
 
 private:
-	friend class GenericGF;
-
 	void normalize();
 
 	const GenericGF* _field = nullptr;

@@ -15,24 +15,30 @@
 * limitations under the License.
 */
 
-#include "datamatrix/DMDecoder.h"
-#include "datamatrix/DMBitMatrixParser.h"
-#include "datamatrix/DMDataBlock.h"
-#include "DecoderResult.h"
+#include "DMDecoder.h"
+
 #include "BitMatrix.h"
-#include "ReedSolomonDecoder.h"
-#include "GenericGF.h"
 #include "BitSource.h"
+#include "DMBitLayout.h"
+#include "DMDataBlock.h"
+#include "DMVersion.h"
 #include "DecodeStatus.h"
+#include "DecoderResult.h"
+#include "GenericGF.h"
+#include "ReedSolomonDecoder.h"
 #include "TextDecoder.h"
 #include "ZXContainerAlgorithms.h"
 #include "ZXStrConvWorkaround.h"
 #include "ZXTestSupport.h"
 
+#include <algorithm>
 #include <array>
+#include <list>
+#include <string>
+#include <utility>
+#include <vector>
 
-namespace ZXing {
-namespace DataMatrix {
+namespace ZXing::DataMatrix {
 
 /**
 * <p>Data Matrix Codes can encode text as bits in one of several modes, and can use multiple modes
@@ -201,7 +207,7 @@ static bool DecodeC40Segment(BitSource& bits, std::string& result)
 				if (cValue < 3) {
 					shift = cValue + 1;
 				}
-				else if (cValue < Length(C40_BASIC_SET_CHARS)) {
+				else if (cValue < Size(C40_BASIC_SET_CHARS)) {
 					char c40char = C40_BASIC_SET_CHARS[cValue];
 					if (upperShift) {
 						result.push_back((char)(c40char + 128));
@@ -226,7 +232,7 @@ static bool DecodeC40Segment(BitSource& bits, std::string& result)
 				shift = 0;
 				break;
 			case 2:
-				if (cValue < Length(C40_SHIFT2_SET_CHARS)) {
+				if (cValue < Size(C40_SHIFT2_SET_CHARS)) {
 					char c40char = C40_SHIFT2_SET_CHARS[cValue];
 					if (upperShift) {
 						result.push_back((char)(c40char + 128));
@@ -292,7 +298,7 @@ static bool DecodeTextSegment(BitSource& bits, std::string& result)
 				if (cValue < 3) {
 					shift = cValue + 1;
 				}
-				else if (cValue < Length(TEXT_BASIC_SET_CHARS)) {
+				else if (cValue < Size(TEXT_BASIC_SET_CHARS)) {
 					char textChar = TEXT_BASIC_SET_CHARS[cValue];
 					if (upperShift) {
 						result.push_back((char)(textChar + 128));
@@ -318,7 +324,7 @@ static bool DecodeTextSegment(BitSource& bits, std::string& result)
 				break;
 			case 2:
 				// Shift 2 for Text is the same encoding as C40
-				if (cValue < Length(TEXT_SHIFT2_SET_CHARS)) {
+				if (cValue < Size(TEXT_SHIFT2_SET_CHARS)) {
 					char textChar = TEXT_SHIFT2_SET_CHARS[cValue];
 					if (upperShift) {
 						result.push_back((char)(textChar + 128));
@@ -340,7 +346,7 @@ static bool DecodeTextSegment(BitSource& bits, std::string& result)
 				shift = 0;
 				break;
 			case 3:
-				if (cValue < Length(TEXT_SHIFT3_SET_CHARS)) {
+				if (cValue < Size(TEXT_SHIFT3_SET_CHARS)) {
 					char textChar = TEXT_SHIFT3_SET_CHARS[cValue];
 					if (upperShift) {
 						result.push_back((char)(textChar + 128));
@@ -486,7 +492,7 @@ static bool DecodeBase256Segment(BitSource& bits, std::string& result, std::list
 	byteSegments.push_back(bytes);
 
 	// bytes is in ISO-8859-1
-	result.append(bytes.charPtr(), bytes.size());
+	result.append(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 	return true;
 }
 
@@ -541,19 +547,6 @@ DecoderResult Decode(ByteArray&& bytes)
 
 } // namespace DecodedBitStreamParser
 
-//public DecoderResult decode(boolean[][] image) throws FormatException, ChecksumException{
-//	int dimension = image.length;
-//BitMatrix bits = new BitMatrix(dimension);
-//for (int i = 0; i < dimension; i++) {
-//	for (int j = 0; j < dimension; j++) {
-//		if (image[i][j]) {
-//			bits.set(j, i);
-//		}
-//	}
-//}
-//return decode(bits);
-//}
-
 /**
 * <p>Given data and error-correction codewords received, possibly corrupted by errors, attempts to
 * correct the errors in-place using Reed-Solomon error correction.</p>
@@ -567,8 +560,8 @@ CorrectErrors(ByteArray& codewordBytes, int numDataCodewords)
 {
 	// First read into an array of ints
 	std::vector<int> codewordsInts(codewordBytes.begin(), codewordBytes.end());
-	int numECCodewords = codewordBytes.length() - numDataCodewords;
-	if (!ReedSolomonDecoder::Decode(GenericGF::DataMatrixField256(), codewordsInts, numECCodewords))
+	int numECCodewords = Size(codewordBytes) - numDataCodewords;
+	if (!ReedSolomonDecode(GenericGF::DataMatrixField256(), codewordsInts, numECCodewords))
 		return false;
 
 	// Copy back into array of bytes -- only need to worry about the bytes that were data
@@ -578,37 +571,33 @@ CorrectErrors(ByteArray& codewordBytes, int numDataCodewords)
 	return true;
 }
 
-DecoderResult Decoder::Decode(const BitMatrix& bits)
+DecoderResult Decode(const BitMatrix& bits)
 {
 	// Construct a parser and read version, error-correction level
-	const Version* version = BitMatrixParser::ReadVersion(bits);
+	const Version* version = VersionForDimensionsOf(bits);
 	if (version == nullptr) {
 		return DecodeStatus::FormatError;
 	}
 
 	// Read codewords
-	ByteArray codewords = BitMatrixParser::ReadCodewords(bits);
+	ByteArray codewords = CodewordsFromBitMatrix(bits);
 	if (codewords.empty())
 		return DecodeStatus::FormatError;
 
 	// Separate into data blocks
-	std::vector<DataBlock> dataBlocks = DataBlock::GetDataBlocks(codewords, *version);
+	std::vector<DataBlock> dataBlocks = GetDataBlocks(codewords, *version);
 	if (dataBlocks.empty())
 		return DecodeStatus::FormatError;
 
 	// Count total number of data bytes
-	int totalBytes = 0;
-	for (const DataBlock& db : dataBlocks) {
-		totalBytes += db.numDataCodewords();
-	}
-	ByteArray resultBytes(totalBytes);
+	ByteArray resultBytes(TransformReduce(dataBlocks, 0, [](const auto& db) { return db.numDataCodewords; }));
 
 	// Error-correct and copy data blocks together into a stream of bytes
-	int dataBlocksCount = static_cast<int>(dataBlocks.size());
+	const int dataBlocksCount = Size(dataBlocks);
 	for (int j = 0; j < dataBlocksCount; j++) {
 		auto& dataBlock = dataBlocks[j];
-		ByteArray& codewordBytes = dataBlock.codewords();
-		int numDataCodewords = dataBlock.numDataCodewords();
+		ByteArray& codewordBytes = dataBlock.codewords;
+		int numDataCodewords = dataBlock.numDataCodewords;
 		if (!CorrectErrors(codewordBytes, numDataCodewords))
 			return DecodeStatus::ChecksumError;
 
@@ -622,5 +611,4 @@ DecoderResult Decoder::Decode(const BitMatrix& bits)
 	return DecodedBitStreamParser::Decode(std::move(resultBytes));
 }
 
-} // DataMatrix
-} // ZXing
+} // namespace ZXing::DataMatrix

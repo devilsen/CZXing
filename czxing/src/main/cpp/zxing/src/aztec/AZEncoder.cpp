@@ -15,26 +15,26 @@
 * limitations under the License.
 */
 
-#include "aztec/AZEncoder.h"
-#include "aztec/AZHighLevelEncoder.h"
+#include "AZEncoder.h"
+
+#include "AZHighLevelEncoder.h"
 #include "BitArray.h"
-#include "ReedSolomonEncoder.h"
 #include "GenericGF.h"
+#include "ReedSolomonEncoder.h"
 #include "ZXStrConvWorkaround.h"
 #include "ZXTestSupport.h"
 
 #include <cstdlib>
+#include <stdexcept>
+#include <vector>
 
-namespace ZXing {
-namespace Aztec {
+namespace ZXing::Aztec {
 
 static const int MAX_NB_BITS = 32;
 static const int MAX_NB_BITS_COMPACT = 4;
 
-static const int WORD_SIZE[] = {
-	4, 6, 6, 8, 8, 8, 8, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
-	12, 12, 12, 12, 12, 12, 12, 12, 12, 12
-};
+static const int WORD_SIZE[] = {4,  6,  6,  8,  8,  8,  8,  8,  8,  10, 10, 10, 10, 10, 10, 10, 10,
+								10, 10, 10, 10, 10, 10, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12};
 
 static void DrawBullsEye(BitMatrix& matrix, int center, int size)
 {
@@ -54,54 +54,28 @@ static void DrawBullsEye(BitMatrix& matrix, int center, int size)
 	matrix.set(center + size, center + size - 1);
 }
 
-
 static const GenericGF& GetGFFromWordSize(int wordSize)
 {
 	switch (wordSize) {
-	case 4:
-		return GenericGF::AztecParam();
-	case 6:
-		return GenericGF::AztecData6();
-	case 8:
-		return GenericGF::AztecData8();
-	case 10:
-		return GenericGF::AztecData10();
-	case 12:
-		return GenericGF::AztecData12();
-	default:
-		throw std::invalid_argument("Unsupported word size " + std::to_string(wordSize));
+	case 4:  return GenericGF::AztecParam();
+	case 6:  return GenericGF::AztecData6();
+	case 8:  return GenericGF::AztecData8();
+	case 10: return GenericGF::AztecData10();
+	case 12: return GenericGF::AztecData12();
+	default: throw std::invalid_argument("Unsupported word size " + std::to_string(wordSize));
 	}
-}
-
-static std::vector<int> BitsToWords(const BitArray& stuffedBits, int wordSize, int totalWords)
-{
-	std::vector<int> message(totalWords, 0);
-	int i;
-	int n;
-	for (i = 0, n = stuffedBits.size() / wordSize; i < n; i++) {
-		int value = 0;
-		for (int j = 0; j < wordSize; j++) {
-			value |= stuffedBits.get(i * wordSize + j) ? (1 << (wordSize - j - 1)) : 0;
-		}
-		message[i] = value;
-	}
-	return message;
 }
 
 static void GenerateCheckWords(const BitArray& bitArray, int totalBits, int wordSize, BitArray& messageBits)
 {
 	// bitArray is guaranteed to be a multiple of the wordSize, so no padding needed
-	int messageSizeInWords = bitArray.size() / wordSize;
-	ReedSolomonEncoder rs(GetGFFromWordSize(wordSize));
-	int totalWords = totalBits / wordSize;
-	std::vector<int> messageWords = BitsToWords(bitArray, wordSize, totalWords);
-	rs.encode(messageWords, totalWords - messageSizeInWords);
+	std::vector<int> messageWords = ToInts(bitArray, wordSize, totalBits / wordSize);
+	ReedSolomonEncode(GetGFFromWordSize(wordSize), messageWords, (totalBits - bitArray.size()) / wordSize);
 	int startPad = totalBits % wordSize;
 	messageBits = BitArray();
 	messageBits.appendBits(0, startPad);
-	for (int messageWord : messageWords) {
+	for (int messageWord : messageWords)
 		messageBits.appendBits(messageWord, wordSize);
-	}
 }
 
 ZXING_EXPORT_TEST_ONLY
@@ -278,9 +252,7 @@ Encoder::Encode(const std::string& data, int minECCPercent, int userSpecifiedLay
 	if (compact) {
 		// no alignment marks in compact mode, alignmentMap is a no-op
 		matrixSize = baseMatrixSize;
-		for (int i = 0; i < (int)alignmentMap.size(); i++) {
-			alignmentMap[i] = i;
-		}
+		std::iota(alignmentMap.begin(), alignmentMap.end(), 0);
 	}
 	else {
 		matrixSize = baseMatrixSize + 1 + 2 * ((baseMatrixSize / 2 - 1) / 15);
@@ -341,5 +313,4 @@ Encoder::Encode(const std::string& data, int minECCPercent, int userSpecifiedLay
 	return output;
 }
 
-} // Aztec
-} // ZXing
+} // namespace ZXing::Aztec

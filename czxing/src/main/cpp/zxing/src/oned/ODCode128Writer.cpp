@@ -15,15 +15,17 @@
 * limitations under the License.
 */
 
-#include "oned/ODCode128Writer.h"
-#include "oned/ODWriterHelper.h"
-#include "oned/ODCode128Patterns.h"
+#include "ODCode128Writer.h"
+
+#include "ODCode128Patterns.h"
+#include "ODWriterHelper.h"
 
 #include <list>
 #include <numeric>
+#include <stdexcept>
+#include <vector>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
 static const int CODE_START_A = 103;
 static const int CODE_START_B = 104;
@@ -55,7 +57,7 @@ enum class CType {
 
 static CType FindCType(const std::wstring& value, int start)
 {
-	int last = static_cast<int>(value.length());
+	int last = Size(value);
 	if (start >= last) {
 		return CType::UNCODABLE;
 	}
@@ -86,7 +88,7 @@ static int ChooseCode(const std::wstring& value, int start, int oldCode)
 		return CODE_CODE_B;
 	}
 	if (lookahead == CType::UNCODABLE) {
-		if (start < (int)value.length()) {
+		if (start < Size(value)) {
 			int c = value[start];
 			if (c < ' ' || (oldCode == CODE_CODE_A && (c < '`' || (c >= ESCAPE_FNC_1 && c <= ESCAPE_FNC_4)))) {
 				// can continue in code A, encodes ASCII 0 to 95 or FNC1 to FNC4
@@ -144,7 +146,7 @@ BitMatrix
 Code128Writer::encode(const std::wstring& contents, int width, int height) const
 {
 	// Check length
-	int length = static_cast<int>(contents.length());
+	int length = Size(contents);
 	if (length < 1 || length > 80) {
 		throw std::invalid_argument("Contents length should be between 1 and 80 characters");
 	}
@@ -166,7 +168,7 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 		}
 	}
 
-	std::list<std::vector<int>> patterns; // temporary storage for patterns
+	std::list<std::array<int, 6>> patterns; // temporary storage for patterns
 	int checkSum = 0;
 	int checkWeight = 1;
 	int codeSet = 0; // selected code (CODE_CODE_B or CODE_CODE_C)
@@ -259,20 +261,23 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 	patterns.push_back(Code128::CODE_PATTERNS[CODE_STOP]);
 
 	// Compute code width
-	int codeWidth = 0;
-	for (const std::vector<int>& pattern : patterns) {
-		codeWidth += std::accumulate(pattern.begin(), pattern.end(), 0);
+	int codeWidth = 2; // termination bar
+	for (const auto& pattern : patterns) {
+		codeWidth += Reduce(pattern);
 	}
 
 	// Compute result
 	std::vector<bool> result(codeWidth, false);
 	int pos = 0;
-	for (const std::vector<int>& pattern : patterns) {
+	for (const auto& pattern : patterns) {
 		pos += WriterHelper::AppendPattern(result, pos, pattern, true);
 	}
+
+	// Append termination bar
+	result[pos++] = true;
+	result[pos++] = true;
 
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
 }
 
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

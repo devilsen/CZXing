@@ -16,50 +16,58 @@
 */
 
 #include <algorithm>
-#include <initializer_list>
-#include <numeric>
 #include <cstring>
+#include <initializer_list>
+#include <iterator>
+#include <numeric>
+#include <string>
 
 namespace ZXing {
 
 template <typename Container, typename Value>
-auto Find(const Container& c, const Value& v) -> decltype(std::begin(c)) {
-    return std::find(std::begin(c), std::end(c), v);
+auto Find(Container& c, const Value& v) -> decltype(std::begin(c)) {
+	return std::find(std::begin(c), std::end(c), v);
 }
 
 template <typename Container, typename Predicate>
 auto FindIf(Container& c, Predicate p) -> decltype(std::begin(c)) {
-    return std::find_if(std::begin(c), std::end(c), p);
+	return std::find_if(std::begin(c), std::end(c), p);
 }
 
 template <typename Container, typename Value>
 auto Contains(const Container& c, const Value& v) -> decltype(std::begin(c), bool()){
-    return std::find(std::begin(c), std::end(c), v) != std::end(c);
+	return Find(c, v) != std::end(c);
 }
 
 template <typename ListType, typename Value>
 auto Contains(const std::initializer_list<ListType>& c, const Value& v) -> decltype(std::begin(c), bool()){
-    return std::find(std::begin(c), std::end(c), v) != std::end(c);
+	return Find(c, v) != std::end(c);
 }
 
 inline bool Contains(const char* str, char c) {
 	return strchr(str, c) != nullptr;
 }
 
-template <typename Container, typename Value>
-Value Accumulate(const Container& c, Value v = Value(0)) {
-    return std::accumulate(std::begin(c), std::end(c), v);
+template <typename Container, typename Value = typename Container::value_type, typename Op = std::plus<Value>>
+Value Reduce(const Container& c, Value v = Value{}, Op op = {}) {
+	return std::accumulate(std::begin(c), std::end(c), v, op);
 }
 
-template <typename T, typename S = int>
-constexpr S Length(const T&) {
-	return static_cast<S>(std::extent<T>::value);
+// see C++20 ssize
+template <class Container>
+constexpr auto Size(const Container& c) -> decltype(c.size(), int()) {
+	return static_cast<int>(c.size());
+}
+
+template <class T, std::size_t N>
+constexpr int Size(const T (&)[N]) noexcept {
+	return static_cast<int>(N);
 }
 
 template <typename Container, typename Value>
 int IndexOf(const Container& c, const Value& v) {
 	auto i = Find(c, v);
-	return i == std::end(c) ? -1 : static_cast<int>(i - std::begin(c));
+	return i == std::end(c) ? -1 : static_cast<int>(std::distance(std::begin(c), i));
 }
 
 inline int IndexOf(const char* str, char c) {

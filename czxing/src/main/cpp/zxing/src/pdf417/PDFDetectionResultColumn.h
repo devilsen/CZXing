@@ -16,11 +16,11 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFBoundingBox.h"
-#include "pdf417/PDFCodeword.h"
+#include "PDFBoundingBox.h"
+#include "PDFCodeword.h"
 #include "ZXNullable.h"
+
 #include <vector>
-#include <memory>
 
 namespace ZXing {
 namespace Pdf417 {

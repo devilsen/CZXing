@@ -15,19 +15,21 @@
 * limitations under the License.
 */
 
-#include "oned/ODCode39Writer.h"
-#include "oned/ODWriterHelper.h"
-#include "ZXContainerAlgorithms.h"
-#include "TextEncoder.h"
+#include "ODCode39Writer.h"
+
 #include "CharacterSet.h"
+#include "ODWriterHelper.h"
+#include "TextEncoder.h"
+#include "ZXContainerAlgorithms.h"
 #include "ZXStrConvWorkaround.h"
 
 #include <array>
+#include <stdexcept>
+#include <vector>
 
-namespace ZXing {
-namespace OneD {
+namespace ZXing::OneD {
 
-static const char ALPHABET_STRING[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. *$/+%";
+static const char ALPHABET[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. *$/+%";
 
 /**
 * These represent the encodings of characters, as patterns of wide and narrow bars.
@@ -42,7 +44,7 @@ static const int CHARACTER_ENCODINGS[] = {
 	0x0A8, 0x0A2, 0x08A, 0x02A // $-%
 };
 
-static_assert(Length(ALPHABET_STRING) - 1 == Length(CHARACTER_ENCODINGS), "table size mismatch");
+static_assert(Size(ALPHABET) - 1 == Size(CHARACTER_ENCODINGS), "table size mismatch");
 
 static const int ASTERISK_ENCODING = CHARACTER_ENCODINGS[39];
 
@@ -142,7 +144,7 @@ Code39Writer::encode(const std::wstring& contents, int width, int height) const
 
 	std::string extendedContent;
 	for (size_t i = 0; i < length; i++) {
-		int indexInString = IndexOf(ALPHABET_STRING, contents[i]);
+		int indexInString = IndexOf(ALPHABET, contents[i]);
 		if (indexInString < 0) {
 			extendedContent = TryToConvertToExtendedMode(contents);
 			length = extendedContent.length();
@@ -167,7 +169,7 @@ Code39Writer::encode(const std::wstring& contents, int width, int height) const
 	pos += WriterHelper::AppendPattern(result, pos, narrowWhite, false);
 	//append next character to byte matrix
 	for (size_t i = 0; i < length; ++i) {
-		int indexInString = IndexOf(ALPHABET_STRING, extendedContent[i]);
+		int indexInString = IndexOf(ALPHABET, extendedContent[i]);
 		ToIntArray(CHARACTER_ENCODINGS[indexInString], widths);
 		pos += WriterHelper::AppendPattern(result, pos, widths, true);
 		pos += WriterHelper::AppendPattern(result, pos, narrowWhite, false);
@@ -177,6 +179,4 @@ Code39Writer::encode(const std::wstring& contents, int width, int height) const
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
 }
 
-
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD

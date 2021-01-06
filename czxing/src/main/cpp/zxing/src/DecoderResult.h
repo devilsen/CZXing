@@ -18,10 +18,12 @@
 
 #include "ByteArray.h"
 #include "DecodeStatus.h"
+#include "ZXContainerAlgorithms.h"
 
-#include <memory>
 #include <list>
+#include <memory>
 #include <string>
+#include <utility>
 
 namespace ZXing {
 
@@ -55,11 +57,11 @@ class DecoderResult
 public:
 	DecoderResult(DecodeStatus status) : _status(status) {}
 	DecoderResult(ByteArray&& rawBytes, std::wstring&& text) : _rawBytes(std::move(rawBytes)), _text(std::move(text)) {
-		_numBits = 8 * rawBytes.length();
+		_numBits = 8 * Size(_rawBytes);
 	}
 
 	DecoderResult() = default;
-	DecoderResult(DecoderResult&&) = default;
+	DecoderResult(DecoderResult&&) noexcept = default;
 	DecoderResult& operator=(DecoderResult&&) = default;
 
 	bool isValid() const { return StatusIsOK(_status); }

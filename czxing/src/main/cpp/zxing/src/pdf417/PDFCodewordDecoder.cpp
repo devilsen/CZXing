@@ -15,9 +15,12 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFCodewordDecoder.h"
+#include "PDFCodewordDecoder.h"
+#include "BitArray.h"
+#include "ZXContainerAlgorithms.h"
 
-#include <vector>
+#include <array>
+#include <cstdint>
 #include <numeric>
 #include <limits>
 
@@ -444,7 +447,7 @@ static const RatioTableType& GetRatioTable()
 
 static ModuleBitCountType SampleBitCounts(const ModuleBitCountType& moduleBitCount)
 {
-	float bitCountSum = static_cast<float>(std::accumulate(moduleBitCount.begin(), moduleBitCount.end(), 0));
+	float bitCountSum = static_cast<float>(Reduce(moduleBitCount));
 	ModuleBitCountType result;
 	result.fill(0);
 	int bitCountIndex = 0;
@@ -454,7 +457,7 @@ static ModuleBitCountType SampleBitCounts(const ModuleBitCountType& moduleBitCou
 		if (sumPreviousBits + moduleBitCount[bitCountIndex] <= sampleIndex) {
 			sumPreviousBits += moduleBitCount[bitCountIndex];
 			bitCountIndex++;
-			if (bitCountIndex == (int)moduleBitCount.size()) { // this check is not done in original code, so I guess this should not happen?
+			if (bitCountIndex == Size(moduleBitCount)) { // this check is not done in original code, so I guess this should not happen?
 				break;
 			}
 		}
@@ -467,11 +470,9 @@ static ModuleBitCountType SampleBitCounts(const ModuleBitCountType& moduleBitCou
 static int GetBitValue(const ModuleBitCountType& moduleBitCount)
 {
 	int result = 0;
-	for (size_t i = 0; i < moduleBitCount.size(); i++) {
-		for (int bit = 0; bit < moduleBitCount[i]; bit++) {
-			result = (result << 1) | (i % 2 == 0 ? 1 : 0);
-		}
-	}
+	for (size_t i = 0; i < moduleBitCount.size(); i++)
+		for (int bit = 0; bit < moduleBitCount[i]; bit++)
+			AppendBit(result, i % 2 == 0);
 	return result;
 }
 
@@ -485,7 +486,7 @@ static int GetClosestDecodedValue(const ModuleBitCountType& moduleBitCount)
 {
 	static const RatioTableType& ratioTable = GetRatioTable();
 
-	int bitCountSum = std::accumulate(moduleBitCount.begin(), moduleBitCount.end(), 0);
+	int bitCountSum = Reduce(moduleBitCount);
 	std::array<float, CodewordDecoder::BARS_IN_MODULE> bitCountRatios = {};
 	if (bitCountSum > 1) {
 		for (int i = 0; i < CodewordDecoder::BARS_IN_MODULE; i++) {

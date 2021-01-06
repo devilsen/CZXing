@@ -15,16 +15,15 @@
 * limitations under the License.
 */
 
-#include "oned/rss/ODRSSFieldParser.h"
+#include "ODRSSFieldParser.h"
+
 #include "DecodeStatus.h"
 #include "ZXContainerAlgorithms.h"
 
-#include <cstdlib>
 #include <algorithm>
+#include <cstdlib>
 
-namespace ZXing {
-namespace OneD {
-namespace RSS {
+namespace ZXing::OneD::DataBar {
 
 	//private static final Object VARIABLE_LENGTH = new Object();
 
@@ -184,7 +183,7 @@ AiSize(const char* aiPrefix)
 
 
 DecodeStatus
-FieldParser::ParseFieldsInGeneralPurpose(const std::string &rawInfo, std::string& result)
+ParseFieldsInGeneralPurpose(const std::string &rawInfo, std::string& result)
 {
 	if (rawInfo.empty()) {
 		return DecodeStatus::NoError;
@@ -211,12 +210,9 @@ FieldParser::ParseFieldsInGeneralPurpose(const std::string &rawInfo, std::string
 	auto field = rawInfo.substr(aiSize, fieldSize);
 	auto remaining = rawInfo.substr(aiSize + fieldSize);
 	std::string parsedRemaining;
-	auto status = FieldParser::ParseFieldsInGeneralPurpose(remaining, parsedRemaining);
+	auto status = ParseFieldsInGeneralPurpose(remaining, parsedRemaining);
 	result = '(' + ai + ')' + field + parsedRemaining;
 	return status;
 }
 
-
-} // RSS
-} // OneD
-} // ZXing
+} // namespace ZXing::OneD::RSS

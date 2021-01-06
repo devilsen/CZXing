@@ -16,11 +16,12 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFEncoder.h"
-#include "pdf417/PDFHighLevelEncoder.h"
+#include "PDFEncoder.h"
+#include "PDFHighLevelEncoder.h"
 #include <array>
 #include <cmath>
 #include <vector>
+#include <stdexcept>
 
 namespace ZXing {
 namespace Pdf417 {
@@ -308,7 +309,7 @@ static const short* EC_COEFFICIENTS[] = {EC_COEFFICIENTS_L0, EC_COEFFICIENTS_L1,
 * @param errorCorrectionLevel the error correction level (0-8)
 * @return the number of codewords generated for error correction
 */
-static inline int GetErrorCorrectionCodewordCount(int errorCorrectionLevel)
+static int GetErrorCorrectionCodewordCount(int errorCorrectionLevel)
 {
 	return 1 << (errorCorrectionLevel + 1);
 }
@@ -324,7 +325,7 @@ static void GenerateErrorCorrection(std::vector<int>& dataCodewords, int errorCo
 {
 	int k = GetErrorCorrectionCodewordCount(errorCorrectionLevel);
 	std::vector<int> e(k, 0);
-	int sld = (int)dataCodewords.size();
+	int sld = Size(dataCodewords);
 	for (int i = 0; i < sld; i++) {
 		int t1 = (dataCodewords[i] + e[k - 1]) % 929;
 		int t2;
@@ -495,7 +496,6 @@ static void DetermineDimensions(int minCols, int maxCols, int minRows, int maxRo
 		if (rows < minRows) {
 			outCols = minCols;
 			outRows = minRows;
-			haveDimension = true;
 		}
 		else {
 			throw std::invalid_argument("Unable to fit message in columns");
@@ -520,7 +520,7 @@ Encoder::generateBarcodeLogic(const std::wstring& msg, int errorCorrectionLevel)
 	int errorCorrectionCodeWords = GetErrorCorrectionCodewordCount(errorCorrectionLevel);
 	std::vector<int> highLevel = HighLevelEncoder::EncodeHighLevel(msg, _compaction, _encoding);
 	
-	int sourceCodeWords = static_cast<int>(highLevel.size());
+	int sourceCodeWords = Size(highLevel);
 
 	int cols, rows;
 	DetermineDimensions(_minCols, _maxCols, _minRows, _maxRows, sourceCodeWords, errorCorrectionCodeWords, cols, rows);

@@ -15,10 +15,11 @@
 * limitations under the License.
 */
 
-#include "pdf417/PDFModulusPoly.h"
-#include "pdf417/PDFModulusGF.h"
+#include "PDFModulusPoly.h"
+#include "PDFModulusGF.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace ZXing {
 namespace Pdf417 {
