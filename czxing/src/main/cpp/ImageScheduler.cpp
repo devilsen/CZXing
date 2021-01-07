@@ -84,12 +84,15 @@ ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
     saveMat(src, "src");
 
     cv::Mat gray;
-    cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
+    cvtColor(src, gray, cv::COLOR_RGBA2YUV_I420);
     saveMat(gray, "gray");
 
     // TODO test
-//    auto binImage = BinaryBitmapFromJavaBitmap(env, bitmap, 0, 0, gray.cols, gray.rows);
-//    ZXing::Result result = reader->read(*binImage);
+//    ZXing::DecodeHints hints;
+//    hints.setFormats(ZXing::BarcodeFormat::QRCode);
+//
+//    ZXing::ImageView imageView(gray.data, gray.cols, gray.rows, ZXing::ImageFormat::Lum);
+//    ZXing::Result result = ZXing::ReadBarcode(imageView, hints);
 //    if (result.isValid()) {
 //        LOGE("zxing decode success, result data = %s", result.text().c_str())
 //    }
@@ -228,7 +231,7 @@ ZXing::Result ImageScheduler::zxingDecode(const cv::Mat &mat, int dataType) {
     ZXing::DecodeHints hints;
     hints.setFormats(ZXing::BarcodeFormat::QRCode);
 
-    ZXing::ImageView imageView(mat.data, mat.cols, mat.rows, ZXing::ImageFormat::RGB);
+    ZXing::ImageView imageView(mat.data, mat.cols, mat.rows, ZXing::ImageFormat::Lum);
     ZXing::Result result = ZXing::ReadBarcode(imageView, hints);
     if (result.isValid()) {
         LOGE("zxing decode success, result data = %s", result.text().c_str())
