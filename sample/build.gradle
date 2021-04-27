@@ -59,7 +59,7 @@ dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 //    implementation project(':czxing')
-    implementation 'me.devilsen:czxing:1.0.17'
+    implementation 'io.github.devilsen:czxing:1.1.0'
 
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner

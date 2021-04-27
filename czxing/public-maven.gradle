@@ -1,0 +1,117 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+// load properties
+Properties properties = new Properties()
+File projectPropertiesFile = project.file("project.properties");
+if (projectPropertiesFile.exists()) {
+    properties.load(projectPropertiesFile.newDataInputStream())
+}
+
+// read properties
+def projectName = properties.getProperty("project.name")
+def projectGroupId = properties.getProperty("project.groupId")
+def projectArtifactId = properties.getProperty("project.artifactId")
+def projectVersionName = android.defaultConfig.versionName
+def projectPackaging = properties.getProperty("project.packaging")
+def projectSiteUrl = properties.getProperty("project.siteUrl")
+def projectGitUrl = properties.getProperty("project.gitUrl")
+
+def developerId = properties.getProperty("developer.id")
+def developerName = properties.getProperty("developer.name")
+def developerEmail = properties.getProperty("developer.email")
+
+def signingKeyId = properties.getProperty("signing.keyId")
+def signingPassword = properties.getProperty("signing.password")
+def signingSecretKeyRingFile = properties.getProperty("signing.secretKeyRingFile")
+
+def ossrhUsername = properties.getProperty("ossrh.username")
+def ossrhPassword = properties.getProperty("ossrh.password")
+
+def javadocName = properties.getProperty("javadoc.name")
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.source
+
+    exclude "**/R.class"
+    exclude "**/BuildConfig.class"
+}
+
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId projectGroupId
+                artifactId projectArtifactId
+                version projectVersionName
+
+                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+
+                pom {
+                    name = projectArtifactId
+                    description = 'zxing for android'
+                    url = 'https://github.com/devilsen/CZXing'
+                    licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = developerId
+                            name = developerName
+                            email = developerEmail
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:github.com/devilsen/CZXing.git'
+                        developerConnection = 'scm:git:ssh://github.com/devilsen/CZXing.git'
+                        url = 'https://github.com/devilsen/CZXing/tree/master'
+                    }
+                    // A slightly hacky fix so that your POM will include any transitive dependencies
+                    // that your library builds upon
+                    withXml {
+                        def dependenciesNode = asNode().appendNode('dependencies')
+
+                        project.configurations.implementation.allDependencies.each {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            // The repository to publish to, Sonatype/MavenCentral
+            maven {
+                // This is an arbitrary name, you may also use "mavencentral" or
+                // any other name that's descriptive for you
+                name = "mavencentral"
+
+                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
+                // You only need this if you want to publish snapshots, otherwise just set the URL
+                // to the release repo directly
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+                // The username and password we've fetched earlier
+                credentials {
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+        }
+    }
+
+ext["signing.keyId"] = signingKeyId
+ext["signing.password"] = signingPassword
+ext["signing.secretKeyRingFile"] = signingSecretKeyRingFile
+ext["ossrhUsername"] = ossrhUsername
+ext["ossrhPassword"] = ossrhPassword
+
+signing {
+    sign publishing.publications
+}

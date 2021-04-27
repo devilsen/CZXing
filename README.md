@@ -11,8 +11,8 @@ C++ port of ZXing for Android
 ### 使用
 在gradle中:
 ``` groovy
-// 改为小写了，这样显得更整齐一些
-implementation 'me.devilsen:czxing:1.0.17'
+// 迁移至 Maven Central
+implementation 'io.github.devilsen:czxing:1.1.0'
 ```
 建议加入abiFilters
 ```gradle
@@ -28,7 +28,7 @@ defaultConfig {
 ```
 如果下载失败，可以在根目录加入阿里云的镜像
 ```gradle
-maven { url 'https://maven.aliyun.com/repository/jcenter' }
+maven { url 'https://maven.aliyun.com/repository/central' }
 ```
 
 #### 1. 直接使用
