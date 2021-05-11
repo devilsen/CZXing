@@ -33,6 +33,12 @@ public class BarcodeReader {
         _nativePtr = NativeSdk.getInstance().createInstance(getNativeFormats(formats));
     }
 
+    public void setDetectModel(String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath) {
+        NativeSdk.getInstance().setDetectModel(_nativePtr,
+                detectorPrototxtPath, detectorCaffeModelPath,
+                superResolutionPrototxtPath, superResolutionCaffeModelPath);
+    }
+
     public void setBarcodeFormat(BarcodeFormat... formats) {
         NativeSdk.getInstance().setFormat(_nativePtr, getNativeFormats(formats));
     }

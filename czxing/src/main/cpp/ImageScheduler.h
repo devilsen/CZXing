@@ -33,13 +33,19 @@ public:
 
     void setFormat(JNIEnv *env, jintArray formats);
 
+    void setWeChatDetect(const char* detectorPrototxtPath, const char* detectorCaffeModelPath,
+                         const char* superResolutionPrototxtPath, const char* superResolutionCaffeModelPath);
+
 private:
     ZXing::MultiFormatReader *reader;
     zbar::ImageScanner *zbarScanner;
+    cv::wechat_qrcode::WeChatQRCode *m_weChatQrCode;
     double m_CameraLight;
     unsigned int m_FileIndex;
 
     ZXing::Result startRead(const cv::Mat &gray, int dataType);
+
+    ZXing::Result decodeWeChat(const cv::Mat &gray, int dataType);
 
     ZXing::Result decodeZBar(const cv::Mat &gray, int dataType);
 

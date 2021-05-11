@@ -18,6 +18,7 @@ import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
+import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
@@ -109,6 +110,13 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         }
         scanBox.setScanNoticeText(option.getScanNoticeText());
         BarcodeReader.getInstance().enableCVDetect(option.enableOpenCVDetect);
+
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
+                superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
         // 标题栏
         String title = option.getTitle();

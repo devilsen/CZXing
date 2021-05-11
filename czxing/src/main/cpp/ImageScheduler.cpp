@@ -3,6 +3,7 @@
 //
 
 #include <src/ReadBarcode.h>
+#include <opencv2/wechat_qrcode.hpp>
 #include "ImageScheduler.h"
 
 #define DEFAULT_MIN_LIGHT 30
@@ -30,6 +31,16 @@ ImageScheduler::ImageScheduler(const ZXing::DecodeHints &hints) {
 ImageScheduler::~ImageScheduler() {
     DELETE(reader)
     DELETE(zbarScanner)
+    DELETE(m_weChatQrCode)
+}
+
+void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
+                                     const char* detectorCaffeModelPath,
+                                     const char* superResolutionPrototxtPath,
+                                     const char* superResolutionCaffeModelPath) {
+    m_weChatQrCode = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath, detectorCaffeModelPath,
+                                                         superResolutionPrototxtPath,
+                                                         superResolutionCaffeModelPath);
 }
 
 ZXing::Result
@@ -120,8 +131,27 @@ ZXing::Result ImageScheduler::startRead(const cv::Mat &gray, int dataType) {
         return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
 
-//    return decodeZBar(gray, dataType);
-    return decodeThresholdPixels(gray, dataType);
+    return decodeWeChat(gray, dataType);
+//    return decodeThresholdPixels(gray, dataType);
+}
+
+ZXing::Result ImageScheduler::decodeWeChat(const cv::Mat& gray, int dataType) {
+    if (!m_weChatQrCode) {
+        LOGE("set the model path first.")
+        return ZXing::Result(ZXing::DecodeStatus::NotFound);
+    }
+
+    std::vector<cv::Mat> points;
+    auto res = m_weChatQrCode->detectAndDecode(gray, points);
+    if (res.empty()) {
+        return ZXing::Result(ZXing::DecodeStatus::NotFound);
+    }
+
+    ZXing::Result result(ZXing::DecodeStatus::NoError);
+    result.setFormat(ZXing::BarcodeFormat::QRCode);
+    result.setText(ANSIToUnicode(res[0]));
+//    result.setPosition(points);
+    return result;
 }
 
 /**
@@ -297,3 +327,4 @@ void ImageScheduler::saveIncreaseMat(const cv::Mat &mat) {
     saveMat(mat, fileName);
     m_FileIndex++;
 }
+
