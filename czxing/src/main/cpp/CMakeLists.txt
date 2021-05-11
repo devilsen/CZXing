@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} -std=c++11 -pthread")
+#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 file(GLOB SOURCE ${CMAKE_SOURCE_DIR}/*.cpp)
 
@@ -19,6 +20,8 @@ include_directories(include)
 # 静态方式导入库
 #add_library(opencv_core STATIC IMPORTED)
 #add_library(opencv_imgproc STATIC IMPORTED)
+#add_library(opencv_dnn STATIC IMPORTED)
+#add_library(opencv_wechat_qrcode STATIC IMPORTED)
 #
 #add_library(cpufeatures STATIC IMPORTED)
 #add_library(tbb STATIC IMPORTED)
@@ -27,6 +30,8 @@ include_directories(include)
 ## 设置库路径
 #set_target_properties(opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_core.a)
 #set_target_properties(opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_imgproc.a)
+#set_target_properties(opencv_dnn PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_dnn.a)
+#set_target_properties(opencv_wechat_qrcode PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_wechat_qrcode.a)
 #
 #set_target_properties(cpufeatures PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libcpufeatures.a)
 #set_target_properties(tbb PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtbb.a)
@@ -54,10 +59,11 @@ target_link_libraries(
 
 #        opencv_imgproc
 #        opencv_core
+#        opencv_dnn
+#        opencv_wechat_qrcode
 #        cpufeatures
 #        tbb
 #        tegra_hal
-
         opencv_java4
 
         jnigraphics

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/wechat_qrcode.hpp>
 #include <src/MultiFormatReader.h>
 #include <src/BinaryBitmap.h>
 #include <src/DecodeHints.h>

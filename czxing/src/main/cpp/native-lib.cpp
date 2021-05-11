@@ -41,7 +41,7 @@ Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject insta
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_setDetectModel(JNIEnv* env, jobject thiz, jlong obj_ptr,
+Java_me_devilsen_czxing_code_NativeSdk_setDetectModel(JNIEnv* env, jobject thiz, jlong objPtr,
                                                       jstring detector_prototxt_path,
                                                       jstring detector_caffe_model_path,
                                                       jstring super_resolution_prototxt_path,
@@ -53,7 +53,7 @@ Java_me_devilsen_czxing_code_NativeSdk_setDetectModel(JNIEnv* env, jobject thiz,
     const char *superResolutionCaffeModelPath = env->GetStringUTFChars(super_resolution_caffe_model_path, 0);
 
     auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-    imageScheduler.setWeChatDetect(detectorPrototxtPath, detectorCaffeModelPath,
+    imageScheduler->setWeChatDetect(detectorPrototxtPath, detectorCaffeModelPath,
                                    superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
     env->ReleaseStringUTFChars(detector_prototxt_path, detectorPrototxtPath);

@@ -314,12 +314,12 @@ void ImageScheduler::saveMat(const cv::Mat &mat, const std::string &fileName) {
             "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/" + fileName +
             ".jpg";
 //    cv::Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
-    bool saveResult = imwrite(filePath, mat);
-    if (saveResult) {
-        LOGE("save result success filePath = %s", filePath.c_str())
-    } else {
-        LOGE("save result fail")
-    }
+//    bool saveResult = imwrite(filePath, mat);
+//    if (saveResult) {
+//        LOGE("save result success filePath = %s", filePath.c_str())
+//    } else {
+//        LOGE("save result fail")
+//    }
 }
 
 void ImageScheduler::saveIncreaseMat(const cv::Mat &mat) {

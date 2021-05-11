@@ -4,8 +4,8 @@ project.ext {
     applicationId = "me.devilsen.czxing"
     compileSdkVersion = 30
     buildToolsVersion = "30.0.2"
-    ndkVersion = "20.0.5594570"
-    minSdkVersion = 16
+    ndkVersion = "22.0.6917172"
+    minSdkVersion = 21
     targetSdkVersion = 30
     abortOnLintError = false
     checkLintRelease = false
