@@ -38,9 +38,14 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                      const char* detectorCaffeModelPath,
                                      const char* superResolutionPrototxtPath,
                                      const char* superResolutionCaffeModelPath) {
-    m_weChatQrCode = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath, detectorCaffeModelPath,
-                                                         superResolutionPrototxtPath,
-                                                         superResolutionCaffeModelPath);
+    try {
+        m_weChatQrCode = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath, detectorCaffeModelPath,
+                                                             superResolutionPrototxtPath,
+                                                             superResolutionCaffeModelPath);
+
+    } catch (const std::exception& e) {
+        LOGE("wechat_qrcode init exception = %s", e.what())
+    }
 }
 
 ZXing::Result
@@ -109,7 +114,8 @@ ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
 //    }
 //    return result;
 
-    return startRead(gray, DATA_TYPE_BITMAP);
+    return decodeWeChat(src, DATA_TYPE_BITMAP);
+//    return startRead(gray, DATA_TYPE_BITMAP);
 }
 
 void ImageScheduler::setFormat(JNIEnv *env, jintArray formats_) {
@@ -140,12 +146,14 @@ ZXing::Result ImageScheduler::decodeWeChat(const cv::Mat& gray, int dataType) {
         LOGE("set the model path first.")
         return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
-
+    LOGE("start wechat decode")
     std::vector<cv::Mat> points;
     auto res = m_weChatQrCode->detectAndDecode(gray, points);
     if (res.empty()) {
+        LOGE("wechat decode fail")
         return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
+    LOGE("Yes! wechat get the result")
 
     ZXing::Result result(ZXing::DecodeStatus::NoError);
     result.setFormat(ZXing::BarcodeFormat::QRCode);
@@ -313,13 +321,13 @@ void ImageScheduler::saveMat(const cv::Mat &mat, const std::string &fileName) {
     std::string filePath =
             "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/" + fileName +
             ".jpg";
-//    cv::Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
-//    bool saveResult = imwrite(filePath, mat);
-//    if (saveResult) {
-//        LOGE("save result success filePath = %s", filePath.c_str())
-//    } else {
-//        LOGE("save result fail")
-//    }
+    cv::Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
+    bool saveResult = imwrite(filePath, mat);
+    if (saveResult) {
+        LOGE("save result success filePath = %s", filePath.c_str())
+    } else {
+        LOGE("save result fail")
+    }
 }
 
 void ImageScheduler::saveIncreaseMat(const cv::Mat &mat) {

@@ -29,6 +29,7 @@ import me.devilsen.czxing.Scanner;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
@@ -47,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         resultTxt = findViewById(R.id.text_view_result);
         requestPermission();
+
+        AssetUtil.copyAssetsToCacheAssets(this);
     }
 
     public void scan(View view) {

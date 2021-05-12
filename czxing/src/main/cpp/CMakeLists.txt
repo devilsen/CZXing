@@ -21,7 +21,7 @@ include_directories(include)
 #add_library(opencv_core STATIC IMPORTED)
 #add_library(opencv_imgproc STATIC IMPORTED)
 #add_library(opencv_dnn STATIC IMPORTED)
-#add_library(opencv_wechat_qrcode STATIC IMPORTED)
+add_library(opencv_wechat_qrcode STATIC IMPORTED)
 #
 #add_library(cpufeatures STATIC IMPORTED)
 #add_library(tbb STATIC IMPORTED)
@@ -31,7 +31,7 @@ include_directories(include)
 #set_target_properties(opencv_core PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_core.a)
 #set_target_properties(opencv_imgproc PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_imgproc.a)
 #set_target_properties(opencv_dnn PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_dnn.a)
-#set_target_properties(opencv_wechat_qrcode PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_wechat_qrcode.a)
+set_target_properties(opencv_wechat_qrcode PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/libs/${ANDROID_ABI}/libopencv_wechat_qrcode.a)
 #
 #set_target_properties(cpufeatures PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libcpufeatures.a)
 #set_target_properties(tbb PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../../../opencv/3rdparty/libs/${ANDROID_ABI}/libtbb.a)
@@ -60,7 +60,7 @@ target_link_libraries(
 #        opencv_imgproc
 #        opencv_core
 #        opencv_dnn
-#        opencv_wechat_qrcode
+        opencv_wechat_qrcode
 #        cpufeatures
 #        tbb
 #        tegra_hal
