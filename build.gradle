@@ -2,7 +2,7 @@
 //gradle lib config
 project.ext {
     applicationId = "me.devilsen.czxing"
-    compileSdkVersion = 30
+    compileSdkVersion = 29
     buildToolsVersion = "30.0.2"
     ndkVersion = "21.1.6352462"
     minSdkVersion = 21
