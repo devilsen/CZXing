@@ -67,8 +67,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void write(View view) {
-        Intent intent = new Intent(this, WriteCodeActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, WriteCodeActivity.class);
+//        startActivity(intent);
+
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
+        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
+                superResolutionPrototxtPath, superResolutionCaffeModelPath);
     }
 
     public void writeQrCode(View view) {
@@ -146,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void testDetect(View view) {
-        Intent intent = new Intent(this, DetectTestActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, DetectTestActivity.class);
+//        startActivity(intent);
     }
 
     /**

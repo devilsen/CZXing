@@ -12,10 +12,11 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++11 -frtti -fexceptions -pthread"
+//                cppFlags "-std=c++11 -frtti -fexceptions -pthread"
 //                cppFlags "-std=c++11 -pthread"
                 arguments "-DANDROID_ARM_NEON=TRUE",'-DANDROID_STL=c++_shared'
-                abiFilters "armeabi-v7a"
+//                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a","arm64-v8a"
             }
         }
     }
@@ -50,9 +51,6 @@ dependencies {
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso
-
-    implementation 'org.tensorflow:tensorflow-lite:2.2.0'
-    implementation 'org.tensorflow:tensorflow-lite-gpu:2.2.0'
 }
 
 apply from: "bintrayUpload.gradle"

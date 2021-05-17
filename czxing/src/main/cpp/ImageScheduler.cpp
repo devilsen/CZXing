@@ -38,14 +38,19 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                      const char* detectorCaffeModelPath,
                                      const char* superResolutionPrototxtPath,
                                      const char* superResolutionCaffeModelPath) {
-    try {
+//    try {
+        LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
+        LOGE("wechat_qrcode set model, detectorCaffeModelPath = %s", detectorCaffeModelPath)
+        LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s", superResolutionPrototxtPath)
+        LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s", superResolutionCaffeModelPath)
+
         m_weChatQrCode = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath, detectorCaffeModelPath,
                                                              superResolutionPrototxtPath,
                                                              superResolutionCaffeModelPath);
 
-    } catch (const std::exception& e) {
-        LOGE("wechat_qrcode init exception = %s", e.what())
-    }
+//    } catch (const std::exception& e) {
+//        LOGE("wechat_qrcode init exception = %s", e.what())
+//    }
 }
 
 ZXing::Result
@@ -114,7 +119,7 @@ ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
 //    }
 //    return result;
 
-    return decodeWeChat(src, DATA_TYPE_BITMAP);
+    return decodeWeChat(gray, DATA_TYPE_BITMAP);
 //    return startRead(gray, DATA_TYPE_BITMAP);
 }
 

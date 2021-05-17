@@ -25,7 +25,7 @@ import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanListener;
-import me.devilsen.czxing.view.scanview.TFLiteScanView;
+import me.devilsen.czxing.view.scanview.ScanView;
 
 
 /**
@@ -42,7 +42,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     private TextView titleTxt;
     private TextView albumTxt;
-    private TFLiteScanView mScanView;
+    private ScanView mScanView;
     private SoundPoolUtil mSoundPoolUtil;
 
     private boolean isContinuousScan;
@@ -111,10 +111,10 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         scanBox.setScanNoticeText(option.getScanNoticeText());
         BarcodeReader.getInstance().enableCVDetect(option.enableOpenCVDetect);
 
-        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
-        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
-        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
-        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
         BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
                 superResolutionPrototxtPath, superResolutionCaffeModelPath);
 

@@ -49,7 +49,7 @@
         <activity
             android:name=".CustomizeActivity"
             android:launchMode="singleTop" />
-        <activity android:name=".DetectTestActivity" />
+<!--        <activity android:name=".DetectTestActivity" />-->
 
     </application>
 
