@@ -38,7 +38,9 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                      const char* detectorCaffeModelPath,
                                      const char* superResolutionPrototxtPath,
                                      const char* superResolutionCaffeModelPath) {
-//    try {
+//    if (m_weChatQrCode) return;
+
+    try {
         LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
         LOGE("wechat_qrcode set model, detectorCaffeModelPath = %s", detectorCaffeModelPath)
         LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s", superResolutionPrototxtPath)
@@ -48,9 +50,9 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                                              superResolutionPrototxtPath,
                                                              superResolutionCaffeModelPath);
 
-//    } catch (const std::exception& e) {
-//        LOGE("wechat_qrcode init exception = %s", e.what())
-//    }
+    } catch (const std::exception& e) {
+        LOGE("wechat_qrcode init exception = %s", e.what())
+    }
 }
 
 ZXing::Result
@@ -67,17 +69,20 @@ ImageScheduler::readByte(JNIEnv *env, jbyte *bytes, int left, int top, int cropW
 //        saveMatSrc(src);
 
     // 转灰并更改格式
+    LOGE("start convert to gray.")
     cv::Mat gray;
     cvtColor(src, gray, cv::COLOR_YUV2GRAY_NV21);
+    LOGE("convert to gray done")
+//    saveMat(gray);
+    LOGE("save gray done")
 
     // 截取
-    if (left != 0) {
-        gray = gray(cv::Rect(left, top, cropWidth, cropHeight));
-    }
-//        saveMat(gray);
+//    if (left != 0) {
+//        gray = gray(cv::Rect(left, top, cropWidth, cropHeight));
+//    }
 
     // 顺时针旋转90度图片，得到正常的图片（Android的后置摄像头获取的格式是横着的，需要旋转90度）
-    rotate(gray, gray, cv::ROTATE_90_CLOCKWISE);
+//    rotate(gray, gray, cv::ROTATE_90_CLOCKWISE);
 
     return startRead(gray, DATA_TYPE_BYTE);
 }
@@ -102,7 +107,7 @@ ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int c
 ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
     cv::Mat src;
     BitmapToMat(env, bitmap, src);
-    saveMat(src, "src");
+//    saveMat(src, "src");
 
     cv::Mat gray;
     cvtColor(src, gray, cv::COLOR_RGBA2YUV_I420);
@@ -148,17 +153,18 @@ ZXing::Result ImageScheduler::startRead(const cv::Mat &gray, int dataType) {
 
 ZXing::Result ImageScheduler::decodeWeChat(const cv::Mat& gray, int dataType) {
     if (!m_weChatQrCode) {
-        LOGE("set the model path first.")
         return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
     LOGE("start wechat decode")
     std::vector<cv::Mat> points;
-    auto res = m_weChatQrCode->detectAndDecode(gray, points);
+    std::vector<std::string> res = m_weChatQrCode->detectAndDecode(gray, points);
     if (res.empty()) {
         LOGE("wechat decode fail")
         return ZXing::Result(ZXing::DecodeStatus::NotFound);
     }
     LOGE("Yes! wechat get the result")
+    std::string resultString = res[0];
+    LOGE("Result = %s", resultString.c_str())
 
     ZXing::Result result(ZXing::DecodeStatus::NoError);
     result.setFormat(ZXing::BarcodeFormat::QRCode);

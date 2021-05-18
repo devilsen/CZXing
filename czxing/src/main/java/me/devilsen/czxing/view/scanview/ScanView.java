@@ -3,6 +3,7 @@ package me.devilsen.czxing.view.scanview;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
@@ -52,8 +53,8 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             return;
         }
         reader.read(data, left, top, width, height, rowWidth, rowHeight);
-//        Log.e("save >>> ", "left = " + left + " top= " + top +
-//                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
+        Log.e("save >>> ", "left = " + left + " top= " + top +
+                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
 
 //        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
     }

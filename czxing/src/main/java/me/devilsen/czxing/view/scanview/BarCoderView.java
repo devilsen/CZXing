@@ -5,7 +5,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import android.widget.FrameLayout;
 
 import me.devilsen.czxing.camera.ScanCamera;
 import me.devilsen.czxing.camera.camera1.ScanCamera1;
-import me.devilsen.czxing.camera.camera2.ScanCamera2;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
@@ -106,9 +104,9 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
 
     @Override
     public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
-        processForTf(data, rowWidth, rowHeight);
+//        processForTf(data, rowWidth, rowHeight);
 
-//        processForDecode(data,rowWidth,rowHeight);
+        processForDecode(data,rowWidth,rowHeight);
     }
 
     private void processForTf(final byte[] data, int rowWidth, int rowHeight) {
