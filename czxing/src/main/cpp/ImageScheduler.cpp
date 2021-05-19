@@ -4,49 +4,54 @@
 
 #include <src/ReadBarcode.h>
 #include <opencv2/wechat_qrcode.hpp>
+#include <opencv2/imgproc.hpp>
 #include "ImageScheduler.h"
+#include "ScanResult.h"
+#include "JNIUtils.h"
+#include "MatUtils.h"
 
 #define DEFAULT_MIN_LIGHT 30
 
-#define SCAN_ZXING 0
-#define SCAN_ZBAR 1
+USING_CZXING_NAMESPACE()
 
-#define DATA_TYPE_BITMAP 0
-#define DATA_TYPE_BYTE 1
-
-#define SCAN_TREAT_GRAY 0
-#define SCAN_TREAT_THRESHOLD 1
-#define SCAN_TREAT_ADAPTIVE 2
-#define SCAN_TREAT_NEGATIVE 3
-
-ImageScheduler::ImageScheduler(const ZXing::DecodeHints &hints) {
-    reader = new ZXing::MultiFormatReader(hints);
-    zbarScanner = new zbar::ImageScanner();
-    zbarScanner->set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
-
-    m_CameraLight = 0;
-    m_FileIndex = 0;
+ImageScheduler::ImageScheduler()
+{
+    m_formatHints.setFormats(ZXing::BarcodeFormat::QRCode);
 }
 
-ImageScheduler::~ImageScheduler() {
-    DELETE(reader)
-    DELETE(zbarScanner)
-    DELETE(m_weChatQrCode)
+ImageScheduler::~ImageScheduler()
+{
+    DELETE(m_weChatQrCodeReader)
+}
+
+void ImageScheduler::setFormat(JNIEnv* env, jintArray formats_)
+{
+    if (formats_ == nullptr) return;
+        ZXing::DecodeHints hints;
+
+    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
+    if (!formats.empty()) {
+        m_formatHints.setPossibleFormats(formats);
+    }
 }
 
 void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                      const char* detectorCaffeModelPath,
                                      const char* superResolutionPrototxtPath,
-                                     const char* superResolutionCaffeModelPath) {
+                                     const char* superResolutionCaffeModelPath)
+{
 //    if (m_weChatQrCode) return;
 
     try {
         LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
         LOGE("wechat_qrcode set model, detectorCaffeModelPath = %s", detectorCaffeModelPath)
-        LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s", superResolutionPrototxtPath)
-        LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s", superResolutionCaffeModelPath)
+        LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s",
+             superResolutionPrototxtPath)
+        LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s",
+             superResolutionCaffeModelPath)
 
-        m_weChatQrCode = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath, detectorCaffeModelPath,
+        m_weChatQrCodeReader = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath,
+                                                             detectorCaffeModelPath,
                                                              superResolutionPrototxtPath,
                                                              superResolutionCaffeModelPath);
 
@@ -55,138 +60,90 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
     }
 }
 
-ZXing::Result
-ImageScheduler::readByte(JNIEnv *env, jbyte *bytes, int left, int top, int cropWidth,
-                         int cropHeight,
-                         int rowWidth,
-                         int rowHeight) {
+std::vector<ScanResult>
+ImageScheduler::readByte(JNIEnv* env, jbyte* bytes, int width, int height)
+{
 
-    LOGE("save left = %d top = %d width = %d height = %d rowWidth = %d rowHeight = %d",
-         left, top, cropWidth, cropHeight, rowWidth, rowHeight)
+    LOGE("start readByte rowWidth = %d rowHeight = %d", width, height)
 
-    cv::Mat src(rowHeight + rowHeight / 2, rowWidth,
-                CV_8UC1, bytes);
-//        saveMatSrc(src);
+    cv::Mat src(height + height / 2, width, CV_8UC1, bytes);
+    saveMat(src);
 
     // 转灰并更改格式
-    LOGE("start convert to gray.")
     cv::Mat gray;
     cvtColor(src, gray, cv::COLOR_YUV2GRAY_NV21);
-    LOGE("convert to gray done")
-//    saveMat(gray);
-    LOGE("save gray done")
-
-    // 截取
-//    if (left != 0) {
-//        gray = gray(cv::Rect(left, top, cropWidth, cropHeight));
-//    }
+    saveMat(gray, "gray");
 
     // 顺时针旋转90度图片，得到正常的图片（Android的后置摄像头获取的格式是横着的，需要旋转90度）
-//    rotate(gray, gray, cv::ROTATE_90_CLOCKWISE);
+    rotate(gray, gray, cv::ROTATE_90_CLOCKWISE);
 
-    return startRead(gray, DATA_TYPE_BYTE);
+    return startRead(gray);
 }
 
-ZXing::Result
-ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int cropWidth,
-                           int cropHeight) {
+std::vector<ScanResult> ImageScheduler::readBitmap(JNIEnv* env, jobject bitmap)
+{
     cv::Mat src;
     BitmapToMat(env, bitmap, src);
-
-    cv::Mat gray;
-    cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
-
-    // 截取
-    if (left != 0) {
-        gray = gray(cv::Rect(left, top, cropWidth, cropHeight));
-    }
-
-    return startRead(gray, DATA_TYPE_BITMAP);
-}
-
-ZXing::Result ImageScheduler::readBitmap(JNIEnv *env, jobject bitmap) {
-    cv::Mat src;
-    BitmapToMat(env, bitmap, src);
-//    saveMat(src, "src");
+    saveMat(src, "src");
 
     cv::Mat gray;
     cvtColor(src, gray, cv::COLOR_RGBA2YUV_I420);
     saveMat(gray, "gray");
 
-    // TODO test
-//    ZXing::DecodeHints hints;
-//    hints.setFormats(ZXing::BarcodeFormat::QRCode);
-//
-//    ZXing::ImageView imageView(gray.data, gray.cols, gray.rows, ZXing::ImageFormat::Lum);
-//    ZXing::Result result = ZXing::ReadBarcode(imageView, hints);
-//    if (result.isValid()) {
-//        LOGE("zxing decode success, result data = %s", result.text().c_str())
-//    }
-//    return result;
-
-    return decodeWeChat(gray, DATA_TYPE_BITMAP);
-//    return startRead(gray, DATA_TYPE_BITMAP);
+    return decodeWeChat(gray);
 }
 
-void ImageScheduler::setFormat(JNIEnv *env, jintArray formats_) {
-    ZXing::DecodeHints hints;
-    if (formats_ != nullptr) {
-        std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
-        hints.setPossibleFormats(formats);
-    }
-    // TODO 添加此方法
-//    reader->setFormat(hints);
-}
-
-/**
- * 0. 预处理二进制数据
- */
-ZXing::Result ImageScheduler::startRead(const cv::Mat &gray, int dataType) {
+std::vector<ScanResult> ImageScheduler::startRead(const cv::Mat& gray)
+{
     // 分析亮度，如果亮度过低，不进行处理
     if (analysisBrightness(gray) < DEFAULT_MIN_LIGHT) {
-        return ZXing::Result(ZXing::DecodeStatus::NotFound);
+        return defaultResult();
     }
 
-    return decodeWeChat(gray, dataType);
-//    return decodeThresholdPixels(gray, dataType);
+    // 只有二维码
+    if (onlyQrCode()) {
+        return decodeWeChat(gray);
+    } else if (containQrCode()) { // 包含二维码
+        std::vector<ScanResult> result = decodeWeChat(gray);
+        if (result.empty()) {
+            return decodeThresholdPixels(gray);
+        }
+        return result;
+    } else { // 没有二维码
+        return decodeThresholdPixels(gray);
+    }
 }
 
-ZXing::Result ImageScheduler::decodeWeChat(const cv::Mat& gray, int dataType) {
-    if (!m_weChatQrCode) {
-        return ZXing::Result(ZXing::DecodeStatus::NotFound);
+std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
+{
+    if (!m_weChatQrCodeReader) {
+        return defaultResult();
     }
+
     LOGE("start wechat decode")
     std::vector<cv::Mat> points;
-    std::vector<std::string> res = m_weChatQrCode->detectAndDecode(gray, points);
+    std::vector<std::string> res = m_weChatQrCodeReader->detectAndDecode(gray, points);
     if (res.empty()) {
-        LOGE("wechat decode fail")
-        return ZXing::Result(ZXing::DecodeStatus::NotFound);
+        return defaultResult();
     }
     LOGE("Yes! wechat get the result")
-    std::string resultString = res[0];
-    LOGE("Result = %s", resultString.c_str())
 
-    ZXing::Result result(ZXing::DecodeStatus::NoError);
-    result.setFormat(ZXing::BarcodeFormat::QRCode);
-    result.setText(ANSIToUnicode(res[0]));
-//    result.setPosition(points);
-    return result;
-}
+    cv::Rect rectGray = cv::boundingRect(gray);
+    LOGE("rectGray: x = %d, y = %d, width = %d, height = %d", rectGray.x, rectGray.y,
+         rectGray.width, rectGray.height)
 
-/**
- * 1. ZBar的解析相对较快且容错率高，先用 zbar 解析
- * @param gray
- */
-ZXing::Result ImageScheduler::decodeZBar(const cv::Mat &gray, int dataType) {
-    LOGE("start zbar gray...")
+    std::vector<ScanResult> resultVector;
+    for (int i = 0; i < res.size(); ++i) {
+        cv::Rect rect = cv::boundingRect(points[i]);
 
-    ZXing::Result result = zbarDecode(gray);
-    if (result.isValid()) {
-        logDecode(SCAN_ZBAR, SCAN_TREAT_GRAY);
-        return result;
-    } else {
-        return decodeThresholdPixels(gray, dataType);
+        CodeRect codeRect(rect.x, rect.y ,rect.width, rect.height);
+        ScanResult result(res[i], codeRect);
+        resultVector.push_back(result);
+
+        LOGE("rect: x = %d, y = %d, width = %d, height = %d", rect.x, rect.y, rect.width, rect.height)
     }
+
+    return resultVector;
 }
 
 /**
@@ -197,11 +154,9 @@ ZXing::Result ImageScheduler::decodeZBar(const cv::Mat &gray, int dataType) {
  *
  * @param gray
  */
-ZXing::Result ImageScheduler::decodeThresholdPixels(const cv::Mat &gray, int dataType) {
+std::vector<ScanResult> ImageScheduler::decodeThresholdPixels(const cv::Mat& mat)
+{
     LOGE("start ThresholdPixels...")
-
-    cv::Mat mat;
-    rotate(gray, mat, cv::ROTATE_180);
 
     // 提升亮度
     if (m_CameraLight < 80) {
@@ -210,12 +165,11 @@ ZXing::Result ImageScheduler::decodeThresholdPixels(const cv::Mat &gray, int dat
 
     threshold(mat, mat, 50, 255, cv::THRESH_OTSU);
 
-    ZXing::Result result = zxingDecode(mat, dataType);
-    if (result.isValid()) {
-        logDecode(SCAN_ZXING, SCAN_TREAT_THRESHOLD);
-        return result;
+    std::vector<ScanResult> result = zxingDecode(mat);
+    if (result.empty()) {
+        return decodeAdaptivePixels(mat);
     } else {
-        return decodeAdaptivePixels(gray, dataType);
+        return result;
     }
 }
 
@@ -224,11 +178,9 @@ ZXing::Result ImageScheduler::decodeThresholdPixels(const cv::Mat &gray, int dat
  * 逆时针旋转90度，即旋转了270度
  * @param gray
  */
-ZXing::Result ImageScheduler::decodeAdaptivePixels(const cv::Mat &gray, int dataType) {
+std::vector<ScanResult> ImageScheduler::decodeAdaptivePixels(const cv::Mat& mat)
+{
     LOGE("start AdaptivePixels...")
-
-    cv::Mat mat;
-    cv::rotate(gray, mat, cv::ROTATE_90_COUNTERCLOCKWISE);
 
     // 降低图片亮度
     cv::Mat lightMat;
@@ -237,85 +189,34 @@ ZXing::Result ImageScheduler::decodeAdaptivePixels(const cv::Mat &gray, int data
     adaptiveThreshold(lightMat, lightMat, 255, cv::ADAPTIVE_THRESH_MEAN_C,
                       cv::THRESH_BINARY, 55, 3);
 
-    ZXing::Result result = zbarDecode(lightMat);
-    if (result.isValid()) {
-        logDecode(SCAN_ZBAR, SCAN_TREAT_ADAPTIVE);
-        return result;
-    } else {
-        return decodeNegative(gray, dataType);
-    }
+    return zxingDecode(lightMat);
 }
 
-/**
- * 4. 处理反色图片
- * @param gray
- */
-ZXing::Result ImageScheduler::decodeNegative(const cv::Mat &gray, int dataType) {
-    cv::Mat negativeMat;
-    bitwise_not(gray, negativeMat);
-
-    ZXing::Result result = zbarDecode(negativeMat);
-    if (result.isValid()) {
-        logDecode(SCAN_ZBAR, SCAN_TREAT_NEGATIVE);
-        return result;
-    } else {
-        return ZXing::Result(ZXing::DecodeStatus::NotFound);
-    }
-}
-
-ZXing::Result ImageScheduler::zxingDecode(const cv::Mat &mat, int dataType) {
-    std::shared_ptr<ZXing::BinaryBitmap> binImage;
-    LOGE("zxing decode, data type = %d", dataType)
-//    if (dataType == DATA_TYPE_BYTE) {
-//        binImage = BinaryBitmapFromBytesC1(mat.data, 0, 0, mat.cols, mat.rows);
-//    } else {
-//        binImage = BinaryBitmapFromBytesC4(mat.data, 0, 0, mat.cols, mat.rows);
-//    }
-//    ZXing::Result result = reader->read(*binImage);
-//    if (result.isValid()) {
-//        LOGE("zxing decode success, result data = %s", result.text().c_str())
-//    }
-//    return result;
-
-    ZXing::DecodeHints hints;
-    hints.setFormats(ZXing::BarcodeFormat::QRCode);
+std::vector<ScanResult> ImageScheduler::zxingDecode(const cv::Mat& mat)
+{
+    LOGE("start zxing decode")
 
     ZXing::ImageView imageView(mat.data, mat.cols, mat.rows, ZXing::ImageFormat::Lum);
-    ZXing::Result result = ZXing::ReadBarcode(imageView, hints);
+    ZXing::Result result = ZXing::ReadBarcode(imageView, m_formatHints);
     if (result.isValid()) {
-        LOGE("zxing decode success, result data = %s", result.text().c_str())
+        LOGE("zxing decode success, result data = %ls", result.text().c_str())
+        std::vector<ScanResult> vector;
+
+        int zxingFormatIndex = static_cast<int>(result.format());
+        auto format = static_cast<CodeFormat>(zxingFormatIndex);
+
+        ZXing::Position position = result.position();
+        CodeRect codeRect(position.topLeft().x, position.topLeft().y, position.bottomRight().x, position.bottomRight().y);
+
+        ScanResult scanResult(format, UnicodeToANSI(result.text()), codeRect);
+        vector.push_back(scanResult);
+        return vector;
     }
-    return result;
+    return defaultResult();
 }
 
-ZXing::Result ImageScheduler::zbarDecode(const cv::Mat &gray) {
-    auto width = static_cast<unsigned int>(gray.cols);
-    auto height = static_cast<unsigned int>(gray.rows);
-    const void *raw = gray.data;
-    return zbarDecode(raw, width, height);
-}
-
-ZXing::Result ImageScheduler::zbarDecode(const void *raw, unsigned int width, unsigned int height) {
-    zbar::Image image(width, height, "Y800", raw, width * height);
-
-    // 检测到二维码
-    if (zbarScanner->scan(image) > 0) {
-        zbar::Image::SymbolIterator symbol = image.symbol_begin();
-        LOGE("zbar decode success, result data = %s", symbol->get_data().c_str())
-
-        ZXing::Result result(ZXing::DecodeStatus::NoError);
-        if (symbol->get_type() == zbar::ZBAR_QRCODE) {
-            result.setFormat(ZXing::BarcodeFormat::QRCode);
-        }
-        result.setText(ANSIToUnicode(symbol->get_data()));
-        image.set_data(nullptr, 0);
-        return result;
-    }
-    image.set_data(nullptr, 0);
-    return ZXing::Result(ZXing::DecodeStatus::NotFound);
-}
-
-double ImageScheduler::analysisBrightness(const cv::Mat &gray) {
+double ImageScheduler::analysisBrightness(const cv::Mat& gray)
+{
     LOGE("start analysisBrightness...")
     // 平均亮度
     m_CameraLight = mean(gray).val[0];
@@ -323,27 +224,17 @@ double ImageScheduler::analysisBrightness(const cv::Mat &gray) {
     return m_CameraLight;
 }
 
-void ImageScheduler::logDecode(int scanType, int treatType) {
-    std::string scanName = scanType == SCAN_ZXING ? "zxing" : "zbar";
-    LOGE("%s decode success, treat type = %d", scanName.c_str(), treatType)
+std::vector<ScanResult> ImageScheduler::defaultResult()
+{
+    return m_defaultResult;
 }
 
-void ImageScheduler::saveMat(const cv::Mat &mat, const std::string &fileName) {
-    std::string filePath =
-            "/storage/emulated/0/Android/data/me.devilsen.czxing/cache/" + fileName +
-            ".jpg";
-    cv::Mat resultMat(mat.rows, mat.cols, CV_8UC1, mat.data);
-    bool saveResult = imwrite(filePath, mat);
-    if (saveResult) {
-        LOGE("save result success filePath = %s", filePath.c_str())
-    } else {
-        LOGE("save result fail")
-    }
+bool ImageScheduler::onlyQrCode()
+{
+    return m_formatHints.formats().count() == 1 && m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode);
 }
 
-void ImageScheduler::saveIncreaseMat(const cv::Mat &mat) {
-    std::string fileName = std::to_string(m_FileIndex);
-    saveMat(mat, fileName);
-    m_FileIndex++;
+bool ImageScheduler::containQrCode()
+{
+    return m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode);
 }
-

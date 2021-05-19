@@ -6,31 +6,33 @@
 #define CZXING_IMAGESCHEDULER_H
 
 #include <jni.h>
-#include <unistd.h>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/wechat_qrcode.hpp>
 #include <src/MultiFormatReader.h>
 #include <src/BinaryBitmap.h>
 #include <src/DecodeHints.h>
-#include "zbar/zbar.h"
-#include "Result.h"
-#include "JNIUtils.h"
+#include "ScanResult.h"
+#include "config.h"
+
+CZXING_BEGIN_NAMESPACE()
+USING_CZXING_NAMESPACE()
 
 class ImageScheduler {
 public:
-    ImageScheduler(const ZXing::DecodeHints &hints);
+    ImageScheduler();
 
     ~ImageScheduler();
 
-    ZXing::Result
-    readByte(JNIEnv *env, jbyte *bytes, int left, int top, int width, int height, int rowWidth,
-             int rowHeight);
+    /**
+     * 解析相机数据
+     */
+    std::vector<ScanResult> readByte(JNIEnv *env, jbyte *bytes, int width, int height);
 
-    ZXing::Result
-    readBitmap(JNIEnv *env, jobject bitmap, int left, int top, int width, int height);
-
-    ZXing::Result readBitmap(JNIEnv *env, jobject bitmap);
+    /**
+     * 解析图片数据
+     */
+    std::vector<ScanResult> readBitmap(JNIEnv *env, jobject bitmap);
 
     void setFormat(JNIEnv *env, jintArray formats);
 
@@ -38,37 +40,33 @@ public:
                          const char* superResolutionPrototxtPath, const char* superResolutionCaffeModelPath);
 
 private:
-    ZXing::MultiFormatReader *reader;
-    zbar::ImageScanner *zbarScanner;
-    cv::wechat_qrcode::WeChatQRCode *m_weChatQrCode;
-    double m_CameraLight;
-    unsigned int m_FileIndex;
+    ZXing::DecodeHints m_formatHints;
 
-    ZXing::Result startRead(const cv::Mat &gray, int dataType);
+    cv::wechat_qrcode::WeChatQRCode* m_weChatQrCodeReader;
 
-    ZXing::Result decodeWeChat(const cv::Mat &gray, int dataType);
+    std::vector<ScanResult> m_defaultResult;
+    double m_CameraLight { 0 };
 
-    ZXing::Result decodeZBar(const cv::Mat &gray, int dataType);
+    std::vector<ScanResult> startRead(const cv::Mat &gray);
 
-    ZXing::Result decodeThresholdPixels(const cv::Mat &gray, int dataType);
+    std::vector<ScanResult> decodeWeChat(const cv::Mat &gray);
 
-    ZXing::Result decodeAdaptivePixels(const cv::Mat &gray, int dataType);
+    std::vector<ScanResult> decodeThresholdPixels(const cv::Mat &gray);
 
-    ZXing::Result decodeNegative(const cv::Mat &gray, int dataType);
+    std::vector<ScanResult> decodeAdaptivePixels(const cv::Mat &gray);
+
+    std::vector<ScanResult> zxingDecode(const cv::Mat &mat);
 
     double analysisBrightness(const cv::Mat &gray);
 
-    ZXing::Result zxingDecode(const cv::Mat &mat, int dataType);
+    std::vector<ScanResult> defaultResult();
 
-    ZXing::Result zbarDecode(const cv::Mat &mat);
+    bool onlyQrCode();
 
-    ZXing::Result zbarDecode(const void *raw, unsigned int width, unsigned int height);
-
-    void logDecode(int scanType, int treatType);
-
-    void saveMat(const cv::Mat &mat, const std::string &fileName = "src");
-
-    void saveIncreaseMat(const cv::Mat &mat);
+    bool containQrCode();
 };
+
+
+CZXING_END_NAMESPACE()
 
 #endif //CZXING_IMAGESCHEDULER_H

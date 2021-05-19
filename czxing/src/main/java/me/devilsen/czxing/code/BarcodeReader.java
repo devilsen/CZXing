@@ -70,7 +70,7 @@ public class BarcodeReader {
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
         Object[] result = new Object[2];
-        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap, 0, 0, imgWidth, imgHeight, result);
+        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap, result);
         bitmap.recycle();
         newBitmap.recycle();
         return processResult(resultFormat, result);
@@ -88,7 +88,7 @@ public class BarcodeReader {
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
         Object[] result = new Object[2];
-        int resultFormat = NativeSdk.getInstance().readFullBitmap(_nativePtr, bitmap, result);
+        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, bitmap, result);
         bitmap.recycle();
         return processResult(resultFormat, result);
     }

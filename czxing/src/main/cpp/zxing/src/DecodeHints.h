@@ -116,7 +116,7 @@ public:
 	bool hasFormat(BarcodeFormats f) const noexcept { return _formats.testFlags(f); }
 	bool hasNoFormat() const noexcept { return _formats.empty(); }
 
-	[[deprecated]] DecodeHints& setPossibleFormats(const std::vector<BarcodeFormat>& formats)
+	DecodeHints& setPossibleFormats(const std::vector<BarcodeFormat>& formats)
 	{
 		_formats.clear();
 		for (auto f : formats)

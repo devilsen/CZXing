@@ -186,14 +186,26 @@ static void Utf32toUtf16(const uint32_t *utf32, size_t length, std::vector<uint1
     }
 }
 
-jstring ToJavaString(JNIEnv *env, const std::wstring &str) {
-    if (sizeof(wchar_t) == 2) {
-        return env->NewString((const jchar *) str.data(), str.size());
-    } else {
-        std::vector<uint16_t> buffer;
-        Utf32toUtf16((const uint32_t *) str.data(), str.size(), buffer);
-        return env->NewString((const jchar *) buffer.data(), buffer.size());
+jstring wstring2jstring(JNIEnv *env, const std::wstring &str) {
+    std::vector<uint16_t> buffer;
+    Utf32toUtf16((const uint32_t*) str.data(), str.size(), buffer);
+    return env->NewString((const jchar*) buffer.data(), buffer.size());
+}
+
+std::string jstring2string(JNIEnv *env, jstring str) {
+    if (str) {
+        const char *kstr = env->GetStringUTFChars(str, nullptr);
+        if (kstr) {
+            std::string result(kstr);
+            env->ReleaseStringUTFChars(str, kstr);
+            return result;
+        }
     }
+    return "";
+}
+
+jstring string2jstring(JNIEnv *env, const std::string &str) {
+    return env->NewStringUTF(str.c_str());
 }
 
 jfloatArray
@@ -210,6 +222,17 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
         env->SetFloatArrayRegion(array, index++, 1, &x);
         env->SetFloatArrayRegion(array, index++, 1, &y);
     }
+
+    return array;
+}
+
+jintArray rect2JavaArray(JNIEnv* env, const czxing::CodeRect& codeRect)
+{
+    jintArray array = env->NewIntArray(4);
+    env->SetIntArrayRegion(array, 0, 1, &codeRect.x);
+    env->SetIntArrayRegion(array, 1, 1, &codeRect.y);
+    env->SetIntArrayRegion(array, 2, 1, &codeRect.width);
+    env->SetIntArrayRegion(array, 3, 1, &codeRect.height);
 
     return array;
 }

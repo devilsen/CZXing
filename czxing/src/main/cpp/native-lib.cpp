@@ -6,30 +6,15 @@
 #include "MultiFormatWriter.h"
 #include "ImageScheduler.h"
 
-JavaVM *javaVM = nullptr;
-
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv *env;
-    javaVM = vm;
-
-    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
-        return JNI_ERR; // JNI version not supported.
-    }
-
-    return JNI_VERSION_1_6;
-}
-
 extern "C"
 JNIEXPORT jlong JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject instance,
                                                       jintArray formats_) {
     try {
-        ZXing::DecodeHints hints;
+        auto *imageScheduler = new czxing::ImageScheduler();
         if (formats_ != nullptr) {
-            hints.setPossibleFormats(GetFormats(env, formats_));
+            imageScheduler->setFormat(env, formats_);
         }
-
-        auto *imageScheduler = new ImageScheduler(hints);
         return reinterpret_cast<jlong>(imageScheduler);
     } catch (const std::exception &e) {
         ThrowJavaException(env, e.what());
@@ -37,6 +22,17 @@ Java_me_devilsen_czxing_code_NativeSdk_createInstance(JNIEnv *env, jobject insta
         ThrowJavaException(env, "Unknown exception");
     }
     return 0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject instance,
+                                                       jlong objPtr) {
+    if (objPtr == 0) {
+        return;
+    }
+    auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
+    DELETE(imageScheduler);
 }
 
 extern "C"
@@ -52,9 +48,9 @@ Java_me_devilsen_czxing_code_NativeSdk_setDetectModel(JNIEnv* env, jobject thiz,
     const char *superResolutionPrototxtPath = env->GetStringUTFChars(super_resolution_prototxt_path, 0);
     const char *superResolutionCaffeModelPath = env->GetStringUTFChars(super_resolution_caffe_model_path, 0);
 
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     imageScheduler->setWeChatDetect(detectorPrototxtPath, detectorCaffeModelPath,
-                                   superResolutionPrototxtPath, superResolutionCaffeModelPath);
+                                    superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
     env->ReleaseStringUTFChars(detector_prototxt_path, detectorPrototxtPath);
     env->ReleaseStringUTFChars(detector_caffe_model_path, detectorCaffeModelPath);
@@ -64,23 +60,12 @@ Java_me_devilsen_czxing_code_NativeSdk_setDetectModel(JNIEnv* env, jobject thiz,
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_destroyInstance(JNIEnv *env, jobject instance,
-                                                       jlong objPtr) {
-    if (objPtr == 0) {
-        return;
-    }
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-    DELETE(imageScheduler);
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_setFormat(JNIEnv *env, jobject thiz, jlong objPtr,
                                                  jintArray formats_) {
     if (objPtr == 0) {
         return;
     }
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     imageScheduler->setFormat(env, formats_);
 }
 
@@ -93,30 +78,18 @@ Java_me_devilsen_czxing_code_NativeSdk_readByte(JNIEnv *env, jobject instance, j
                                                        jobjectArray result) {
     jbyte *bytes = env->GetByteArrayElements(bytes_, nullptr);
 
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-    auto readResult = imageScheduler->readByte(env, bytes, left, top, cropWidth, cropHeight,
-                                               rowWidth, rowHeight);
+    auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
+    auto readResult = imageScheduler->readByte(env, bytes, rowWidth, rowHeight);
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
     return processResult(env, readResult, result);
 }
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readBitmap(JNIEnv *env, jobject instance, jlong objPtr,
-                                                  jobject bitmap, jint left, jint top, jint width,
-                                                  jint height, jobjectArray result) {
-
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
-    auto readResult = imageScheduler->readBitmap(env, bitmap, left, top, width, height);
-    return processResult(env, readResult, result);
-}
-
-extern "C"
-JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readFullBitmap(JNIEnv *env, jobject instance,
+Java_me_devilsen_czxing_code_NativeSdk_readBitmap(JNIEnv *env, jobject instance,
                                                       jlong objPtr, jobject bitmap,
                                                       jobjectArray result) {
-    auto imageScheduler = reinterpret_cast<ImageScheduler *>(objPtr);
+    auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     auto readResult = imageScheduler->readBitmap(env, bitmap);
     return processResult(env, readResult, result);
 }

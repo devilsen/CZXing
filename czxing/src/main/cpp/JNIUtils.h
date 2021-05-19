@@ -24,10 +24,10 @@
 #include <opencv2/core/types.hpp>
 #include <src/BarcodeFormat.h>
 #include <src/Result.h>
-#include "zbar/zbar.h"
+#include "ScanResult.h"
 
 #define ZX_LOG_TAG "CZXing"
-#define DEBUG
+//#define DEBUG
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, ZX_LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ZX_LOG_TAG, __VA_ARGS__)
@@ -68,9 +68,15 @@ std::wstring ANSIToUnicode(const std::string &src);
 
 void ThrowJavaException(JNIEnv *env, const char *message);
 
-jstring ToJavaString(JNIEnv *env, const std::wstring &str);
+jstring wstring2jstring(JNIEnv *env, const std::wstring &str);
+
+std::string jstring2string(JNIEnv *env, jstring str);
+
+jstring string2jstring(JNIEnv *env, const std::string &str);
 
 jfloatArray ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &vector);
+
+jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect codeRect);
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -86,13 +92,15 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
     return result;
 }
 
-static int processResult(JNIEnv *env, ZXing::Result scanResult, jobjectArray result) {
-    if (scanResult.isValid()) {
-        env->SetObjectArrayElement(result, 0, ToJavaString(env, scanResult.text()));
-        if (!scanResult.resultPoints().empty()) {
-            env->SetObjectArrayElement(result, 1, ToJavaArray(env, scanResult.resultPoints()));
-        }
-        return static_cast<int>(scanResult.format());
+static int processResult(JNIEnv *env, std::vector<czxing::ScanResult> resultVector, jobjectArray result) {
+    if (resultVector.empty()) return -1;
+
+    for (int i = 0; i < resultVector.size(); ++i) {
+        czxing::ScanResult scanResult = resultVector[i];
+
+//        env->SetObjectArrayElement(result, 0, reinterpret_cast<jobject>(scanResult.format()));
+//        env->SetObjectArrayElement(result, 1, string2jstring(env, scanResult.text()));
+//        env->SetObjectArrayElement(result, 2, rect2JavaArray(env, scanResult.rect()));
     }
-    return -1;
+    return 0;
 }

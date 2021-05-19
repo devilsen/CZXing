@@ -66,15 +66,13 @@ class NativeSdk {
 
     native void destroyInstance(long objPtr);
 
+    native void setFormat(long objPtr, int[] formats);
+
     native void setDetectModel(long objPtr, String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath);
 
     native int readByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight, Object[] result);
 
-    native int readBitmap(long objPtr, Bitmap bitmap, int left, int top, int width, int height, Object[] result);
-
-    native int readFullBitmap(long objPtr, Bitmap bitmap, Object[] result);
-
-    native void setFormat(long objPtr, int[] formats);
+    native int readBitmap(long objPtr, Bitmap bitmap, Object[] result);
 
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);
