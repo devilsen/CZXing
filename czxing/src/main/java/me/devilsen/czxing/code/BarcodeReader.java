@@ -25,11 +25,7 @@ public class BarcodeReader {
     }
 
     private BarcodeReader() {
-        BarcodeFormat[] formats = new BarcodeFormat[]{BarcodeFormat.QR_CODE,
-                BarcodeFormat.CODABAR,
-                BarcodeFormat.CODE_128,
-                BarcodeFormat.EAN_13,
-                BarcodeFormat.UPC_A};
+        BarcodeFormat[] formats = new BarcodeFormat[]{BarcodeFormat.QR_CODE};
         _nativePtr = NativeSdk.getInstance().createInstance(getNativeFormats(formats));
     }
 
@@ -69,7 +65,7 @@ public class BarcodeReader {
         int imgHeight = newBitmap.getHeight();
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
-        Object[] result = new Object[2];
+        Object[] result = new Object[3];
         int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap, result);
         bitmap.recycle();
         newBitmap.recycle();
@@ -87,7 +83,7 @@ public class BarcodeReader {
         int imgHeight = bitmap.getHeight();
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
-        Object[] result = new Object[2];
+        Object[] result = new Object[3];
         int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, bitmap, result);
         bitmap.recycle();
         return processResult(resultFormat, result);
@@ -96,7 +92,7 @@ public class BarcodeReader {
     @Nullable
     @CheckResult
     public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
-        Object[] result = new Object[2];
+        Object[] result = new Object[3];
         int resultFormat = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
         return processResult(resultFormat, result);
     }
@@ -105,9 +101,11 @@ public class BarcodeReader {
     @CheckResult
     private CodeResult processResult(int resultFormat, Object[] result) {
         if (resultFormat >= 0) {
-            CodeResult decodeResult = new CodeResult(BarcodeFormat.valueOf(resultFormat), (String) result[0]);
-            if (result[1] != null) {
-                decodeResult.setPoint((float[]) result[1]);
+            int[] formatInts = (int[]) result[0];
+            BarcodeFormat format = BarcodeFormat.valueOf(formatInts[0]);
+            CodeResult decodeResult = new CodeResult(format, (String) result[1]);
+            if (result[2] != null) {
+                decodeResult.setPoint((int[]) result[2]);
             }
             return decodeResult;
         }

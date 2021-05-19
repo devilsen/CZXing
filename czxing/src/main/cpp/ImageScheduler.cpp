@@ -5,6 +5,7 @@
 #include <src/ReadBarcode.h>
 #include <opencv2/wechat_qrcode.hpp>
 #include <opencv2/imgproc.hpp>
+#include <memory>
 #include "ImageScheduler.h"
 #include "ScanResult.h"
 #include "JNIUtils.h"
@@ -21,18 +22,18 @@ ImageScheduler::ImageScheduler()
 
 ImageScheduler::~ImageScheduler()
 {
-    DELETE(m_weChatQrCodeReader)
+//    DELETE(m_weChatQrCodeReader)
 }
 
 void ImageScheduler::setFormat(JNIEnv* env, jintArray formats_)
 {
     if (formats_ == nullptr) return;
-        ZXing::DecodeHints hints;
+    LOGE("set format")
 
-    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
-    if (!formats.empty()) {
-        m_formatHints.setPossibleFormats(formats);
-    }
+//    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
+//    if (!formats.empty()) {
+//        m_formatHints.setPossibleFormats(formats);
+//    }
 }
 
 void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
@@ -40,8 +41,6 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                      const char* superResolutionPrototxtPath,
                                      const char* superResolutionCaffeModelPath)
 {
-//    if (m_weChatQrCode) return;
-
     try {
         LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
         LOGE("wechat_qrcode set model, detectorCaffeModelPath = %s", detectorCaffeModelPath)
@@ -50,10 +49,11 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
         LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s",
              superResolutionCaffeModelPath)
 
-        m_weChatQrCodeReader = new cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath,
-                                                             detectorCaffeModelPath,
-                                                             superResolutionPrototxtPath,
-                                                             superResolutionCaffeModelPath);
+        m_weChatQrCodeReader = cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath,
+                                                               detectorCaffeModelPath,
+                                                               superResolutionPrototxtPath,
+                                                               superResolutionCaffeModelPath);
+//        m_weChatQrCodeReader = new cv::wechat_qrcode::WeChatQRCode();
 
     } catch (const std::exception& e) {
         LOGE("wechat_qrcode init exception = %s", e.what())
@@ -116,13 +116,9 @@ std::vector<ScanResult> ImageScheduler::startRead(const cv::Mat& gray)
 
 std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
 {
-    if (!m_weChatQrCodeReader) {
-        return defaultResult();
-    }
-
     LOGE("start wechat decode")
     std::vector<cv::Mat> points;
-    std::vector<std::string> res = m_weChatQrCodeReader->detectAndDecode(gray, points);
+    std::vector<std::string> res = m_weChatQrCodeReader.detectAndDecode(gray, points);
     if (res.empty()) {
         return defaultResult();
     }
@@ -136,10 +132,11 @@ std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
     for (int i = 0; i < res.size(); ++i) {
         cv::Rect rect = cv::boundingRect(points[i]);
 
-        CodeRect codeRect(rect.x, rect.y ,rect.width, rect.height);
+        CodeRect codeRect(rect.x, rect.y , rect.width, rect.height);
         ScanResult result(res[i], codeRect);
         resultVector.push_back(result);
 
+        LOGE("result = %s", res[i].c_str())
         LOGE("rect: x = %d, y = %d, width = %d, height = %d", rect.x, rect.y, rect.width, rect.height)
     }
 

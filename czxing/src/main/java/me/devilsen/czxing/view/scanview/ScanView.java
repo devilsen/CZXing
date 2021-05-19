@@ -52,9 +52,10 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         if (isStop) {
             return;
         }
-        reader.read(data, left, top, width, height, rowWidth, rowHeight);
-        Log.e("save >>> ", "left = " + left + " top= " + top +
-                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
+        CodeResult codeResult = reader.read(data, left, top, width, height, rowWidth, rowHeight);
+        onReadCodeResult(codeResult);
+//        Log.e("save >>> ", "left = " + left + " top= " + top +
+//                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
 
 //        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
     }

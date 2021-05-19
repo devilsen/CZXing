@@ -10,7 +10,7 @@ public class CodeResult {
 
     private final BarcodeFormat format;
     private final String text;
-    private float[] points;
+    private int[] points;
     private int scanType;
 
     CodeResult(BarcodeFormat format, String text) {
@@ -18,7 +18,7 @@ public class CodeResult {
         this.text = text;
     }
 
-    public CodeResult(String content, int formatIndex, float[] points, int scanType) {
+    public CodeResult(String content, int formatIndex, int[] points, int scanType) {
         this.text = content;
         if (formatIndex < 0) {
             this.format = BarcodeFormat.QR_CODE;
@@ -29,7 +29,7 @@ public class CodeResult {
         this.scanType = scanType;
     }
 
-    public void setPoint(float[] lists) {
+    public void setPoint(int[] lists) {
         points = lists;
     }
 
@@ -41,7 +41,7 @@ public class CodeResult {
         return text;
     }
 
-    public float[] getPoints() {
+    public int[] getPoints() {
         return points;
     }
 

@@ -14,6 +14,7 @@
 #include <src/DecodeHints.h>
 #include "ScanResult.h"
 #include "config.h"
+#include <memory.h>
 
 CZXING_BEGIN_NAMESPACE()
 USING_CZXING_NAMESPACE()
@@ -42,7 +43,7 @@ public:
 private:
     ZXing::DecodeHints m_formatHints;
 
-    cv::wechat_qrcode::WeChatQRCode* m_weChatQrCodeReader;
+    cv::wechat_qrcode::WeChatQRCode m_weChatQrCodeReader;
 
     std::vector<ScanResult> m_defaultResult;
     double m_CameraLight { 0 };

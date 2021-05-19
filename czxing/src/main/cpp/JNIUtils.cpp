@@ -226,7 +226,7 @@ ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
     return array;
 }
 
-jintArray rect2JavaArray(JNIEnv* env, const czxing::CodeRect& codeRect)
+jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect& codeRect)
 {
     jintArray array = env->NewIntArray(4);
     env->SetIntArrayRegion(array, 0, 1, &codeRect.x);

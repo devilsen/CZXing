@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Scan >>> ", "no code");
             return;
         } else {
-            Log.e("Scan >>> ", result.getText());
+            Log.e("Scan >>> ", result.toString());
         }
 
         resultTxt.setText(result.getText());
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
                 .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
                 .continuousScan()
-                .enableOpenCVDetect(true)
+//                .enableOpenCVDetect(true)
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
                     public void onClickAlbum(Activity activity) {

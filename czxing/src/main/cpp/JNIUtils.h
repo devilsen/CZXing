@@ -27,7 +27,7 @@
 #include "ScanResult.h"
 
 #define ZX_LOG_TAG "CZXing"
-//#define DEBUG
+#define DEBUG
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, ZX_LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ZX_LOG_TAG, __VA_ARGS__)
@@ -76,7 +76,7 @@ jstring string2jstring(JNIEnv *env, const std::string &str);
 
 jfloatArray ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &vector);
 
-jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect codeRect);
+jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect& codeRect);
 
 static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
     std::vector<ZXing::BarcodeFormat> result;
@@ -98,9 +98,13 @@ static int processResult(JNIEnv *env, std::vector<czxing::ScanResult> resultVect
     for (int i = 0; i < resultVector.size(); ++i) {
         czxing::ScanResult scanResult = resultVector[i];
 
-//        env->SetObjectArrayElement(result, 0, reinterpret_cast<jobject>(scanResult.format()));
-//        env->SetObjectArrayElement(result, 1, string2jstring(env, scanResult.text()));
-//        env->SetObjectArrayElement(result, 2, rect2JavaArray(env, scanResult.rect()));
+        jintArray formatArray = env->NewIntArray(1);
+        int format = scanResult.format();
+        env->SetIntArrayRegion(formatArray, 0, 1, &format);
+
+        env->SetObjectArrayElement(result, 0, formatArray);
+        env->SetObjectArrayElement(result, 1, string2jstring(env, scanResult.text()));
+        env->SetObjectArrayElement(result, 2, rect2JavaArray(env, scanResult.rect()));
     }
     return 0;
 }

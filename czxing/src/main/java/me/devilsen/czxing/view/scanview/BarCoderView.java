@@ -262,7 +262,7 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
      * @param result 二维码定位信息
      */
     void showCodeBorder(CodeResult result) {
-        float[] points = result.getPoints();
+        int[] points = result.getPoints();
         if (points.length > 3) {
             int left = 0;
             int top = 0;
@@ -302,7 +302,7 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
      */
     void tryZoom(CodeResult result) {
         int len = 0;
-        float[] points = result.getPoints();
+        int[] points = result.getPoints();
         if (points.length > 3) {
             float point1X = points[0];
             float point1Y = points[1];
