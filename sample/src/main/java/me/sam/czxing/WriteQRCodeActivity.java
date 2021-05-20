@@ -15,6 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -76,12 +78,9 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void read(Bitmap bitmap) {
-        CodeResult result = null;
-        for (int i = 0; i < 400; i++) {
-            result = reader.read(bitmap);
-        }
-        if (result != null) {
-            Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
+        List<CodeResult> resultList = reader.read(bitmap);
+        if (resultList.size() > 0) {
+            Toast.makeText(this, resultList.get(0).getText(), Toast.LENGTH_SHORT).show();
         }
     }
 

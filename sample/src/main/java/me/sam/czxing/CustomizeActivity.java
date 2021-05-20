@@ -21,7 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import me.devilsen.czxing.code.BarcodeFormat;
+import java.util.List;
+
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
@@ -181,11 +182,12 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onScanSuccess(String result, BarcodeFormat format) {
+    public void onScanSuccess(List<CodeResult> resultList) {
         mSoundPoolUtil.play();
 
-        showResult(result);
-        finish();
+        // todo deal with results
+//        showResult(result);
+//        finish();
     }
 
     /**
@@ -233,14 +235,15 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
             return;
         }
 
-        CodeResult result = BarcodeReader.getInstance().read(bitmap);
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.getText());
+        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
+
+        StringBuilder text = new StringBuilder();
+        for (CodeResult r : result) {
+            Log.e("Scan >>> ", r.toString());
+            text.append(r.getText()).append("\n");
         }
-        showResult(result.getText());
+
+        showResult(text.toString());
     }
 
     /**

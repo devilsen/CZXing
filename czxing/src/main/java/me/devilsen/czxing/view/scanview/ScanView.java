@@ -1,9 +1,9 @@
 package me.devilsen.czxing.view.scanview;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
+
+import java.util.List;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
@@ -52,7 +52,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         if (isStop) {
             return;
         }
-        CodeResult codeResult = reader.read(data, left, top, width, height, rowWidth, rowHeight);
+        List<CodeResult> codeResult = reader.read(data, left, top, width, height, rowWidth, rowHeight);
         onReadCodeResult(codeResult);
 //        Log.e("save >>> ", "left = " + left + " top= " + top +
 //                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
@@ -99,22 +99,25 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     }
 
     @Override
-    public void onReadCodeResult(CodeResult result) {
-        if (result == null) {
+    public void onReadCodeResult(List<CodeResult> resultList) {
+        if (resultList.size() == 0) {
             return;
         }
 //        showCodeBorder(result);
-        BarCodeUtil.d("result : " + result.toString());
+        for (CodeResult result : resultList) {
+            BarCodeUtil.d("result : " + result.toString());
+        }
 
-        if (!TextUtils.isEmpty(result.getText()) && !isStop) {
+        if (!isStop) {
             isStop = true;
             reader.stopRead();
             if (mScanListener != null) {
-                mScanListener.onScanSuccess(result.getText(), result.getFormat());
+                mScanListener.onScanSuccess(resultList);
             }
-        } else if (result.getPoints() != null) {
-            tryZoom(result);
         }
+//        else if (result.getPoints() != null) {
+//            tryZoom(result);
+//        }
     }
 
     @Override

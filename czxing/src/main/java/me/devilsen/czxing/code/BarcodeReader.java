@@ -3,7 +3,10 @@ package me.devilsen.czxing.code;
 import android.graphics.Bitmap;
 
 import androidx.annotation.CheckResult;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
@@ -47,12 +50,12 @@ public class BarcodeReader {
         return nativeFormats;
     }
 
-    @Nullable
+    @NonNull
     @CheckResult
-    public CodeResult read(Bitmap bitmap) {
+    public List<CodeResult> read(Bitmap bitmap) {
         if (bitmap == null) {
             BarCodeUtil.e("bitmap is null");
-            return null;
+            return new ArrayList<>(0);
         }
         // 尝试放大，识别更复杂的二维码
         if ((bitmap.getHeight() < 2000 || bitmap.getWidth() < 1100) && bitmap.getHeight() < 3000) {
@@ -72,12 +75,12 @@ public class BarcodeReader {
         return processResult(resultFormat, result);
     }
 
-    @Nullable
+    @NonNull
     @CheckResult
-    public CodeResult readDetect(Bitmap bitmap) {
+    public List<CodeResult> readDetect(Bitmap bitmap) {
         if (bitmap == null) {
             BarCodeUtil.e("bitmap is null");
-            return null;
+            return new ArrayList<>(0);
         }
         int imgWidth = bitmap.getWidth();
         int imgHeight = bitmap.getHeight();
@@ -89,27 +92,42 @@ public class BarcodeReader {
         return processResult(resultFormat, result);
     }
 
-    @Nullable
+    @NonNull
     @CheckResult
-    public CodeResult read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
+    public List<CodeResult> read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
         Object[] result = new Object[3];
         int resultFormat = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
         return processResult(resultFormat, result);
     }
 
-    @Nullable
+    @NonNull
     @CheckResult
-    private CodeResult processResult(int resultFormat, Object[] result) {
-        if (resultFormat >= 0) {
-            int[] formatInts = (int[]) result[0];
-            BarcodeFormat format = BarcodeFormat.valueOf(formatInts[0]);
-            CodeResult decodeResult = new CodeResult(format, (String) result[1]);
-            if (result[2] != null) {
-                decodeResult.setPoint((int[]) result[2]);
+    private List<CodeResult> processResult(int resultFormat, Object[] result) {
+        if (resultFormat >= 0 && result != null) {
+            List<CodeResult> list = new ArrayList<>(result.length);
+            int index = 0;
+            int size = result.length / 3;
+            for (int i = 0; i < size; i++) {
+                BarcodeFormat format = getFormat(result[index++]);
+                String text = (String) result[index++];
+                int[] points = getPoints(result[index++]);
+
+                CodeResult decodeResult = new CodeResult(format, text, points);
+                list.add(decodeResult);
             }
-            return decodeResult;
+            return list;
         }
-        return null;
+        return new ArrayList<>(0);
+    }
+
+    private BarcodeFormat getFormat(Object result) {
+        int[] formatInts = (int[]) result;
+        return BarcodeFormat.valueOf(formatInts[0]);
+    }
+
+    private int[] getPoints(Object pointArray) {
+        if (pointArray == null) return new int[]{};
+        return (int[]) pointArray;
     }
 
     @Deprecated
@@ -148,7 +166,7 @@ public class BarcodeReader {
     }
 
     public interface ReadCodeListener {
-        void onReadCodeResult(CodeResult result);
+        void onReadCodeResult(List<CodeResult> resultList);
 
         void onFocus();
 

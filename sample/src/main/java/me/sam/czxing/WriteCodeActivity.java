@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -127,7 +129,8 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void read(Bitmap bitmap) {
-        CodeResult result = reader.read(bitmap);
+        List<CodeResult> resultList = reader.read(bitmap);
+        CodeResult result = resultList.get(0);
         if (result != null) {
             Log.d("read code", result.getText() + " format " + result.getFormat());
             Toast.makeText(this, result.getText(), Toast.LENGTH_SHORT).show();
@@ -139,9 +142,9 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
                 .create(new ObservableOnSubscribe<CodeResult>() {
                     @Override
                     public void subscribe(ObservableEmitter<CodeResult> emitter) throws Exception {
-                        CodeResult result = reader.read(bitmap);
-                        if (result != null) {
-                            emitter.onNext(result);
+                        List<CodeResult> result = reader.read(bitmap);
+                        if (result.size() > 0) {
+                            emitter.onNext(result.get(0));
                         }
                         emitter.onComplete();
                     }
