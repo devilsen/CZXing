@@ -23,7 +23,7 @@ class ImageScheduler {
 public:
     ImageScheduler();
 
-    ~ImageScheduler();
+    ~ImageScheduler() = default;
 
     /**
      * 解析相机数据

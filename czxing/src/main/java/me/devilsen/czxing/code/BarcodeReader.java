@@ -42,7 +42,7 @@ public class BarcodeReader {
     private int[] getNativeFormats(BarcodeFormat... formats) {
         int[] nativeFormats = new int[formats.length];
         for (int i = 0; i < formats.length; ++i) {
-            nativeFormats[i] = formats[i].ordinal();
+            nativeFormats[i] = formats[i].getValue();
         }
         return nativeFormats;
     }

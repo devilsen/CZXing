@@ -96,4 +96,8 @@ public enum BarcodeFormat {
         this.value = value;
     }
 
+    int getValue() {
+        return value;
+    }
+
 }
