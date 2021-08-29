@@ -58,6 +58,11 @@
             android:text="zoomOut"
             android:textAllCaps="false" />
 
+        <me.devilsen.czxing.view.PointView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            />
+
     </LinearLayout>
 
 </FrameLayout>

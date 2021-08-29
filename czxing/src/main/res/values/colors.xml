@@ -28,4 +28,7 @@
     <color name="czxing_background_touch_normal">#00000000</color>
     <color name="czxing_background_touch_press">#3B000000</color>
 
+    <color name="czxing_point_green">#A400C350</color>
+    <color name="czxing_point_white">#EEFFFFFF</color>
+
 </resources>

@@ -96,7 +96,7 @@ std::vector<ScanResult> ImageScheduler::startRead(const cv::Mat& gray)
         return defaultResult();
     }
 
-    // 只有二维码
+    // 扫码格式只有二维码
     if (onlyQrCode()) {
         return decodeWeChat(gray);
     } else if (containQrCode()) { // 包含二维码

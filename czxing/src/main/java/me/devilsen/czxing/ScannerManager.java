@@ -280,6 +280,9 @@ public class ScannerManager {
         private boolean scanHorizontal;
         private boolean continuousScan;
 
+        private int resultColor;
+        private boolean isHideResultColor = false;
+
         private int flashLightOnDrawable;
         private int flashLightOffDrawable;
         private String flashLightOnText;
@@ -367,6 +370,14 @@ public class ScannerManager {
             return barcodeFormats.toArray(new BarcodeFormat[0]);
         }
 
+        public int getResultColor() {
+            return resultColor;
+        }
+
+        public boolean isHideResultColor() {
+            return isHideResultColor;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -394,6 +405,8 @@ public class ScannerManager {
             dest.writeList(this.barcodeFormats);
             dest.writeList(this.scanLineColors);
             dest.writeByte(this.enableOpenCVDetect ? (byte) 1 : (byte) 0);
+            dest.writeInt(this.resultColor);
+            dest.writeByte(this.isHideResultColor ?  (byte) 1 : (byte) 0);
         }
 
         public ScanOption() {
@@ -422,6 +435,8 @@ public class ScannerManager {
             this.scanLineColors = new ArrayList<>();
             in.readList(this.scanLineColors, Integer.class.getClassLoader());
             this.enableOpenCVDetect = in.readByte() != 0;
+            this.resultColor = in.readInt();
+            this.isHideResultColor = in.readByte() != 0;
         }
 
         public static final Creator<ScanOption> CREATOR = new Creator<ScanOption>() {
@@ -435,5 +450,6 @@ public class ScannerManager {
                 return new ScanOption[size];
             }
         };
+
     }
 }
