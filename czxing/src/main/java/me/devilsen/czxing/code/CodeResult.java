@@ -18,6 +18,12 @@ public class CodeResult {
         this.text = text;
     }
 
+    CodeResult(BarcodeFormat format, String text, int[] points) {
+        this.format = format;
+        this.text = text;
+        this.points = points;
+    }
+
     public CodeResult(String content, int formatIndex, int[] points, int scanType) {
         this.text = content;
         if (formatIndex < 0) {

@@ -14,8 +14,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.List;
+
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.AssetUtil;
@@ -185,9 +188,23 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     }
 
     @Override
-    public void onScanSuccess(String result, BarcodeFormat format) {
+    public void onScanSuccess(List<CodeResult> resultList) {
         mSoundPoolUtil.play();
 
+        if (resultList.size() == 1) {
+            CodeResult result = resultList.get(0);
+            processOneResult(result.getText(), result.getFormat());
+        }else {
+            showResultPoint();
+        }
+    }
+
+    // todo 改成点击返回
+    private void showResultPoint() {
+
+    }
+
+    private void processOneResult(String result, BarcodeFormat format) {
         if (scanDelegate != null) {
             scanDelegate.onScanResult(this, result, format);
         } else {

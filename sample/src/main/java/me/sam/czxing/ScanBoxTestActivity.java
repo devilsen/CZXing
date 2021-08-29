@@ -6,6 +6,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
 import me.devilsen.czxing.camera.ScanCamera;
 import me.devilsen.czxing.camera.camera2.ScanCamera2;
 import me.devilsen.czxing.code.BarcodeReader;
@@ -75,9 +77,12 @@ public class ScanBoxTestActivity extends AppCompatActivity {
         });
 
         reader.setReadCodeListener(new BarcodeReader.ReadCodeListener() {
+
             @Override
-            public void onReadCodeResult(CodeResult result) {
-                BarCodeUtil.d("result : " + result.toString());
+            public void onReadCodeResult(List<CodeResult> resultList) {
+                for (CodeResult result : resultList) {
+                    BarCodeUtil.d("result : " + result.toString());
+                }
             }
 
             @Override

@@ -17,7 +17,6 @@ import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.ImageUtils;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 import me.devilsen.czxing.view.resultview.ScanResultView;
@@ -104,50 +103,7 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
 
     @Override
     public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
-//        processForTf(data, rowWidth, rowHeight);
-
         processForDecode(data,rowWidth,rowHeight);
-    }
-
-    private void processForTf(final byte[] data, int rowWidth, int rowHeight) {
-        if (isProcessingFrame) {
-            BarCodeUtil.w("Dropping frame!");
-            return;
-        }
-
-        try {
-            // Initialize the storage bitmaps once when the resolution is known.
-            if (rgbBytes == null) {
-                previewHeight = rowHeight;
-                previewWidth = rowWidth;
-                rgbBytes = new int[previewWidth * previewHeight];
-                onPreviewSizeChosen(previewWidth, previewHeight, 90);
-            }
-        } catch (final Exception e) {
-            BarCodeUtil.e(e.toString() + "Exception!");
-            return;
-        }
-
-        isProcessingFrame = true;
-        yuvBytes[0] = data;
-        yRowStride = previewWidth;
-
-        imageConverter =
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageUtils.convertYUV420SPToARGB8888(data, previewWidth, previewHeight, rgbBytes);
-                    }
-                };
-        postInferenceCallback =
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mCamera.addCallbackBuffer(data);
-                        isProcessingFrame = false;
-                    }
-                };
-        processImage();
     }
 
     private void processForDecode(byte[] data, int rowWidth, int rowHeight) {

@@ -20,20 +20,18 @@ ImageScheduler::ImageScheduler()
     m_formatHints.setFormats(ZXing::BarcodeFormat::QRCode);
 }
 
-ImageScheduler::~ImageScheduler()
-{
-//    DELETE(m_weChatQrCodeReader)
-}
-
 void ImageScheduler::setFormat(JNIEnv* env, jintArray formats_)
 {
     if (formats_ == nullptr) return;
-    LOGE("set format")
 
-//    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
-//    if (!formats.empty()) {
-//        m_formatHints.setPossibleFormats(formats);
-//    }
+    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
+    if (!formats.empty()) {
+        m_formatHints.setPossibleFormats(formats);
+
+        for (auto& format : formats) {
+            LOGE("set format: %d", format)
+        }
+    }
 }
 
 void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
@@ -53,8 +51,6 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
                                                                detectorCaffeModelPath,
                                                                superResolutionPrototxtPath,
                                                                superResolutionCaffeModelPath);
-//        m_weChatQrCodeReader = new cv::wechat_qrcode::WeChatQRCode();
-
     } catch (const std::exception& e) {
         LOGE("wechat_qrcode init exception = %s", e.what())
     }

@@ -54,16 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void scan(View view) {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
-        CodeResult result = BarcodeReader.getInstance().readDetect(bitmap);
-
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.toString());
-        }
-
-        resultTxt.setText(result.getText());
+        List<CodeResult> result = BarcodeReader.getInstance().readDetect(bitmap);
+        printResult(result);
     }
 
     public void write(View view) {
@@ -162,16 +154,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public void test() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_8);
-        CodeResult result = BarcodeReader.getInstance().read(bitmap);
+        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
 
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.getText());
-        }
-
-        resultTxt.setText(result.getText());
+        printResult(result);
     }
 
     public void openCustomizeActivity(View view) {
@@ -216,14 +201,17 @@ public class MainActivity extends AppCompatActivity {
         // 适当压缩图片
         Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
         // 这个方法比较耗时，推荐放到子线程执行
-        CodeResult result = BarcodeReader.getInstance().read(bitmap);
-        if (result == null) {
-            Log.e("Scan >>> ", "no code");
-            return;
-        } else {
-            Log.e("Scan >>> ", result.getText());
+        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
+        printResult(result);
+    }
+
+    private void printResult(List<CodeResult> result) {
+        StringBuilder text = new StringBuilder();
+        for (CodeResult r : result) {
+            Log.e("Scan >>> ", r.toString());
+            text.append(r.getText()).append("\n");
         }
-        resultTxt.setText(result.getText());
+        resultTxt.setText(text.toString());
     }
 
 }

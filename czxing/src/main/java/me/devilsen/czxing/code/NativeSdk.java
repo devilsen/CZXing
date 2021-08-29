@@ -36,9 +36,9 @@ class NativeSdk {
      * @param scanType    扫码类型，用于还原定位点的位置
      */
     public void onDecodeCallback(String content, int formatIndex, int[] points, int scanType) {
-        if (readCodeListener != null) {
-            readCodeListener.onReadCodeResult(new CodeResult(content, formatIndex, points, scanType));
-        }
+//        if (readCodeListener != null) {
+//            readCodeListener.onReadCodeResult(new CodeResult(content, formatIndex, points, scanType));
+//        }
     }
 
     /**
