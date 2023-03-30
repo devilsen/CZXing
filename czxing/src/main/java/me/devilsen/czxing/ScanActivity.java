@@ -93,6 +93,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanView.setScanMode(option.getScanMode());
         mScanView.setBarcodeFormat(option.getBarcodeFormat());
         mScanView.onFlashLightClick();
+        mScanView.setResultColor(option.getResultColor());
+        mScanView.hideResultColor(option.isHideResultColor());
 
         ScanBoxView scanBox = mScanView.getScanBox();
         scanBox.setMaskColor(option.getMaskColor());
@@ -112,6 +114,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
             scanBox.invisibleFlashLightIcon();
         }
         scanBox.setScanNoticeText(option.getScanNoticeText());
+
         BarcodeReader.getInstance().enableCVDetect(option.enableOpenCVDetect);
 
         String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");

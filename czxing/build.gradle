@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -8,7 +8,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         ndkVersion rootProject.ext.ndkVersion
         versionCode 35
-        versionName "1.0.17"
+        versionName "1.1.0"
 
         externalNativeBuild {
             cmake {
@@ -54,4 +54,4 @@ dependencies {
     androidTestImplementation rootProject.ext.testespresso
 }
 
-apply from: "bintrayUpload.gradle"
+apply from: "public-maven.gradle"

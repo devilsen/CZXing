@@ -1,14 +1,18 @@
 package me.devilsen.czxing.view.scanview;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.devilsen.czxing.view.PointView;
 
 /**
  * @author : dongSen
@@ -18,11 +22,17 @@ import me.devilsen.czxing.util.BarCodeUtil;
 public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
         BarcodeReader.ReadCodeListener {
 
-    /** 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容 */
+    /**
+     * 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
+     */
     public static final int SCAN_MODE_MIX = 0;
-    /** 只扫描扫码框里的内容 */
+    /**
+     * 只扫描扫码框里的内容
+     */
     public static final int SCAN_MODE_TINY = 1;
-    /** 扫描以屏幕宽为边长的内容 */
+    /**
+     * 扫描以屏幕宽为边长的内容
+     */
     public static final int SCAN_MODE_BIG = 2;
 
     private static final int DARK_LIST_SIZE = 4;
@@ -30,8 +40,13 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
     private boolean isStop;
     private boolean isDark;
     private int showCounter;
+    private int mResultColor;
+    private boolean mIsHideResultColor;
+    private int mPointSize;
+
     private final BarcodeReader reader;
     private ScanListener.AnalysisBrightnessListener brightnessListener;
+    private final List<View> resultViews = new ArrayList<>();
 
     public ScanView(Context context) {
         this(context, null);
@@ -45,6 +60,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         super(context, attrs, defStyleAttr);
         mScanBoxView.setScanBoxClickListener(this);
         reader = BarcodeReader.getInstance();
+        mPointSize = BarCodeUtil.dp2px(context, 15);
     }
 
     @Override
@@ -108,6 +124,8 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             BarCodeUtil.d("result : " + result.toString());
         }
 
+        showResultPoint(resultList);
+
         if (!isStop) {
             isStop = true;
             reader.stopRead();
@@ -115,9 +133,60 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
                 mScanListener.onScanSuccess(resultList);
             }
         }
+
 //        else if (result.getPoints() != null) {
 //            tryZoom(result);
 //        }
+    }
+
+    private void showResultPoint(List<CodeResult> resultList) {
+        if (mIsHideResultColor) return;
+
+        removeResultViews();
+
+        for (CodeResult result : resultList) {
+            addPointView(result);
+        }
+    }
+
+    private void removeResultViews() {
+        for (View view : resultViews) {
+            removeView(view);
+        }
+    }
+
+    private void addPointView(CodeResult result) {
+        int[] points = result.getPoints();
+        if (points == null || points.length < 4) return;
+        int x = points[0];
+        int y = points[1];
+        int width = points[2];
+        int height = points[3];
+
+        PointView view = new PointView(getContext());
+        resultViews.add(view);
+        if (mResultColor > 0) {
+            view.setColor(mResultColor);
+        }
+
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        int xOffset = (width - mPointSize) / 2;
+        int yOffset = (height - mPointSize) / 2;
+
+        xOffset = Math.max(xOffset, 0);
+        yOffset = Math.max(yOffset, 0);
+
+        params.leftMargin = x + xOffset;
+        params.topMargin = y + yOffset;
+        addView(view, params);
+    }
+
+    public void setResultColor(int resultColor) {
+        mResultColor = resultColor;
+    }
+
+    public void hideResultColor(boolean hideResultColor) {
+        mIsHideResultColor = hideResultColor;
     }
 
     @Override
@@ -163,5 +232,4 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             openFlashlight();
         }
     }
-
 }
