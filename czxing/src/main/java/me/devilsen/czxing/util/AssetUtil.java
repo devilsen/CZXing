@@ -30,7 +30,12 @@ public class AssetUtil {
     @CheckResult
     public static String getAbsolutePath(@NonNull Context context, @Nullable String dir, @NonNull String name) {
         File cacheDir = context.getExternalCacheDir();
-        File file = new File(cacheDir.getAbsolutePath() + File.separator + "Assets" + File.separator + dir + File.separator + name);
+        File file;
+        if (dir == null) {
+            file = new File(cacheDir.getAbsolutePath() + File.separator + "Assets" + File.separator + name);
+        } else {
+            file = new File(cacheDir.getAbsolutePath() + File.separator + "Assets" + File.separator + dir + File.separator + name);
+        }
         if (file.exists()) {
             Log.d("CZXing", "Asset file absolute path: " + file.getAbsolutePath());
             return file.getAbsolutePath();

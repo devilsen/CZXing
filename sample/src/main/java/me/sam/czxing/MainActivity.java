@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
+    private boolean mInitialed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+        initialModel();
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_space);
+        String imagePath = AssetUtil.getAbsolutePath(this, null, "qrcode_test.png");
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
         List<CodeResult> result = BarcodeReader.getInstance().readDetect(bitmap);
         printResult(result);
     }
@@ -62,6 +66,19 @@ public class MainActivity extends AppCompatActivity {
 //        Intent intent = new Intent(this, WriteCodeActivity.class);
 //        startActivity(intent);
 
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
+        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
+                superResolutionPrototxtPath, superResolutionCaffeModelPath);
+    }
+
+    private void initialModel() {
+        if (mInitialed) {
+            return;
+        }
+        mInitialed = true;
         String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
         String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
         String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
