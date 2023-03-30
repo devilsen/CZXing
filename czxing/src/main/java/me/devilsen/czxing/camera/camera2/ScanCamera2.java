@@ -264,7 +264,7 @@ public class ScanCamera2 extends ScanCamera {
         mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReader reader) {
-                if (mScanCallback != null) {
+                if (mScanCallback != null && mImageReader != null) {
 //                    BarCodeUtil.d("image reader: width  = " + mImageReader.getWidth() + " height = " + mImageReader.getHeight());
                     mScanCallback.onPreviewFrame(Camera2Helper.readYuv(reader), mImageReader.getWidth(), mImageReader.getHeight());
                 }

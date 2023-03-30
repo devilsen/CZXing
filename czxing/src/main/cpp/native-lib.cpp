@@ -76,6 +76,10 @@ Java_me_devilsen_czxing_code_NativeSdk_readByte(JNIEnv *env, jobject instance, j
                                                        jint cropWidth, jint cropHeight,
                                                        jint rowWidth, jint rowHeight,
                                                        jobjectArray result) {
+    if (objPtr == 0) {
+        return -1;
+    }
+
     jbyte *bytes = env->GetByteArrayElements(bytes_, nullptr);
 
     auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
@@ -89,6 +93,10 @@ JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_readBitmap(JNIEnv *env, jobject instance,
                                                       jlong objPtr, jobject bitmap,
                                                       jobjectArray result) {
+    if (objPtr == 0) {
+        return -1;
+    }
+
     auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     auto readResult = imageScheduler->readBitmap(env, bitmap);
     return processResult(env, readResult, result);

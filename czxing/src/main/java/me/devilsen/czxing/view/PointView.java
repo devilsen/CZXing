@@ -2,7 +2,6 @@ package me.devilsen.czxing.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -70,7 +69,6 @@ public class PointView extends View {
     }
 
     public void setColor(@ColorRes int color) {
-        if (color > 0 )
         mColor = mContext.getResources().getColor(color);
     }
 }

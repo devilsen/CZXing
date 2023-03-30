@@ -83,7 +83,7 @@ std::vector<ScanResult> ImageScheduler::readBitmap(JNIEnv* env, jobject bitmap)
     saveMat(src, "src");
 
     cv::Mat gray;
-    cvtColor(src, gray, cv::COLOR_RGBA2YUV_I420);
+    cvtColor(src, gray, cv::COLOR_RGBA2GRAY);
     saveMat(gray, "gray");
 
     return decodeWeChat(gray);
