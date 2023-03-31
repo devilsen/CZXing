@@ -132,6 +132,10 @@ std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
         ScanResult result(res[i], codeRect);
         resultVector.push_back(result);
 
+//        cv::Point point(rect.x + rect.width / 2, rect.y + rect.height / 2);
+//        cv::circle(gray, point, 20, {255, 0, 0}, -1);
+//        saveMat(gray, "result");
+
         LOGE("result = %s", res[i].c_str())
         LOGE("rect: x = %d, y = %d, width = %d, height = %d", rect.x, rect.y, rect.width, rect.height)
     }

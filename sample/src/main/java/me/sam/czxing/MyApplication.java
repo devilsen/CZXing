@@ -3,8 +3,6 @@ package me.sam.czxing;
 import android.app.Application;
 import android.content.Context;
 
-import com.tencent.bugly.crashreport.CrashReport;
-
 /**
  * desc :
  * date : 2019-06-25
@@ -19,7 +17,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        CrashReport.initCrashReport(getApplicationContext(), "378dbc83d2", true);
+//        CrashReport.initCrashReport(getApplicationContext(), "378dbc83d2", true);
     }
 
     public static Context getContext() {

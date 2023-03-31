@@ -80,6 +80,10 @@ Java_me_devilsen_czxing_code_NativeSdk_readByte(JNIEnv *env, jobject instance, j
         return -1;
     }
 
+    if (bytes_ == nullptr) {
+        return -1;
+    }
+
     jbyte *bytes = env->GetByteArrayElements(bytes_, nullptr);
 
     auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);

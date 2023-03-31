@@ -51,6 +51,13 @@ public class PointView extends View {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int size = MeasureSpec.makeMeasureSpec(mBigRadius * 2, MeasureSpec.EXACTLY);
+        setMeasuredDimension(size, size);
+    }
+
+    @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed) {

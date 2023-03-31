@@ -1,7 +1,6 @@
 package me.devilsen.czxing.view.scanview;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -169,15 +168,16 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             view.setColor(mResultColor);
         }
 
-        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         int xOffset = (width - mPointSize) / 2;
         int yOffset = (height - mPointSize) / 2;
 
         xOffset = Math.max(xOffset, 0);
         yOffset = Math.max(yOffset, 0);
 
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.leftMargin = x + xOffset;
         params.topMargin = y + yOffset;
+
         addView(view, params);
     }
 

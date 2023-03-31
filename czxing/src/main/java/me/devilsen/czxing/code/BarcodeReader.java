@@ -14,17 +14,13 @@ import me.devilsen.czxing.util.BitmapUtil;
 public class BarcodeReader {
 
     private long _nativePtr;
-    private static BarcodeReader instance;
+
+    private static final class InstanceHolder {
+        static final BarcodeReader instance = new BarcodeReader();
+    }
 
     public static BarcodeReader getInstance() {
-        if (instance == null) {
-            synchronized (BarcodeReader.class) {
-                if (instance == null) {
-                    instance = new BarcodeReader();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
 
     private BarcodeReader() {
@@ -33,8 +29,7 @@ public class BarcodeReader {
     }
 
     public void setDetectModel(String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath) {
-        NativeSdk.getInstance().setDetectModel(_nativePtr,
-                detectorPrototxtPath, detectorCaffeModelPath,
+        NativeSdk.getInstance().setDetectModel(_nativePtr, detectorPrototxtPath, detectorCaffeModelPath,
                 superResolutionPrototxtPath, superResolutionCaffeModelPath);
     }
 
