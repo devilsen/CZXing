@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <me.devilsen.czxing.view.scanview.ScanBoxView
+    <me.devilsen.czxing.view.scanview.SquareScanBoxView
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

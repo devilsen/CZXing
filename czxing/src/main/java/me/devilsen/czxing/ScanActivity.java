@@ -23,7 +23,6 @@ import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
-import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
@@ -99,11 +98,6 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanView.hideResultColor(option.isHideResultColor());
 
         ScanBoxView scanBox = mScanView.getScanBox();
-        scanBox.setMaskColor(option.getMaskColor());
-        scanBox.setCornerColor(option.getCornerColor());
-        scanBox.setBorderColor(option.getBorderColor());
-        scanBox.setBorderSize(option.getBorderSize());
-        scanBox.setBorderSize(option.getBorderWidth(), option.getBorderHeight());
         scanBox.setScanLineColor(option.getScanLineColors());
         if (option.isScanHorizontal()) {
             scanBox.setHorizontalScanLine();
@@ -119,12 +113,11 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
         BarcodeReader.getInstance().enableCVDetect(option.enableOpenCVDetect);
 
-        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
-        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
-        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
-        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
-        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
-                superResolutionPrototxtPath, superResolutionCaffeModelPath);
+        String detectorPrototxtPath = option.getDetectPrototxt();
+        String detectorCaffeModelPath = option.getDetectCaffeModel();
+        String superResolutionPrototxtPath = option.getSuperResolutionPrototxt();
+        String superResolutionCaffeModelPath = option.getSuperResolutionCaffeModel();
+        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
         // 标题栏
         String title = option.getTitle();
@@ -220,6 +213,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (isContinuousScan) {
             handler.sendEmptyMessageDelayed(MESSAGE_WHAT_START_SCAN, DELAY_TIME);
             return;
+        } else {
+            mScanView.stopPreview();
         }
         finish();
     }

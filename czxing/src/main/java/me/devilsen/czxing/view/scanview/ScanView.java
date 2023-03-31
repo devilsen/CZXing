@@ -18,8 +18,7 @@ import me.devilsen.czxing.view.PointView;
  * date : 2019-06-29 16:18
  * desc : 二维码界面使用类
  */
-public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener,
-        BarcodeReader.ReadCodeListener {
+public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeListener, ScanBoxView.ScanBoxClickListener {
 
     /**
      * 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
@@ -133,7 +132,6 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             }
         }
 
-        stopPreview();
 //        else if (result.getPoints() != null) {
 //            tryZoom(result);
 //        }

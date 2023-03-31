@@ -14,7 +14,7 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.DecelerateInterpolator;
 
 import java.util.List;
 
@@ -24,20 +24,18 @@ import me.devilsen.czxing.util.BitmapUtil;
 
 /**
  * @author : dongSen
- * date : 2019-07-01 15:51
- * desc : 扫描框
+ * 新样式的扫描框
  */
 public class ScanBoxView extends View {
 
     private static final int VERTICAL = 0;
     private static final int HORIZONTAL = 1;
-    private final int MAX_BOX_SIZE = BarCodeUtil.dp2px(getContext(), 300);
-    private final int SCAN_LINE_HEIGHT = BarCodeUtil.dp2px(getContext(), 1.5f);
+    private final int SCAN_LINE_HEIGHT = BarCodeUtil.dp2px(getContext(), 4f);
 
     private Paint mPaint;
     private Paint mTxtPaint;
     private Paint mScanLinePaint;
-    private Rect mFramingRect;
+    private final Rect mFramingRect = new Rect(0, 0, 1080, 1920);
     private Rect mFocusRect;
     private Rect mTextRect;
     private Canvas mCanvas;
@@ -47,20 +45,9 @@ public class ScanBoxView extends View {
     private int mTextColorBig;
 
     private int mTopOffset;
-    private int mBoxSizeOffset;
 
     private int mBorderColor;
-    private int mBoxSize;
-    private int mBoxWidth;
-    private int mBoxHeight;
     private float mBorderStrokeWidth;
-
-    private int mCornerColor;
-    private int mCornerLength;
-    private int mCornerSize;
-    private float mHalfCornerSize;
-    private int mBoxLeft;
-    private int mBoxTop;
 
     private LinearGradient mScanLineGradient;
     private float mScanLinePosition;
@@ -93,6 +80,9 @@ public class ScanBoxView extends View {
     private String mFlashLightOffText;
     private String mScanNoticeText;
 
+    private int mScanLeft;
+    private int mScanTop;
+
     public ScanBoxView(Context context) {
         this(context, null);
     }
@@ -124,16 +114,10 @@ public class ScanBoxView extends View {
         mScanLineColor2 = resources.getColor(R.color.czxing_scan_2);
         mScanLineColor3 = resources.getColor(R.color.czxing_scan_3);
 
-        mTopOffset = -BarCodeUtil.dp2px(context, 10);
-        mBoxSizeOffset = BarCodeUtil.dp2px(context, 40);
+        mTopOffset = BarCodeUtil.dp2px(context, 60);
 
         mBorderColor = resources.getColor(R.color.czxing_line_border);
         mBorderStrokeWidth = BarCodeUtil.dp2px(context, 0.5f);
-
-        mCornerColor = resources.getColor(R.color.czxing_line_corner);
-        mCornerLength = BarCodeUtil.dp2px(context, 20);
-        mCornerSize = BarCodeUtil.dp2px(context, 3);
-        mHalfCornerSize = 1.0f * mCornerSize / 2;
 
         mTextSize = BarCodeUtil.sp2px(context, 14);
         mTextSizeBig = BarCodeUtil.sp2px(context, 17);
@@ -150,36 +134,22 @@ public class ScanBoxView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        calFramingRect();
+
+        mScanLeft = 0;
+        mScanTop = mTopOffset;
+        Rect rect = new Rect(mScanLeft, mScanTop, mScanLeft + w, mScanTop + h * 2 / 3);
+        mFramingRect.set(rect);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (mFramingRect == null) {
-            return;
-        }
         mCanvas = canvas;
-
-        // 画遮罩层
-        drawMask(canvas);
-
-        // 画边框线
-        drawBorderLine(canvas);
-
-        // 画四个直角的线
-        drawCornerLine(canvas);
 
         // 画扫描线
         drawScanLine(canvas);
 
-        // 画提示文本
-        drawTipText(canvas);
-
         // 移动扫描线的位置
         moveScanLine();
-
-        // 画对识别到二维码的区域
-//        drawFocusRect(0, 0, 0, 0);
     }
 
     @Override
@@ -206,61 +176,6 @@ public class ScanBoxView extends View {
         mFlashLightListener = lightListener;
     }
 
-    private void calFramingRect() {
-        if (mFramingRect != null) {
-            return;
-        }
-
-        int viewWidth = getWidth();
-        int viewHeight = getHeight();
-        int minSize = Math.min(viewHeight, viewWidth);
-
-        // 默认使用正方形
-        if (mBoxSize != 0) {
-            calSquareRect(viewWidth, viewHeight, minSize);
-        } else if (mBoxWidth != 0 && mBoxHeight != 0) {
-            calRectangleRect(viewWidth, viewHeight);
-        } else {
-            calSquareRect(viewWidth, viewHeight, minSize);
-        }
-    }
-
-    /**
-     * 生成正方形扫码框
-     *
-     * @param viewWidth  屏幕宽
-     * @param viewHeight 屏幕高
-     * @param minSize    最小边长
-     */
-    private void calSquareRect(int viewWidth, int viewHeight, int minSize) {
-        if (mBoxSize == 0) {
-            mBoxSize = Math.min(minSize * 3 / 5, MAX_BOX_SIZE);
-        } else if (mBoxSize > minSize) {
-            mBoxSize = minSize;
-        }
-
-        mBoxLeft = (viewWidth - mBoxSize) / 2;
-        mBoxTop = (viewHeight - mBoxSize) / 2 + mTopOffset;
-        mBoxTop = mBoxTop < 0 ? 0 : mBoxTop;
-        mBoxWidth = mBoxSize;
-        mBoxHeight = mBoxSize;
-        mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxSize, mBoxTop + mBoxSize);
-    }
-
-    /**
-     * 生成长方形扫码框
-     *
-     * @param viewWidth  屏幕宽
-     * @param viewHeight 屏幕高
-     */
-    private void calRectangleRect(int viewWidth, int viewHeight) {
-        mBoxLeft = (viewWidth - mBoxWidth) / 2;
-        mBoxTop = (viewHeight - mBoxHeight) / 2 + mTopOffset;
-        mBoxTop = mBoxTop < 0 ? 0 : mBoxTop;
-        mBoxSize = mBoxWidth;
-        mFramingRect = new Rect(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop + mBoxHeight);
-    }
-
     private void drawMask(Canvas canvas) {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
@@ -275,42 +190,6 @@ public class ScanBoxView extends View {
         }
     }
 
-    private void drawBorderLine(Canvas canvas) {
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setColor(mBorderColor);
-        mPaint.setStrokeWidth(mBorderStrokeWidth);
-        canvas.drawRect(mFramingRect, mPaint);
-    }
-
-    /**
-     * 画四个直角的线
-     */
-    private void drawCornerLine(Canvas canvas) {
-        if (mHalfCornerSize <= 0) {
-            return;
-        }
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setColor(mCornerColor);
-        mPaint.setStrokeWidth(mCornerSize);
-        canvas.drawLine(mFramingRect.left - mHalfCornerSize, mFramingRect.top, mFramingRect.left - mHalfCornerSize + mCornerLength, mFramingRect.top,
-                mPaint);
-        canvas.drawLine(mFramingRect.left, mFramingRect.top - mHalfCornerSize, mFramingRect.left, mFramingRect.top - mHalfCornerSize + mCornerLength,
-                mPaint);
-        canvas.drawLine(mFramingRect.right + mHalfCornerSize, mFramingRect.top, mFramingRect.right + mHalfCornerSize - mCornerLength, mFramingRect.top,
-                mPaint);
-        canvas.drawLine(mFramingRect.right, mFramingRect.top - mHalfCornerSize, mFramingRect.right, mFramingRect.top - mHalfCornerSize + mCornerLength,
-                mPaint);
-
-        canvas.drawLine(mFramingRect.left - mHalfCornerSize, mFramingRect.bottom, mFramingRect.left - mHalfCornerSize + mCornerLength,
-                mFramingRect.bottom, mPaint);
-        canvas.drawLine(mFramingRect.left, mFramingRect.bottom + mHalfCornerSize, mFramingRect.left,
-                mFramingRect.bottom + mHalfCornerSize - mCornerLength, mPaint);
-        canvas.drawLine(mFramingRect.right + mHalfCornerSize, mFramingRect.bottom, mFramingRect.right + mHalfCornerSize - mCornerLength,
-                mFramingRect.bottom, mPaint);
-        canvas.drawLine(mFramingRect.right, mFramingRect.bottom + mHalfCornerSize, mFramingRect.right,
-                mFramingRect.bottom + mHalfCornerSize - mCornerLength, mPaint);
-    }
-
     /**
      * 画扫描线
      */
@@ -318,12 +197,12 @@ public class ScanBoxView extends View {
         if (mScanLineGradient == null) {
             // 生成垂直方向的扫码线（从上往下）
             if (mScanlineOrientation == VERTICAL) {
-                mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft + mBoxWidth, mBoxTop,
+                mScanLineGradient = new LinearGradient(mFramingRect.left, mFramingRect.top, mFramingRect.right, mFramingRect.top,
                         new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
                         null,
                         Shader.TileMode.CLAMP);
             } else { // 生成水平方向的扫码线（从左往右）
-                mScanLineGradient = new LinearGradient(mBoxLeft, mBoxTop, mBoxLeft, mBoxTop + mBoxHeight,
+                mScanLineGradient = new LinearGradient(mFramingRect.left, mFramingRect.top, mFramingRect.left, mFramingRect.bottom,
                         new int[]{mScanLineColor1, mScanLineColor2, mScanLineColor3, mScanLineColor2, mScanLineColor1},
                         null,
                         Shader.TileMode.CLAMP);
@@ -332,16 +211,16 @@ public class ScanBoxView extends View {
         }
 
         if (mScanlineOrientation == VERTICAL) {
-            canvas.drawRect(mBoxLeft,
-                    mBoxTop + mScanLinePosition,
-                    mBoxLeft + mBoxWidth,
-                    mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT,
+            canvas.drawRect(mFramingRect.left,
+                    mScanLinePosition,
+                    mFramingRect.right,
+                    mScanLinePosition + SCAN_LINE_HEIGHT,
                     mScanLinePaint);
         } else {
-            canvas.drawRect(mBoxLeft + mScanLinePosition,
-                    mBoxTop,
-                    mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT,
-                    mBoxTop + mBoxHeight,
+            canvas.drawRect(mScanLinePosition,
+                    mFramingRect.top,
+                    mScanLinePosition + SCAN_LINE_HEIGHT,
+                    mFramingRect.bottom,
                     mScanLinePaint);
         }
     }
@@ -353,7 +232,7 @@ public class ScanBoxView extends View {
         if (!mDropFlashLight) {
             if (isDark || isLightOn) {
                 canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
-                        mFramingRect.left + (mBoxWidth >> 1),
+                        mFramingRect.left,
                         mFramingRect.bottom - mTextSize,
                         mTxtPaint);
 
@@ -362,7 +241,7 @@ public class ScanBoxView extends View {
         }
 
         canvas.drawText(mScanNoticeText,
-                mFramingRect.left + (mBoxWidth >> 1),
+                mFramingRect.left,
                 mFramingRect.bottom + mTextSize * 2,
                 mTxtPaint);
 
@@ -375,7 +254,7 @@ public class ScanBoxView extends View {
         mTxtPaint.setColor(mTextColorBig);
         String clickText = "我的名片";
         canvas.drawText(clickText,
-                mFramingRect.left + (mBoxWidth >> 1),
+                mFramingRect.left,
                 mFramingRect.bottom + mTextSize * 6,
                 mTxtPaint);
 
@@ -384,7 +263,7 @@ public class ScanBoxView extends View {
             mTxtPaint.getTextBounds(clickText, 0, clickText.length() - 1, mTextRect);
             int width = mTextRect.width();
             int height = mTextRect.height();
-            mTextRect.left = mFramingRect.left + (mBoxWidth >> 1) - 10;
+            mTextRect.left = mFramingRect.left - 10;
             mTextRect.right = mTextRect.left + width + 10;
             mTextRect.top = mFramingRect.bottom + mTextSize * 6 - 10;
             mTextRect.bottom = mTextRect.top + height + 10;
@@ -454,73 +333,26 @@ public class ScanBoxView extends View {
         }
 
         if (mScanlineOrientation == VERTICAL) {
-            mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxHeight - mBorderStrokeWidth * 2);
-            mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    mScanLinePosition = (float) animation.getAnimatedValue();
-                    // 这里如果用postInvalidate会导致所在Activity的onStop和onDestroy方法阻塞，感谢lhhseraph的反馈
-                    postInvalidateOnAnimation();
-//                    postInvalidateOnAnimation(mBoxLeft,
-//                            ((int) (mBoxTop + mScanLinePosition - 10)),
-//                            mBoxLeft + mBoxWidth,
-//                            ((int) (mBoxTop + mScanLinePosition + SCAN_LINE_HEIGHT + 10)));
-                }
-            });
+            mScanLineAnimator = createAnimator(mFramingRect.top, mFramingRect.bottom);
         } else {
-            mScanLineAnimator = ValueAnimator.ofFloat(0, mBoxWidth - mBorderStrokeWidth * 2);
-            mScanLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    mScanLinePosition = (float) animation.getAnimatedValue();
-                    postInvalidateOnAnimation();
-//                    postInvalidateOnAnimation((int) (mBoxLeft + mScanLinePosition - 10),
-//                            mBoxTop,
-//                            (int) (mBoxLeft + mScanLinePosition + SCAN_LINE_HEIGHT + 10),
-//                            mBoxTop + mBoxHeight);
-                }
-            });
+            mScanLineAnimator = createAnimator(mFramingRect.left, mFramingRect.right);
         }
         mScanLineAnimator.setDuration(2500);
-        mScanLineAnimator.setInterpolator(new LinearInterpolator());
+        mScanLineAnimator.setInterpolator(new DecelerateInterpolator());
         mScanLineAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mScanLineAnimator.start();
     }
 
-    public Rect getScanBoxRect() {
-        return mFramingRect;
-    }
-
-    public int getScanBoxSize() {
-        return mBoxSize;
-    }
-
-    /**
-     * 有的手机得到的数据会有所偏移（如：华为P20），这里放大了获取到的数据
-     */
-    public int getScanBoxSizeExpand() {
-        return mBoxSize + mBoxSizeOffset;
-    }
-
-    public int getScanBoxWidthExpand() {
-        return mBoxWidth + mBoxSizeOffset;
-    }
-
-    public int getScanBoxHeightExpand() {
-        return mBoxHeight + mBoxSizeOffset;
-    }
-
-    /**
-     * 获取数据偏移量
-     */
-    public int getExpandTop() {
-        return mBoxSizeOffset;
-    }
-
-    public Point getScanBoxCenter() {
-        int centerX = mBoxLeft + (mBoxWidth >> 1);
-        int centerY = mBoxTop + (mBoxHeight >> 1);
-        return new Point(centerX, centerY);
+    private ValueAnimator createAnimator(float start, float end) {
+        ValueAnimator animator = ValueAnimator.ofFloat(start, end);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mScanLinePosition = (float) animation.getAnimatedValue();
+                postInvalidateOnAnimation();
+            }
+        });
+        return animator;
     }
 
     public void setDark(boolean dark) {
@@ -531,26 +363,6 @@ public class ScanBoxView extends View {
     }
 
     /**
-     * 设定四个角的颜色
-     */
-    public void setCornerColor(int color) {
-        if (color == 0) {
-            return;
-        }
-        this.mCornerColor = color;
-    }
-
-    /**
-     * 设定扫描框的边框颜色
-     */
-    public void setBorderColor(int color) {
-        if (color == 0) {
-            return;
-        }
-        this.mBorderColor = color;
-    }
-
-    /**
      * 将扫码线设置为水平
      */
     public void setHorizontalScanLine() {
@@ -558,59 +370,11 @@ public class ScanBoxView extends View {
     }
 
     /**
-     * 设置边框长度（优先使用正方形）
-     *
-     * @param borderSize px
-     */
-    public void setBorderSize(int borderSize) {
-        if (borderSize <= 0) {
-            return;
-        }
-        this.mBoxSize = borderSize;
-    }
-
-    /**
-     * 设置边框长度
-     *
-     * @param width  边框长
-     * @param height 边框高
-     */
-    public void setBorderSize(int width, int height) {
-        if (height < 0 || width < 0) {
-            return;
-        }
-        this.mBoxHeight = height;
-        this.mBoxWidth = width;
-        BarCodeUtil.d("border size: height = " + height + " width = " + width);
-    }
-
-    /**
-     * 设置边框长度
-     *
-     * @param strokeWidth px
-     */
-    public void setBorderStrokeWidth(int strokeWidth) {
-        if (strokeWidth <= 0) {
-            return;
-        }
-        this.mBorderStrokeWidth = strokeWidth;
-    }
-
-    /**
-     * 设置扫码框上下偏移量，可以为负数
-     *
-     * @param offset px
-     */
-    public void setBoxTopOffset(int offset) {
-        mTopOffset = offset;
-    }
-
-    /**
-     * 设置扫码框四周的颜色
+     * 设置扫码得到结果后的遮罩颜色
      *
      * @param color 透明颜色
      */
-    public void setMaskColor(int color) {
+    public void setResultMaskColor(int color) {
         if (color == 0) {
             return;
         }
@@ -719,6 +483,18 @@ public class ScanBoxView extends View {
         if (mScanLineAnimator != null) {
             mScanLineAnimator.removeAllUpdateListeners();
         }
+    }
+
+    public Point getScanCenter() {
+        return new Point(mFramingRect.centerX(), mFramingRect.centerY());
+    }
+
+    public Rect getScanBoxRect() {
+        return mFramingRect;
+    }
+
+    public int getScanBoxSize() {
+        return Math.min(mFramingRect.width(), mFramingRect.height());
     }
 
     public interface ScanBoxClickListener {

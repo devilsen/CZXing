@@ -22,7 +22,6 @@ import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
-import me.devilsen.czxing.view.resultview.ScanResultView;
 
 /**
  * @author : dongSen
@@ -37,7 +36,6 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
     protected ScanCamera mCamera;
     private AutoFitSurfaceView mCameraSurface;
     protected ScanBoxView mScanBoxView;
-    private ScanResultView mScanResultView;
 
     protected boolean mSpotAble;
     private int scanSequence;
@@ -49,15 +47,6 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
     private long mLastAutoZoomTime;
     private ResolutionAdapterUtil resolutionAdapter;
     private int scanMode;
-
-    private boolean isProcessingFrame = false;
-    private int[] rgbBytes = null;
-    private byte[][] yuvBytes = new byte[3][];
-    protected int previewWidth = 0;
-    protected int previewHeight = 0;
-    private int yRowStride;
-    private Runnable postInferenceCallback;
-    private Runnable imageConverter;
 
     public BarCoderView(Context context) {
         this(context, null);
@@ -78,7 +67,7 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            mCamera = new ScanCamera2(context, mCameraSurface);
 //        } else {
-            mCamera = new ScanCamera1(context, mCameraSurface);
+        mCamera = new ScanCamera1(context, mCameraSurface);
 //        }
         mCamera.onCreate();
         mCamera.setPreviewListener(this);
@@ -88,7 +77,6 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
         addView(mCameraSurface, params);
 
         mScanBoxView = new ScanBoxView(context);
-        mScanBoxView.setVisibility(INVISIBLE);
         addView(mScanBoxView, params);
 
         resolutionAdapter = new ResolutionAdapterUtil();
@@ -98,12 +86,12 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         resolutionAdapter.setResolutionSize(right - left, bottom - top);
-        mCamera.setScanBoxPoint(mScanBoxView.getScanBoxCenter());
+        mCamera.setScanBoxPoint(mScanBoxView.getScanCenter());
     }
 
     @Override
     public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
-        processForDecode(data,rowWidth,rowHeight);
+        processForDecode(data, rowWidth, rowHeight);
     }
 
     private void processForDecode(byte[] data, int rowWidth, int rowHeight) {
@@ -113,32 +101,27 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
         }
         processLastTime = now;
 
-        try {
-            Rect scanBoxRect = mScanBoxView.getScanBoxRect();
-            int scanBoxSize = mScanBoxView.getScanBoxSizeExpand();
-            int expandTop = mScanBoxView.getExpandTop();
+        Rect scanBoxRect = mScanBoxView.getScanBoxRect();
+        int scanBoxSize = mScanBoxView.getScanBoxSize();
 
-            int left;
-            int top;
-            // 这里需要把得到的数据也翻转
-            boolean portrait = rowWidth > rowHeight;
+        int left;
+        int top;
+        // 这里需要把得到的数据也翻转
+        boolean portrait = rowWidth > rowHeight;
 //            BarCodeUtil.d("is portrait = " + portrait);
-            if (portrait) {// 横向数据，left 和 top 反转
-                left = scanBoxRect.top - expandTop;
-                top = scanBoxRect.left;
-            } else {
-                left = scanBoxRect.left;
-                top = scanBoxRect.top;
-            }
-
-            resolutionAdapter.setCameraSize(portrait, rowWidth, rowHeight);
-            left = resolutionAdapter.getAdapterWidth(left);
-            top = resolutionAdapter.getAdapterHeight(top);
-            scanBoxSize = resolutionAdapter.getAdapterWidth(scanBoxSize);
-            scanDataStrategy(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (portrait) {// 横向数据，left 和 top 反转
+            left = scanBoxRect.top;
+            top = scanBoxRect.left;
+        } else {
+            left = scanBoxRect.left;
+            top = scanBoxRect.top;
         }
+
+        resolutionAdapter.setCameraSize(portrait, rowWidth, rowHeight);
+        left = resolutionAdapter.getAdapterWidth(left);
+        top = resolutionAdapter.getAdapterHeight(top);
+        scanBoxSize = resolutionAdapter.getAdapterWidth(scanBoxSize);
+        scanDataStrategy(data, left, top, scanBoxSize, scanBoxSize, rowWidth, rowHeight);
     }
 
     /**
@@ -214,45 +197,6 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
      */
     public void startSpotAndShowRect() {
         startScan();
-    }
-
-    /**
-     * 显示获取到的二维码位置
-     *
-     * @param result 二维码定位信息
-     */
-    void showCodeBorder(CodeResult result) {
-        int[] points = result.getPoints();
-        if (points.length > 3) {
-            int left = 0;
-            int top = 0;
-            int right = 0;
-            int bottom = 0;
-            int scanType = result.getScanType();
-            if (scanType == 0) { // 正常
-                left = (int) points[0];
-                top = (int) points[5];
-                right = (int) points[4];
-                bottom = (int) points[1];
-            } else if (scanType == 1) { // 旋转90度
-                left = (int) points[2];
-                top = (int) points[3];
-                right = (int) points[4];
-                bottom = (int) points[5];
-            } else if (scanType == 2 || scanType == 4) { // 旋转180度
-                left = (int) points[2];
-                top = (int) points[5];
-                right = (int) points[0];
-                bottom = (int) points[1];
-            } else if (scanType == 3) { // 旋转270度
-                left = (int) points[4];
-                top = (int) points[5];
-                right = (int) points[2];
-                bottom = (int) points[3];
-            }
-
-            mScanBoxView.drawFocusRect(left, top, right, bottom);
-        }
     }
 
     /**
@@ -435,25 +379,6 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
 
     public ScanBoxView getScanBox() {
         return mScanBoxView;
-    }
-
-    protected void processImage() {
-
-    }
-
-    protected void onPreviewSizeChosen(int previewWidth, int previewHeight, int rotation) {
-
-    }
-
-    protected void readyForNextImage() {
-        if (postInferenceCallback != null) {
-            postInferenceCallback.run();
-        }
-    }
-
-    protected int[] getRgbBytes() {
-        imageConverter.run();
-        return rgbBytes;
     }
 
 }

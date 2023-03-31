@@ -42,10 +42,8 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
     try {
         LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
         LOGE("wechat_qrcode set model, detectorCaffeModelPath = %s", detectorCaffeModelPath)
-        LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s",
-             superResolutionPrototxtPath)
-        LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s",
-             superResolutionCaffeModelPath)
+        LOGE("wechat_qrcode set model, superResolutionPrototxtPath = %s",superResolutionPrototxtPath)
+        LOGE("wechat_qrcode set model, superResolutionCaffeModelPath = %s",superResolutionCaffeModelPath)
 
         m_weChatQrCodeReader = cv::wechat_qrcode::WeChatQRCode(detectorPrototxtPath,
                                                                detectorCaffeModelPath,

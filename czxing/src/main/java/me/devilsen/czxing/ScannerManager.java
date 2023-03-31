@@ -106,6 +106,7 @@ public class ScannerManager {
      *
      * @param scanMode 0 / 1 / 2
      */
+    @Deprecated
     public ScannerManager setScanMode(int scanMode) {
         scanOption.scanMode = scanMode;
         return this;
@@ -237,6 +238,18 @@ public class ScannerManager {
         return this;
     }
 
+    public ScannerManager detectorModel(String prototxt, String caffeModel) {
+        scanOption.detectPrototxt = prototxt;
+        scanOption.detectCaffeModel = caffeModel;
+        return this;
+    }
+
+    public ScannerManager superResolutionModel(String prototxt, String caffeModel) {
+        scanOption.superResolutionPrototxt = prototxt;
+        scanOption.superResolutionCaffeModel = caffeModel;
+        return this;
+    }
+
     /**
      * 设置扫码代理，获取扫码结果
      *
@@ -290,6 +303,11 @@ public class ScannerManager {
         private boolean dropFlashLight;
         private String scanNoticeText;
         public boolean enableOpenCVDetect = true;
+
+        public String detectPrototxt;
+        public String detectCaffeModel;
+        public String superResolutionPrototxt;
+        public String superResolutionCaffeModel;
 
         private List<BarcodeFormat> barcodeFormats;
         private List<Integer> scanLineColors;
@@ -378,6 +396,11 @@ public class ScannerManager {
             return isHideResultColor;
         }
 
+        public String getDetectPrototxt() { return detectPrototxt; }
+        public String getDetectCaffeModel() { return detectCaffeModel; }
+        public String getSuperResolutionPrototxt() { return superResolutionPrototxt; }
+        public String getSuperResolutionCaffeModel() { return superResolutionCaffeModel; }
+
         @Override
         public int describeContents() {
             return 0;
@@ -407,6 +430,11 @@ public class ScannerManager {
             dest.writeByte(this.enableOpenCVDetect ? (byte) 1 : (byte) 0);
             dest.writeInt(this.resultColor);
             dest.writeByte(this.isHideResultColor ?  (byte) 1 : (byte) 0);
+            dest.writeString(this.detectPrototxt);
+            dest.writeString(this.detectCaffeModel);
+            dest.writeString(this.superResolutionPrototxt);
+            dest.writeString(this.superResolutionCaffeModel);
+
         }
 
         public ScanOption() {
@@ -437,6 +465,11 @@ public class ScannerManager {
             this.enableOpenCVDetect = in.readByte() != 0;
             this.resultColor = in.readInt();
             this.isHideResultColor = in.readByte() != 0;
+            this.detectPrototxt = in.readString();
+            this.detectCaffeModel = in.readString();
+            this.superResolutionPrototxt = in.readString();
+            this.superResolutionCaffeModel = in.readString();
+
         }
 
         public static final Creator<ScanOption> CREATOR = new Creator<ScanOption>() {

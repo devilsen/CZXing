@@ -63,15 +63,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void write(View view) {
-//        Intent intent = new Intent(this, WriteCodeActivity.class);
-//        startActivity(intent);
-
-        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
-        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
-        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
-        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
-        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
-                superResolutionPrototxtPath, superResolutionCaffeModelPath);
+        Intent intent = new Intent(this, WriteCodeActivity.class);
+        startActivity(intent);
     }
 
     private void initialModel() {
@@ -99,6 +92,11 @@ public class MainActivity extends AppCompatActivity {
         Resources resources = getResources();
         List<Integer> scanColors = Arrays.asList(resources.getColor(R.color.scan_side), resources.getColor(R.color.scan_partial), resources.getColor(R.color.scan_middle));
 
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
+
         Scanner.with(this)
                 .setMaskColor(resources.getColor(R.color.mask_color))
                 .setBorderColor(resources.getColor(R.color.box_line))
@@ -109,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 //                .setHorizontalScanLine()
                 .setScanMode(ScanView.SCAN_MODE_BIG)
 //                .setBarcodeFormat(BarcodeFormat.EAN_13)
-                .setTitle("我的扫一扫")
+                .setTitle("")
                 .showAlbum(true)
                 .setScanNoticeText("扫描二维码")
                 .setFlashLightOnText("打开闪光灯")
@@ -118,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
                 .setFlashLightOnDrawable(R.drawable.ic_highlight_blue_open_24dp)
                 .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)
                 .continuousScan()
+                .detectorModel(detectorPrototxtPath, detectorCaffeModelPath)
+                .superResolutionModel(superResolutionPrototxtPath, superResolutionCaffeModelPath)
 //                .enableOpenCVDetect(true)
                 .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
                     @Override
