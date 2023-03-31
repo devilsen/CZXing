@@ -7,6 +7,7 @@
 
 #include "config.h"
 #include <string>
+#include <jni.h>
 #include "DataStruct.h"
 
 CZXING_BEGIN_NAMESPACE()
@@ -21,6 +22,10 @@ public:
     ScanResult(CodeFormat& format, std::string text, CodeRect rect) :
     m_codeFormat(format), m_text(text), m_codeRect(rect){};
 
+    static void init(JNIEnv *env);
+    static void unInit(JNIEnv *env);
+    static jobjectArray obtainResultArray(JNIEnv* env, int size);
+
     CodeFormat format() const {
         return m_codeFormat;
     }
@@ -32,6 +37,8 @@ public:
     const CodeRect& rect() const {
         return m_codeRect;
     }
+
+    jobject getJCodeResult(JNIEnv* env);
 
 private:
     CodeFormat m_codeFormat { CodeFormat::QRCode };

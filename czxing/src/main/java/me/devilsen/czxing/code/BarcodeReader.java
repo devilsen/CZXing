@@ -6,6 +6,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -63,11 +64,10 @@ public class BarcodeReader {
         int imgHeight = newBitmap.getHeight();
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
-        Object[] result = new Object[3];
-        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap, result);
+        CodeResult[] result = NativeSdk.getInstance().readBitmap(_nativePtr, newBitmap);
         bitmap.recycle();
         newBitmap.recycle();
-        return processResult(resultFormat, result);
+        return processResult(result);
     }
 
     @NonNull
@@ -81,36 +81,23 @@ public class BarcodeReader {
         int imgHeight = bitmap.getHeight();
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
-        Object[] result = new Object[3];
-        int resultFormat = NativeSdk.getInstance().readBitmap(_nativePtr, bitmap, result);
+        CodeResult[] result = NativeSdk.getInstance().readBitmap(_nativePtr, bitmap);
         bitmap.recycle();
-        return processResult(resultFormat, result);
+        return processResult(result);
     }
 
     @NonNull
     @CheckResult
     public List<CodeResult> read(byte[] data, int cropLeft, int cropTop, int cropWidth, int cropHeight, int rowWidth, int rowHeight) {
-        Object[] result = new Object[3];
-        int resultFormat = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight, result);
-        return processResult(resultFormat, result);
+        CodeResult[] result = NativeSdk.getInstance().readByte(_nativePtr, data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
+        return processResult(result);
     }
 
     @NonNull
     @CheckResult
-    private List<CodeResult> processResult(int resultFormat, Object[] result) {
-        if (resultFormat >= 0 && result != null) {
-            List<CodeResult> list = new ArrayList<>(result.length);
-            int index = 0;
-            int size = result.length / 3;
-            for (int i = 0; i < size; i++) {
-                BarcodeFormat format = getFormat(result[index++]);
-                String text = (String) result[index++];
-                int[] points = getPoints(result[index++]);
-
-                CodeResult decodeResult = new CodeResult(format, text, points);
-                list.add(decodeResult);
-            }
-            return list;
+    private List<CodeResult> processResult(CodeResult[] result) {
+        if (result != null) {
+            return Arrays.asList(result);
         }
         return new ArrayList<>(0);
     }

@@ -92,19 +92,13 @@ static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray forma
     return result;
 }
 
-static int processResult(JNIEnv *env, std::vector<czxing::ScanResult> resultVector, jobjectArray result) {
-    if (resultVector.empty()) return -1;
+static jobjectArray processResult(JNIEnv *env, std::vector<czxing::ScanResult> resultVector) {
+    if (resultVector.empty()) return nullptr;
 
-    for (int i = 0; i < resultVector.size(); ++i) {
-        czxing::ScanResult scanResult = resultVector[i];
-
-        jintArray formatArray = env->NewIntArray(1);
-        int format = scanResult.format();
-        env->SetIntArrayRegion(formatArray, 0, 1, &format);
-
-        env->SetObjectArrayElement(result, 0, formatArray);
-        env->SetObjectArrayElement(result, 1, string2jstring(env, scanResult.text()));
-        env->SetObjectArrayElement(result, 2, rect2JavaArray(env, scanResult.rect()));
+    int size = resultVector.size();
+    auto jResult = czxing::ScanResult::obtainResultArray(env, size);
+    for (int i = 0; i < size; ++i) {
+        env->SetObjectArrayElement(jResult, i, resultVector[i].getJCodeResult(env));
     }
-    return 0;
+    return jResult;
 }

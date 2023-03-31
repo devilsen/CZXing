@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -182,12 +183,17 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     }
 
     @Override
-    public void onScanSuccess(List<CodeResult> resultList) {
+    public void onScanSuccess(@NonNull List<CodeResult> resultList) {
         mSoundPoolUtil.play();
 
         // todo deal with results
 //        showResult(result);
 //        finish();
+    }
+
+    @Override
+    public void onClickResult(CodeResult result) {
+
     }
 
     /**

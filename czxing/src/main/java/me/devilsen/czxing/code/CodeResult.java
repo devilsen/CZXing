@@ -1,15 +1,19 @@
 package me.devilsen.czxing.code;
 
+import androidx.annotation.Keep;
+
 /**
  * desc: code result model
  * date: 2019/08/17
  *
  * @author : dongsen
  */
+@Keep
 public class CodeResult {
 
     private final BarcodeFormat format;
     private final String text;
+    // x,y,width,height
     private int[] points;
     private int scanType;
 
@@ -29,7 +33,7 @@ public class CodeResult {
         if (formatIndex < 0) {
             this.format = BarcodeFormat.QR_CODE;
         } else {
-            this.format = BarcodeFormat.values()[formatIndex];
+            this.format = BarcodeFormat.valueOf(formatIndex);
         }
         this.points = points;
         this.scanType = scanType;

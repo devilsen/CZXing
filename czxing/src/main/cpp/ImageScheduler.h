@@ -17,7 +17,6 @@
 #include <memory.h>
 
 CZXING_BEGIN_NAMESPACE()
-USING_CZXING_NAMESPACE()
 
 class ImageScheduler {
 public:

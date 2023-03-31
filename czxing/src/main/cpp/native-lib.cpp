@@ -70,18 +70,17 @@ Java_me_devilsen_czxing_code_NativeSdk_setFormat(JNIEnv *env, jobject thiz, jlon
 }
 
 extern "C"
-JNIEXPORT jint JNICALL
+JNIEXPORT jobjectArray JNICALL
 Java_me_devilsen_czxing_code_NativeSdk_readByte(JNIEnv *env, jobject instance, jlong objPtr,
                                                        jbyteArray bytes_, jint left, jint top,
                                                        jint cropWidth, jint cropHeight,
-                                                       jint rowWidth, jint rowHeight,
-                                                       jobjectArray result) {
+                                                       jint rowWidth, jint rowHeight) {
     if (objPtr == 0) {
-        return -1;
+        return nullptr;
     }
 
     if (bytes_ == nullptr) {
-        return -1;
+        return nullptr;
     }
 
     jbyte *bytes = env->GetByteArrayElements(bytes_, nullptr);
@@ -89,21 +88,19 @@ Java_me_devilsen_czxing_code_NativeSdk_readByte(JNIEnv *env, jobject instance, j
     auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     auto readResult = imageScheduler->readByte(env, bytes, rowWidth, rowHeight);
     env->ReleaseByteArrayElements(bytes_, bytes, 0);
-    return processResult(env, readResult, result);
+    return processResult(env, readResult);
 }
 
 extern "C"
-JNIEXPORT jint JNICALL
-Java_me_devilsen_czxing_code_NativeSdk_readBitmap(JNIEnv *env, jobject instance,
-                                                      jlong objPtr, jobject bitmap,
-                                                      jobjectArray result) {
+JNIEXPORT jobjectArray JNICALL
+Java_me_devilsen_czxing_code_NativeSdk_readBitmap(JNIEnv *env, jobject instance, jlong objPtr, jobject bitmap) {
     if (objPtr == 0) {
-        return -1;
+        return nullptr;
     }
 
     auto imageScheduler = reinterpret_cast<czxing::ImageScheduler *>(objPtr);
     auto readResult = imageScheduler->readBitmap(env, bitmap);
-    return processResult(env, readResult, result);
+    return processResult(env, readResult);
 }
 
 extern "C"

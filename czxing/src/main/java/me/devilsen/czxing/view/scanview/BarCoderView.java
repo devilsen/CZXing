@@ -1,5 +1,8 @@
 package me.devilsen.czxing.view.scanview;
 
+import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_MIX;
+import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
+
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -20,9 +23,6 @@ import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ResolutionAdapterUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 import me.devilsen.czxing.view.resultview.ScanResultView;
-
-import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_MIX;
-import static me.devilsen.czxing.view.scanview.ScanView.SCAN_MODE_TINY;
 
 /**
  * @author : dongSen
@@ -196,6 +196,10 @@ abstract class BarCoderView extends FrameLayout implements ScanCamera.ScanPrevie
         mSpotAble = false;
         mScanBoxView.stopAnim();
         mScanBoxView.turnOffLight();
+    }
+
+    public void stopPreview() {
+        mCamera.onPause();
     }
 
     /**

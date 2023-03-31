@@ -133,6 +133,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
             }
         }
 
+        stopPreview();
 //        else if (result.getPoints() != null) {
 //            tryZoom(result);
 //        }
@@ -144,7 +145,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         removeResultViews();
 
         for (CodeResult result : resultList) {
-            addPointView(result);
+            addPointView(result, resultList.size());
         }
     }
 
@@ -154,7 +155,7 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         }
     }
 
-    private void addPointView(CodeResult result) {
+    private void addPointView(final CodeResult result, int resultSize) {
         int[] points = result.getPoints();
         if (points == null || points.length < 4) return;
         int x = points[0];
@@ -163,6 +164,17 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         int height = points[3];
 
         PointView view = new PointView(getContext());
+        if (resultSize > 1) {
+            view.drawArrow();
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mScanListener != null) {
+                        mScanListener.onClickResult(result);
+                    }
+                }
+            });
+        }
         resultViews.add(view);
         if (mResultColor > 0) {
             view.setColor(mResultColor);

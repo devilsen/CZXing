@@ -70,9 +70,9 @@ class NativeSdk {
 
     native void setDetectModel(long objPtr, String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath);
 
-    native int readByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight, Object[] result);
+    native CodeResult[] readByte(long objPtr, byte[] bytes, int left, int top, int width, int height, int rowWidth, int rowHeight);
 
-    native int readBitmap(long objPtr, Bitmap bitmap, Object[] result);
+    native CodeResult[] readBitmap(long objPtr, Bitmap bitmap);
 
     // write
     native int writeCode(String content, int width, int height, int color, String format, Object[] result);
