@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
@@ -24,7 +23,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.BarcodeWriter;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -35,12 +33,11 @@ import me.devilsen.czxing.util.BarCodeUtil;
  *
  * @author : dongSen
  */
-public class WriteQRCodeActivity extends AppCompatActivity implements View.OnClickListener {
+public class WriteQRCodeActivity extends BaseDecoderActivity implements View.OnClickListener {
 
     private EditText textEdit;
     private ImageView qrcodeImage;
     private BarcodeWriter writer;
-    private BarcodeReader reader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,7 +49,6 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
         qrcodeImage = findViewById(R.id.image_view_write_qr_code);
 
         writer = new BarcodeWriter();
-        reader = BarcodeReader.getInstance();
 
         writeBtn.setOnClickListener(this);
         qrcodeImage.setOnClickListener(this);
@@ -78,7 +74,7 @@ public class WriteQRCodeActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void read(Bitmap bitmap) {
-        List<CodeResult> resultList = reader.read(bitmap);
+        List<CodeResult> resultList = getDecoder().decodeBitmap(bitmap);
         if (resultList.size() > 0) {
             Toast.makeText(this, resultList.get(0).getText(), Toast.LENGTH_SHORT).show();
         }

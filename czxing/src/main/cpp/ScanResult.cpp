@@ -11,12 +11,12 @@ USING_CZXING_NAMESPACE()
 static struct CodeResult {
     jclass clazz;
     jmethodID builder;
-} jCodeResult;
+} j_codeResult;
 
 void ScanResult::init(JNIEnv* env)
 {
     jclass resultClass = env->FindClass("me/devilsen/czxing/code/CodeResult");
-    jCodeResult = {
+    j_codeResult = {
             reinterpret_cast<jclass>(env->NewGlobalRef(resultClass)),
             env->GetMethodID(resultClass, "<init>", "(Ljava/lang/String;I[II)V"),
     };
@@ -25,12 +25,12 @@ void ScanResult::init(JNIEnv* env)
 
 void ScanResult::unInit(JNIEnv* env)
 {
-    env->DeleteGlobalRef(jCodeResult.clazz);
+    env->DeleteGlobalRef(j_codeResult.clazz);
 }
 
 jobjectArray ScanResult::obtainResultArray(JNIEnv* env, int size)
 {
-    return env->NewObjectArray(size, jCodeResult.clazz, nullptr);
+    return env->NewObjectArray(size, j_codeResult.clazz, nullptr);
 }
 
 jintArray getJavaArray(JNIEnv *env, const czxing::CodeRect& codeRect)
@@ -48,6 +48,6 @@ jobject ScanResult::getJCodeResult(JNIEnv* env)
 {
     auto text = env->NewStringUTF(m_text.c_str());
     auto format = static_cast<int>(m_codeFormat);
-    return env->NewObject(jCodeResult.clazz, jCodeResult.builder, text, format, getJavaArray(env, rect()), 0);
+    return env->NewObject(j_codeResult.clazz, j_codeResult.builder, text, format, getJavaArray(env, rect()), 0);
 }
 

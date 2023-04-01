@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
@@ -22,7 +21,6 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.BarcodeWriter;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -33,14 +31,13 @@ import me.devilsen.czxing.util.BarCodeUtil;
  *
  * @author : dongSen
  */
-public class WriteCodeActivity extends AppCompatActivity implements View.OnClickListener {
+public class WriteCodeActivity extends BaseDecoderActivity implements View.OnClickListener {
 
     private ImageView qrcodeImage;
     private ImageView qrcodeLogoImage;
     private ImageView barcodeImage;
     private ImageView barcodeColorImage;
     private BarcodeWriter writer;
-    private BarcodeReader reader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,7 +55,6 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
         barcodeColorImage.setOnClickListener(this);
 
         writer = new BarcodeWriter();
-        reader = BarcodeReader.getInstance();
 
         writeQrCode();
         writeBarCode();
@@ -129,7 +125,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
     }
 
     public void read(Bitmap bitmap) {
-        List<CodeResult> resultList = reader.read(bitmap);
+        List<CodeResult> resultList = getDecoder().decodeBitmap(bitmap);
         CodeResult result = resultList.get(0);
         if (result != null) {
             Log.d("read code", result.getText() + " format " + result.getFormat());
@@ -142,7 +138,7 @@ public class WriteCodeActivity extends AppCompatActivity implements View.OnClick
                 .create(new ObservableOnSubscribe<CodeResult>() {
                     @Override
                     public void subscribe(ObservableEmitter<CodeResult> emitter) throws Exception {
-                        List<CodeResult> result = reader.read(bitmap);
+                        List<CodeResult> result = getDecoder().decodeBitmap(bitmap);
                         if (result.size() > 0) {
                             emitter.onNext(result.get(0));
                         }

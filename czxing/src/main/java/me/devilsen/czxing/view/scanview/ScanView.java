@@ -1,14 +1,18 @@
 package me.devilsen.czxing.view.scanview;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.BarcodeFormat;
-import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.PointView;
@@ -18,7 +22,7 @@ import me.devilsen.czxing.view.PointView;
  * date : 2019-06-29 16:18
  * desc : 二维码界面使用类
  */
-public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeListener, ScanBoxView.ScanBoxClickListener {
+public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickListener {
 
     /**
      * 混合扫描模式（默认），扫描4次扫码框里的内容，扫描1次以屏幕宽为边长的内容
@@ -32,17 +36,16 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
      * 扫描以屏幕宽为边长的内容
      */
     public static final int SCAN_MODE_BIG = 2;
-
-    private static final int DARK_LIST_SIZE = 4;
+    private Handler mHandler;
 
     private boolean isStop;
     private boolean isDark;
     private int showCounter;
     private int mResultColor;
     private boolean mIsHideResultColor;
-    private int mPointSize;
+    private final int mPointSize;
 
-    private final BarcodeReader reader;
+    private BarcodeDecoder mDecoder;
     private ScanListener.AnalysisBrightnessListener brightnessListener;
     private final List<View> resultViews = new ArrayList<>();
 
@@ -57,8 +60,10 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
     public ScanView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mScanBoxView.setScanBoxClickListener(this);
-        reader = BarcodeReader.getInstance();
+        mDecoder = new BarcodeDecoder();
         mPointSize = BarCodeUtil.dp2px(context, 15);
+
+        mHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -66,12 +71,67 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
         if (isStop) {
             return;
         }
-        List<CodeResult> codeResult = reader.read(data, left, top, width, height, rowWidth, rowHeight);
-        onReadCodeResult(codeResult);
-//        Log.e("save >>> ", "left = " + left + " top= " + top +
-//                " width=" + width + " height= " + height + " rowWidth=" + rowWidth + " rowHeight=" + rowHeight);
 
-//        SaveImageUtil.saveData(getContext(), data, left, top, width, height, rowWidth);
+        // todo 如果直接创建会有影响吗？
+        mDecoder.decodeYUVASync(data, left, top, width, height, rowWidth, rowHeight, new BarcodeDecoder.OnDetectCodeListener() {
+            @Override
+            public void onReadCodeResult(List<CodeResult> resultList) {
+                if (resultList.size() == 0) {
+                    return;
+                }
+
+                for (CodeResult result : resultList) {
+                    BarCodeUtil.d("result : " + result.toString());
+                }
+
+                showResultPoint(resultList);
+
+                if (!isStop) {
+                    isStop = true;
+                    if (mScanListener != null) {
+                        mScanListener.onScanSuccess(resultList);
+                    }
+                }
+            }
+        }, new BarcodeDecoder.OnFocusListener() {
+            @Override
+            public void onFocus() {
+//                BarCodeUtil.d("not found code too many times , try focus");
+//                mCamera.onFrozen();
+            }
+        });
+
+//        mDecoder.detectBrightnessASync(data, rowWidth, rowHeight, new BarcodeDecoder.OnDetectBrightnessListener() {
+//            @Override
+//            public void onAnalysisBrightness(double brightness) {
+//                boolean dark = brightness < 30;
+//                BarCodeUtil.d("isDark : " + dark);
+//
+//                if (dark) {
+//                    showCounter++;
+//                    showCounter = Math.min(showCounter, DARK_LIST_SIZE);
+//                } else {
+//                    showCounter--;
+//                    showCounter = Math.max(showCounter, 0);
+//                }
+//
+//                if (isDark) {
+//                    if (showCounter <= 2) {
+//                        isDark = false;
+//                        mScanBoxView.setDark(false);
+//                    }
+//                } else {
+//                    if (showCounter >= DARK_LIST_SIZE) {
+//                        isDark = true;
+//                        mScanBoxView.setDark(true);
+//                    }
+//                }
+//
+//                if (brightnessListener != null) {
+//                    brightnessListener.onAnalysisBrightness(isDark);
+//                }
+//            }
+//        });
     }
 
     /**
@@ -88,53 +148,32 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
         if (formats == null || formats.length == 0) {
             return;
         }
-        reader.setBarcodeFormat(formats);
+        mDecoder.setBarcodeFormat(formats);
     }
 
     @Override
     public void startScan() {
-        reader.setReadCodeListener(this);
         super.startScan();
-        reader.prepareRead();
         isStop = false;
     }
 
     @Override
     public void stopScan() {
         super.stopScan();
-        reader.stopRead();
         isStop = true;
-        reader.setReadCodeListener(null);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-    }
-
-    @Override
-    public void onReadCodeResult(List<CodeResult> resultList) {
-        if (resultList.size() == 0) {
-            return;
+        if (mDecoder != null) {
+            mDecoder.destroy();
+            mDecoder = null;
         }
-//        showCodeBorder(result);
-        for (CodeResult result : resultList) {
-            BarCodeUtil.d("result : " + result.toString());
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+            mHandler = null;
         }
-
-        showResultPoint(resultList);
-
-        if (!isStop) {
-            isStop = true;
-            reader.stopRead();
-            if (mScanListener != null) {
-                mScanListener.onScanSuccess(resultList);
-            }
-        }
-
-//        else if (result.getPoints() != null) {
-//            tryZoom(result);
-//        }
     }
 
     private void showResultPoint(List<CodeResult> resultList) {
@@ -148,9 +187,14 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
     }
 
     private void removeResultViews() {
-        for (View view : resultViews) {
-            removeView(view);
-        }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                for (View view : resultViews) {
+                    removeView(view);
+                }
+            }
+        });
     }
 
     private void addPointView(final CodeResult result, int resultSize) {
@@ -161,7 +205,7 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
         int width = points[2];
         int height = points[3];
 
-        PointView view = new PointView(getContext());
+        final PointView view = new PointView(getContext());
         if (resultSize > 1) {
             view.drawArrow();
             view.setOnClickListener(new OnClickListener() {
@@ -184,11 +228,16 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
         xOffset = Math.max(xOffset, 0);
         yOffset = Math.max(yOffset, 0);
 
-        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        final LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         params.leftMargin = x + xOffset;
         params.topMargin = y + yOffset;
 
-        addView(view, params);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                addView(view, params);
+            }
+        });
     }
 
     public void setResultColor(int resultColor) {
@@ -200,46 +249,16 @@ public class ScanView extends BarCoderView implements BarcodeReader.ReadCodeList
     }
 
     @Override
-    public void onFocus() {
-        BarCodeUtil.d("not found code too many times , try focus");
-        mCamera.onFrozen();
-    }
-
-    @Override
-    public void onAnalysisBrightness(boolean isDark) {
-        BarCodeUtil.d("isDark : " + isDark);
-
-        if (isDark) {
-            showCounter++;
-            showCounter = Math.min(showCounter, DARK_LIST_SIZE);
-        } else {
-            showCounter--;
-            showCounter = Math.max(showCounter, 0);
-        }
-
-        if (this.isDark) {
-            if (showCounter <= 2) {
-                this.isDark = false;
-                mScanBoxView.setDark(false);
-            }
-        } else {
-            if (showCounter >= DARK_LIST_SIZE) {
-                this.isDark = true;
-                mScanBoxView.setDark(true);
-            }
-        }
-
-        if (brightnessListener != null) {
-            brightnessListener.onAnalysisBrightness(this.isDark);
-        }
-    }
-
-    @Override
     public void onFlashLightClick() {
         if (mCamera.isFlashLighting()) {
             closeFlashlight();
         } else if (isDark) {
             openFlashlight();
         }
+    }
+
+    @Nullable
+    public BarcodeDecoder getDecoder() {
+        return mDecoder;
     }
 }

@@ -4,13 +4,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.List;
 
 import me.devilsen.czxing.camera.ScanCamera;
 import me.devilsen.czxing.camera.camera2.ScanCamera2;
-import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
@@ -21,11 +19,11 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
  *
  * @author : dongSen
  */
-public class ScanBoxTestActivity extends AppCompatActivity {
+public class ScanBoxTestActivity extends BaseDecoderActivity {
 
     private AutoFitSurfaceView mSurface;
     private ScanCamera camera2;
-    private BarcodeReader reader;
+    private BarcodeDecoder mDecoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +54,7 @@ public class ScanBoxTestActivity extends AppCompatActivity {
 //                Log.e("ScanBox", "onFlashLightClick");
 //            }
 //        });
-        reader = BarcodeReader.getInstance();
+        mDecoder = new BarcodeDecoder();
         testCamera2();
     }
 
@@ -72,27 +70,14 @@ public class ScanBoxTestActivity extends AppCompatActivity {
             @Override
             public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
                 int bisSize = Math.min(rowWidth, rowHeight);
-                reader.read(data, 0, 0, bisSize, bisSize, rowWidth, rowHeight);
-            }
-        });
-
-        reader.setReadCodeListener(new BarcodeReader.ReadCodeListener() {
-
-            @Override
-            public void onReadCodeResult(List<CodeResult> resultList) {
-                for (CodeResult result : resultList) {
-                    BarCodeUtil.d("result : " + result.toString());
-                }
-            }
-
-            @Override
-            public void onFocus() {
-                BarCodeUtil.d("not found code too many times , try focus");
-            }
-
-            @Override
-            public void onAnalysisBrightness(boolean isDark) {
-                BarCodeUtil.d("isDark : " + isDark);
+                mDecoder.decodeYUVASync(data, 0, 0, bisSize, bisSize, rowWidth, rowHeight, new BarcodeDecoder.OnDetectCodeListener() {
+                    @Override
+                    public void onReadCodeResult(List<CodeResult> resultList) {
+                        for (CodeResult result : resultList) {
+                            BarCodeUtil.d("result : " + result.toString());
+                        }
+                    }
+                });
             }
         });
     }
@@ -100,7 +85,6 @@ public class ScanBoxTestActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        reader.prepareRead();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             camera2.onResume();
         }
@@ -112,7 +96,6 @@ public class ScanBoxTestActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             camera2.onPause();
         }
-        reader.stopRead();
     }
 
     @Override
@@ -121,6 +104,8 @@ public class ScanBoxTestActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             camera2.onDestroy();
         }
+
+        mDecoder.destroy();
     }
 
     public void openFlash(View view) {

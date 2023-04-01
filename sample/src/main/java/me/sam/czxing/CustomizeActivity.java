@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
 
-import me.devilsen.czxing.code.BarcodeReader;
+import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
@@ -239,7 +239,9 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
             return;
         }
 
-        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
+        BarcodeDecoder decoder = new BarcodeDecoder();
+        List<CodeResult> result = decoder.decodeBitmap(bitmap);
+        decoder.destroy();
 
         StringBuilder text = new StringBuilder();
         for (CodeResult r : result) {

@@ -6,21 +6,17 @@
 #include <opencv2/wechat_qrcode.hpp>
 #include <opencv2/imgproc.hpp>
 #include <memory>
-#include "ImageScheduler.h"
+#include "DecodeScheduler.h"
 #include "ScanResult.h"
 #include "JNIUtils.h"
 #include "MatUtils.h"
+#include "JniHelper.h"
 
 #define DEFAULT_MIN_LIGHT 30
 
 USING_CZXING_NAMESPACE()
 
-ImageScheduler::ImageScheduler()
-{
-    m_formatHints.setFormats(ZXing::BarcodeFormat::QRCode);
-}
-
-void ImageScheduler::setFormat(JNIEnv* env, jintArray formats_)
+void DecodeScheduler::setFormat(JNIEnv* env, jintArray formats_)
 {
     if (formats_ == nullptr) return;
 
@@ -34,10 +30,10 @@ void ImageScheduler::setFormat(JNIEnv* env, jintArray formats_)
     }
 }
 
-void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
-                                     const char* detectorCaffeModelPath,
-                                     const char* superResolutionPrototxtPath,
-                                     const char* superResolutionCaffeModelPath)
+void DecodeScheduler::setWeChatDetect(const char* detectorPrototxtPath,
+                                      const char* detectorCaffeModelPath,
+                                      const char* superResolutionPrototxtPath,
+                                      const char* superResolutionCaffeModelPath)
 {
     try {
         LOGE("wechat_qrcode set model, detectorPrototxtPath = %s", detectorPrototxtPath)
@@ -55,9 +51,8 @@ void ImageScheduler::setWeChatDetect(const char* detectorPrototxtPath,
 }
 
 std::vector<ScanResult>
-ImageScheduler::readByte(JNIEnv* env, jbyte* bytes, int width, int height)
+DecodeScheduler::readByte(jbyte* bytes, int width, int height)
 {
-
     LOGE("start readByte rowWidth = %d rowHeight = %d", width, height)
 
     cv::Mat src(height + height / 2, width, CV_8UC1, bytes);
@@ -71,10 +66,11 @@ ImageScheduler::readByte(JNIEnv* env, jbyte* bytes, int width, int height)
     // 顺时针旋转90度图片，得到正常的图片（Android的后置摄像头获取的格式是横着的，需要旋转90度）
     rotate(gray, gray, cv::ROTATE_90_CLOCKWISE);
 
-    return startRead(gray);
+    LOGE("end readByte rowWidth = %d rowHeight = %d", width, height)
+    return startDecode(gray);
 }
 
-std::vector<ScanResult> ImageScheduler::readBitmap(JNIEnv* env, jobject bitmap)
+std::vector<ScanResult> DecodeScheduler::readBitmap(JNIEnv* env, jobject bitmap)
 {
     cv::Mat src;
     BitmapToMat(env, bitmap, src);
@@ -87,40 +83,36 @@ std::vector<ScanResult> ImageScheduler::readBitmap(JNIEnv* env, jobject bitmap)
     return decodeWeChat(gray);
 }
 
-std::vector<ScanResult> ImageScheduler::startRead(const cv::Mat& gray)
+std::vector<ScanResult> DecodeScheduler::startDecode(const cv::Mat& gray)
 {
     // 分析亮度，如果亮度过低，不进行处理
     if (analysisBrightness(gray) < DEFAULT_MIN_LIGHT) {
-        return defaultResult();
+        return m_defaultResult;
     }
 
     // 扫码格式只有二维码
-    if (onlyQrCode()) {
+//    if (onlyQrCode()) {
         return decodeWeChat(gray);
-    } else if (containQrCode()) { // 包含二维码
-        std::vector<ScanResult> result = decodeWeChat(gray);
-        if (result.empty()) {
-            return decodeThresholdPixels(gray);
-        }
-        return result;
-    } else { // 没有二维码
-        return decodeThresholdPixels(gray);
-    }
+//    } else if (containQrCode()) { // 包含二维码
+//        std::vector<ScanResult> result = decodeWeChat(gray);
+//        if (result.empty()) {
+//            return decodeThresholdPixels(gray);
+//        }
+//        return result;
+//    } else { // 没有二维码
+//        return decodeThresholdPixels(gray);
+//    }
 }
 
-std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
+std::vector<ScanResult> DecodeScheduler::decodeWeChat(const cv::Mat& gray)
 {
     LOGE("start wechat decode")
     std::vector<cv::Mat> points;
     std::vector<std::string> res = m_weChatQrCodeReader.detectAndDecode(gray, points);
     if (res.empty()) {
-        return defaultResult();
+        return m_defaultResult;
     }
     LOGE("Yes! wechat get the result")
-
-    cv::Rect rectGray = cv::boundingRect(gray);
-    LOGE("rectGray: x = %d, y = %d, width = %d, height = %d", rectGray.x, rectGray.y,
-         rectGray.width, rectGray.height)
 
     std::vector<ScanResult> resultVector;
     for (int i = 0; i < res.size(); ++i) {
@@ -129,10 +121,6 @@ std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
         CodeRect codeRect(rect.x, rect.y , rect.width, rect.height);
         ScanResult result(res[i], codeRect);
         resultVector.push_back(result);
-
-//        cv::Point point(rect.x + rect.width / 2, rect.y + rect.height / 2);
-//        cv::circle(gray, point, 20, {255, 0, 0}, -1);
-//        saveMat(gray, "result");
 
         LOGE("result = %s", res[i].c_str())
         LOGE("rect: x = %d, y = %d, width = %d, height = %d", rect.x, rect.y, rect.width, rect.height)
@@ -149,7 +137,7 @@ std::vector<ScanResult> ImageScheduler::decodeWeChat(const cv::Mat& gray)
  *
  * @param gray
  */
-std::vector<ScanResult> ImageScheduler::decodeThresholdPixels(const cv::Mat& mat)
+std::vector<ScanResult> DecodeScheduler::decodeThresholdPixels(const cv::Mat& mat)
 {
     LOGE("start ThresholdPixels...")
 
@@ -173,7 +161,7 @@ std::vector<ScanResult> ImageScheduler::decodeThresholdPixels(const cv::Mat& mat
  * 逆时针旋转90度，即旋转了270度
  * @param gray
  */
-std::vector<ScanResult> ImageScheduler::decodeAdaptivePixels(const cv::Mat& mat)
+std::vector<ScanResult> DecodeScheduler::decodeAdaptivePixels(const cv::Mat& mat)
 {
     LOGE("start AdaptivePixels...")
 
@@ -187,7 +175,7 @@ std::vector<ScanResult> ImageScheduler::decodeAdaptivePixels(const cv::Mat& mat)
     return zxingDecode(lightMat);
 }
 
-std::vector<ScanResult> ImageScheduler::zxingDecode(const cv::Mat& mat)
+std::vector<ScanResult> DecodeScheduler::zxingDecode(const cv::Mat& mat)
 {
     LOGE("start zxing decode")
 
@@ -207,29 +195,19 @@ std::vector<ScanResult> ImageScheduler::zxingDecode(const cv::Mat& mat)
         vector.push_back(scanResult);
         return vector;
     }
-    return defaultResult();
-}
-
-double ImageScheduler::analysisBrightness(const cv::Mat& gray)
-{
-    LOGE("start analysisBrightness...")
-    // 平均亮度
-    m_CameraLight = mean(gray).val[0];
-    LOGE("平均亮度 %lf", m_CameraLight)
-    return m_CameraLight;
-}
-
-std::vector<ScanResult> ImageScheduler::defaultResult()
-{
     return m_defaultResult;
 }
 
-bool ImageScheduler::onlyQrCode()
+double DecodeScheduler::detectBrightness(jbyte* bytes, int width, int height)
 {
-    return m_formatHints.formats().count() == 1 && m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode);
+    cv::Mat src(height + height / 2, width, CV_8UC1, bytes);
+    return analysisBrightness(src);
 }
 
-bool ImageScheduler::containQrCode()
+double DecodeScheduler::analysisBrightness(const cv::Mat& mat)
 {
-    return m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode);
+    // 平均亮度
+    m_CameraLight = mean(mat).val[0];
+//    LOGE("平均亮度 %lf", m_CameraLight)
+    return m_CameraLight;
 }

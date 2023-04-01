@@ -49,6 +49,8 @@ android {
 dependencies {
 
     implementation rootProject.ext.annotation
+    implementation rootProject.ext.appcompat
+
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
@@ -27,7 +26,6 @@ import java.util.List;
 import me.devilsen.czxing.BuildConfig;
 import me.devilsen.czxing.Scanner;
 import me.devilsen.czxing.code.BarcodeFormat;
-import me.devilsen.czxing.code.BarcodeReader;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
@@ -35,11 +33,10 @@ import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 import me.devilsen.czxing.view.scanview.ScanView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseDecoderActivity {
 
     private static final int CODE_SELECT_IMAGE = 1;
     private TextView resultTxt;
-    private boolean mInitialed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,30 +51,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scan(View view) {
-        initialModel();
 //        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_space);
         String imagePath = AssetUtil.getAbsolutePath(this, null, "qrcode_test.png");
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        List<CodeResult> result = BarcodeReader.getInstance().readDetect(bitmap);
+        List<CodeResult> result = getDecoder().decodeBitmap(bitmap);
         printResult(result);
     }
 
     public void write(View view) {
         Intent intent = new Intent(this, WriteCodeActivity.class);
         startActivity(intent);
-    }
-
-    private void initialModel() {
-        if (mInitialed) {
-            return;
-        }
-        mInitialed = true;
-        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
-        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
-        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
-        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
-        BarcodeReader.getInstance().setDetectModel(detectorPrototxtPath, detectorCaffeModelPath,
-                superResolutionPrototxtPath, superResolutionCaffeModelPath);
     }
 
     public void writeQrCode(View view) {
@@ -171,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void test() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test_boder_complex_8);
-        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
+        List<CodeResult> result = getDecoder().decodeBitmap(bitmap);
 
         printResult(result);
     }
@@ -218,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         // 适当压缩图片
         Bitmap bitmap = BitmapUtil.getDecodeAbleBitmap(picturePath);
         // 这个方法比较耗时，推荐放到子线程执行
-        List<CodeResult> result = BarcodeReader.getInstance().read(bitmap);
+        List<CodeResult> result = getDecoder().decodeBitmap(bitmap);
         printResult(result);
     }
 

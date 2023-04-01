@@ -4,7 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +15,8 @@ public class ExecutorUtil {
 
     private static Executor sMainExecutor;
     private static Handler sMainHandler;
-    private static Executor sBackgroundExecutor;
+    private static Executor sCalculateExecutor;
+    private static Executor sSingleThreadExecutor;
     private static Executor sIOExecutor;
 
 
@@ -33,22 +35,31 @@ public class ExecutorUtil {
 
     public synchronized static Executor getIOExecutor() {
         if (sIOExecutor == null) {
-            int processors = Runtime.getRuntime().availableProcessors() * 2;
-            sIOExecutor = new ThreadPoolExecutor(processors, processors, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+            sIOExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                    60L, TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(),
                     new DefaultThreadFactory());
-            ((ThreadPoolExecutor) sIOExecutor).allowCoreThreadTimeOut(true);
         }
         return sIOExecutor;
     }
 
-    public synchronized static Executor getBackgroundExecutor() {
-        if (sBackgroundExecutor == null) {
+    public synchronized static Executor getCalculateExecutor() {
+        if (sCalculateExecutor == null) {
             int processors = Runtime.getRuntime().availableProcessors();
-            sBackgroundExecutor = new ThreadPoolExecutor(processors, processors, 5, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
-                    new DefaultThreadFactory());
-            ((ThreadPoolExecutor) sBackgroundExecutor).allowCoreThreadTimeOut(true);
+            sCalculateExecutor = new ThreadPoolExecutor(processors + 1, processors * 2,
+                    500, TimeUnit.MILLISECONDS,
+                    new SynchronousQueue<Runnable>(),
+                    new DefaultThreadFactory(),
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
         }
-        return sBackgroundExecutor;
+        return sCalculateExecutor;
+    }
+
+    public synchronized static Executor getSingleThreadExecutor() {
+        if (sSingleThreadExecutor == null) {
+            sSingleThreadExecutor = Executors.newSingleThreadExecutor();
+        }
+        return sSingleThreadExecutor;
     }
 
     public static void runOnUiThread(Runnable runnable) {
@@ -66,7 +77,7 @@ public class ExecutorUtil {
         if (runnable == null) {
             return;
         }
-        getBackgroundExecutor().execute(runnable);
+        getCalculateExecutor().execute(runnable);
     }
 
     public static ThreadFactory threadFactory(final String name, final boolean daemon) {
