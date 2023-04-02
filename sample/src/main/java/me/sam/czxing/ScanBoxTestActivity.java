@@ -21,9 +21,7 @@ import me.devilsen.czxing.view.AutoFitSurfaceView;
  */
 public class ScanBoxTestActivity extends BaseDecoderActivity {
 
-    private AutoFitSurfaceView mSurface;
     private ScanCamera camera2;
-    private BarcodeDecoder mDecoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +52,11 @@ public class ScanBoxTestActivity extends BaseDecoderActivity {
 //                Log.e("ScanBox", "onFlashLightClick");
 //            }
 //        });
-        mDecoder = new BarcodeDecoder();
-        testCamera2();
+//        testCamera2();
     }
 
     private void testCamera2() {
-        mSurface = findViewById(R.id.camera2_auto_surface);
+        AutoFitSurfaceView mSurface = findViewById(R.id.camera2_auto_surface);
 
         camera2 = new ScanCamera2(this, mSurface);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -70,7 +67,7 @@ public class ScanBoxTestActivity extends BaseDecoderActivity {
             @Override
             public void onPreviewFrame(byte[] data, int rowWidth, int rowHeight) {
                 int bisSize = Math.min(rowWidth, rowHeight);
-                mDecoder.decodeYUVASync(data, 0, 0, bisSize, bisSize, rowWidth, rowHeight, new BarcodeDecoder.OnDetectCodeListener() {
+                getDecoder().decodeYUVASync(data, 0, 0, bisSize, bisSize, rowWidth, rowHeight, new BarcodeDecoder.OnDetectCodeListener() {
                     @Override
                     public void onReadCodeResult(List<CodeResult> resultList) {
                         for (CodeResult result : resultList) {
@@ -100,12 +97,10 @@ public class ScanBoxTestActivity extends BaseDecoderActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             camera2.onDestroy();
         }
-
-        mDecoder.destroy();
+        super.onDestroy();
     }
 
     public void openFlash(View view) {

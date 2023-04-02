@@ -28,6 +28,17 @@ void DecodeScheduler::setFormat(JNIEnv* env, jintArray formats_)
             LOGE("set format: %d", format)
         }
     }
+
+    m_onlyQrCode = false;
+    m_containQrCode = false;
+
+    if (m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode)) {
+        if (m_formatHints.formats().count() == 1) {
+            m_onlyQrCode = true;
+        } else {
+            m_containQrCode = true;
+        }
+    }
 }
 
 void DecodeScheduler::setWeChatDetect(const char* detectorPrototxtPath,
@@ -91,17 +102,17 @@ std::vector<ScanResult> DecodeScheduler::startDecode(const cv::Mat& gray)
     }
 
     // 扫码格式只有二维码
-//    if (onlyQrCode()) {
+    if (m_onlyQrCode) {
         return decodeWeChat(gray);
-//    } else if (containQrCode()) { // 包含二维码
-//        std::vector<ScanResult> result = decodeWeChat(gray);
-//        if (result.empty()) {
-//            return decodeThresholdPixels(gray);
-//        }
-//        return result;
-//    } else { // 没有二维码
-//        return decodeThresholdPixels(gray);
-//    }
+    } else if (m_containQrCode) { // 包含二维码
+        std::vector<ScanResult> result = decodeWeChat(gray);
+        if (result.empty()) {
+            return decodeThresholdPixels(gray);
+        }
+        return result;
+    } else { // 没有二维码
+        return decodeThresholdPixels(gray);
+    }
 }
 
 std::vector<ScanResult> DecodeScheduler::decodeWeChat(const cv::Mat& gray)

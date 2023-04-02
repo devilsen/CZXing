@@ -57,26 +57,26 @@ public class WriteCodeActivity extends BaseDecoderActivity implements View.OnCli
         writer = new BarcodeWriter();
 
         writeQrCode();
-        writeBarCode();
+//        writeBarCode();
     }
 
     /**
      * 生成二维码与识别二维码都是耗时操作，请务必放在子线程中执行，这里是为了演示的简洁才采用这种写法
      */
     private void writeQrCode() {
-        Bitmap bitmap1 = writer.write("Hello World",
-                BarCodeUtil.dp2px(this, 150),
-                Color.BLACK);
+//        Bitmap bitmap1 = writer.write("Hello World",
+//                BarCodeUtil.dp2px(this, 150),
+//                Color.BLACK);
+//
+//        if (bitmap1 != null) {
+//            qrcodeImage.setImageBitmap(bitmap1);
+//        }
 
         Bitmap logoBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_avatar);
         Bitmap bitmap2 = writer.write("你好，こんにちは，여보세요",
                 BarCodeUtil.dp2px(this, 150),
                 Color.parseColor("#2196F3"),
                 logoBitmap);
-
-        if (bitmap1 != null) {
-            qrcodeImage.setImageBitmap(bitmap1);
-        }
 
         if (bitmap2 != null) {
             qrcodeLogoImage.setImageBitmap(bitmap2);

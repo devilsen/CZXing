@@ -142,14 +142,14 @@ BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
 }
 
 /**
- * string转wstring
+ * wstring转为string
  */
 std::string UnicodeToANSI(const std::wstring &wstr) {
     return ZXing::TextUtfEncoding::ToUtf8(wstr);
 }
 
 /**
- * wstring转string
+ * string转为wstring
  */
 std::wstring ANSIToUnicode(const std::string &str) {
     return ZXing::TextUtfEncoding::FromUtf8(str);

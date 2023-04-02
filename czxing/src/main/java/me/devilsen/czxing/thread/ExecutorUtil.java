@@ -50,7 +50,7 @@ public class ExecutorUtil {
                     500, TimeUnit.MILLISECONDS,
                     new SynchronousQueue<Runnable>(),
                     new DefaultThreadFactory(),
-                    new ThreadPoolExecutor.DiscardOldestPolicy());
+                    new ThreadPoolExecutor.DiscardPolicy());
         }
         return sCalculateExecutor;
     }

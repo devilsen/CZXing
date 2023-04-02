@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 
 import java.util.List;
 
-import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
@@ -115,10 +114,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         String detectorCaffeModelPath = option.getDetectCaffeModel();
         String superResolutionPrototxtPath = option.getSuperResolutionPrototxt();
         String superResolutionCaffeModelPath = option.getSuperResolutionCaffeModel();
-        BarcodeDecoder decoder = mScanView.getDecoder();
-        if (decoder != null) {
-            decoder.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
-        }
+        mScanView.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
         // 标题栏
         String title = option.getTitle();

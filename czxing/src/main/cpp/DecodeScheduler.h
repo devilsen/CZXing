@@ -43,26 +43,18 @@ public:
 
 private:
     ZXing::DecodeHints m_formatHints;
-
     cv::wechat_qrcode::WeChatQRCode m_weChatQrCodeReader;
-
     std::vector<ScanResult> m_defaultResult;
     double m_CameraLight { 0 };
+    bool m_onlyQrCode;
+    bool m_containQrCode;
 
     std::vector<ScanResult> startDecode(const cv::Mat &gray);
-
     std::vector<ScanResult> decodeWeChat(const cv::Mat &gray);
-
     std::vector<ScanResult> decodeThresholdPixels(const cv::Mat &gray);
-
     std::vector<ScanResult> decodeAdaptivePixels(const cv::Mat &gray);
-
     std::vector<ScanResult> zxingDecode(const cv::Mat &mat);
-
     double analysisBrightness(const cv::Mat &mat);
-
-    bool onlyQrCode() { m_formatHints.formats().count() == 1 && m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode); }
-    bool containQrCode() { m_formatHints.hasFormat(ZXing::BarcodeFormat::QRCode); }
 };
 
 

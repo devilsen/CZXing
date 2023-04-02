@@ -6,8 +6,6 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -257,8 +255,9 @@ public class ScanView extends BarCoderView implements ScanBoxView.ScanBoxClickLi
         }
     }
 
-    @Nullable
-    public BarcodeDecoder getDecoder() {
-        return mDecoder;
+    public void setDetectModel(String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath) {
+        if (mDecoder != null) {
+            mDecoder.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
+        }
     }
 }

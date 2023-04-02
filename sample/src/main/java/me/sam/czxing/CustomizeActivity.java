@@ -27,6 +27,7 @@ import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.compat.ContextCompat;
+import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
@@ -123,6 +124,12 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         mSoundPoolUtil.loadDefault(this);
 
         requestCameraPermission();
+
+        String detectorPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.prototxt");
+        String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
+        String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
+        String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
+        mScanView.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
     }
 
     @Override
@@ -256,8 +263,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
      * 获取摄像头权限（实际测试中，使用第三方获取权限工具，可能造成摄像头打开失败）
      */
     private void requestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA},
                     PERMISSIONS_REQUEST_CAMERA);

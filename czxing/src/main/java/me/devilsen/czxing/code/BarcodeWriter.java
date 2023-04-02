@@ -13,6 +13,12 @@ import me.devilsen.czxing.util.BitmapUtil;
  */
 public class BarcodeWriter {
 
+    private final EncodeEngine mEncodeEngine;
+
+    public BarcodeWriter() {
+        mEncodeEngine = new EncodeEngine();
+    }
+
     /**
      * 生成二维码
      *
@@ -100,7 +106,7 @@ public class BarcodeWriter {
      */
     private Bitmap write(String text, int width, int height, int color, BarcodeFormat format, Bitmap logo) {
         Object[] result = new Object[1];
-        int resultCode = new EncodeEngine().writeCode(text, width, height, color, format.name(), result);
+        int resultCode = mEncodeEngine.writeCode(text, width, height, color, format.name(), result);
         Bitmap bitmap = null;
         if (resultCode > -1) {
             int[] pixels = (int[]) result[0];

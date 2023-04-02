@@ -156,38 +156,31 @@ Java_me_devilsen_czxing_code_EncodeEngine_nativeWriteCode(JNIEnv *env, jobject i
                                                           jstring format_, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
     const char *format = env->GetStringUTFChars(format_, 0);
-    try {
-        std::wstring wContent;
-        wContent = ANSIToUnicode(content);
 
-        ZXing::MultiFormatWriter writer(ZXing::BarcodeFormatFromString(format));
-        ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
+    std::wstring wContent = ANSIToUnicode(content);
 
-        if (bitMatrix.empty()) {
-            return -1;
+    ZXing::MultiFormatWriter writer(ZXing::BarcodeFormatFromString(format));
+    ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
+
+    if (bitMatrix.empty()) {
+        return -1;
+    }
+
+    int size = width * height;
+    jintArray pixels = env->NewIntArray(size);
+    int black = color;
+    int white = 0xffffffff;
+    int index = 0;
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            int pix = bitMatrix.get(j, i) ? black : white;
+            env->SetIntArrayRegion(pixels, index, 1, &pix);
+            index++;
         }
+    }
 
-        int size = width * height;
-        jintArray pixels = env->NewIntArray(size);
-        int black = color;
-        int white = 0xffffffff;
-        int index = 0;
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                int pix = bitMatrix.get(j, i) ? black : white;
-                env->SetIntArrayRegion(pixels, index, 1, &pix);
-                index++;
-            }
-        }
-        env->SetObjectArrayElement(result, 0, pixels);
-        env->ReleaseStringUTFChars(format_, format);
-        env->ReleaseStringUTFChars(content_, content);
-    }
-    catch (const std::exception &e) {
-        ThrowJavaException(env, e.what());
-    }
-    catch (...) {
-        ThrowJavaException(env, "Unknown exception");
-    }
+    env->SetObjectArrayElement(result, 0, pixels);
+    env->ReleaseStringUTFChars(format_, format);
+    env->ReleaseStringUTFChars(content_, content);
     return 0;
 }
