@@ -1,19 +1,8 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "MCReader.h"
 
@@ -36,9 +25,8 @@ namespace ZXing::MaxiCode {
 static BitMatrix ExtractPureBits(const BitMatrix& image)
 {
 	int left, top, width, height;
-	if (!image.findBoundingBox(left, top, width, height, BitMatrixParser::MATRIX_WIDTH)) {
+	if (!image.findBoundingBox(left, top, width, height, BitMatrixParser::MATRIX_WIDTH))
 		return {};
-	}
 
 	// Now just read off the bits
 	BitMatrix result(BitMatrixParser::MATRIX_WIDTH, BitMatrixParser::MATRIX_HEIGHT);
@@ -51,26 +39,29 @@ static BitMatrix ExtractPureBits(const BitMatrix& image)
 			}
 		}
 	}
+
+	//TODO: need to return position info
 	return result;
 }
-
-Reader::Reader(const DecodeHints& hints) : _isPure(hints.isPure()) {}
 
 Result
 Reader::decode(const BinaryBitmap& image) const
 {
-	auto binImg = image.getBlackMatrix();
-	if (binImg == nullptr) {
-		return Result(DecodeStatus::NotFound);
-	}
+	auto binImg = image.getBitMatrix();
+	if (binImg == nullptr)
+		return {};
 
 	//TODO: this only works with effectively 'pure' barcodes. Needs proper detector.
 	BitMatrix bits = ExtractPureBits(*binImg);
-	if (bits.empty()) {
-		return Result(DecodeStatus::NotFound);
-	}
+	if (bits.empty())
+		return {};
 
-	return Result(Decoder::Decode(bits), {}, BarcodeFormat::MaxiCode);
+	DecoderResult decRes = Decode(bits);
+	// TODO: before we can meaningfully return a ChecksumError result, we need to check the center for the presence of the finder pattern
+	if (!decRes.isValid())
+		return {};
+
+	return Result(std::move(decRes), {}, BarcodeFormat::MaxiCode);
 }
 
 } // namespace ZXing::MaxiCode

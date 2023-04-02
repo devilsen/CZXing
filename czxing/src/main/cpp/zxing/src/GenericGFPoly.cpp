@@ -2,25 +2,13 @@
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
 * Copyright 2017 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GenericGFPoly.h"
 
 #include "GenericGF.h"
-#include "ZXConfig.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 
 #include <algorithm>
 #include <cassert>
@@ -130,7 +118,7 @@ GenericGFPoly::divide(const GenericGFPoly& other, GenericGFPoly& quotient)
 	}
 
 	// use Expanded Synthetic Division (see https://en.wikiversity.org/wiki/Reed%E2%80%93Solomon_codes_for_coders):
-	// we use the memory from this (the divident) and swap it with quotient, wich will then accumulate the result as
+	// we use the memory from this (the dividend) and swap it with quotient, which will then accumulate the result as
 	// [quotient : remainder]. we later copy back the remainder into this and shorten the quotient.
 	std::swap(*this, quotient);
 	auto& divisor = other._coefficients;
@@ -143,7 +131,7 @@ GenericGFPoly::divide(const GenericGFPoly& other, GenericGFPoly& quotient)
 
 		ci = _field->multiply(ci, normalizer);
 
-		// we always skip the first coefficient of the divisior, because it's only used to normalize the dividend coefficient
+		// we always skip the first coefficient of the divisor, because it's only used to normalize the dividend coefficient
 		for (int j = 1; j < Size(divisor); ++j)
 			result[i + j] ^= _field->multiply(divisor[j], ci); // equivalent to: result[i + j] += -divisor[j] * ci
 	}

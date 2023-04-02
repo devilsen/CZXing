@@ -1,24 +1,15 @@
-#pragma once
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "Point.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 
+#include <stdexcept>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -43,10 +34,17 @@ private:
 
 public:
 	Matrix() = default;
-	Matrix(int width, int height, value_t val = {}) : _width(width), _height(height), _data(_width * _height, val) { }
 
-	Matrix(Matrix&&) = default;
-	Matrix& operator=(Matrix&&) = default;
+#ifdef __GNUC__
+	__attribute__((no_sanitize("signed-integer-overflow")))
+#endif
+	Matrix(int width, int height, value_t val = {}) : _width(width), _height(height), _data(_width * _height, val) {
+		if (width != 0 && Size(_data) / width != height)
+			throw std::invalid_argument("invalid size: width * height is too big");
+	}
+
+	Matrix(Matrix&&) noexcept = default;
+	Matrix& operator=(Matrix&&) noexcept = default;
 
 	Matrix copy() const {
 		return *this;
@@ -80,16 +78,16 @@ public:
 		return operator()(x, y);
 	}
 
-	void set(int x, int y, value_t value) {
-		operator()(x, y) = value;
+	value_t& set(int x, int y, value_t value) {
+		return operator()(x, y) = value;
 	}
 
 	const value_t& get(PointI p) const {
 		return operator()(p.x, p.y);
 	}
 
-	void set(PointI p, value_t value) {
-		operator()(p.x, p.y) = value;
+	value_t& set(PointI p, value_t value) {
+		return operator()(p.x, p.y) = value;
 	}
 
 	const value_t* data() const {

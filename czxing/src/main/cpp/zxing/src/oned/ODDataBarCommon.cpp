@@ -1,20 +1,10 @@
 /*
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ODDataBarCommon.h"
+#include <cmath>
 
 namespace ZXing::OneD::DataBar {
 
@@ -118,8 +108,8 @@ bool ReadDataCharacterRaw(const PatternView& view, int numModules, bool reversed
 
 #if 0
 	// the 'signal improving' strategy of trying to fix off-by-one errors in the sum or parity leads to a massively
-	// increased likelyhood of false positives / misreads especially with expanded codes that are composed of many
-	// pairs. the combinatorial explosion of posible pair combinations (see FindValidSequence) results in many possible
+	// increased likelihood of false positives / misreads especially with expanded codes that are composed of many
+	// pairs. the combinatorial explosion of possible pair combinations (see FindValidSequence) results in many possible
 	// sequences with valid checksums. It can slightly lower the minimum required resolution to detect something at all
 	// but the introduced error rate is clearly not worth it.
 
@@ -155,12 +145,24 @@ bool ReadDataCharacterRaw(const PatternView& view, int numModules, bool reversed
 #endif
 }
 
+static bool IsStacked(const Pair& first, const Pair& last)
+{
+	// check if we see two halfes that are far away from each other in y or overlapping in x
+	return std::abs(first.y - last.y) > (first.xStop - first.xStart) || last.xStart < (first.xStart + first.xStop) / 2;
+}
+
 Position EstimatePosition(const Pair& first, const Pair& last)
 {
-	if (first.y == last.y)
-		return Line(first.y, first.xStart, last.xStop);
+	if (!IsStacked(first, last))
+		return Line((first.y + last.y) / 2, first.xStart, last.xStop);
 	else
 		return Position{{first.xStart, first.y}, {first.xStop, first.y}, {last.xStop, last.y}, {last.xStart, last.y}};
+}
+
+int EstimateLineCount(const Pair& first, const Pair& last)
+{
+	// see incrementLineCount() in ODReader.cpp for the -1 here
+	return std::min(first.count, last.count) - 1 + IsStacked(first, last);
 }
 
 } // namespace ZXing::OneD::DataBar

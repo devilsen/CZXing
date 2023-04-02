@@ -1,19 +1,9 @@
-#pragma once
 /*
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "BitMatrix.h"
 #include "Matrix.h"
@@ -54,7 +44,8 @@ public:
 		// Write pixels
 		for (int y = 0; y < _log.height(); ++y)
 			for (int x = 0; x < _log.width(); ++x) {
-				unsigned char r, g, b;
+				unsigned char pix[3];
+				unsigned char &r = pix[0], &g = pix[1], &b = pix[2];
 				r = g = b = _image->get(x / _scale, y / _scale) ? 0 : 255;
 				if (_scale > 1 && x % _scale == _scale / 2 && y % _scale == _scale / 2)
 					r = g = b = r ? 230 : 50;
@@ -64,9 +55,7 @@ public:
 				case 3: g = r = 100, b = 250; break;
 				case 4: g = b = 100, r = 250; break;
 				}
-				fwrite(&r, 1, 1, f);
-				fwrite(&g, 1, 1, f);
-				fwrite(&b, 1, 1, f);
+				fwrite(&pix, 3, 1, f);
 			}
 		fclose(f);
 	}
@@ -74,11 +63,10 @@ public:
 	template <typename T>
 	void operator()(const PointT<T>& p, int color = 1)
 	{
-		if (_image->isIn(p))
+		if (_image && _image->isIn(p))
 			_log.set(static_cast<int>(p.x * _scale), static_cast<int>(p.y * _scale), color);
 	}
 
-	template <>
 	void operator()(const PointT<int>& p, int color)
 	{
 		operator()(centered(p), color);

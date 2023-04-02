@@ -1,20 +1,10 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "CustomData.h"
 
@@ -29,7 +19,7 @@ namespace Pdf417 {
 */
 class DecoderResultExtra : public CustomData
 {
-	int _segmentIndex = 0;
+	int _segmentIndex = -1;
 	std::string _fileId;
 	std::vector<int> _optionalData;
 	bool _lastSegment = false;
@@ -47,6 +37,7 @@ public:
 		return _segmentIndex;
 	}
 
+	// -1 if not set
 	void setSegmentIndex(int segmentIndex) {
 		_segmentIndex = segmentIndex;
 	}
@@ -83,7 +74,7 @@ public:
 		_segmentCount = segmentCount;
 	}
 
-	std::string sender() const {
+	std::string sender() const { // UTF-8
 		return _sender;
 	}
 
@@ -91,7 +82,7 @@ public:
 		_sender = sender;
 	}
 
-	std::string addressee() const {
+	std::string addressee() const { // UTF-8
 		return _addressee;
 	}
 
@@ -99,7 +90,7 @@ public:
 		_addressee = addressee;
 	}
 
-	std::string fileName() const {
+	std::string fileName() const { // UTF-8
 		return _fileName;
 	}
 

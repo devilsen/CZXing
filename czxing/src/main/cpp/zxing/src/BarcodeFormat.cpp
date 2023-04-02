@@ -1,38 +1,25 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "BarcodeFormat.h"
 
-#include "BitHacks.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 
 #include <algorithm>
 #include <cctype>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
-#include <string>
 
 namespace ZXing {
 
 struct BarcodeFormatName
 {
 	BarcodeFormat format;
-	const char* name;
+	std::string_view name;
 };
 
 static BarcodeFormatName NAMES[] = {
@@ -49,18 +36,19 @@ static BarcodeFormatName NAMES[] = {
 	{BarcodeFormat::EAN13, "EAN-13"},
 	{BarcodeFormat::ITF, "ITF"},
 	{BarcodeFormat::MaxiCode, "MaxiCode"},
+	{BarcodeFormat::MicroQRCode, "MicroQRCode"},
 	{BarcodeFormat::PDF417, "PDF417"},
 	{BarcodeFormat::QRCode, "QRCode"},
 	{BarcodeFormat::UPCA, "UPC-A"},
 	{BarcodeFormat::UPCE, "UPC-E"},
-	{BarcodeFormat::OneDCodes, "1D-Codes"},
-	{BarcodeFormat::TwoDCodes, "2D-Codes"},
+	{BarcodeFormat::LinearCodes, "Linear-Codes"},
+	{BarcodeFormat::MatrixCodes, "Matrix-Codes"},
 };
 
-const char* ToString(BarcodeFormat format)
+std::string ToString(BarcodeFormat format)
 {
 	auto i = FindIf(NAMES, [format](auto& v) { return v.format == format; });
-	return i == std::end(NAMES) ? nullptr : i->name;
+	return i == std::end(NAMES) ? std::string() : std::string(i->name);
 }
 
 std::string ToString(BarcodeFormats formats)
@@ -69,14 +57,15 @@ std::string ToString(BarcodeFormats formats)
 		return ToString(BarcodeFormat::None);
 	std::string res;
 	for (auto f : formats)
-		res += ToString(f) + std::string("|");
+		res += ToString(f) + "|";
 	return res.substr(0, res.size() - 1);
 }
 
-static std::string NormalizeFormatString(std::string str)
+static std::string NormalizeFormatString(std::string_view sv)
 {
+	std::string str(sv);
 	std::transform(str.begin(), str.end(), str.begin(), [](char c) { return (char)std::tolower(c); });
-	str.erase(std::remove_if(str.begin(), str.end(), [](char c) { return c == '_' || c == '-'; }), str.end());
+	str.erase(std::remove_if(str.begin(), str.end(), [](char c) { return Contains("_-[]", c); }), str.end());
 	return str;
 }
 
@@ -86,12 +75,12 @@ static BarcodeFormat ParseFormatString(const std::string& str)
 	return i == std::end(NAMES) ? BarcodeFormat::None : i->format;
 }
 
-BarcodeFormat BarcodeFormatFromString(const std::string& str)
+BarcodeFormat BarcodeFormatFromString(std::string_view str)
 {
 	return ParseFormatString(NormalizeFormatString(str));
 }
 
-BarcodeFormats BarcodeFormatsFromString(const std::string& str)
+BarcodeFormats BarcodeFormatsFromString(std::string_view str)
 {
 	auto normalized = NormalizeFormatString(str);
 	std::replace_if(

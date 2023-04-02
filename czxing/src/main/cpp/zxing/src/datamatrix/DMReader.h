@@ -1,41 +1,24 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "Reader.h"
 
-namespace ZXing {
+namespace ZXing::DataMatrix {
 
-class DecodeHints;
-
-namespace DataMatrix {
-
-/**
-* This implementation can detect and decode Data Matrix codes in an image.
-*
-* @author bbrown@google.com (Brian Brown)
-*/
 class Reader : public ZXing::Reader
 {
-	bool _tryRotate, _tryHarder, _isPure;
 public:
-	explicit Reader(const DecodeHints& hints);
+	using ZXing::Reader::Reader;
+
 	Result decode(const BinaryBitmap& image) const override;
+#ifdef __cpp_impl_coroutine
+	Results decode(const BinaryBitmap& image, int maxSymbols) const override;
+#endif
 };
 
-} // DataMatrix
-} // ZXing
+} // namespace ZXing::DataMatrix

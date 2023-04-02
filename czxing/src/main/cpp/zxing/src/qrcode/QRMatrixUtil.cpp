@@ -1,19 +1,8 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "QRMatrixUtil.h"
 
@@ -22,9 +11,7 @@
 #include "QRDataMask.h"
 #include "QRErrorCorrectionLevel.h"
 #include "QRVersion.h"
-#include "ZXStrConvWorkaround.h"
 
-#include <array>
 #include <stdexcept>
 #include <string>
 
@@ -86,7 +73,7 @@ static void EmbedPositionDetectionPattern(int xStart, int yStart, TritMatrix& ma
 		for (int x = 0; x < 7; ++x)
 			matrix.set(xStart + x, yStart + y, maxAbsComponent(PointI(x, y) - PointI(3, 3)) != 2);
 
-	// Surround the 7x7 pattern with one line of white space (sepration pattern)
+	// Surround the 7x7 pattern with one line of white space (separation pattern)
 	auto setIfInside = [&](int x, int y) {
 		if( x >= 0 && x < matrix.width() && y >= 0 && y < matrix.height())
 			matrix.set(x, y, 0);
@@ -153,7 +140,8 @@ static int FindMSBSet(unsigned value)
 //
 // Since all coefficients in the polynomials are 1 or 0, we can do the calculation by bit
 // operations. We don't care if cofficients are positive or negative.
-static int CalculateBCHCode(int value, int poly) {
+static int CalculateBCHCode(int value, int poly)
+{
 	// If poly is "1 1111 0010 0101" (version info poly), msbSetInPoly is 13. We'll subtract 1
 	// from 13 to make it 12.
 	int msbSetInPoly = FindMSBSet(poly);
@@ -308,8 +296,7 @@ static void EmbedDataBits(const BitArray& dataBits, int maskPattern, TritMatrix&
 
 // Build 2D matrix of QR Code from "dataBits" with "ecLevel", "version" and "getMaskPattern". On
 // success, store the result in "matrix" and return true.
-void BuildMatrix(const BitArray& dataBits, ErrorCorrectionLevel ecLevel, const Version& version, int maskPattern,
-				 TritMatrix& matrix)
+void BuildMatrix(const BitArray& dataBits, ErrorCorrectionLevel ecLevel, const Version& version, int maskPattern, TritMatrix& matrix)
 {
 	matrix.clear();
 	// Let's get started with embedding big squares at corners.

@@ -2,19 +2,8 @@
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2006 Jeremias Maerki
 * Copyright 2020 Axel Waggersauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "DMBitLayout.h"
 
@@ -78,6 +67,9 @@ BitMatrix VisitMatrix(int numRows, int numCols, VisitFunc visit)
 			if (c < 0) {
 				c += numCols;
 				r += 4 - ((numCols + 4) % 8);
+			}
+			if (r >= numRows) {
+				r -= numRows;
 			}
 			result[bit] = {r, c};
 			logAccess(result[bit]);
@@ -178,15 +170,11 @@ static BitMatrix ExtractDataBits(const Version& version, const BitMatrix& bits)
 *
 * @return bytes encoded within the Data Matrix Code
 */
-ByteArray CodewordsFromBitMatrix(const BitMatrix& bits)
+ByteArray CodewordsFromBitMatrix(const BitMatrix& bits, const Version& version)
 {
-	const Version* version = VersionForDimensionsOf(bits);
-	if (version == nullptr)
-		return {};
+	BitMatrix dataBits = ExtractDataBits(version, bits);
 
-	BitMatrix dataBits = ExtractDataBits(*version, bits);
-
-	ByteArray result(version->totalCodewords());
+	ByteArray result(version.totalCodewords());
 	auto codeword = result.begin();
 
 	VisitMatrix(dataBits.height(), dataBits.width(), [&codeword, &dataBits](const BitPosArray& bitPos) {

@@ -1,63 +1,40 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "QRErrorCorrectionLevel.h"
 
 #include <cstdint>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
-/**
-* <p>Encapsulates a QR Code's format information, including the data mask used and
-* error correction level.</p>
-*
-* @author Sean Owen
-* @see DataMask
-* @see ErrorCorrectionLevel
-*/
 class FormatInformation
 {
 public:
+	uint8_t index = 255;
+	uint8_t hammingDistance = 255;
+	bool isMirrored = false;
+	uint8_t dataMask = 0;
+	uint8_t microVersion = 0;
+	uint8_t bitsIndex = 255;
+	ErrorCorrectionLevel ecLevel = ErrorCorrectionLevel::Invalid;
+
 	FormatInformation() = default;
 
-	static FormatInformation DecodeFormatInformation(uint32_t formatInfoBits1, uint32_t formatInfoBits2);
+	static FormatInformation DecodeQR(uint32_t formatInfoBits1, uint32_t formatInfoBits2);
+	static FormatInformation DecodeMQR(uint32_t formatInfoBits);
 
-	ErrorCorrectionLevel errorCorrectionLevel() const {
-		return _errorCorrectionLevel;
+	// Hamming distance of the 32 masked codes is 7, by construction, so <= 3 bits differing means we found a match
+	bool isValid() const { return hammingDistance <= 3; }
+
+	bool operator==(const FormatInformation& other) const
+	{
+		return dataMask == other.dataMask && ecLevel == other.ecLevel;
 	}
-
-	uint8_t dataMask() const {
-		return _dataMask;
-	}
-
-	bool isValid() const { return _errorCorrectionLevel != ErrorCorrectionLevel::Invalid; }
-
-	bool operator==(const FormatInformation& other) const {
-		return _dataMask == other._dataMask && _errorCorrectionLevel == other._errorCorrectionLevel;
-	}
-
-private:
-	ErrorCorrectionLevel _errorCorrectionLevel = ErrorCorrectionLevel::Invalid;
-	uint8_t _dataMask = 0;
-
-	FormatInformation(int formatInfo);
 };
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

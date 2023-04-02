@@ -1,19 +1,9 @@
-#pragma once
 /*
 * Copyright 2016 Huy Cuong Nguyen
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include <cstdlib>
 #include <string>
@@ -38,10 +28,10 @@ public:
 	BigInteger() = default;
 
 	template <typename T>
-	BigInteger(T x, typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value>::type* = nullptr) : mag(1, x) {}
+	BigInteger(T x, typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>* = nullptr) : mag(1, x) {}
 
 	template <typename T>
-	BigInteger(T x, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value>::type* = nullptr) : negative(x < 0), mag(1, std::abs(x)) {}
+	BigInteger(T x, typename std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>* = nullptr) : negative(x < 0), mag(1, std::abs(x)) {}
 
 	static bool TryParse(const std::string& str, BigInteger& result);
 	static bool TryParse(const std::wstring& str, BigInteger& result);

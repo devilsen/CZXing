@@ -1,19 +1,8 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "QRWriter.h"
 
@@ -22,6 +11,7 @@
 #include "QREncodeResult.h"
 #include "QREncoder.h"
 #include "QRErrorCorrectionLevel.h"
+#include "Utf.h"
 
 #include <stdexcept>
 #include <utility>
@@ -30,18 +20,16 @@ namespace ZXing::QRCode {
 
 static const int QUIET_ZONE_SIZE = 4;
 
-Writer::Writer() :
-	_margin(QUIET_ZONE_SIZE),
-	_ecLevel(ErrorCorrectionLevel::Low),
-	_encoding(CharacterSet::Unknown),
-	_version(0),
-	_useGs1Format(false),
-	_maskPattern(-1)
-{
-}
+Writer::Writer()
+	: _margin(QUIET_ZONE_SIZE),
+	  _ecLevel(ErrorCorrectionLevel::Low),
+	  _encoding(CharacterSet::Unknown),
+	  _version(0),
+	  _useGs1Format(false),
+	  _maskPattern(-1)
+{}
 
-BitMatrix
-Writer::encode(const std::wstring& contents, int width, int height) const
+BitMatrix Writer::encode(const std::wstring& contents, int width, int height) const
 {
 	if (contents.empty()) {
 		throw std::invalid_argument("Found empty contents");
@@ -53,6 +41,11 @@ Writer::encode(const std::wstring& contents, int width, int height) const
 
 	EncodeResult code = Encode(contents, _ecLevel, _encoding, _version, _useGs1Format, _maskPattern);
 	return Inflate(std::move(code.matrix), width, height, _margin);
+}
+
+BitMatrix Writer::encode(const std::string& contents, int width, int height) const
+{
+	return encode(FromUtf8(contents), width, height);
 }
 
 } // namespace ZXing::QRCode

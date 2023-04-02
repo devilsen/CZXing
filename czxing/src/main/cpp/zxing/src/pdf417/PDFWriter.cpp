@@ -1,23 +1,13 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFWriter.h"
 #include "PDFEncoder.h"
 #include "BitMatrix.h"
+#include "Utf.h"
 
 #include <utility>
 
@@ -85,7 +75,7 @@ Writer::encode(const std::wstring& contents, int width, int height) const
 	int ecLevel = _ecLevel >= 0 ? _ecLevel : DEFAULT_ERROR_CORRECTION_LEVEL;
 
 	BarcodeMatrix resultMatrix = _encoder->generateBarcodeLogic(contents, ecLevel);
-	int aspectRatio = 4;
+	int aspectRatio = 4; // keep in sync with MODULE_RATIO in PDFEncoder.cpp
 	std::vector<std::vector<bool>> originalScale;
 	resultMatrix.getScaledMatrix(1, aspectRatio, originalScale);
 	bool rotated = false;
@@ -120,6 +110,11 @@ Writer::encode(const std::wstring& contents, int width, int height) const
 	else {
 		return BitMatrixFromBitArray(originalScale, margin);
 	}
+}
+
+BitMatrix Writer::encode(const std::string& contents, int width, int height) const
+{
+	return encode(FromUtf8(contents), width, height);
 }
 
 Writer::Writer()

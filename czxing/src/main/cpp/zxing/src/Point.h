@@ -1,19 +1,9 @@
-#pragma once
 /*
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include <algorithm>
 #include <cassert>
@@ -133,7 +123,7 @@ auto distance(PointT<T> a, PointT<T> b) -> decltype(length(a - b))
 using PointI = PointT<int>;
 using PointF = PointT<double>;
 
-/// Calculate a floating point pixel coordiante representing the 'center' of the pixel.
+/// Calculate a floating point pixel coordinate representing the 'center' of the pixel.
 /// This is sort of the inverse operation of the PointI(PointF) conversion constructor.
 /// See also the documentation of the GridSampler API.
 inline PointF centered(PointI p)
@@ -149,7 +139,7 @@ inline PointF centered(PointF p)
 template <typename T>
 PointF normalized(PointT<T> d)
 {
-	return PointF(d) / length(d);
+	return PointF(d) / length(PointF(d));
 }
 
 template <typename T>
@@ -161,7 +151,6 @@ PointT<T> bresenhamDirection(PointT<T> d)
 template <typename T>
 PointT<T> mainDirection(PointT<T> d)
 {
-	assert(std::abs(d.x) != std::abs(d.y));
 	return std::abs(d.x) > std::abs(d.y) ? PointT<T>(d.x, 0) : PointT<T>(0, d.y);
 }
 

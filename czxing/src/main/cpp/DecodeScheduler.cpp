@@ -20,13 +20,9 @@ void DecodeScheduler::setFormat(JNIEnv* env, jintArray formats_)
 {
     if (formats_ == nullptr) return;
 
-    std::vector<ZXing::BarcodeFormat> formats = GetFormats(env, formats_);
+    ZXing::BarcodeFormats formats = GetFormats(env, formats_);
     if (!formats.empty()) {
-        m_formatHints.setPossibleFormats(formats);
-
-        for (auto& format : formats) {
-            LOGE("set format: %d", format)
-        }
+        m_formatHints.setFormats(formats);
     }
 
     m_onlyQrCode = false;
@@ -193,7 +189,7 @@ std::vector<ScanResult> DecodeScheduler::zxingDecode(const cv::Mat& mat)
     ZXing::ImageView imageView(mat.data, mat.cols, mat.rows, ZXing::ImageFormat::Lum);
     ZXing::Result result = ZXing::ReadBarcode(imageView, m_formatHints);
     if (result.isValid()) {
-        LOGE("zxing decode success, result data = %ls", result.text().c_str())
+        LOGE("zxing decode success, result data = %s", result.text().c_str())
         std::vector<ScanResult> vector;
 
         int zxingFormatIndex = static_cast<int>(result.format());
@@ -202,7 +198,7 @@ std::vector<ScanResult> DecodeScheduler::zxingDecode(const cv::Mat& mat)
         ZXing::Position position = result.position();
         CodeRect codeRect(position.topLeft().x, position.topLeft().y, position.bottomRight().x, position.bottomRight().y);
 
-        ScanResult scanResult(format, UnicodeToANSI(result.text()), codeRect);
+        ScanResult scanResult(format, result.text(), codeRect);
         vector.push_back(scanResult);
         return vector;
     }

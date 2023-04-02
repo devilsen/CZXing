@@ -1,19 +1,8 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "QRVersion.h"
 
@@ -290,59 +279,75 @@ Version::AllVersions()
 	return allVersions;
 }
 
-Version::Version(int versionNumber, std::initializer_list<int> alignmentPatternCenters, const std::array<ECBlocks, 4> &ecBlocks) :
-	_versionNumber(versionNumber),
-	_alignmentPatternCenters(alignmentPatternCenters),
-	_ecBlocks(ecBlocks)
+const Version* Version::AllMicroVersions()
+{
+	/**
+	 * See ISO 18004:2006 6.5.1 Table 9
+	 */
+	static const Version allVersions[] = {
+		{1, {2, 1, 3, 0, 0}},
+		{2, {5, 1, 5, 0, 0, 6, 1, 4, 0, 0}},
+		{3, {6, 1, 11, 0, 0, 8, 1, 9, 0, 0}},
+		{4, {8, 1, 16, 0, 0, 10, 1, 14, 0, 0, 14, 1, 10, 0, 0}}};
+	return allVersions;
+}
+
+Version::Version(int versionNumber, std::initializer_list<int> alignmentPatternCenters, const std::array<ECBlocks, 4>& ecBlocks)
+	: _versionNumber(versionNumber), _alignmentPatternCenters(alignmentPatternCenters), _ecBlocks(ecBlocks), _isMicro(false)
 {
 	_totalCodewords = ecBlocks[0].totalDataCodewords();
 }
 
-const Version *
-Version::VersionForNumber(int versionNumber)
+Version::Version(int versionNumber, const std::array<ECBlocks, 4>& ecBlocks)
+	: _versionNumber(versionNumber), _ecBlocks(ecBlocks), _isMicro(true)
 {
-	if (versionNumber < 1 || versionNumber > 40) {
+	_totalCodewords = ecBlocks[0].totalDataCodewords();
+}
+
+const Version* Version::FromNumber(int versionNumber, bool isMicro)
+{
+	if (versionNumber < 1 || versionNumber > (isMicro ? 4 : 40)) {
 		//throw std::invalid_argument("Version should be in range [1-40].");
 		return nullptr;
 	}
-	return &AllVersions()[versionNumber - 1];
+	return &(isMicro ? AllMicroVersions() : AllVersions())[versionNumber - 1];
 }
 
-const Version *
-Version::ProvisionalVersionForDimension(int dimension)
+const Version* Version::FromDimension(int dimension)
 {
-	if (dimension % 4 != 1) {
+	bool isMicro = dimension < 21;
+	if (dimension % DimensionStep(isMicro) != 1) {
 		//throw std::invalid_argument("Unexpected dimension");
 		return nullptr;
 	}
-	return VersionForNumber((dimension - 17) / 4);
+	return FromNumber((dimension - DimensionOffset(isMicro)) / DimensionStep(isMicro), isMicro);
 }
 
-
-const Version *
-Version::DecodeVersionInformation(int versionBits)
+const Version* Version::DecodeVersionInformation(int versionBitsA, int versionBitsB)
 {
 	int bestDifference = std::numeric_limits<int>::max();
 	int bestVersion = 0;
 	int i = 0;
 	for (int targetVersion : VERSION_DECODE_INFO) {
 		// Do the version info bits match exactly? done.
-		if (targetVersion == versionBits) {
-			return VersionForNumber(i + 7);
+		if (targetVersion == versionBitsA || targetVersion == versionBitsB) {
+			return FromNumber(i + 7);
 		}
 		// Otherwise see if this is the closest to a real version info bit string
 		// we have seen so far
-		int bitsDifference = BitHacks::CountBitsSet(versionBits ^ targetVersion);
-		if (bitsDifference < bestDifference) {
-			bestVersion = i + 7;
-			bestDifference = bitsDifference;
+		for (int bits : {versionBitsA, versionBitsB}) {
+			int bitsDifference = BitHacks::CountBitsSet(bits ^ targetVersion);
+			if (bitsDifference < bestDifference) {
+				bestVersion = i + 7;
+				bestDifference = bitsDifference;
+			}
 		}
 		++i;
 	}
 	// We can tolerate up to 3 bits of error since no two version info codewords will
 	// differ in less than 8 bits.
 	if (bestDifference <= 3) {
-		return VersionForNumber(bestVersion);
+		return FromNumber(bestVersion);
 	}
 	// If we didn't find a close enough match, fail
 	return nullptr;
@@ -353,39 +358,48 @@ Version::DecodeVersionInformation(int versionBits)
 */
 BitMatrix Version::buildFunctionPattern() const
 {
-	int dimension = dimensionForVersion();
+	int dimension = this->dimension();
 	BitMatrix bitMatrix(dimension, dimension);
 
 	// Top left finder pattern + separator + format
 	bitMatrix.setRegion(0, 0, 9, 9);
-	// Top right finder pattern + separator + format
-	bitMatrix.setRegion(dimension - 8, 0, 8, 9);
-	// Bottom left finder pattern + separator + format
-	bitMatrix.setRegion(0, dimension - 8, 9, 8);
 
-	// Alignment patterns
-	size_t max = _alignmentPatternCenters.size();
-	for (size_t x = 0; x < max; ++x) {
-		int i = _alignmentPatternCenters[x] - 2;
-		for (size_t y = 0; y < max; ++y) {
-			if ((x == 0 && (y == 0 || y == max - 1)) || (x == max - 1 && y == 0)) {
-				// No alignment patterns near the three finder paterns
-				continue;
+	if (!_isMicro) {
+		// Top right finder pattern + separator + format
+		bitMatrix.setRegion(dimension - 8, 0, 8, 9);
+		// Bottom left finder pattern + separator + format
+		bitMatrix.setRegion(0, dimension - 8, 9, 8);
+
+		// Alignment patterns
+		size_t max = _alignmentPatternCenters.size();
+		for (size_t x = 0; x < max; ++x) {
+			int i = _alignmentPatternCenters[x] - 2;
+			for (size_t y = 0; y < max; ++y) {
+				if ((x == 0 && (y == 0 || y == max - 1)) || (x == max - 1 && y == 0)) {
+					// No alignment patterns near the three finder patterns
+					continue;
+				}
+				bitMatrix.setRegion(_alignmentPatternCenters[y] - 2, i, 5, 5);
 			}
-			bitMatrix.setRegion(_alignmentPatternCenters[y] - 2, i, 5, 5);
 		}
-	}
 
-	// Vertical timing pattern
-	bitMatrix.setRegion(6, 9, 1, dimension - 17);
-	// Horizontal timing pattern
-	bitMatrix.setRegion(9, 6, dimension - 17, 1);
+		// Vertical timing pattern
+		bitMatrix.setRegion(6, 9, 1, dimension - 17);
+		// Horizontal timing pattern
+		bitMatrix.setRegion(9, 6, dimension - 17, 1);
 
-	if (_versionNumber > 6) {
-		// Version info, top right
-		bitMatrix.setRegion(dimension - 11, 0, 3, 6);
-		// Version info, bottom left
-		bitMatrix.setRegion(0, dimension - 11, 6, 3);
+		if (_versionNumber > 6) {
+			// Version info, top right
+			bitMatrix.setRegion(dimension - 11, 0, 3, 6);
+			// Version info, bottom left
+			bitMatrix.setRegion(0, dimension - 11, 6, 3);
+		}
+	} else {
+		// Vertical timing pattern
+		bitMatrix.setRegion(9, 0, dimension - 9, 1);
+
+		// Horizontal timing pattern
+		bitMatrix.setRegion(0, 9, 1, dimension - 9);
 	}
 
 	return bitMatrix;

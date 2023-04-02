@@ -1,81 +1,72 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GlobalHistogramBinarizer.h"
 
-#include "BitArray.h"
 #include "BitMatrix.h"
-#include "ByteArray.h"
-#include "LuminanceSource.h"
+#include "Pattern.h"
 
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <functional>
-#include <mutex>
 #include <utility>
 
 namespace ZXing {
 
-static const int LUMINANCE_BITS = 5;
-static const int LUMINANCE_SHIFT = 8 - LUMINANCE_BITS;
-static const int LUMINANCE_BUCKETS = 1 << LUMINANCE_BITS;
+static constexpr int LUMINANCE_BITS = 5;
+static constexpr int LUMINANCE_SHIFT = 8 - LUMINANCE_BITS;
+static constexpr int LUMINANCE_BUCKETS = 1 << LUMINANCE_BITS;
 
+using Histogram = std::array<uint16_t, LUMINANCE_BUCKETS>;
 
-struct GlobalHistogramBinarizer::DataCache
-{
-	std::once_flag once;
-	std::shared_ptr<const BitMatrix> matrix;
-};
-
-GlobalHistogramBinarizer::GlobalHistogramBinarizer(std::shared_ptr<const LuminanceSource> source) :
-	_source(std::move(source)),
-	_cache(new DataCache)
-{
-}
+GlobalHistogramBinarizer::GlobalHistogramBinarizer(const ImageView& buffer) : BinaryBitmap(buffer) {}
 
 GlobalHistogramBinarizer::~GlobalHistogramBinarizer() = default;
 
-int
-GlobalHistogramBinarizer::width() const
+using ImageLineView = Range<StrideIter<const uint8_t*>>;
+
+inline ImageLineView RowView(const ImageView& iv, int row)
 {
-	return _source->width();
+	return {{iv.data(0, row), iv.pixStride()}, {iv.data(iv.width(), row), iv.pixStride()}};
 }
 
-int
-GlobalHistogramBinarizer::height() const
+static void ThresholdSharpened(const ImageLineView in, int threshold, std::vector<uint8_t>& out)
 {
-	return _source->height();
+	out.resize(in.size());
+	auto i = in.begin();
+	auto o = out.begin();
+
+	*o++ = (*i++ <= threshold) * BitMatrix::SET_V;
+	for (auto end = in.end() - 1; i != end; ++i)
+		*o++ = ((-i[-1] + (int(i[0]) * 4) - i[1]) / 2 <= threshold) * BitMatrix::SET_V;
+	*o++ = (*i++ <= threshold) * BitMatrix::SET_V;
 }
 
+static auto GenHistogram(const ImageLineView line)
+{
+	Histogram res = {};
+	for (auto pix : line)
+		res[pix >> LUMINANCE_SHIFT]++;
+	return res;
+}
 
 // Return -1 on error
-static int EstimateBlackPoint(const std::array<int, LUMINANCE_BUCKETS>& buckets)
+static int EstimateBlackPoint(const Histogram& buckets)
 {
 	// Find the tallest peak in the histogram.
 	auto firstPeakPos = std::max_element(buckets.begin(), buckets.end());
-	int firstPeak = static_cast<int>(firstPeakPos - buckets.begin());
+	int firstPeak = narrow_cast<int>(firstPeakPos - buckets.begin());
 	int firstPeakSize = *firstPeakPos;
 	int maxBucketCount = firstPeakSize;
 
 	// Find the second-tallest peak which is somewhat far from the tallest peak.
 	int secondPeak = 0;
 	int secondPeakScore = 0;
-	for (int x = 0; x < LUMINANCE_BUCKETS; x++) {
+	for (int x = 0; x < Size(buckets); x++) {
 		int distanceToBiggest = x - firstPeak;
 		// Encourage more distant second peaks by multiplying by square of distance.
 		int score = buckets[x] * distanceToBiggest * distanceToBiggest;
@@ -111,133 +102,66 @@ static int EstimateBlackPoint(const std::array<int, LUMINANCE_BUCKETS>& buckets)
 	return bestValley << LUMINANCE_SHIFT;
 }
 
-bool GlobalHistogramBinarizer::getPatternRow(int y, PatternRow& res) const
+bool GlobalHistogramBinarizer::getPatternRow(int row, int rotation, PatternRow& res) const
 {
-	int width = _source->width();
-	if (width < 3)
+	auto buffer = _buffer.rotated(rotation);
+	auto lineView = RowView(buffer, row);
+
+	if (buffer.width() < 3)
 		return false; // special casing the code below for a width < 3 makes no sense
 
-	res.clear();
-
-	ByteArray buffer;
-	const uint8_t* luminances = _source->getRow(y, buffer);
-	std::array<int, LUMINANCE_BUCKETS> buckets = {};
-	for (int x = 0; x < width; x++) {
-		buckets[luminances[x] >> LUMINANCE_SHIFT]++;
+#ifdef __AVX__
+	// If we are extracting a column (instead of a row), we run into cache misses on every pixel access both
+	// during the histogram caluculation and during the sharpen+threshold operation. Additionally, if we
+	// perform the ThresholdSharpened function on pixStride==1 data, the auto-vectorizer makes that part
+	// 8x faster on an AVX2 cpu which easily recovers the extra cost that we pay for the copying.
+	thread_local std::vector<uint8_t> line;
+	if (std::abs(buffer.pixStride()) > 4) {
+		line.resize(lineView.size());
+		std::copy(lineView.begin(), lineView.end(), line.begin());
+		lineView = {{line.data(), 1}, {line.data() + line.size(), 1}};
 	}
-	int blackPoint = EstimateBlackPoint(buckets);
-	if (blackPoint <= 0)
+#endif
+
+	auto threshold = EstimateBlackPoint(GenHistogram(lineView)) - 1;
+	if (threshold <= 0)
 		return false;
 
-	auto* lastPos = luminances;
-	bool lastVal = luminances[0] < blackPoint;
-	if (lastVal)
-		res.push_back(0); // first value is number of white pixels, here 0
-
-	auto process = [&](bool val, const uint8_t* p) {
-		if (val != lastVal) {
-			res.push_back(static_cast<PatternRow::value_type>(p - lastPos));
-			lastVal = val;
-			lastPos = p;
-		}
-	};
-
-	for (auto* p = luminances + 1; p < luminances + width - 1; ++p)
-		process((-*(p - 1) + (int(*p) * 4) - *(p + 1)) / 2 < blackPoint, p);
-
-	auto* backPos = luminances + width - 1;
-	bool backVal = *backPos < blackPoint;
-	process(backVal, backPos);
-
-	res.push_back(static_cast<PatternRow::value_type>(backPos - lastPos + 1));
-
-	if (backVal)
-		res.push_back(0); // last value is number of white pixels, here 0
-
-	assert(res.size() % 2 == 1);
+	thread_local std::vector<uint8_t> binarized;
+	// the optimizer can generate a specialized version for pixStride==1 (non-rotated input) that is about 8x faster on AVX2 hardware
+	if (lineView.begin().stride == 1)
+		ThresholdSharpened(lineView, threshold, binarized);
+	else
+		ThresholdSharpened(lineView, threshold, binarized);
+	GetPatternRow(Range(binarized), res);
 
 	return true;
-}
-
-static void InitBlackMatrix(const LuminanceSource& source, std::shared_ptr<const BitMatrix>& outMatrix)
-{
-	int width = source.width();
-	int height = source.height();
-	auto matrix = std::make_shared<BitMatrix>(width, height);
-
-	// Quickly calculates the histogram by sampling four rows from the image. This proved to be
-	// more robust on the blackbox tests than sampling a diagonal as we used to do.
-	std::array<int, LUMINANCE_BUCKETS> localBuckets = {};
-	{
-		ByteArray buffer;
-		for (int y = 1; y < 5; y++) {
-			int row = height * y / 5;
-			const uint8_t* luminances = source.getRow(row, buffer);
-			int right = (width * 4) / 5;
-			for (int x = width / 5; x < right; x++) {
-				localBuckets[luminances[x] >> LUMINANCE_SHIFT]++;
-			}
-		}
-	}
-
-	int blackPoint = EstimateBlackPoint(localBuckets);
-	if (blackPoint <= 0)
-		return;
-
-	// We delay reading the entire image luminance until the black point estimation succeeds.
-	// Although we end up reading four rows twice, it is consistent with our motto of
-	// "fail quickly" which is necessary for continuous scanning.
-	ByteArray buffer;
-	int stride;
-	const uint8_t* luminances = source.getMatrix(buffer, stride);
-	for (int y = 0; y < height; y++) {
-		int offset = y * stride;
-		for (int x = 0; x < width; x++) {
-			if (luminances[offset + x] < blackPoint) {
-				matrix->set(x, y);
-			}
-		}
-	}
-	outMatrix = matrix;
 }
 
 // Does not sharpen the data, as this call is intended to only be used by 2D Readers.
 std::shared_ptr<const BitMatrix>
 GlobalHistogramBinarizer::getBlackMatrix() const
 {
-	std::call_once(_cache->once, &InitBlackMatrix, std::cref(*_source), std::ref(_cache->matrix));
-	return _cache->matrix;
-}
+	// Quickly calculates the histogram by sampling four rows from the image. This proved to be
+	// more robust on the blackbox tests than sampling a diagonal as we used to do.
+	Histogram localBuckets = {};
+	{
+		for (int y = 1; y < 5; y++) {
+			int row = height() * y / 5;
+			const uint8_t* luminances = _buffer.data(0, row);
+			int right = (width() * 4) / 5;
+			for (int x = width() / 5; x < right; x++)
+				localBuckets[luminances[x] >> LUMINANCE_SHIFT]++;
+		}
+	}
 
-bool
-GlobalHistogramBinarizer::canCrop() const
-{
-	return _source->canCrop();
-}
+	int blackPoint = EstimateBlackPoint(localBuckets);
+	if (blackPoint <= 0)
+		return {};
 
-std::shared_ptr<BinaryBitmap>
-GlobalHistogramBinarizer::cropped(int left, int top, int width, int height) const
-{
-	return newInstance(_source->cropped(left, top, width, height));
-}
 
-bool
-GlobalHistogramBinarizer::canRotate() const
-{
-	return _source->canRotate();
-}
 
-std::shared_ptr<BinaryBitmap>
-GlobalHistogramBinarizer::rotated(int degreeCW) const
-{
-	return newInstance(_source->rotated(degreeCW));
+	return std::make_shared<const BitMatrix>(binarize(blackPoint));
 }
-
-std::shared_ptr<BinaryBitmap>
-GlobalHistogramBinarizer::newInstance(const std::shared_ptr<const LuminanceSource>& source) const
-{
-	return std::make_shared<GlobalHistogramBinarizer>(source);
-}
-
 
 } // ZXing

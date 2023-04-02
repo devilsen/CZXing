@@ -1,22 +1,13 @@
 /*
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ConcentricFinder.h"
 
 #include "LogMatrix.h"
+#include "RegressionLine.h"
+#include "ZXAlgorithms.h"
 
 namespace ZXing {
 
@@ -48,9 +39,17 @@ std::optional<PointF> CenterOfDoubleCross(const BitMatrix& image, PointI center,
 
 std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int range, int nth, bool requireCircle)
 {
+	// range is the approximate width/height of the nth ring, if nth>1 then it would be plausible to limit the search radius
+	// to approximately range / 2 * sqrt(2) == range * 0.75 but it turned out to be too limiting with realworld/noisy data.
+	int radius = range;
+	bool inner = nth < 0;
+	nth = std::abs(nth);
+	log(center, 3);
 	BitMatrixCursorI cur(image, center, {0, 1});
-	cur.stepToEdge(nth, range);
-	cur.turnRight(); // move clock wise and keep edge on the right
+	if (!cur.stepToEdge(nth, radius, inner))
+		return {};
+	cur.turnRight(); // move clock wise and keep edge on the right/left depending on backup
+	const auto edgeDir = inner ? Direction::LEFT : Direction::RIGHT;
 
 	uint32_t neighbourMask = 0;
 	auto start = cur.p;
@@ -64,11 +63,11 @@ std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int ra
 		// find out if we come full circle around the center. 8 bits have to be set in the end.
 		neighbourMask |= (1 << (4 + dot(bresenhamDirection(cur.p - center), PointI(1, 3))));
 
-		if (!cur.stepAlongEdge(Direction::RIGHT))
+		if (!cur.stepAlongEdge(edgeDir))
 			return {};
 
 		// use L-inf norm, simply because it is a lot faster than L2-norm and sufficiently accurate
-		if (maxAbsComponent(cur.p - center) > range || center == cur.p || n > 4 * 2 * range)
+		if (maxAbsComponent(cur.p - center) > radius || center == cur.p || n > 4 * 2 * range)
 			return {};
 	} while (cur.p != start);
 
@@ -78,12 +77,12 @@ std::optional<PointF> CenterOfRing(const BitMatrix& image, PointI center, int ra
 	return sum / n;
 }
 
-std::optional<PointF> CenterOfRings(const BitMatrix& image, PointI center, int range, int numOfRings)
+std::optional<PointF> CenterOfRings(const BitMatrix& image, PointF center, int range, int numOfRings)
 {
-	PointF sum = {};
-	int n = 0;
-	for (int i = 0; i < numOfRings; ++i) {
-		auto c = CenterOfRing(image, center, range, i + 1);
+	int n = numOfRings;
+	PointF sum = numOfRings * center;
+	for (int i = 1; i < numOfRings; ++i) {
+		auto c = CenterOfRing(image, PointI(center), range, i + 1);
 		if (!c)
 			return {};
 		// TODO: decide whether this wheighting depending on distance to the center is worth it
@@ -96,11 +95,132 @@ std::optional<PointF> CenterOfRings(const BitMatrix& image, PointI center, int r
 
 std::optional<PointF> FinetuneConcentricPatternCenter(const BitMatrix& image, PointF center, int range, int finderPatternSize)
 {
-	auto res = CenterOfRings(image, PointI(center), range, finderPatternSize / 2);
+	// make sure we have at least one path of white around the center
+	auto res = CenterOfRing(image, PointI(center), range, 1);
+	if (!res)
+		return {};
+
+	center = *res;
+	res = CenterOfRings(image, center, range, finderPatternSize / 2);
 	if (!res || !image.get(*res))
 		res = CenterOfDoubleCross(image, PointI(center), range, finderPatternSize / 2 + 1);
 	if (!res || !image.get(*res))
 		res = center;
+	if (!res || !image.get(*res))
+		return {};
+	return res;
+}
+
+static std::vector<PointF> CollectRingPoints(const BitMatrix& image, PointF center, int range, int edgeIndex, bool backup)
+{
+	PointI centerI(center);
+	int radius = range;
+	BitMatrixCursorI cur(image, centerI, {0, 1});
+	if (!cur.stepToEdge(edgeIndex, radius, backup))
+		return {};
+	cur.turnRight(); // move clock wise and keep edge on the right/left depending on backup
+	const auto edgeDir = backup ? Direction::LEFT : Direction::RIGHT;
+
+	uint32_t neighbourMask = 0;
+	auto start = cur.p;
+	std::vector<PointF> points;
+	points.reserve(4 * range);
+
+	do {
+		log(cur.p, 4);
+		points.push_back(centered(cur.p));
+
+		// find out if we come full circle around the center. 8 bits have to be set in the end.
+		neighbourMask |= (1 << (4 + dot(bresenhamDirection(cur.p - centerI), PointI(1, 3))));
+
+		if (!cur.stepAlongEdge(edgeDir))
+			return {};
+
+		// use L-inf norm, simply because it is a lot faster than L2-norm and sufficiently accurate
+		if (maxAbsComponent(cur.p - centerI) > radius || centerI == cur.p || Size(points) > 4 * 2 * range)
+			return {};
+
+	} while (cur.p != start);
+
+	if (neighbourMask != 0b111101111)
+		return {};
+
+	return points;
+}
+
+static std::optional<QuadrilateralF> FitQadrilateralToPoints(PointF center, std::vector<PointF>& points)
+{
+	auto dist2Center = [c = center](auto a, auto b) { return distance(a, c) < distance(b, c); };
+	// rotate points such that the first one is the furthest away from the center (hence, a corner)
+	std::rotate(points.begin(), std::max_element(points.begin(), points.end(), dist2Center), points.end());
+
+	std::array<const PointF*, 4> corners;
+	corners[0] = &points[0];
+	// find the oposite corner by looking for the farthest point near the oposite point
+	corners[2] = std::max_element(&points[Size(points) * 3 / 8], &points[Size(points) * 5 / 8], dist2Center);
+
+	// find the two in between corners by looking for the points farthest from the long diagonal
+	auto dist2Diagonal = [l = RegressionLine(*corners[0], *corners[2])](auto a, auto b) { return l.distance(a) < l.distance(b); };
+	corners[1] = std::max_element(&points[Size(points) * 1 / 8], &points[Size(points) * 3 / 8], dist2Diagonal);
+	corners[3] = std::max_element(&points[Size(points) * 5 / 8], &points[Size(points) * 7 / 8], dist2Diagonal);
+
+	std::array lines{RegressionLine{corners[0] + 1, corners[1]}, RegressionLine{corners[1] + 1, corners[2]},
+					 RegressionLine{corners[2] + 1, corners[3]}, RegressionLine{corners[3] + 1, &points.back() + 1}};
+
+	if (std::any_of(lines.begin(), lines.end(), [](auto line) { return !line.isValid(); }))
+		return {};
+
+	QuadrilateralF res;
+	for (int i = 0; i < 4; ++i)
+		res[i] = intersect(lines[i], lines[(i + 1) % 4]);
+
+	return res;
+}
+
+static bool QuadrilateralIsPlausibleSquare(const QuadrilateralF q, int lineIndex)
+{
+	double m, M;
+	m = M = distance(q[0], q[3]);
+	for (int i = 1; i < 4; ++i)
+		UpdateMinMax(m, M, distance(q[i - 1], q[i]));
+
+	return m >= lineIndex * 2 && m > M / 3;
+}
+
+static std::optional<QuadrilateralF> FitSquareToPoints(const BitMatrix& image, PointF center, int range, int lineIndex, bool backup)
+{
+	auto points = CollectRingPoints(image, center, range, lineIndex, backup);
+	if (points.empty())
+		return {};
+
+	auto res = FitQadrilateralToPoints(center, points);
+	if (!res || !QuadrilateralIsPlausibleSquare(*res, lineIndex - backup))
+		return {};
+
+	return res;
+}
+
+std::optional<QuadrilateralF> FindConcentricPatternCorners(const BitMatrix& image, PointF center, int range, int lineIndex)
+{
+	auto innerCorners = FitSquareToPoints(image, center, range, lineIndex, false);
+	if (!innerCorners)
+		return {};
+
+	auto outerCorners = FitSquareToPoints(image, center, range, lineIndex + 1, true);
+	if (!outerCorners)
+		return {};
+
+	auto res = Blend(*innerCorners, *outerCorners);
+
+	for (auto p : *innerCorners)
+		log(p, 3);
+
+	for (auto p : *outerCorners)
+		log(p, 3);
+
+	for (auto p : res)
+		log(p, 3);
+
 	return res;
 }
 

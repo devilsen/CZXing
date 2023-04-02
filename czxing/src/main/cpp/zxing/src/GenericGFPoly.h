@@ -1,22 +1,12 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
-#include "ZXContainerAlgorithms.h"
+#pragma once
+
+#include "ZXAlgorithms.h"
 
 #include <algorithm>
 #include <cassert>
@@ -69,9 +59,6 @@ public:
 	* to perform computations
 	* @param coefficients coefficients as ints representing elements of GF(size), arranged
 	* from most significant (highest-power term) coefficient to least significant
-	* @throws IllegalArgumentException if argument is null or empty,
-	* or if leading coefficient is 0 and this is not a
-	* constant polynomial (that is, it is not the monomial "0").
 	*/
 	GenericGFPoly(const GenericGF& field, std::vector<int>&& coefficients) : _field(&field)
 	{
@@ -81,8 +68,8 @@ public:
 	}
 	GenericGFPoly(const GenericGF& field, const std::vector<int>& coefficients) : GenericGFPoly(field, std::vector<int>(coefficients)) {}
 
-	GenericGFPoly& operator=(GenericGFPoly&& other) = default;
-	GenericGFPoly(GenericGFPoly&& other) = default;
+	GenericGFPoly& operator=(GenericGFPoly&& other) noexcept = default;
+	GenericGFPoly(GenericGFPoly&& other) noexcept = default;
 
 	GenericGFPoly& operator=(const GenericGFPoly& other) {
 		assert(_field == other._field);

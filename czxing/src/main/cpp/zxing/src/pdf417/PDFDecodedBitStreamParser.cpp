@@ -1,39 +1,28 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFDecodedBitStreamParser.h"
-#include "PDFDecoderResultExtra.h"
-#include "CharacterSetECI.h"
+
 #include "CharacterSet.h"
-#include "TextDecoder.h"
-#include "ZXBigInteger.h"
-#include "ByteArray.h"
-#include "DecodeStatus.h"
 #include "DecoderResult.h"
-#include "ZXStrConvWorkaround.h"
+#include "PDFDecoderResultExtra.h"
+#include "ZXAlgorithms.h"
+#include "ZXBigInteger.h"
 #include "ZXTestSupport.h"
 
 #include <array>
 #include <cassert>
+#include <iomanip>
+#include <sstream>
 #include <utility>
 
 namespace ZXing::Pdf417 {
 
-enum class Mode {
+enum class Mode
+{
 	ALPHA,
 	LOWER,
 	MIXED,
@@ -45,14 +34,21 @@ enum class Mode {
 static const int TEXT_COMPACTION_MODE_LATCH = 900;
 static const int BYTE_COMPACTION_MODE_LATCH = 901;
 static const int NUMERIC_COMPACTION_MODE_LATCH = 902;
-static const int BYTE_COMPACTION_MODE_LATCH_6 = 924;
-static const int ECI_USER_DEFINED = 925;
-static const int ECI_GENERAL_PURPOSE = 926;
-static const int ECI_CHARSET = 927;
-static const int BEGIN_MACRO_PDF417_CONTROL_BLOCK = 928;
-static const int BEGIN_MACRO_PDF417_OPTIONAL_FIELD = 923;
-static const int MACRO_PDF417_TERMINATOR = 922;
+// 903-912 reserved
 static const int MODE_SHIFT_TO_BYTE_COMPACTION_MODE = 913;
+// 914-917 reserved
+static const int LINKAGE_OTHER = 918;
+// 919 reserved
+static const int LINKAGE_EANUCC = 920; // GS1 Composite
+static const int READER_INIT = 921; // Reader Initialisation/Programming
+static const int MACRO_PDF417_TERMINATOR = 922;
+static const int BEGIN_MACRO_PDF417_OPTIONAL_FIELD = 923;
+static const int BYTE_COMPACTION_MODE_LATCH_6 = 924;
+static const int ECI_USER_DEFINED = 925; // 810900-811799 (1 codeword)
+static const int ECI_GENERAL_PURPOSE = 926; // 900-810899 (2 codewords)
+static const int ECI_CHARSET = 927; // 0-899 (1 codeword)
+static const int BEGIN_MACRO_PDF417_CONTROL_BLOCK = 928;
+
 static const int MAX_NUMERIC_CODEWORDS = 15;
 
 static const int MACRO_PDF417_OPTIONAL_FIELD_FILE_NAME = 0;
@@ -63,20 +59,49 @@ static const int MACRO_PDF417_OPTIONAL_FIELD_ADDRESSEE = 4;
 static const int MACRO_PDF417_OPTIONAL_FIELD_FILE_SIZE = 5;
 static const int MACRO_PDF417_OPTIONAL_FIELD_CHECKSUM = 6;
 
-static const int PL = 25;
-static const int LL = 27;
-static const int AS = 27;
-static const int ML = 28;
-static const int AL = 28;
-static const int PS = 29;
-static const int PAL = 29;
-
 static const char* PUNCT_CHARS = ";<>@[\\]_`~!\r\t,:\n-.$/\"|*()?{}'";
 static const char* MIXED_CHARS = "0123456789&\r\t,:#-.$/+%*=^";
-static const CharacterSet DEFAULT_ENCODING = CharacterSet::ISO8859_1;
 
 static const int NUMBER_OF_SEQUENCE_CODEWORDS = 2;
 
+inline bool IsECI(int code)
+{
+	return code >= ECI_USER_DEFINED && code <= ECI_CHARSET;
+}
+
+/**
+* Whether a codeword terminates a Compaction mode.
+*
+* See ISO/IEC 15438:2015 5.4.2.5 (Text), 5.4.3.4 (Byte), 5.4.4.3 (Numeric)
+*/
+static bool TerminatesCompaction(int code)
+{
+	switch (code) {
+	case TEXT_COMPACTION_MODE_LATCH:
+	case BYTE_COMPACTION_MODE_LATCH:
+	case NUMERIC_COMPACTION_MODE_LATCH:
+	case BYTE_COMPACTION_MODE_LATCH_6:
+	case BEGIN_MACRO_PDF417_CONTROL_BLOCK:
+	case BEGIN_MACRO_PDF417_OPTIONAL_FIELD:
+	case MACRO_PDF417_TERMINATOR: return true;
+	}
+	return false;
+}
+
+/**
+* Helper to process ECIs.
+**/
+static int ProcessECI(const std::vector<int>& codewords, int codeIndex, const int length, const int code, Content& result)
+{
+	if (codeIndex < length && IsECI(code)) {
+		if (code == ECI_CHARSET)
+			result.switchEncoding(ECI(codewords[codeIndex++]));
+		else
+			codeIndex += code == ECI_GENERAL_PURPOSE ? 2 : 1; // Don't currently handle non-character set ECIs so just ignore
+	}
+
+	return codeIndex;
+}
 
 /**
 * The Text Compaction mode includes all the printable ASCII characters
@@ -89,12 +114,11 @@ static const int NUMBER_OF_SEQUENCE_CODEWORDS = 2;
 * switches are defined in 5.4.2.3.
 *
 * @param textCompactionData The text compaction data.
-* @param byteCompactionData The byte compaction data if there
-*                           was a mode shift.
-* @param length             The size of the text compaction and byte compaction data.
-* @param result             The decoded data is appended to the result.
+* @param length             The size of the text compaction data.
+* @param result             The data in the character set encoding.
 */
-static void DecodeTextCompaction(const std::vector<int>& textCompactionData, const std::vector<int>& byteCompactionData, int length, std::string& result) {
+static void DecodeTextCompaction(const std::vector<int>& textCompactionData, int length, Content& result)
+{
 	// Beginning from an initial state of the Alpha sub-mode
 	// The default compaction mode for PDF417 in effect at the start of each symbol shall always be Text
 	// Compaction mode Alpha sub-mode (uppercase alphabetic). A latch codeword from another mode to the Text
@@ -104,163 +128,119 @@ static void DecodeTextCompaction(const std::vector<int>& textCompactionData, con
 	int i = 0;
 	while (i < length) {
 		int subModeCh = textCompactionData[i];
+
+		// Note only have ECI and MODE_SHIFT_TO_BYTE_COMPACTION_MODE function codewords in text compaction array
+		if (IsECI(subModeCh)) {
+			i = ProcessECI(textCompactionData, i + 1, length, subModeCh, result);
+			continue;
+		}
+		if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
+			i++;
+			while (i < length && IsECI(textCompactionData[i]))
+				i = ProcessECI(textCompactionData, i + 1, length, textCompactionData[i], result);
+
+			if (i < length)
+				result.push_back((uint8_t)textCompactionData[i++]);
+
+			continue;
+		}
+
 		char ch = 0;
 		switch (subMode) {
 		case Mode::ALPHA:
-			// Alpha (uppercase alphabetic)
-			if (subModeCh < 26) {
-				// Upper case Alpha Character
-				ch = (char)('A' + subModeCh);
-			}
-			else {
-				if (subModeCh == 26) {
-					ch = ' ';
-				}
-				else if (subModeCh == LL) {
-					subMode = Mode::LOWER;
-				}
-				else if (subModeCh == ML) {
-					subMode = Mode::MIXED;
-				}
-				else if (subModeCh == PS) {
-					// Shift to punctuation
-					priorToShiftMode = subMode;
-					subMode = Mode::PUNCT_SHIFT;
-				}
-				else if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
-					result.push_back((char)byteCompactionData[i]);
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
-			}
-			break;
-
 		case Mode::LOWER:
-			// Lower (lowercase alphabetic)
+			// Alpha (uppercase alphabetic) or Lower (lowercase alphabetic)
 			if (subModeCh < 26) {
-				ch = (char)('a' + subModeCh);
+				// Upper/lowercase character
+				ch = (char)((subMode == Mode::ALPHA ? 'A' : 'a') + subModeCh);
+			} else if (subModeCh == 26) { // Space
+				ch = ' ';
+			} else if (subModeCh == 27 && subMode == Mode::ALPHA) { // LL
+				subMode = Mode::LOWER;
+			} else if (subModeCh == 27 && subMode == Mode::LOWER) { // AS
+				// Shift to alpha
+				priorToShiftMode = subMode;
+				subMode = Mode::ALPHA_SHIFT;
+			} else if (subModeCh == 28) { // ML
+				subMode = Mode::MIXED;
 			}
-			else {
-				if (subModeCh == 26) {
-					ch = ' ';
-				}
-				else if (subModeCh == AS) {
-					// Shift to alpha
-					priorToShiftMode = subMode;
-					subMode = Mode::ALPHA_SHIFT;
-				}
-				else if (subModeCh == ML) {
-					subMode = Mode::MIXED;
-				}
-				else if (subModeCh == PS) {
-					// Shift to punctuation
-					priorToShiftMode = subMode;
-					subMode = Mode::PUNCT_SHIFT;
-				}
-				else if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
-					// TODO Does this need to use the current character encoding? See other occurrences below
-					result.push_back((char)byteCompactionData[i]);
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
+			// 29 PS - ignore if last or followed by Shift to Byte, 5.4.2.4 (b) (1)
+			else if (i + 1 < length && textCompactionData[i + 1] != MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
+				// Shift to punctuation
+				priorToShiftMode = subMode;
+				subMode = Mode::PUNCT_SHIFT;
 			}
 			break;
 
 		case Mode::MIXED:
 			// Mixed (numeric and some punctuation)
-			if (subModeCh < PL) {
+			if (subModeCh < 25) {
 				ch = MIXED_CHARS[subModeCh];
+			} else if (subModeCh == 25) { // PL
+				subMode = Mode::PUNCT;
+			} else if (subModeCh == 26) { // Space
+				ch = ' ';
+			} else if (subModeCh == 27) { // LL
+				subMode = Mode::LOWER;
+			} else if (subModeCh == 28) { // AL
+				subMode = Mode::ALPHA;
 			}
-			else {
-				if (subModeCh == PL) {
-					subMode = Mode::PUNCT;
-				}
-				else if (subModeCh == 26) {
-					ch = ' ';
-				}
-				else if (subModeCh == LL) {
-					subMode = Mode::LOWER;
-				}
-				else if (subModeCh == AL) {
-					subMode = Mode::ALPHA;
-				}
-				else if (subModeCh == PS) {
-					// Shift to punctuation
-					priorToShiftMode = subMode;
-					subMode = Mode::PUNCT_SHIFT;
-				}
-				else if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
-					result.push_back((char)byteCompactionData[i]);
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
+			// 29 PS - ignore if last or followed by Shift to Byte, 5.4.2.4 (b) (1)
+			else if (i + 1 < length && textCompactionData[i + 1] != MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
+				// Shift to punctuation
+				priorToShiftMode = subMode;
+				subMode = Mode::PUNCT_SHIFT;
 			}
 			break;
 
 		case Mode::PUNCT:
 			// Punctuation
-			if (subModeCh < PAL) {
+			if (subModeCh < 29)
 				ch = PUNCT_CHARS[subModeCh];
-			}
-			else {
-				if (subModeCh == PAL) {
-					subMode = Mode::ALPHA;
-				}
-				else if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
-					result.push_back((char)byteCompactionData[i]);
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
-			}
+			else // 29 AL - note not ignored if followed by Shift to Byte, 5.4.2.4 (b) (2)
+				subMode = Mode::ALPHA;
 			break;
 
 		case Mode::ALPHA_SHIFT:
 			// Restore sub-mode
 			subMode = priorToShiftMode;
-			if (subModeCh < 26) {
+			if (subModeCh < 26)
 				ch = (char)('A' + subModeCh);
-			}
-			else {
-				if (subModeCh == 26) {
-					ch = ' ';
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
-			}
+			else if (subModeCh == 26) // Space
+				ch = ' ';
+			// 27 LL, 28 ML, 29 PS used as padding
 			break;
 
 		case Mode::PUNCT_SHIFT:
 			// Restore sub-mode
 			subMode = priorToShiftMode;
-			if (subModeCh < PAL) {
+			if (subModeCh < 29)
 				ch = PUNCT_CHARS[subModeCh];
-			}
-			else {
-				if (subModeCh == PAL) {
-					subMode = Mode::ALPHA;
-				}
-				else if (subModeCh == MODE_SHIFT_TO_BYTE_COMPACTION_MODE) {
-					// PS before Shift-to-Byte is used as a padding character, 
-					// see 5.4.2.4 of the specification
-					result.push_back((char)byteCompactionData[i]);
-				}
-				else if (subModeCh == TEXT_COMPACTION_MODE_LATCH) {
-					subMode = Mode::ALPHA;
-				}
-			}
+			else // 29 AL
+				subMode = Mode::ALPHA;
 			break;
 		}
-		if (ch != 0) {
-			// Append decoded character to result
-			result.push_back(ch);
-		}
+		if (ch != 0)
+			result.push_back(ch); // Append decoded character to result
 		i++;
 	}
+}
+
+/*
+* Helper to put ECI codewords into Text Compaction array.
+*/
+static int ProcessTextECI(std::vector<int>& textCompactionData, int& index, const std::vector<int>& codewords, int codeIndex,
+						  const int code)
+{
+	textCompactionData[index++] = code;
+	if (codeIndex < codewords[0]) {
+		textCompactionData[index++] = codewords[codeIndex++];
+		if (codeIndex < codewords[0] && code == ECI_GENERAL_PURPOSE) {
+			textCompactionData[index++] = codewords[codeIndex++];
+		}
+	}
+
+	return codeIndex;
 }
 
 /**
@@ -268,42 +248,27 @@ static void DecodeTextCompaction(const std::vector<int>& textCompactionData, con
 * encoded, i.e. values 32 - 126 inclusive in accordance with ISO/IEC 646 (IRV), as
 * well as selected control characters.
 *
-* @param codewords The array of codewords (data + error)
-* @param codeIndex The current index into the codeword array.
-* @param result    The decoded data is appended to the result.
+* @param codewords     The array of codewords (data + error)
+* @param codeIndex     The current index into the codeword array.
+* @param result        The data in the character set encoding.
 * @return The next index into the codeword array.
 */
-static int TextCompaction(const std::vector<int>& codewords, int codeIndex, std::string& result)
+static int TextCompaction(const std::vector<int>& codewords, int codeIndex, Content& result)
 {
-	// 2 character per codeword
+	// 2 characters per codeword
 	std::vector<int> textCompactionData((codewords[0] - codeIndex) * 2, 0);
-	// Used to hold the byte compaction value if there is a mode shift
-	std::vector<int> byteCompactionData((codewords[0] - codeIndex) * 2, 0);
 
 	int index = 0;
 	bool end = false;
+
 	while ((codeIndex < codewords[0]) && !end) {
 		int code = codewords[codeIndex++];
 		if (code < TEXT_COMPACTION_MODE_LATCH) {
 			textCompactionData[index] = code / 30;
 			textCompactionData[index + 1] = code % 30;
 			index += 2;
-		}
-		else {
+		} else {
 			switch (code) {
-			case TEXT_COMPACTION_MODE_LATCH:
-				// reinitialize text compaction mode to alpha sub mode
-				textCompactionData[index++] = TEXT_COMPACTION_MODE_LATCH;
-				break;
-			case BYTE_COMPACTION_MODE_LATCH:
-			case BYTE_COMPACTION_MODE_LATCH_6:
-			case NUMERIC_COMPACTION_MODE_LATCH:
-			case BEGIN_MACRO_PDF417_CONTROL_BLOCK:
-			case BEGIN_MACRO_PDF417_OPTIONAL_FIELD:
-			case MACRO_PDF417_TERMINATOR:
-				codeIndex--;
-				end = true;
-				break;
 			case MODE_SHIFT_TO_BYTE_COMPACTION_MODE:
 				// The Mode Shift codeword 913 shall cause a temporary
 				// switch from Text Compaction mode to Byte Compaction mode.
@@ -311,121 +276,132 @@ static int TextCompaction(const std::vector<int>& codewords, int codeIndex, std:
 				// after which the mode shall revert to the prevailing sub-mode
 				// of the Text Compaction mode. Codeword 913 is only available
 				// in Text Compaction mode; its use is described in 5.4.2.4.
-				textCompactionData[index] = MODE_SHIFT_TO_BYTE_COMPACTION_MODE;
-				code = codewords[codeIndex++];
-				byteCompactionData[index] = code;
-				index++;
+				textCompactionData[index++] = MODE_SHIFT_TO_BYTE_COMPACTION_MODE;
+				// 5.5.3.1 allows ECIs anywhere in Text Compaction, including after a Shift to Byte
+				while (codeIndex < codewords[0] && IsECI(codewords[codeIndex])) {
+					codeIndex = ProcessTextECI(textCompactionData, index, codewords, codeIndex + 1, codewords[codeIndex]);
+				}
+				if (codeIndex < codewords[0])
+					textCompactionData[index++] = codewords[codeIndex++]; // Byte to shift
+				break;
+			case ECI_CHARSET:
+			case ECI_GENERAL_PURPOSE:
+			case ECI_USER_DEFINED:
+				codeIndex = ProcessTextECI(textCompactionData, index, codewords, codeIndex, code);
+				break;
+			default:
+				if (!TerminatesCompaction(code))
+					throw FormatError();
+
+				codeIndex--;
+				end = true;
 				break;
 			}
 		}
 	}
-	DecodeTextCompaction(textCompactionData, byteCompactionData, index, result);
+	DecodeTextCompaction(textCompactionData, index, result);
 	return codeIndex;
 }
 
+/*
+* Helper for Byte Compaction to look ahead and count 5-codeword batches and trailing bytes, with some checking of
+* format errors.
+*/
+static int CountByteBatches(int mode, const std::vector<int>& codewords, int codeIndex, int& trailingCount)
+{
+	int count = 0;
+	trailingCount = 0;
+
+	while (codeIndex < codewords[0]) {
+		int code = codewords[codeIndex++];
+		if (code >= TEXT_COMPACTION_MODE_LATCH) {
+			if (mode == BYTE_COMPACTION_MODE_LATCH_6 && count && count % 5)
+				throw FormatError();
+
+			if (IsECI(code)) {
+				codeIndex += code == ECI_GENERAL_PURPOSE ? 2 : 1;
+				continue;
+			}
+			if (!TerminatesCompaction(code))
+				throw FormatError();
+			break;
+		}
+		count++;
+	}
+	if (codeIndex > codewords[0])
+		throw FormatError();
+
+	if (count == 0)
+		return 0;
+
+	if (mode == BYTE_COMPACTION_MODE_LATCH) {
+		trailingCount = count % 5;
+		if (trailingCount == 0) {
+			trailingCount = 5;
+			count -= 5;
+		}
+	} else { // BYTE_COMPACTION_MODE_LATCH_6
+		if (count % 5 != 0)
+			throw FormatError();
+	}
+
+	return count / 5;
+}
+
+/*
+* Helper to handle Byte Compaction ECIs.
+*/
+static int ProcessByteECIs(const std::vector<int>& codewords, int codeIndex, Content& result)
+{
+	while (codeIndex < codewords[0] && codewords[codeIndex] >= TEXT_COMPACTION_MODE_LATCH
+			&& !TerminatesCompaction(codewords[codeIndex])) {
+		int code = codewords[codeIndex++];
+		if (IsECI(code))
+			codeIndex = ProcessECI(codewords, codeIndex, codewords[0], code, result);
+	}
+
+	return codeIndex;
+}
 
 /**
 * Byte Compaction mode (see 5.4.3) permits all 256 possible 8-bit byte values to be encoded.
 * This includes all ASCII characters value 0 to 127 inclusive and provides for international
 * character set support.
 *
-* @param mode      The byte compaction mode i.e. 901 or 924
-* @param codewords The array of codewords (data + error)
-* @param encoding  Currently active character encoding
-* @param codeIndex The current index into the codeword array.
-* @param result    The decoded data is appended to the result.
+* @param status        Set on format error.
+* @param mode          The byte compaction mode i.e. 901 or 924
+* @param codewords     The array of codewords (data + error)
+* @param codeIndex     The current index into the codeword array.
+* @param result        The data in the character set encoding.
 * @return The next index into the codeword array.
 */
-static int ByteCompaction(int mode, const std::vector<int>& codewords, CharacterSet encoding, int codeIndex, std::wstring& result)
+static int ByteCompaction(int mode, const std::vector<int>& codewords, int codeIndex, Content& result)
 {
-	ByteArray decodedBytes;
-	if (mode == BYTE_COMPACTION_MODE_LATCH) {
-		// Total number of Byte Compaction characters to be encoded
-		// is not a multiple of 6
-		int count = 0;
+	// Count number of 5-codeword batches and trailing bytes
+	int trailingCount;
+	int batches = CountByteBatches(mode, codewords, codeIndex, trailingCount);
+
+	// Deal with initial ECIs
+	codeIndex = ProcessByteECIs(codewords, codeIndex, result);
+
+	for (int batch = 0; batch < batches; batch++) {
 		int64_t value = 0;
-		std::array<int, 6> byteCompactedCodewords = {};
-		bool end = false;
-		int nextCode = codewords[codeIndex++];
-		while ((codeIndex < codewords[0]) && !end) {
-			byteCompactedCodewords[count++] = nextCode;
-			// Base 900
-			value = 900 * value + nextCode;
-			nextCode = codewords[codeIndex++];
-			// perhaps it should be ok to check only nextCode >= TEXT_COMPACTION_MODE_LATCH
-			if (nextCode == TEXT_COMPACTION_MODE_LATCH ||
-				nextCode == BYTE_COMPACTION_MODE_LATCH ||
-				nextCode == NUMERIC_COMPACTION_MODE_LATCH ||
-				nextCode == BYTE_COMPACTION_MODE_LATCH_6 ||
-				nextCode == BEGIN_MACRO_PDF417_CONTROL_BLOCK ||
-				nextCode == BEGIN_MACRO_PDF417_OPTIONAL_FIELD ||
-				nextCode == MACRO_PDF417_TERMINATOR) {
-				codeIndex--;
-				end = true;
-			}
-			else {
-				if ((count % 5 == 0) && (count > 0)) {
-					// Decode every 5 codewords
-					// Convert to Base 256
-					for (int j = 0; j < 6; ++j) {
-						decodedBytes.push_back((uint8_t)(value >> (8 * (5 - j))));
-					}
-					value = 0;
-					count = 0;
-				}
-			}
-		}
+		for (int count = 0; count < 5; count++)
+			value = 900 * value + codewords[codeIndex++];
 
-		// if the end of all codewords is reached the last codeword needs to be added
-		if (codeIndex == codewords[0] && nextCode < TEXT_COMPACTION_MODE_LATCH) {
-			byteCompactedCodewords[count++] = nextCode;
-		}
+		for (int j = 0; j < 6; ++j)
+			result.push_back((uint8_t)(value >> (8 * (5 - j))));
 
-		// If Byte Compaction mode is invoked with codeword 901,
-		// the last group of codewords is interpreted directly
-		// as one byte per codeword, without compaction.
-		for (int i = 0; i < count; i++) {
-			decodedBytes.push_back((uint8_t)byteCompactedCodewords[i]);
-		}
-
+		// Deal with inter-batch ECIs
+		codeIndex = ProcessByteECIs(codewords, codeIndex, result);
 	}
-	else if (mode == BYTE_COMPACTION_MODE_LATCH_6) {
-		// Total number of Byte Compaction characters to be encoded
-		// is an integer multiple of 6
-		int count = 0;
-		int64_t value = 0;
-		bool end = false;
-		while (codeIndex < codewords[0] && !end) {
-			int code = codewords[codeIndex++];
-			if (code < TEXT_COMPACTION_MODE_LATCH) {
-				count++;
-				// Base 900
-				value = 900 * value + code;
-			}
-			else {
-				if (code == TEXT_COMPACTION_MODE_LATCH ||
-					code == BYTE_COMPACTION_MODE_LATCH ||
-					code == NUMERIC_COMPACTION_MODE_LATCH ||
-					code == BYTE_COMPACTION_MODE_LATCH_6 ||
-					code == BEGIN_MACRO_PDF417_CONTROL_BLOCK ||
-					code == BEGIN_MACRO_PDF417_OPTIONAL_FIELD ||
-					code == MACRO_PDF417_TERMINATOR) {
-					codeIndex--;
-					end = true;
-				}
-			}
-			if ((count % 5 == 0) && (count > 0)) {
-				// Decode every 5 codewords
-				// Convert to Base 256
-				for (int j = 0; j < 6; ++j) {
-					decodedBytes.push_back((uint8_t)(value >> (8 * (5 - j))));
-				}
-				value = 0;
-				count = 0;
-			}
-		}
+
+	for (int i = 0; i < trailingCount; i++) {
+		result.push_back((uint8_t)codewords[codeIndex++]);
+		// Deal with inter-byte ECIs
+		codeIndex = ProcessByteECIs(codewords, codeIndex, result);
 	}
-	TextDecoder::Append(result, decodedBytes.data(), Size(decodedBytes), encoding);
+
 	return codeIndex;
 }
 
@@ -473,41 +449,41 @@ Decode the above codewords involves
 
 Remove leading 1 =>  Result is 000213298174000
 */
-static DecodeStatus DecodeBase900toBase10(const std::vector<int>& codewords, int count, std::string& resultString)
+static std::string DecodeBase900toBase10(const std::vector<int>& codewords, int count)
 {
 	// Table containing values for the exponent of 900.
 	static const auto EXP900 = []() {
 		std::array<BigInteger, 16> table = {1, 900};
-		for (size_t i = 2; i < table.size(); ++i) {
+		for (size_t i = 2; i < table.size(); ++i)
 			table[i] = table[i - 1] * 900;
-		}
 		return table;
 	}();
 
 	assert(count <= 16);
 
 	BigInteger result;
-	for (int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++)
 		result += EXP900[count - i - 1] * codewords[i];
-	}
-	resultString = result.toString();
-	if (!resultString.empty() && resultString.front() == '1') {
-		resultString = resultString.substr(1);
-		return DecodeStatus::NoError;
-	}
-	return DecodeStatus::FormatError;
+
+	std::string resultString = result.toString();
+	if (!resultString.empty() && resultString.front() == '1')
+		return resultString.substr(1);
+
+	throw FormatError();
 }
 
 
 /**
 * Numeric Compaction mode (see 5.4.4) permits efficient encoding of numeric data strings.
 *
+* @param status    Set on format error.
 * @param codewords The array of codewords (data + error)
 * @param codeIndex The current index into the codeword array.
 * @param result    The decoded data is appended to the result.
+* @param encoding  Currently active character encoding.
 * @return The next index into the codeword array.
 */
-static DecodeStatus NumericCompaction(const std::vector<int>& codewords, int codeIndex, std::string& result, int& next)
+static int NumericCompaction(const std::vector<int>& codewords, int codeIndex, Content& result)
 {
 	int count = 0;
 	bool end = false;
@@ -516,6 +492,23 @@ static DecodeStatus NumericCompaction(const std::vector<int>& codewords, int cod
 
 	while (codeIndex < codewords[0] && !end) {
 		int code = codewords[codeIndex++];
+		if (code >= TEXT_COMPACTION_MODE_LATCH) {
+			if (IsECI(code)) {
+				// As operating in Basic Channel Mode (i.e. not embedding backslashed ECIs and doubling backslashes)
+				// allow ECIs anywhere in Numeric Compaction (i.e. ISO/IEC 15438:2015 5.5.3.4 doesn't apply).
+				if (count > 0) {
+					result += DecodeBase900toBase10(numericCodewords, count);
+					count = 0;
+				}
+				codeIndex = ProcessECI(codewords, codeIndex, codewords[0], code, result);
+				continue;
+			}
+			if (!TerminatesCompaction(code))
+				throw FormatError();
+
+			codeIndex--;
+			end = true;
+		}
 		if (codeIndex == codewords[0]) {
 			end = true;
 		}
@@ -523,228 +516,245 @@ static DecodeStatus NumericCompaction(const std::vector<int>& codewords, int cod
 			numericCodewords[count] = code;
 			count++;
 		}
-		else {
-			if (code == TEXT_COMPACTION_MODE_LATCH ||
-				code == BYTE_COMPACTION_MODE_LATCH ||
-				code == BYTE_COMPACTION_MODE_LATCH_6 ||
-				code == BEGIN_MACRO_PDF417_CONTROL_BLOCK ||
-				code == BEGIN_MACRO_PDF417_OPTIONAL_FIELD ||
-				code == MACRO_PDF417_TERMINATOR) {
-				codeIndex--;
-				end = true;
-			}
-		}
 		if (count % MAX_NUMERIC_CODEWORDS == 0 || code == NUMERIC_COMPACTION_MODE_LATCH || end) {
 			// Re-invoking Numeric Compaction mode (by using codeword 902
 			// while in Numeric Compaction mode) serves  to terminate the
 			// current Numeric Compaction mode grouping as described in 5.4.4.2,
 			// and then to start a new one grouping.
 			if (count > 0) {
-				std::string tmp;
-				auto status = DecodeBase900toBase10(numericCodewords, count, tmp);
-				if (StatusIsError(status)) {
-					return status;
-				}
-				result += tmp;
+				result += DecodeBase900toBase10(numericCodewords, count);
 				count = 0;
 			}
 		}
 	}
-	next = codeIndex;
-	return DecodeStatus::NoError;
+	return codeIndex;
+}
+
+/*
+* Helper to deal with optional text fields in Macros.
+*/
+static int DecodeMacroOptionalTextField(const std::vector<int>& codewords, int codeIndex, std::string& field)
+{
+	Content result;
+	// Each optional field begins with an implied reset to ECI 2 (Annex H.2.3). ECI 2 is ASCII for 0-127, and Cp437
+	// for non-ASCII (128-255). Text optional fields can contain ECIs.
+	result.defaultCharset = CharacterSet::Cp437;
+
+	codeIndex = TextCompaction(codewords, codeIndex, result);
+
+	// Converting to UTF-8 (backward-incompatible change for non-ASCII chars)
+	field = result.utf8();
+
+	return codeIndex;
+}
+
+/*
+* Helper to deal with optional numeric fields in Macros.
+*/
+static int DecodeMacroOptionalNumericField(const std::vector<int>& codewords, int codeIndex, uint64_t& field)
+{
+	Content result;
+	// Each optional field begins with an implied reset to ECI 2 (Annex H.2.3). ECI 2 is ASCII for 0-127, and Cp437
+	// for non-ASCII (128-255). Text optional fields can contain ECIs.
+	result.defaultCharset = CharacterSet::Cp437;
+
+	codeIndex = NumericCompaction(codewords, codeIndex, result);
+
+	field = std::stoll(result.utf8());
+
+	return codeIndex;
 }
 
 ZXING_EXPORT_TEST_ONLY
-DecodeStatus DecodeMacroBlock(const std::vector<int>& codewords, int codeIndex, DecoderResultExtra& resultMetadata, int& next)
+int DecodeMacroBlock(const std::vector<int>& codewords, int codeIndex, DecoderResultExtra& resultMetadata)
 {
-	if (codeIndex + NUMBER_OF_SEQUENCE_CODEWORDS > codewords[0]) {
-		// we must have at least two bytes left for the segment index
-		return DecodeStatus::FormatError;
-	}
-	std::vector<int> segmentIndexArray(NUMBER_OF_SEQUENCE_CODEWORDS);
-	for (int i = 0; i < NUMBER_OF_SEQUENCE_CODEWORDS; i++, codeIndex++) {
-		segmentIndexArray[i] = codewords[codeIndex];
-	}
+	// we must have at least two bytes left for the segment index
+	if (codeIndex + NUMBER_OF_SEQUENCE_CODEWORDS > codewords[0])
+		throw FormatError();
 
-	std::string strBuf;
-	DecodeStatus status = DecodeBase900toBase10(segmentIndexArray, NUMBER_OF_SEQUENCE_CODEWORDS, strBuf);
-	if (StatusIsError(status)) {
-		return status;
-	}
+	std::vector<int> segmentIndexArray(NUMBER_OF_SEQUENCE_CODEWORDS);
+	for (int i = 0; i < NUMBER_OF_SEQUENCE_CODEWORDS; i++, codeIndex++)
+		segmentIndexArray[i] = codewords[codeIndex];
+
+	std::string strBuf = DecodeBase900toBase10(segmentIndexArray, NUMBER_OF_SEQUENCE_CODEWORDS);
 
 	resultMetadata.setSegmentIndex(std::stoi(strBuf));
 
-	std::string fileId;
-	codeIndex = TextCompaction(codewords, codeIndex, fileId);
-	resultMetadata.setFileId(fileId);
+	// Decoding the fileId codewords as 0-899 numbers, each 0-filled to width 3. This follows the spec
+	// (See ISO/IEC 15438:2015 Annex H.6) and preserves all info, but some generators (e.g. TEC-IT) write
+	// the fileId using text compaction, so in those cases the fileId will appear mangled.
+	std::ostringstream fileId;
+	fileId.fill('0');
+	for (; codeIndex < codewords[0] && codewords[codeIndex] != MACRO_PDF417_TERMINATOR
+		   && codewords[codeIndex] != BEGIN_MACRO_PDF417_OPTIONAL_FIELD;
+		 codeIndex++) {
+		fileId << std::setw(3) << codewords[codeIndex];
+	}
+	resultMetadata.setFileId(fileId.str());
 
 	int optionalFieldsStart = -1;
-	if (codewords[codeIndex] == BEGIN_MACRO_PDF417_OPTIONAL_FIELD) {
+	if (codeIndex < codewords[0] && codewords[codeIndex] == BEGIN_MACRO_PDF417_OPTIONAL_FIELD)
 		optionalFieldsStart = codeIndex + 1;
-	}
 
 	while (codeIndex < codewords[0]) {
 		switch (codewords[codeIndex]) {
-			case BEGIN_MACRO_PDF417_OPTIONAL_FIELD: {
-				codeIndex++;
-				switch (codewords[codeIndex]) {
-					case MACRO_PDF417_OPTIONAL_FIELD_FILE_NAME: {
-						std::string fileName;
-						codeIndex = TextCompaction(codewords, codeIndex + 1, fileName);
-						resultMetadata.setFileName(fileName);
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_SENDER: {
-						std::string sender;
-						codeIndex = TextCompaction(codewords, codeIndex + 1, sender);
-						resultMetadata.setSender(sender);
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_ADDRESSEE: {
-						std::string addressee;
-						codeIndex = TextCompaction(codewords, codeIndex + 1, addressee);
-						resultMetadata.setAddressee(addressee);
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_SEGMENT_COUNT: {
-						std::string segmentCount;
-						status = NumericCompaction(codewords, codeIndex + 1, segmentCount, codeIndex);
-						resultMetadata.setSegmentCount(std::stoi(segmentCount));
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_TIME_STAMP: {
-						std::string timestamp;
-						status = NumericCompaction(codewords, codeIndex + 1, timestamp, codeIndex);
-						resultMetadata.setTimestamp(std::stoll(timestamp));
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_CHECKSUM: {
-						std::string checksum;
-						status = NumericCompaction(codewords, codeIndex + 1, checksum, codeIndex);
-						resultMetadata.setChecksum(std::stoi(checksum));
-						break;
-					}
-					case MACRO_PDF417_OPTIONAL_FIELD_FILE_SIZE: {
-						std::string fileSize;
-						status = NumericCompaction(codewords, codeIndex + 1, fileSize, codeIndex);
-						resultMetadata.setFileSize(std::stoll(fileSize));
-						break;
-					}
-					default: {
-						status = DecodeStatus::FormatError;
-						break;
-					}
-				}
+		case BEGIN_MACRO_PDF417_OPTIONAL_FIELD: {
+			codeIndex++;
+			if (codeIndex >= codewords[0])
+				break;
+			switch (codewords[codeIndex]) {
+			case MACRO_PDF417_OPTIONAL_FIELD_FILE_NAME: {
+				std::string fileName;
+				codeIndex = DecodeMacroOptionalTextField(codewords, codeIndex + 1, fileName);
+				resultMetadata.setFileName(fileName);
 				break;
 			}
-			case MACRO_PDF417_TERMINATOR: {
-				codeIndex++;
-				resultMetadata.setLastSegment(true);
+			case MACRO_PDF417_OPTIONAL_FIELD_SENDER: {
+				std::string sender;
+				codeIndex = DecodeMacroOptionalTextField(codewords, codeIndex + 1, sender);
+				resultMetadata.setSender(sender);
 				break;
 			}
-			default: {
-				status = DecodeStatus::FormatError;
+			case MACRO_PDF417_OPTIONAL_FIELD_ADDRESSEE: {
+				std::string addressee;
+				codeIndex = DecodeMacroOptionalTextField(codewords, codeIndex + 1, addressee);
+				resultMetadata.setAddressee(addressee);
 				break;
 			}
+			case MACRO_PDF417_OPTIONAL_FIELD_SEGMENT_COUNT: {
+				uint64_t segmentCount;
+				codeIndex = DecodeMacroOptionalNumericField(codewords, codeIndex + 1, segmentCount);
+				resultMetadata.setSegmentCount(narrow_cast<int>(segmentCount));
+				break;
+			}
+			case MACRO_PDF417_OPTIONAL_FIELD_TIME_STAMP: {
+				uint64_t timestamp;
+				codeIndex = DecodeMacroOptionalNumericField(codewords, codeIndex + 1, timestamp);
+				resultMetadata.setTimestamp(timestamp);
+				break;
+			}
+			case MACRO_PDF417_OPTIONAL_FIELD_CHECKSUM: {
+				uint64_t checksum;
+				codeIndex = DecodeMacroOptionalNumericField(codewords, codeIndex + 1, checksum);
+				resultMetadata.setChecksum(narrow_cast<int>(checksum));
+				break;
+			}
+			case MACRO_PDF417_OPTIONAL_FIELD_FILE_SIZE: {
+				uint64_t fileSize;
+				codeIndex = DecodeMacroOptionalNumericField(codewords, codeIndex + 1, fileSize);
+				resultMetadata.setFileSize(fileSize);
+				break;
+			}
+			default: throw FormatError();
+			}
+			break;
 		}
-		if (StatusIsError(status)) {
-			return status;
+		case MACRO_PDF417_TERMINATOR: {
+			codeIndex++;
+			resultMetadata.setLastSegment(true);
+			break;
+		}
+		default: throw FormatError();
 		}
 	}
 
 	// copy optional fields to additional options
 	if (optionalFieldsStart != -1) {
 		int optionalFieldsLength = codeIndex - optionalFieldsStart;
-		if (resultMetadata.isLastSegment()) {
-			// do not include terminator
-			optionalFieldsLength--;
-		}
-		resultMetadata.setOptionalData(std::vector<int>(codewords.begin() + optionalFieldsStart, codewords.begin() + optionalFieldsStart + optionalFieldsLength));
+		if (resultMetadata.isLastSegment())
+			optionalFieldsLength--; // do not include terminator
+
+		resultMetadata.setOptionalData(std::vector<int>(codewords.begin() + optionalFieldsStart,
+									   codewords.begin() + optionalFieldsStart + optionalFieldsLength));
 	}
 
-	next = codeIndex;
-	return DecodeStatus::NoError;
+	return codeIndex;
 }
 
 DecoderResult
 DecodedBitStreamParser::Decode(const std::vector<int>& codewords, int ecLevel)
 {
-	std::wstring resultString;
-	auto encoding = DEFAULT_ENCODING;
-	// Get compaction mode
-	int codeIndex = 1;
-	int code = codewords[codeIndex++];
+	Content result;
+	result.symbology = { 'L', '2', char(-1) };
+
+	bool readerInit = false;
 	auto resultMetadata = std::make_shared<DecoderResultExtra>();
-	DecodeStatus status = DecodeStatus::NoError;
-	while (codeIndex < codewords[0] && status == DecodeStatus::NoError) {
+	int codeIndex = 1;
+
+	while (codeIndex < codewords[0]) {
+		int code = codewords[codeIndex++];
 		switch (code) {
 		case TEXT_COMPACTION_MODE_LATCH:
-		{
-			std::string buf;
-			codeIndex = TextCompaction(codewords, codeIndex, buf);
-			TextDecoder::AppendLatin1(resultString, buf);
-			break;
-		}
-		case BYTE_COMPACTION_MODE_LATCH:
-		case BYTE_COMPACTION_MODE_LATCH_6:
-			codeIndex = ByteCompaction(code, codewords, encoding, codeIndex, resultString);
+			codeIndex = TextCompaction(codewords, codeIndex, result);
 			break;
 		case MODE_SHIFT_TO_BYTE_COMPACTION_MODE:
-			resultString.push_back((wchar_t)codewords[codeIndex++]);
+			// This should only be encountered once in this loop, when default Text Compaction mode applies
+			// (see default case below)
+			codeIndex = TextCompaction(codewords, codeIndex - 1, result);
+			break;
+		case BYTE_COMPACTION_MODE_LATCH:
+		case BYTE_COMPACTION_MODE_LATCH_6:
+			codeIndex = ByteCompaction(code, codewords, codeIndex, result);
 			break;
 		case NUMERIC_COMPACTION_MODE_LATCH:
-		{
-			std::string buf;
-			status = NumericCompaction(codewords, codeIndex, buf, codeIndex);
-			TextDecoder::AppendLatin1(resultString, buf);
+			codeIndex = NumericCompaction(codewords, codeIndex, result);
 			break;
-		}
 		case ECI_CHARSET:
-			encoding = CharacterSetECI::CharsetFromValue(codewords[codeIndex++]);
-			break;
 		case ECI_GENERAL_PURPOSE:
-			// Can't do anything with generic ECI; skip its 2 characters
-			codeIndex += 2;
-			break;
 		case ECI_USER_DEFINED:
-			// Can't do anything with user ECI; skip its 1 character
-			codeIndex++;
+			codeIndex = ProcessECI(codewords, codeIndex, codewords[0], code, result);
 			break;
 		case BEGIN_MACRO_PDF417_CONTROL_BLOCK:
-			status = DecodeMacroBlock(codewords, codeIndex, *resultMetadata, codeIndex);
+			codeIndex = DecodeMacroBlock(codewords, codeIndex, *resultMetadata);
 			break;
 		case BEGIN_MACRO_PDF417_OPTIONAL_FIELD:
 		case MACRO_PDF417_TERMINATOR:
 			// Should not see these outside a macro block
-			status = DecodeStatus::FormatError;
+			throw FormatError();
+			break;
+		case READER_INIT:
+			if (codeIndex != 2) // Must be first codeword after symbol length (ISO/IEC 15438:2015 5.4.1.4)
+				throw FormatError();
+			else
+				readerInit = true;
+			break;
+		case LINKAGE_EANUCC:
+			if (codeIndex != 2) // Must be first codeword after symbol length (GS1 Composite ISO/IEC 24723:2010 4.3)
+				throw FormatError();
+			// TODO: handle else case
+			break;
+		case LINKAGE_OTHER:
+			// Allowed to treat as invalid by ISO/IEC 24723:2010 5.4.1.5 and 5.4.6.1 when in Basic Channel Mode
+			throw UnsupportedError("LINKAGE_OTHER, see ISO/IEC 24723:2010 5.4.1.5");
 			break;
 		default:
-		{
-			// Default to text compaction. During testing numerous barcodes
-			// appeared to be missing the starting mode. In these cases defaulting
-			// to text compaction seems to work.
-			codeIndex--;
-			std::string buf;
-			codeIndex = TextCompaction(codewords, codeIndex, buf);
-			TextDecoder::AppendLatin1(resultString, buf);
+			if (code >= TEXT_COMPACTION_MODE_LATCH) { // Reserved codewords (all others in switch)
+				// Allowed to treat as invalid by ISO/IEC 24723:2010 5.4.6.1 when in Basic Channel Mode
+				throw UnsupportedError("TEXT_COMPACTION_MODE_LATCH, see ISO/IEC 24723:2010 5.4.6.1");
+			} else {
+				// Default mode is Text Compaction mode Alpha sub-mode (ISO/IEC 15438:2015 5.4.2.1)
+				codeIndex = TextCompaction(codewords, codeIndex - 1, result);
+			}
 			break;
 		}
-		}
-		if (codeIndex < Size(codewords)) {
-			code = codewords[codeIndex++];
-		}
-		else {
-			status = DecodeStatus::FormatError;
-		}
 	}
-	if (resultString.empty())
-		return DecodeStatus::FormatError;
 
-	if (StatusIsError(status))
-		return status;
+	if (result.empty() && resultMetadata->segmentIndex() == -1)
+		return FormatError();
 
-	return DecoderResult(ByteArray(), std::move(resultString))
-		.setEcLevel(std::to_wstring(ecLevel))
+	StructuredAppendInfo sai;
+	if (resultMetadata->segmentIndex() > -1) {
+		sai.count = resultMetadata->segmentCount() != -1
+						? resultMetadata->segmentCount()
+						: (resultMetadata->isLastSegment() ? resultMetadata->segmentIndex() + 1 : 0);
+		sai.index = resultMetadata->segmentIndex();
+		sai.id    = resultMetadata->fileId();
+	}
+
+	return DecoderResult(std::move(result))
+		.setEcLevel(std::to_string(ecLevel))
+		.setStructuredAppend(sai)
+		.setReaderInit(readerInit)
 		.setExtra(resultMetadata);
 }
 

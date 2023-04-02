@@ -2,25 +2,13 @@
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFReader.h"
 #include "PDFDetector.h"
 #include "PDFScanningDecoder.h"
 #include "PDFCodewordDecoder.h"
-#include "PDFDecoderResultExtra.h"
 #include "DecodeHints.h"
 #include "DecoderResult.h"
 #include "Result.h"
@@ -28,17 +16,18 @@
 #include "BitMatrixCursor.h"
 #include "BinaryBitmap.h"
 #include "BitArray.h"
-#include "DecodeStatus.h"
 #include "Pattern.h"
-#include "PDFDecodedBitStreamParser.h"
-#include "BitMatrixIO.h"
-#include <iostream>
 
 #include <vector>
 #include <cstdlib>
 #include <algorithm>
 #include <limits>
 #include <utility>
+
+#ifdef PRINT_DEBUG
+#include "BitMatrixIO.h"
+#include <iostream>
+#endif
 
 namespace ZXing {
 namespace Pdf417 {
@@ -74,35 +63,35 @@ static int GetMaxCodewordWidth(const std::array<Nullable<ResultPoint>, 8>& p)
 					std::max(GetMaxWidth(p[1], p[5]), GetMaxWidth(p[7], p[3]) * CodewordDecoder::MODULES_IN_CODEWORD / MODULES_IN_STOP_PATTERN));
 }
 
-DecodeStatus DoDecode(const BinaryBitmap& image, bool multiple, std::list<Result>& results)
+static Results DoDecode(const BinaryBitmap& image, bool multiple, bool tryRotate, bool returnErrors)
 {
-	Detector::Result detectorResult;
-	DecodeStatus status = Detector::Detect(image, multiple, detectorResult);
-	if (StatusIsError(status)) {
-		return status;
-	}
+	Detector::Result detectorResult = Detector::Detect(image, multiple, tryRotate);
+	if (detectorResult.points.empty())
+		return {};
 
+	auto rotate = [res = detectorResult](PointI p) {
+		switch(res.rotation) {
+		case 90: return PointI(res.bits->height() - p.y - 1, p.x);
+		case 180: return PointI(res.bits->width() - p.x - 1, res.bits->height() - p.y - 1);
+		case 270: return PointI(p.y, res.bits->width() - p.x - 1);
+		}
+		return p;
+	};
+
+	Results results;
 	for (const auto& points : detectorResult.points) {
 		DecoderResult decoderResult =
 			ScanningDecoder::Decode(*detectorResult.bits, points[4], points[5], points[6], points[7],
 									GetMinCodewordWidth(points), GetMaxCodewordWidth(points));
-		if (decoderResult.isValid()) {
-			auto point = [&](int i) { return points[i].value(); };
+		if (decoderResult.isValid(returnErrors)) {
+			auto point = [&](int i) { return rotate(PointI(points[i].value())); };
 			Result result(std::move(decoderResult), {point(0), point(2), point(3), point(1)}, BarcodeFormat::PDF417);
-			result.metadata().put(ResultMetadata::ERROR_CORRECTION_LEVEL, decoderResult.ecLevel());
-			if (auto extra = decoderResult.extra()) {
-				result.metadata().put(ResultMetadata::PDF417_EXTRA_METADATA, extra);
-			}
 			results.push_back(result);
-			if (!multiple) {
-				return DecodeStatus::NoError;
-			}
-		}
-		else if (!multiple) {
-			return decoderResult.errorCode();
+			if (!multiple)
+				return results;
 		}
 	}
-	return results.empty() ? DecodeStatus::NotFound : DecodeStatus::NoError;
+	return results;
 }
 
 // new implementation (only for isPure use case atm.)
@@ -142,6 +131,8 @@ CodeWord ReadCodeWord(BitMatrixCursor<POINT>& cur, int expectedCluster = -1)
 	if (!cw) {
 		for (auto offset : {curBackup.left(), curBackup.right()}) {
 			auto curAlt = curBackup.movedBy(offset);
+			if (!curAlt.isIn()) // curBackup might be the first or last image row
+				continue;
 			if (auto cwAlt = readCodeWord(curAlt)) {
 				cur = curAlt;
 				return cwAlt;
@@ -168,7 +159,7 @@ SymbolInfo ReadSymbolInfo(BitMatrixCursor<POINT> topCur, POINT rowSkip, int colW
 	SymbolInfo res = {width, height};
 	res.colWidth = colWidth;
 	int clusterMask = 0;
-	int rows0, rows1;
+	int rows0 = 0, rows1 = 0; // Suppress GNUC -Wmaybe-uninitialized
 
 	topCur.p += .5f * rowSkip;
 
@@ -215,7 +206,7 @@ SymbolInfo DetectSymbol(BitMatrixCursor<POINT> topCur, int width, int height)
 	res.lastRow = botSI.firstRow;
 	res.rowHeight = float(height) / (std::abs(res.lastRow - res.firstRow) + 1);
 	if (topSI.nCols != botSI.nCols)
-		// if there is something fishy with the number of cols (alising), guess them from the width
+		// if there is something fishy with the number of cols (aliasing), guess them from the width
 		res.nCols = (width + res.colWidth / 2) / res.colWidth - 4;
 
 	return res;
@@ -268,9 +259,9 @@ DecoderResult DecodeCodewords(std::vector<int>& codewords, int ecLevel, const st
 
 static Result DecodePure(const BinaryBitmap& image_)
 {
-	auto pimage = image_.getBlackMatrix();
+	auto pimage = image_.getBitMatrix();
 	if (!pimage)
-		return Result(DecodeStatus::NotFound);
+		return {};
 	auto& image = *pimage;
 
 #ifdef PRINT_DEBUG
@@ -279,7 +270,7 @@ static Result DecodePure(const BinaryBitmap& image_)
 
 	int left, top, width, height;
 	if (!image.findBoundingBox(left, top, width, height, 9) || (width < 3 * 17 && height < 3 * 17))
-		return Result(DecodeStatus::NotFound);
+		return {};
 	int right  = left + width - 1;
 	int bottom = top + height - 1;
 
@@ -298,7 +289,7 @@ static Result DecodePure(const BinaryBitmap& image_)
 	}
 
 	if (!info)
-		return Result(DecodeStatus::NotFound);
+		return {};
 
 	auto codeWords = ReadCodeWords(cur, info);
 
@@ -314,33 +305,23 @@ static Result DecodePure(const BinaryBitmap& image_)
 	return Result(std::move(res), {{left, top}, {right, top}, {right, bottom}, {left, bottom}}, BarcodeFormat::PDF417);
 }
 
-Reader::Reader(const DecodeHints& hints) : _isPure(hints.isPure()) {}
-
 Result
 Reader::decode(const BinaryBitmap& image) const
 {
-	if (_isPure) {
+	if (_hints.isPure()) {
 		auto res = DecodePure(image);
-		if (res.status() != DecodeStatus::ChecksumError)
+		if (res.error() != Error::Checksum)
 			return res;
 		// This falls through and tries the non-pure code path if we have a checksum error. This approach is
 		// currently the best option to deal with 'aliased' input like e.g. 03-aliased.png
 	}
 
-	std::list<Result> results;
-	DecodeStatus status = DoDecode(image, false, results);
-	if (StatusIsOK(status)) {
-		return results.front();
-	}
-	return Result(status);
+	return FirstOrDefault(DoDecode(image, false, _hints.tryRotate(), _hints.returnErrors()));
 }
 
-std::list<Result>
-Reader::decodeMultiple(const BinaryBitmap& image) const
+Results Reader::decode(const BinaryBitmap& image, [[maybe_unused]] int maxSymbols) const
 {
-	std::list<Result> results;
-	DoDecode(image, true, results);
-	return results;
+	return DoDecode(image, true, _hints.tryRotate(), _hints.returnErrors());
 }
 
 } // Pdf417

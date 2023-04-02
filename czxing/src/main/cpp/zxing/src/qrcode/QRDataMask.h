@@ -1,37 +1,33 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "BitMatrix.h"
 
+#include <array>
 #include <stdexcept>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
 /**
-* <p>Encapsulates data masks for the data bits in a QR code, per ISO 18004:2006 6.8.</p>
+* <p>Encapsulates data masks for the data bits in a QR  and micro QR code, per ISO 18004:2006 6.8.</p>
 *
 * <p>Note that the diagram in section 6.8.1 is misleading since it indicates that i is column position
 * and j is row position. In fact, as the text says, i is row position and j is column position.</p>
 */
 
-inline bool GetDataMaskBit(int maskIndex, int x, int y)
+inline bool GetDataMaskBit(int maskIndex, int x, int y, bool isMicro = false)
 {
+	if (isMicro) {
+		if (maskIndex < 0 || maskIndex >= 4)
+			throw std::invalid_argument("QRCode maskIndex out of range");
+		maskIndex = std::array{1, 4, 6, 7}[maskIndex]; // map from MQR to QR indices
+	}
+
 	switch (maskIndex) {
 	case 0: return (y + x) % 2 == 0;
 	case 1: return y % 2 == 0;
@@ -42,13 +38,13 @@ inline bool GetDataMaskBit(int maskIndex, int x, int y)
 	case 6: return ((y * x) % 6) < 3;
 	case 7: return (y + x + ((y * x) % 3)) % 2 == 0;
 	}
+
 	throw std::invalid_argument("QRCode maskIndex out of range");
 }
 
-inline bool GetMaskedBit(const BitMatrix& bits, int x, int y, int maskIndex)
+inline bool GetMaskedBit(const BitMatrix& bits, int x, int y, int maskIndex, bool isMicro = false)
 {
-	return GetDataMaskBit(maskIndex, x, y) != bits.get(x, y);
+	return GetDataMaskBit(maskIndex, x, y, isMicro) != bits.get(x, y);
 }
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

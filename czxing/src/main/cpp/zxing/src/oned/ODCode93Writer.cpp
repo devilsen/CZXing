@@ -1,24 +1,14 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ODCode93Writer.h"
 
 #include "ODWriterHelper.h"
-#include "ZXContainerAlgorithms.h"
+#include "Utf.h"
+#include "ZXAlgorithms.h"
 #include "ZXTestSupport.h"
 
 #include <stdexcept>
@@ -162,7 +152,7 @@ Code93Writer::encode(const std::wstring& contents_, int width, int height) const
 		throw std::invalid_argument("Requested contents should be less than 80 digits long after converting to extended encoding");
 	}
 
-	//lenght of code + 2 start/stop characters + 2 checksums, each of 9 bits, plus a termination bar
+	//length of code + 2 start/stop characters + 2 checksums, each of 9 bits, plus a termination bar
 	size_t codeWidth = (contents.length() + 2 + 2) * 9 + 1;
 
 	std::vector<bool> result(codeWidth, false);
@@ -192,6 +182,11 @@ Code93Writer::encode(const std::wstring& contents_, int width, int height) const
 	result[pos] = true;
 
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
+}
+
+BitMatrix Code93Writer::encode(const std::string& contents, int width, int height) const
+{
+	return encode(FromUtf8(contents), width, height);
 }
 
 } // namespace ZXing::OneD

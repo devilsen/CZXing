@@ -1,24 +1,12 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "GlobalHistogramBinarizer.h"
-
-#include <memory>
 
 namespace ZXing {
 
@@ -42,15 +30,11 @@ namespace ZXing {
 class HybridBinarizer : public GlobalHistogramBinarizer
 {
 public:
-	explicit HybridBinarizer(const std::shared_ptr<const LuminanceSource>& source);
+	explicit HybridBinarizer(const ImageView& iv);
 	~HybridBinarizer() override;
 
+	bool getPatternRow(int row, int rotation, PatternRow &res) const override;
 	std::shared_ptr<const BitMatrix> getBlackMatrix() const override;
-	std::shared_ptr<BinaryBitmap> newInstance(const std::shared_ptr<const LuminanceSource>& source) const override;
-
-private:
-	struct DataCache;
-	std::unique_ptr<DataCache> _cache;
 };
 
 } // ZXing

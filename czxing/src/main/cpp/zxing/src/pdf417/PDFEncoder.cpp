@@ -2,19 +2,8 @@
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
 * Copyright 2006 Jeremias Maerki
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFEncoder.h"
 #include "PDFHighLevelEncoder.h"
@@ -219,8 +208,7 @@ static const std::array<std::array<int, 929>, 3> CODEWORD_TABLE = {
 };
 
 static const float PREFERRED_RATIO = 3.0f;
-static const float DEFAULT_MODULE_WIDTH = 0.357f; //1px in mm
-static const float HEIGHT = 2.0f; //mm
+static const float MODULE_RATIO = 0.25f; // keep in sync with Writer::encode()
 
 /**
 * PDF417 error correction code following the algorithm described in ISO/IEC 15438:2001(E) in
@@ -477,7 +465,7 @@ static void DetermineDimensions(int minCols, int maxCols, int minRows, int maxRo
 			continue;
 		}
 
-		float newRatio = ((17 * cols + 69) * DEFAULT_MODULE_WIDTH) / (rows * HEIGHT);
+		float newRatio = ((17 * cols + 69) / rows) * MODULE_RATIO;
 
 		// ignore if previous ratio is closer to preferred ratio
 		if (haveDimension && std::abs(newRatio - PREFERRED_RATIO) > std::abs(ratio - PREFERRED_RATIO)) {

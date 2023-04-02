@@ -2,27 +2,16 @@
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
 * Copyright 2006 Jeremias Maerki in part, and ZXing Authors in part
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFHighLevelEncoder.h"
 #include "PDFCompaction.h"
 #include "CharacterSet.h"
-#include "CharacterSetECI.h"
+#include "ECI.h"
 #include "TextEncoder.h"
 #include "ZXBigInteger.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 
 #include <cstdint>
 #include <algorithm>
@@ -167,14 +156,14 @@ static void EncodingECI(int eci, std::vector<int>& buffer)
 		buffer.push_back(ECI_CHARSET);
 		buffer.push_back(eci);
 	}
-	else if (eci < 810900) {
+	else if (eci >= 900 && eci < 810900) {
 		buffer.push_back(ECI_GENERAL_PURPOSE);
 		buffer.push_back(eci / 900 - 1);
 		buffer.push_back(eci % 900);
 	}
-	else if (eci < 811800) {
+	else if (eci >= 810900 && eci < 811800) {
 		buffer.push_back(ECI_USER_DEFINED);
-		buffer.push_back(810900 - eci);
+		buffer.push_back(eci - 810900);
 	}
 	else {
 		throw std::invalid_argument("ECI number not in valid range from 0..811799");
@@ -231,80 +220,70 @@ static int EncodeText(const std::wstring& msg, int startpos, int count, int subm
 	while (true) {
 		int ch = msg[startpos + idx];
 		switch (submode) {
-			case SUBMODE_ALPHA:
-				if (IsAlphaUpper(ch)) {
-					tmp.push_back(ch == ' ' ? 26 : (ch - 65)); //space
-				}
-				else if (IsAlphaLower(ch)) {
-					submode = SUBMODE_LOWER;
-					tmp.push_back(27); //ll
-					continue;
-				}
-				else if (IsMixed(ch)) {
-					submode = SUBMODE_MIXED;
-					tmp.push_back(28); //ml
-					continue;
-				}
-				else {
-					tmp.push_back(29); //ps
-					tmp.push_back(PUNCTUATION[ch]);
-				}
-				break;
-			case SUBMODE_LOWER:
-				if (IsAlphaLower(ch)) {
-					tmp.push_back(ch == ' ' ? 26 : (ch - 97)); //space
-				}
-				else if (IsAlphaUpper(ch)) {
-					tmp.push_back(27); //as
-					tmp.push_back(ch - 65);
-					//space cannot happen here, it is also in "Lower"
-				}
-				else if (IsMixed(ch)) {
-					submode = SUBMODE_MIXED;
-					tmp.push_back(28); //ml
-					continue;
-				}
-				else {
-					tmp.push_back(29); //ps
-					tmp.push_back(PUNCTUATION[ch]);
-				}
-				break;
-			case SUBMODE_MIXED:
-				if (IsMixed(ch)) {
-					tmp.push_back(MIXED[ch]);
-				}
-				else if (IsAlphaUpper(ch)) {
-					submode = SUBMODE_ALPHA;
-					tmp.push_back(28); //al
-					continue;
-				}
-				else if (IsAlphaLower(ch)) {
-					submode = SUBMODE_LOWER;
-					tmp.push_back(27); //ll
-					continue;
-				}
-				else {
-					if (startpos + idx + 1 < count) {
-						int next = msg[startpos + idx + 1];
-						if (IsPunctuation(next)) {
-							submode = SUBMODE_PUNCTUATION;
-							tmp.push_back(25); //pl
-							continue;
-						}
+		case SUBMODE_ALPHA:
+			if (IsAlphaUpper(ch)) {
+				tmp.push_back(ch == ' ' ? 26 : (ch - 65)); // space
+			} else if (IsAlphaLower(ch)) {
+				submode = SUBMODE_LOWER;
+				tmp.push_back(27); // ll
+				continue;
+			} else if (IsMixed(ch)) {
+				submode = SUBMODE_MIXED;
+				tmp.push_back(28); // ml
+				continue;
+			} else {
+				tmp.push_back(29); // ps
+				tmp.push_back(PUNCTUATION[ch]);
+			}
+			break;
+		case SUBMODE_LOWER:
+			if (IsAlphaLower(ch)) {
+				tmp.push_back(ch == ' ' ? 26 : (ch - 97)); // space
+			} else if (IsAlphaUpper(ch)) {
+				tmp.push_back(27); // as
+				tmp.push_back(ch - 65);
+				// space cannot happen here, it is also in "Lower"
+			} else if (IsMixed(ch)) {
+				submode = SUBMODE_MIXED;
+				tmp.push_back(28); // ml
+				continue;
+			} else {
+				tmp.push_back(29); // ps
+				tmp.push_back(PUNCTUATION[ch]);
+			}
+			break;
+		case SUBMODE_MIXED:
+			if (IsMixed(ch)) {
+				tmp.push_back(MIXED[ch]);
+			} else if (IsAlphaUpper(ch)) {
+				submode = SUBMODE_ALPHA;
+				tmp.push_back(28); // al
+				continue;
+			} else if (IsAlphaLower(ch)) {
+				submode = SUBMODE_LOWER;
+				tmp.push_back(27); // ll
+				continue;
+			} else {
+				if (startpos + idx + 1 < count) {
+					int next = msg[startpos + idx + 1];
+					if (IsPunctuation(next)) {
+						submode = SUBMODE_PUNCTUATION;
+						tmp.push_back(25); // pl
+						continue;
 					}
-					tmp.push_back(29); //ps
-					tmp.push_back(PUNCTUATION[ch]);
 				}
-				break;
-			default: //SUBMODE_PUNCTUATION
-				if (IsPunctuation(ch)) {
-					tmp.push_back(PUNCTUATION[ch]);
-				}
-				else {
-					submode = SUBMODE_ALPHA;
-					tmp.push_back(29); //al
-					continue;
-				}
+				tmp.push_back(29); // ps
+				tmp.push_back(PUNCTUATION[ch]);
+			}
+			break;
+		default: // SUBMODE_PUNCTUATION
+			if (IsPunctuation(ch)) {
+				tmp.push_back(PUNCTUATION[ch]);
+			} else {
+				submode = SUBMODE_ALPHA;
+				tmp.push_back(29); // al
+				continue;
+			}
 		}
 		idx++;
 		if (idx >= count) {
@@ -523,8 +502,8 @@ HighLevelEncoder::EncodeHighLevel(const std::wstring& msg, Compaction compaction
 	highLevel.reserve(highLevel.size() + msg.length());
 
 	//the codewords 0..928 are encoded as Unicode characters
-	if (encoding != CharacterSet::ISO8859_1) {		
-		EncodingECI(CharacterSetECI::ValueForCharset(encoding), highLevel);
+	if (encoding != CharacterSet::ISO8859_1) {
+		EncodingECI(ToInt(ToECI(encoding)), highLevel);
 	}
 
 	int len = Size(msg);

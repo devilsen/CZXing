@@ -1,27 +1,16 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "ByteArray.h"
 
 #include <vector>
 
-namespace ZXing {
-namespace QRCode {
+namespace ZXing::QRCode {
 
 class Version;
 enum class ErrorCorrectionLevel;
@@ -36,17 +25,11 @@ enum class ErrorCorrectionLevel;
 class DataBlock
 {
 public:
-	int numDataCodewords() const {
-		return _numDataCodewords;
-	}
+	int numDataCodewords() const { return _numDataCodewords; }
 
-	const ByteArray& codewords() const {
-		return _codewords;
-	}
+	const ByteArray& codewords() const { return _codewords; }
 
-	ByteArray& codewords() {
-		return _codewords;
-	}
+	ByteArray& codewords() { return _codewords; }
 
 	/**
 	* <p>When QR Codes use multiple data blocks, they are actually interleaved.
@@ -66,5 +49,4 @@ private:
 	ByteArray _codewords;
 };
 
-} // QRCode
-} // ZXing
+} // namespace ZXing::QRCode

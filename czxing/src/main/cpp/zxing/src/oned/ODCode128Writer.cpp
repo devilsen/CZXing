@@ -1,24 +1,14 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ODCode128Writer.h"
 
 #include "ODCode128Patterns.h"
 #include "ODWriterHelper.h"
+#include "Utf.h"
 
 #include <list>
 #include <numeric>
@@ -30,10 +20,10 @@ namespace ZXing::OneD {
 static const int CODE_START_A = 103;
 static const int CODE_START_B = 104;
 static const int CODE_START_C = 105;
-static const int CODE_CODE_A = 101;
-static const int CODE_CODE_B = 100;
-static const int CODE_CODE_C = 99;
-static const int CODE_STOP = 106;
+static const int CODE_CODE_A  = 101;
+static const int CODE_CODE_B  = 100;
+static const int CODE_CODE_C  = 99;
+static const int CODE_STOP    = 106;
 
 // Dummy characters used to specify control characters in input
 static const auto ESCAPE_FNC_1 = L'\u00f1';
@@ -41,14 +31,15 @@ static const auto ESCAPE_FNC_2 = L'\u00f2';
 static const auto ESCAPE_FNC_3 = L'\u00f3';
 static const auto ESCAPE_FNC_4 = L'\u00f4';
 
-static const int CODE_FNC_1 = 102;   // Code A, Code B, Code C
-static const int CODE_FNC_2 = 97;    // Code A, Code B
-static const int CODE_FNC_3 = 96;    // Code A, Code B
+static const int CODE_FNC_1   = 102; // Code A, Code B, Code C
+static const int CODE_FNC_2   = 97;  // Code A, Code B
+static const int CODE_FNC_3   = 96;  // Code A, Code B
 static const int CODE_FNC_4_A = 101; // Code A
 static const int CODE_FNC_4_B = 100; // Code B
 
- // Results of minimal lookahead for code C
-enum class CType {
+// Results of minimal lookahead for code C
+enum class CType
+{
 	UNCODABLE,
 	ONE_DIGIT,
 	TWO_DIGITS,
@@ -155,16 +146,15 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 	for (int i = 0; i < length; ++i) {
 		int c = contents[i];
 		switch (c) {
-			case ESCAPE_FNC_1:
-			case ESCAPE_FNC_2:
-			case ESCAPE_FNC_3:
-			case ESCAPE_FNC_4:
-				break;
-			default:
-				if (c > 127) {
-					// support for FNC4 isn't implemented, no full Latin-1 character set available at the moment
-					throw std::invalid_argument(std::string("Bad character in input: ") + static_cast<char>(c));
-				}
+		case ESCAPE_FNC_1:
+		case ESCAPE_FNC_2:
+		case ESCAPE_FNC_3:
+		case ESCAPE_FNC_4: break;
+		default:
+			if (c > 127) {
+				// support for FNC4 isn't implemented, no full Latin-1 character set available at the moment
+				throw std::invalid_argument(std::string("Bad character in input: ") + static_cast<char>(c));
+			}
 		}
 	}
 
@@ -184,23 +174,10 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 			// Encode the current character
 			// First handle escapes
 			switch (contents[position]) {
-			case ESCAPE_FNC_1:
-				patternIndex = CODE_FNC_1;
-				break;
-			case ESCAPE_FNC_2:
-				patternIndex = CODE_FNC_2;
-				break;
-			case ESCAPE_FNC_3:
-				patternIndex = CODE_FNC_3;
-				break;
-			case ESCAPE_FNC_4:
-				if (codeSet == CODE_CODE_A) {
-					patternIndex = CODE_FNC_4_A;
-				}
-				else {
-					patternIndex = CODE_FNC_4_B;
-				}
-				break;
+			case ESCAPE_FNC_1: patternIndex = CODE_FNC_1; break;
+			case ESCAPE_FNC_2: patternIndex = CODE_FNC_2; break;
+			case ESCAPE_FNC_3: patternIndex = CODE_FNC_3; break;
+			case ESCAPE_FNC_4: patternIndex = (codeSet == CODE_CODE_A) ? CODE_FNC_4_A : CODE_FNC_4_B; break;
 			default:
 				// Then handle normal characters otherwise
 				if (codeSet == CODE_CODE_A) {
@@ -209,12 +186,11 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 						// everything below a space character comes behind the underscore in the code patterns table
 						patternIndex += '`';
 					}
-				}
-				else if (codeSet == CODE_CODE_B) {
+				} else if (codeSet == CODE_CODE_B) {
 					patternIndex = contents[position] - ' ';
-				}
-				else { // CODE_CODE_C
-					patternIndex = (contents[position] - '0') * 10 + (position+1 < length ? contents[position+1] - '0' : 0);
+				} else { // CODE_CODE_C
+					patternIndex =
+						(contents[position] - '0') * 10 + (position + 1 < length ? contents[position + 1] - '0' : 0);
 					position++; // Also incremented below
 				}
 			}
@@ -268,16 +244,18 @@ Code128Writer::encode(const std::wstring& contents, int width, int height) const
 
 	// Compute result
 	std::vector<bool> result(codeWidth, false);
-	int pos = 0;
-	for (const auto& pattern : patterns) {
-		pos += WriterHelper::AppendPattern(result, pos, pattern, true);
-	}
-
+	const auto op = [&result](auto pos, const auto& pattern){ return pos + WriterHelper::AppendPattern(result, pos, pattern, true);};
+	auto pos = std::accumulate(std::begin(patterns), std::end(patterns), int{}, op);
 	// Append termination bar
 	result[pos++] = true;
 	result[pos++] = true;
 
 	return WriterHelper::RenderResult(result, width, height, _sidesMargin >= 0 ? _sidesMargin : 10);
+}
+
+BitMatrix Code128Writer::encode(const std::string& contents, int width, int height) const
+{
+	return encode(FromUtf8(contents), width, height);
 }
 
 } // namespace ZXing::OneD

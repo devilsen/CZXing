@@ -1,23 +1,11 @@
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PDFDetector.h"
 #include "BinaryBitmap.h"
-#include "DecodeStatus.h"
 #include "BitMatrix.h"
 #include "ZXNullable.h"
 #include "Pattern.h"
@@ -162,10 +150,11 @@ FindRowsWithPattern(const BitMatrix& matrix, int height, int width, int startRow
 {
 	bool found = false;
 	int startPos, endPos;
+	int minStartRow = startRow;
 	std::vector<int> counters(pattern.size(), 0);
 	for (; startRow < height; startRow += ROW_STEP) {
 		if (FindGuardPattern(matrix, startColumn, startRow, width, false, pattern, counters, startPos, endPos)) {
-			while (startRow > 0) {
+			while (startRow > minStartRow + 1) {
 				if (!FindGuardPattern(matrix, startColumn, --startRow, width, false, pattern, counters, startPos, endPos)) {
 					startRow++;
 					break;
@@ -313,16 +302,16 @@ static std::list<std::array<Nullable<ResultPoint>, 8>> DetectBarcode(const BitMa
 	return barcodeCoordinates;
 }
 
-#ifdef ZX_FAST_BIT_STORAGE
-bool HasStartPattern(const BitMatrix& m)
+bool HasStartPattern(const BitMatrix& m, bool rotate90)
 {
 	constexpr FixedPattern<8, 17> START_PATTERN = { 8, 1, 1, 1, 1, 1, 1, 3 };
 	constexpr int minSymbolWidth = 3*8+1; // compact symbol
 
 	PatternRow row;
+	int end = rotate90 ? m.width() : m.height();
 
-	for (int r = ROW_STEP; r < m.height(); r += ROW_STEP) {
-		m.getPatternRow(r, row);
+	for (int r = ROW_STEP; r < end; r += ROW_STEP) {
+		GetPatternRow(m, r, row, rotate90);
 
 		if (FindLeftGuard(row, minSymbolWidth, START_PATTERN, 2).isValid())
 			return true;
@@ -333,44 +322,50 @@ bool HasStartPattern(const BitMatrix& m)
 
 	return false;
 }
-#endif
 
 /**
 * <p>Detects a PDF417 Code in an image. Only checks 0 and 180 degree rotations.</p>
 *
 * @param image barcode image to decode
-* @param hints optional hints to detector
 * @param multiple if true, then the image is searched for multiple codes. If false, then at most one code will
 * be found and returned
-* @return {@link PDF417DetectorResult} encapsulating results of detecting a PDF417 code
-* @throws NotFoundException if no PDF417 Code can be found
 */
-DecodeStatus
-Detector::Detect(const BinaryBitmap& image, bool multiple, Result& result)
+Detector::Result Detector::Detect(const BinaryBitmap& image, bool multiple, bool tryRotate)
 {
-	auto binImg = image.getBlackMatrix();
-	if (binImg == nullptr) {
-		return DecodeStatus::NotFound;
+	// construct a 'dummy' shared pointer, just be able to pass it up the call chain in DetectorResult
+	// TODO: reimplement PDF Detector
+	auto binImg = std::shared_ptr<const BitMatrix>(image.getBitMatrix(), [](const BitMatrix*){});
+	if (!binImg)
+		return {};
+
+	Result result;
+
+	for (int rotate90 = 0; rotate90 <= static_cast<int>(tryRotate); ++rotate90) {
+		if (!HasStartPattern(*binImg, rotate90))
+			continue;
+
+		result.rotation = 90 * rotate90;
+		if (rotate90) {
+			auto newBits = std::make_shared<BitMatrix>(binImg->copy());
+			newBits->rotate90();
+			binImg = newBits;
+		}
+
+		result.points = DetectBarcode(*binImg, multiple);
+		result.bits = binImg;
+		if (result.points.empty()) {
+			auto newBits = std::make_shared<BitMatrix>(binImg->copy());
+			newBits->rotate180();
+			result.points = DetectBarcode(*newBits, multiple);
+			result.rotation += 180;
+			result.bits = newBits;
+		}
+
+		if (!result.points.empty())
+			return result;
 	}
 
-#if defined(ZX_FAST_BIT_STORAGE)
-	if (!HasStartPattern(*binImg))
-		return DecodeStatus::NotFound;
-#endif
-
-	auto barcodeCoordinates = DetectBarcode(*binImg, multiple);
-	if (barcodeCoordinates.empty()) {
-		auto newBits = std::make_shared<BitMatrix>(binImg->copy());
-		newBits->rotate180();
-		binImg = newBits;
-		barcodeCoordinates = DetectBarcode(*binImg, multiple);
-	}
-	if (barcodeCoordinates.empty()) {
-		return DecodeStatus::NotFound;
-	}
-	result.points = barcodeCoordinates;
-	result.bits = binImg;
-	return DecodeStatus::NoError;
+	return {};
 }
 
 } // Pdf417

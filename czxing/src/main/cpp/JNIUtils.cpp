@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 #include "JNIUtils.h"
-#include "GenericLuminanceSource.h"
 #include "HybridBinarizer.h"
 
 #include <android/bitmap.h>
@@ -40,79 +39,6 @@ namespace {
     };
 
 } // anonymous
-
-std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromJavaBitmap(JNIEnv *env, jobject bitmap, int cropLeft, int cropTop, int cropWidth,
-                           int cropHeight) {
-    using namespace ZXing;
-
-    AndroidBitmapInfo bmInfo;
-    AndroidBitmap_getInfo(env, bitmap, &bmInfo);
-
-    cropLeft = std::max(0, cropLeft);
-    cropTop = std::max(0, cropTop);
-    cropWidth = cropWidth < 0 ? ((int) bmInfo.width - cropLeft) : std::min(
-            (int) bmInfo.width - cropLeft, cropWidth);
-    cropHeight = cropHeight < 0 ? ((int) bmInfo.height - cropTop) : std::min(
-            (int) bmInfo.height - cropTop, cropHeight);
-
-    void *pixels = nullptr;
-    if (AndroidBitmap_lockPixels(env, bitmap, &pixels) == ANDROID_BITMAP_RESUT_SUCCESS) {
-        AutoUnlockPixels autounlock(env, bitmap);
-
-        std::shared_ptr<GenericLuminanceSource> luminance;
-        switch (bmInfo.format) {
-            case ANDROID_BITMAP_FORMAT_A_8:
-                luminance = std::make_shared<GenericLuminanceSource>(cropLeft, cropTop, cropWidth,
-                                                                     cropHeight, pixels,
-                                                                     bmInfo.stride);
-                break;
-            case ANDROID_BITMAP_FORMAT_RGBA_8888:
-                LOGE("bmInfo.stride = %d", bmInfo.stride)
-                luminance = std::make_shared<GenericLuminanceSource>(cropLeft, cropTop, cropWidth,
-                                                                     cropHeight, pixels,
-                                                                     bmInfo.stride, 4, 0, 1, 2);
-                break;
-            default:
-                LOGE("Unsupported format");
-                return nullptr;
-//				throw std::runtime_error("Unsupported format");
-        }
-        return std::make_shared<HybridBinarizer>(luminance);
-    } else {
-        throw std::runtime_error("Failed to read bitmap's data");
-    }
-}
-
-std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytesC4(void *pixels, int cropLeft, int cropTop, int cropWidth,
-                        int cropHeight) {
-    using namespace ZXing;
-    LOGE("BinaryBitmapFromBytesC4 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", cropLeft,
-         cropTop, cropWidth,
-         cropHeight)
-
-    std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
-            cropLeft, cropTop, cropWidth,
-            cropHeight, pixels,
-            cropWidth * 4, 4, 0, 1, 2);
-
-    return std::make_shared<HybridBinarizer>(luminance);
-}
-
-std::shared_ptr<ZXing::BinaryBitmap>
-BinaryBitmapFromBytesC1(void *pixels, int left, int top, int width, int height) {
-    using namespace ZXing;
-    LOGE("BinaryBitmapFromBytesC1 cropLeft %d , cropTop %d  cropWidth %d cropHeight %d", left, top,
-         width,
-         height);
-
-    std::shared_ptr<GenericLuminanceSource> luminance = std::make_shared<GenericLuminanceSource>(
-            left, top, width, height,
-            pixels, width * sizeof(unsigned char));
-
-    return std::make_shared<HybridBinarizer>(luminance);
-}
 
 void
 BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
@@ -206,33 +132,4 @@ std::string jstring2string(JNIEnv *env, jstring str) {
 
 jstring string2jstring(JNIEnv *env, const std::string &str) {
     return env->NewStringUTF(str.c_str());
-}
-
-jfloatArray
-ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &input) {
-    jfloatArray array = env->NewFloatArray(input.size() * 2);
-    if (input.size() < 2) {
-        return array;
-    }
-
-    int index = 0;
-    for (auto point : input) {
-        float x = point.x();
-        float y = point.y();
-        env->SetFloatArrayRegion(array, index++, 1, &x);
-        env->SetFloatArrayRegion(array, index++, 1, &y);
-    }
-
-    return array;
-}
-
-jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect& codeRect)
-{
-    jintArray array = env->NewIntArray(4);
-    env->SetIntArrayRegion(array, 0, 1, &codeRect.x);
-    env->SetIntArrayRegion(array, 1, 1, &codeRect.y);
-    env->SetIntArrayRegion(array, 2, 1, &codeRect.width);
-    env->SetIntArrayRegion(array, 3, 1, &codeRect.height);
-
-    return array;
 }

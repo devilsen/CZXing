@@ -1,23 +1,16 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
+
+#include <string>
+#include <string_view>
 
 namespace ZXing {
 
-enum class CharacterSet
+enum class CharacterSet : unsigned char
 {
 	Unknown,
 	ASCII,
@@ -48,10 +41,19 @@ enum class CharacterSet
 	GB18030,
 	EUC_JP,
 	EUC_KR,
-	UnicodeBig,
+	UTF16BE,
+	UnicodeBig [[deprecated]] = UTF16BE,
 	UTF8,
+	UTF16LE,
+	UTF32BE,
+	UTF32LE,
+
+	BINARY,
 
 	CharsetCount
 };
+
+CharacterSet CharacterSetFromString(std::string_view name);
+std::string ToString(CharacterSet cs);
 
 } // ZXing

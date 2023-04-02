@@ -2,38 +2,23 @@
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ODDataBarReader.h"
 
 #include "BarcodeFormat.h"
+#include "DecoderResult.h"
 #include "GTIN.h"
 #include "ODDataBarCommon.h"
 #include "Result.h"
-#include "TextDecoder.h"
 
-#include <iomanip>
-#include <sstream>
+#include <cmath>
 #include <unordered_set>
 
 namespace ZXing::OneD {
 
 using namespace DataBar;
-
-DataBarReader::DataBarReader(const DecodeHints&) {}
-DataBarReader::~DataBarReader() = default;
 
 static bool IsCharacterPair(PatternView v, int modsLeft, int modsRight)
 {
@@ -127,8 +112,8 @@ static Pair ReadPair(const PatternView& view, bool rightPair)
 		if (auto outside = ReadDataCharacter(rightPair ? RightChar(view) : LeftChar(view), true, rightPair))
 			if (auto inside = ReadDataCharacter(rightPair ? LeftChar(view) : RightChar(view), false, rightPair)) {
 				// include left and right guards
-				int xStart = view.pixelsInFront() - (rightPair ? 0 : view[-1] + std::min(view[-2], view[-1]));
-				int xStop  = view.pixelsTillEnd() + (rightPair ? view[FULL_PAIR_SIZE] + view[FULL_PAIR_SIZE + 1] : 0);
+				int xStart = view.pixelsInFront() - view[-1];
+				int xStop  = view.pixelsTillEnd() + 2 * view[FULL_PAIR_SIZE];
 				return {outside, inside, pattern, xStart, xStop};
 			}
 
@@ -151,10 +136,12 @@ static std::string ConstructText(Pair leftPair, Pair rightPair)
 {
 	auto value = [](Pair p) { return 1597 * p.left.value + p.right.value; };
 	auto res = 4537077LL * value(leftPair) + value(rightPair);
-	std::ostringstream txt;
-	txt << std::setw(13) << std::setfill('0') << res;
-	txt << GTIN::ComputeCheckDigit(txt.str());
-	return txt.str();
+	if (res >= 10000000000000LL) { // Strip 2D linkage flag (GS1 Composite) if any (ISO/IEC 24724:2011 Section 5.2.3)
+		res -= 10000000000000LL;
+		assert(res <= 9999999999999LL); // 13 digits
+	}
+	auto txt = ToString(res, 13);
+	return txt + GTIN::ComputeCheckDigit(txt);
 }
 
 struct State : public RowReader::DecodingState
@@ -163,11 +150,11 @@ struct State : public RowReader::DecodingState
 	std::unordered_set<Pair, PairHash> rightPairs;
 };
 
-Result DataBarReader::decodePattern(int rowNumber, const PatternView& view,
+Result DataBarReader::decodePattern(int rowNumber, PatternView& next,
 									std::unique_ptr<RowReader::DecodingState>& state) const
 {
 #if 0 // non-stacked version
-	auto next = view.subView(-1, FULL_PAIR_SIZE + 2);
+	next = next.subView(-1, FULL_PAIR_SIZE + 1); // +1 reflects the guard pattern on the right, see IsRightPair());
 	// yes: the first view we test is at index 1 (black bar at 0 would be the guard pattern)
 	while (next.shift(2)) {
 		if (IsLeftPair(next)) {
@@ -184,7 +171,7 @@ Result DataBarReader::decodePattern(int rowNumber, const PatternView& view,
 		state.reset(new State);
 	auto* prevState = static_cast<State*>(state.get());
 
-	auto next = view.subView(0, FULL_PAIR_SIZE + 2); // +2 reflects the guard pattern on the right
+	next = next.subView(0, FULL_PAIR_SIZE + 1); // +1 reflects the guard pattern on the right, see IsRightPair()
 	// yes: the first view we test is at index 1 (black bar at 0 would be the guard pattern)
 	while (next.shift(1)) {
 		if (IsLeftPair(next)) {
@@ -199,18 +186,29 @@ Result DataBarReader::decodePattern(int rowNumber, const PatternView& view,
 			if (auto rightPair = ReadPair(next, true)) {
 				rightPair.y = rowNumber;
 				prevState->rightPairs.insert(rightPair);
+				next.shift(FULL_PAIR_SIZE + 2);
 			}
 		}
 	}
 
 	for (const auto& leftPair : prevState->leftPairs)
 		for (const auto& rightPair : prevState->rightPairs)
-			if (ChecksumIsValid(leftPair, rightPair))
-				return {TextDecoder::FromLatin1(ConstructText(leftPair, rightPair)),
-						EstimatePosition(leftPair, rightPair), BarcodeFormat::DataBar};
+			if (ChecksumIsValid(leftPair, rightPair)) {
+				// Symbology identifier ISO/IEC 24724:2011 Section 9 and GS1 General Specifications 5.1.3 Figure 5.1.3-2
+				Result res{DecoderResult(Content(ByteArray(ConstructText(leftPair, rightPair)), {'e', '0'}))
+							   .setLineCount(EstimateLineCount(leftPair, rightPair)),
+						   EstimatePosition(leftPair, rightPair), BarcodeFormat::DataBar};
+
+				prevState->leftPairs.erase(leftPair);
+				prevState->rightPairs.erase(rightPair);
+				return res;
+			}
 #endif
 
-	return Result(DecodeStatus::NotFound);
+	// guarantee progress (see loop in ODReader.cpp)
+	next = {};
+
+	return {};
 }
 
 } // namespace ZXing::OneD

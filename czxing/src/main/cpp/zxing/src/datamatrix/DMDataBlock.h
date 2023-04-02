@@ -1,20 +1,10 @@
-#pragma once
 /*
 * Copyright 2016 Nu-book Inc.
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "ByteArray.h"
 
@@ -42,9 +32,10 @@ struct DataBlock
  *
  * @param rawCodewords bytes as read directly from the Data Matrix Code
  * @param version version of the Data Matrix Code
+ * @param fix259 see https://github.com/zxing-cpp/zxing-cpp/issues/259
  * @return DataBlocks containing original bytes, "de-interleaved" from representation in the
  *         Data Matrix Code
  */
-std::vector<DataBlock> GetDataBlocks(const ByteArray& rawCodewords, const Version& version);
+std::vector<DataBlock> GetDataBlocks(const ByteArray& rawCodewords, const Version& version, bool fix259 = false);
 
 } // namespace ZXing::DataMatrix

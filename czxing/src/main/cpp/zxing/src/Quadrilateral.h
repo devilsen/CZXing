@@ -1,22 +1,12 @@
-#pragma once
 /*
 * Copyright 2020 Axel Waggershauser
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
+
+#pragma once
 
 #include "Point.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 
 #include <array>
 #include <cmath>
@@ -63,6 +53,12 @@ Quadrilateral<PointT> Rectangle(int width, int height, typename PointT::value_t 
 		PointT{margin, margin}, {width - margin, margin}, {width - margin, height - margin}, {margin, height - margin}};
 }
 
+template <typename PointT = PointF>
+Quadrilateral<PointT> CenteredSquare(int size)
+{
+	return Scale(Quadrilateral(PointT{-1, -1}, {1, -1}, {1, 1}, {-1, 1}), size / 2);
+}
+
 template <typename PointT = PointI>
 Quadrilateral<PointT> Line(int y, int xStart, int xStop)
 {
@@ -83,8 +79,9 @@ bool IsConvex(const Quadrilateral<PointT>& poly)
 		auto d2 = poly[i] - poly[(i + 1) % N];
 		auto cp = cross(d1, d2);
 
-		m = std::min(std::fabs(m), cp);
-		M = std::max(std::fabs(M), cp);
+		// TODO: see if the isInside check for all boundary points in GridSampler is still required after fixing the wrong fabs()
+		// application in the following line
+		UpdateMinMax(m, M, std::fabs(cp));
 
 		if (i == 0)
 			sign = cp > 0;
@@ -92,9 +89,9 @@ bool IsConvex(const Quadrilateral<PointT>& poly)
 			return false;
 	}
 
-	// It turns out beeing convex is not enough to prevent a "numercial instability"
-	// that can cause the corners beeing projected inside the image boundaries but
-	// some points near the corners beeing projected outside. This has been observed
+	// It turns out being convex is not enough to prevent a "numerical instability"
+	// that can cause the corners being projected inside the image boundaries but
+	// some points near the corners being projected outside. This has been observed
 	// where one corner is almost in line with two others. The M/m ratio is below 2
 	// for the complete existing sample set. For very "skewed" QRCodes a value of
 	// around 3 is realistic. A value of 14 has been observed to trigger the
@@ -102,6 +99,60 @@ bool IsConvex(const Quadrilateral<PointT>& poly)
 	return M / m < 4.0;
 }
 
+template <typename PointT>
+Quadrilateral<PointT> Scale(const Quadrilateral<PointT>& q, int factor)
+{
+	return {factor * q[0], factor * q[1], factor * q[2], factor * q[3]};
+}
+
+template <typename PointT>
+PointT Center(const Quadrilateral<PointT>& q)
+{
+	return Reduce(q) / Size(q);
+}
+
+template <typename PointT>
+Quadrilateral<PointT> RotatedCorners(const Quadrilateral<PointT>& q, int n = 1, bool mirror = false)
+{
+	Quadrilateral<PointT> res;
+	std::rotate_copy(q.begin(), q.begin() + ((n + 4) % 4), q.end(), res.begin());
+	if (mirror)
+		std::swap(res[1], res[3]);
+	return res;
+}
+
+template <typename PointT>
+bool IsInside(const PointT& p, const Quadrilateral<PointT>& q)
+{
+	// Test if p is on the same side (right or left) of all polygon segments
+	int pos = 0, neg = 0;
+	for (int i = 0; i < Size(q); ++i)
+		(cross(p - q[i], q[(i + 1) % Size(q)] - q[i]) < 0 ? neg : pos)++;
+	return pos == 0 || neg == 0;
+}
+
+template <typename PointT>
+bool HaveIntersectingBoundingBoxes(const Quadrilateral<PointT>& a, const Quadrilateral<PointT>& b)
+{
+	// TODO: this is only a quick and dirty approximation that works for the trivial standard cases
+	bool x = b.topRight().x < a.topLeft().x || b.topLeft().x > a.topRight().x;
+	bool y = b.bottomLeft().y < a.topLeft().y || b.topLeft().y > a.bottomLeft().y;
+	return !(x || y);
+}
+
+template <typename PointT>
+Quadrilateral<PointT> Blend(const Quadrilateral<PointT>& a, const Quadrilateral<PointT>& b)
+{
+	auto dist2First = [c = a[0]](auto a, auto b) { return distance(a, c) < distance(b, c); };
+	// rotate points such that the the two topLeft points are closest to each other
+	auto offset = std::min_element(b.begin(), b.end(), dist2First) - b.begin();
+
+	Quadrilateral<PointT> res;
+	for (int i = 0; i < 4; ++i)
+		res[i] = (a[i] + b[(i + offset) % 4]) / 2;
+
+	return res;
+}
 
 } // ZXing
 

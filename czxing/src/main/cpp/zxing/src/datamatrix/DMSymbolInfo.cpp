@@ -1,24 +1,12 @@
 /*
 * Copyright 2016 Huy Cuong Nguyen
 * Copyright 2016 ZXing authors
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
 */
+// SPDX-License-Identifier: Apache-2.0
 
 #include "DMSymbolInfo.h"
 
-#include "DMSymbolShape.h"
-#include "ZXContainerAlgorithms.h"
+#include "ZXAlgorithms.h"
 #include "ZXTestSupport.h"
 
 #include <cstddef>
@@ -26,7 +14,7 @@
 
 namespace ZXing::DataMatrix {
 
-static const SymbolInfo PROD_SYMBOLS[] = {
+static constexpr const SymbolInfo PROD_SYMBOLS[] = {
 	{ false, 3, 5, 8, 8, 1 },
 	{ false, 5, 7, 10, 10, 1 },
 	{ true, 5, 7, 16, 6, 1 },
@@ -129,36 +117,24 @@ int
 SymbolInfo::horizontalDataRegions() const
 {
 	switch (_dataRegions) {
-	case 1:
-		return 1;
-	case 2:
-		return 2;
-	case 4:
-		return 2;
-	case 16:
-		return 4;
-	case 36:
-		return 6;
-	default:
-		throw std::out_of_range("Cannot handle this number of data regions");
+	case 1:  return 1;
+	case 2:  return 2;
+	case 4:  return 2;
+	case 16: return 4;
+	case 36: return 6;
+	default: throw std::out_of_range("Cannot handle this number of data regions");
 	}
 }
 
 int
 SymbolInfo::verticalDataRegions() const {
 	switch (_dataRegions) {
-	case 1:
-		return 1;
-	case 2:
-		return 1;
-	case 4:
-		return 2;
-	case 16:
-		return 4;
-	case 36:
-		return 6;
-	default:
-		throw std::out_of_range("Cannot handle this number of data regions");
+	case 1:  return 1;
+	case 2:  return 1;
+	case 4:  return 2;
+	case 16: return 4;
+	case 36: return 6;
+	default: throw std::out_of_range("Cannot handle this number of data regions");
 	}
 }
 

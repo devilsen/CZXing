@@ -78,16 +78,17 @@ jfloatArray ToJavaArray(JNIEnv *env, const std::vector<ZXing::ResultPoint> &vect
 
 jintArray rect2JavaArray(JNIEnv *env, const czxing::CodeRect& codeRect);
 
-static std::vector<ZXing::BarcodeFormat> GetFormats(JNIEnv *env, jintArray formats) {
-    std::vector<ZXing::BarcodeFormat> result;
+static ZXing::BarcodeFormats GetFormats(JNIEnv *env, jintArray formats) {
+    ZXing::BarcodeFormats result;
     jsize len = env->GetArrayLength(formats);
     if (len > 0) {
         std::vector<jint> elems(len);
         env->GetIntArrayRegion(formats, 0, elems.size(), elems.data());
-        result.resize(len);
         for (jsize i = 0; i < len; ++i) {
-            result[i] = ZXing::BarcodeFormat(elems[i]);
+            result.setFlag(ZXing::BarcodeFormat(elems[i]));
         }
+    } else {
+        result = ZXing::BarcodeFormat::Any;
     }
     return result;
 }
