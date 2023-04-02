@@ -159,6 +159,8 @@ Java_me_devilsen_czxing_code_EncodeEngine_nativeWriteCode(JNIEnv *env, jobject i
 
     std::wstring wContent = ANSIToUnicode(content);
 
+    LOGE("string = %ls", wContent.c_str());
+
     ZXing::MultiFormatWriter writer(ZXing::BarcodeFormatFromString(format));
     ZXing::BitMatrix bitMatrix = writer.encode(wContent, width, height);
 
