@@ -27,8 +27,8 @@ import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
+import me.devilsen.czxing.view.scanview.ScanLayout;
 import me.devilsen.czxing.view.scanview.ScanListener;
-import me.devilsen.czxing.view.scanview.ScanView;
 
 
 /**
@@ -45,7 +45,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     private TextView titleTxt;
     private TextView albumTxt;
-    private ScanView mScanView;
+    private ScanLayout mScanLayout;
     private SoundPoolUtil mSoundPoolUtil;
 
     private boolean isContinuousScan;
@@ -66,11 +66,11 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         ImageView backImg = findViewById(R.id.image_scan_back);
         titleTxt = findViewById(R.id.text_view_scan_title);
         albumTxt = findViewById(R.id.text_view_scan_album);
-        mScanView = findViewById(R.id.surface_view_scan);
+        mScanLayout = findViewById(R.id.surface_view_scan);
 
         backImg.setOnClickListener(this);
         albumTxt.setOnClickListener(this);
-        mScanView.setScanListener(this);
+        mScanLayout.setScanListener(this);
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) titleLayout.getLayoutParams();
         layoutParams.topMargin = ScreenUtil.getStatusBarHeight(this);
@@ -90,31 +90,31 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (option == null) {
             return;
         }
-        mScanView.setScanMode(option.getScanMode());
-        mScanView.setBarcodeFormat(option.getBarcodeFormat());
-        mScanView.onFlashLightClick();
-        mScanView.setResultColor(option.getResultColor());
-        mScanView.hideResultColor(option.isHideResultColor());
+        mScanLayout.setScanMode(option.getScanMode());
+        mScanLayout.setBarcodeFormat(option.getBarcodeFormat());
+        mScanLayout.switchFlashLight();
+        mScanLayout.setResultColor(option.getResultColor());
+        mScanLayout.hideResultColor(option.isHideResultColor());
 
-        ScanBoxView scanBox = mScanView.getScanBox();
+        ScanBoxView scanBox = mScanLayout.getScanBox();
         scanBox.setScanLineColor(option.getScanLineColors());
         if (option.isScanHorizontal()) {
             scanBox.setHorizontalScanLine();
         }
-        scanBox.setFlashLightOnDrawable(option.getFlashLightOnDrawable());
-        scanBox.setFlashLightOffDrawable(option.getFlashLightOffDrawable());
-        scanBox.setFlashLightOnText(option.getFlashLightOnText());
-        scanBox.setFlashLightOffText(option.getFlashLightOffText());
+        mScanLayout.setFlashLightOnDrawable(option.getFlashLightOnDrawable());
+        mScanLayout.setFlashLightOffDrawable(option.getFlashLightOffDrawable());
+        mScanLayout.setFlashLightOnText(option.getFlashLightOnText());
+        mScanLayout.setFlashLightOffText(option.getFlashLightOffText());
         if (option.isDropFlashLight()) {
             scanBox.invisibleFlashLightIcon();
         }
-        scanBox.setScanNoticeText(option.getScanNoticeText());
+        mScanLayout.setScanNoticeText(option.getScanNoticeText());
 
         String detectorPrototxtPath = option.getDetectPrototxt();
         String detectorCaffeModelPath = option.getDetectCaffeModel();
         String superResolutionPrototxtPath = option.getSuperResolutionPrototxt();
         String superResolutionCaffeModelPath = option.getSuperResolutionCaffeModel();
-        mScanView.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
+        mScanLayout.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
 
         // 标题栏
         String title = option.getTitle();
@@ -136,19 +136,19 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     protected void onResume() {
         super.onResume();
         mSaveInstanceStateFlag = false;
-        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-        mScanView.startScan();  // 显示扫描框，并开始识别
+        mScanLayout.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
+        mScanLayout.startDetect();  // 显示扫描框，并开始识别
 
         if (isContinuousScan) {
-            mScanView.resetZoom();  // 重置相机扩大倍数
+            mScanLayout.resetZoom();  // 重置相机扩大倍数
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mScanView.stopScan();
-        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
+        mScanLayout.stopDetect();
+        mScanLayout.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
     }
 
     @Override
@@ -159,7 +159,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
     @Override
     protected void onDestroy() {
-        mScanView.onDestroy(); // 销毁二维码扫描控件
+        mScanLayout.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
         // 可能是旋转窗口，不移除代理
@@ -211,7 +211,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
             handler.sendEmptyMessageDelayed(MESSAGE_WHAT_START_SCAN, DELAY_TIME);
             return;
         } else {
-            mScanView.stopPreview();
+            mScanLayout.stopPreview();
         }
         finish();
     }
@@ -227,7 +227,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     private final Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            mScanView.startScan();
+            mScanLayout.startDetect();
             return true;
         }
     });
@@ -246,8 +246,8 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults != null && grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mScanView.stopScan();
-                mScanView.startScan();
+                mScanLayout.stopDetect();
+                mScanLayout.startDetect();
             } else {
                 BarCodeUtil.e("request permission error");
             }

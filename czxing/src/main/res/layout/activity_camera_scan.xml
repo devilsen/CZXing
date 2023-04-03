@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <me.devilsen.czxing.view.scanview.ScanView
+    <me.devilsen.czxing.view.scanview.ScanLayout
         android:id="@+id/surface_view_scan"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

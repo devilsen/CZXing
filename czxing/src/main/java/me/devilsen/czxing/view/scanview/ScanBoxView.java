@@ -3,16 +3,13 @@ package me.devilsen.czxing.view.scanview;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
@@ -20,7 +17,6 @@ import java.util.List;
 
 import me.devilsen.czxing.R;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.BitmapUtil;
 
 /**
  * @author : dongSen
@@ -33,16 +29,10 @@ public class ScanBoxView extends View {
     private final int SCAN_LINE_HEIGHT = BarCodeUtil.dp2px(getContext(), 4f);
 
     private Paint mPaint;
-    private Paint mTxtPaint;
     private Paint mScanLinePaint;
     private final Rect mFramingRect = new Rect(0, 0, 1080, 1920);
     private Rect mFocusRect;
-    private Rect mTextRect;
     private Canvas mCanvas;
-
-    private int mMaskColor;
-    private int mTextColor;
-    private int mTextColorBig;
 
     private int mTopOffset;
 
@@ -52,36 +42,12 @@ public class ScanBoxView extends View {
     private LinearGradient mScanLineGradient;
     private float mScanLinePosition;
     private ValueAnimator mScanLineAnimator;
-    private int mTextSize;
-    private int mTextSizeBig;
-
-    private ScanBoxClickListener mFlashLightListener;
-    // 是否处于黑暗环境
-    private boolean isDark;
-    private boolean mDrawCardText;
-    private boolean isLightOn;
 
     private int mScanLineColor1;
     private int mScanLineColor2;
     private int mScanLineColor3;
     // 扫码线方向
     private int mScanlineOrientation;
-
-    private Bitmap mLightOn;
-    private Bitmap mLightOff;
-    private int mFlashLightLeft;
-    private int mFlashLightTop;
-    private int mFlashLightRight;
-    private int mFlashLightBottom;
-    // 不使用手电筒图标
-    private boolean mDropFlashLight;
-
-    private String mFlashLightOnText;
-    private String mFlashLightOffText;
-    private String mScanNoticeText;
-
-    private int mScanLeft;
-    private int mScanTop;
 
     public ScanBoxView(Context context) {
         this(context, null);
@@ -101,14 +67,8 @@ public class ScanBoxView extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mScanLinePaint = new Paint();
-        mTxtPaint = new Paint();
-        mTxtPaint.setAntiAlias(true);
 
         Resources resources = getResources();
-
-        mMaskColor = resources.getColor(R.color.czxing_line_mask);
-        mTextColor = resources.getColor(R.color.czxing_text_normal);
-        mTextColorBig = resources.getColor(R.color.czxing_text_big);
 
         mScanLineColor1 = resources.getColor(R.color.czxing_scan_1);
         mScanLineColor2 = resources.getColor(R.color.czxing_scan_2);
@@ -118,26 +78,15 @@ public class ScanBoxView extends View {
 
         mBorderColor = resources.getColor(R.color.czxing_line_border);
         mBorderStrokeWidth = BarCodeUtil.dp2px(context, 0.5f);
-
-        mTextSize = BarCodeUtil.sp2px(context, 14);
-        mTextSizeBig = BarCodeUtil.sp2px(context, 17);
-        mTxtPaint.setTextSize(mTextSize);
-        mTxtPaint.setTextAlign(Paint.Align.CENTER);
-        mTxtPaint.setColor(Color.GRAY);
-        mTxtPaint.setStyle(Paint.Style.FILL);
-
-        mFlashLightOnText = getResources().getText(R.string.czxing_click_open_flash_light).toString();
-        mFlashLightOffText = getResources().getText(R.string.czxing_click_close_flash_light).toString();
-        mScanNoticeText = getResources().getText(R.string.czxing_scan_notice).toString();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        mScanLeft = 0;
-        mScanTop = mTopOffset;
-        Rect rect = new Rect(mScanLeft, mScanTop, mScanLeft + w, mScanTop + h * 2 / 3);
+        int scanLeft = 0;
+        int scanTop = mTopOffset;
+        Rect rect = new Rect(scanLeft, scanTop, scanLeft + w, scanTop + h * 2 / 3);
         mFramingRect.set(rect);
     }
 
@@ -150,44 +99,6 @@ public class ScanBoxView extends View {
 
         // 移动扫描线的位置
         moveScanLine();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-            float x = event.getX();
-            float y = event.getY();
-
-            if (x > mFlashLightLeft && x < mFlashLightRight &&
-                    y > mFlashLightTop && y < mFlashLightBottom) {
-                // 在亮度不够的情况下，或者在打开闪光灯的情况下才可以点击
-                if (mFlashLightListener != null && (isDark || isLightOn)) {
-                    mFlashLightListener.onFlashLightClick();
-                    isLightOn = !isLightOn;
-                    invalidate();
-                }
-                return true;
-            }
-        }
-        return super.onTouchEvent(event);
-    }
-
-    public void setScanBoxClickListener(ScanBoxClickListener lightListener) {
-        mFlashLightListener = lightListener;
-    }
-
-    private void drawMask(Canvas canvas) {
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
-
-        if (mMaskColor != Color.TRANSPARENT) {
-            mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(mMaskColor);
-            canvas.drawRect(0, 0, width, mFramingRect.top, mPaint);
-            canvas.drawRect(0, mFramingRect.top, mFramingRect.left, mFramingRect.bottom + 1, mPaint);
-            canvas.drawRect(mFramingRect.right + 1, mFramingRect.top, width, mFramingRect.bottom + 1, mPaint);
-            canvas.drawRect(0, mFramingRect.bottom + 1, width, height, mPaint);
-        }
     }
 
     /**
@@ -222,86 +133,6 @@ public class ScanBoxView extends View {
                     mScanLinePosition + SCAN_LINE_HEIGHT,
                     mFramingRect.bottom,
                     mScanLinePaint);
-        }
-    }
-
-    private void drawTipText(Canvas canvas) {
-        mTxtPaint.setTextSize(mTextSize);
-        mTxtPaint.setColor(mTextColor);
-
-        if (!mDropFlashLight) {
-            if (isDark || isLightOn) {
-                canvas.drawText(isLightOn ? mFlashLightOffText : mFlashLightOnText,
-                        mFramingRect.left,
-                        mFramingRect.bottom - mTextSize,
-                        mTxtPaint);
-
-                drawFlashLight(canvas);
-            }
-        }
-
-        canvas.drawText(mScanNoticeText,
-                mFramingRect.left,
-                mFramingRect.bottom + mTextSize * 2,
-                mTxtPaint);
-
-        // 隐藏 我的卡片 文字
-        if (!mDrawCardText) {
-            return;
-        }
-
-        mTxtPaint.setTextSize(mTextSizeBig);
-        mTxtPaint.setColor(mTextColorBig);
-        String clickText = "我的名片";
-        canvas.drawText(clickText,
-                mFramingRect.left,
-                mFramingRect.bottom + mTextSize * 6,
-                mTxtPaint);
-
-        if (mTextRect == null) {
-            mTextRect = new Rect();
-            mTxtPaint.getTextBounds(clickText, 0, clickText.length() - 1, mTextRect);
-            int width = mTextRect.width();
-            int height = mTextRect.height();
-            mTextRect.left = mFramingRect.left - 10;
-            mTextRect.right = mTextRect.left + width + 10;
-            mTextRect.top = mFramingRect.bottom + mTextSize * 6 - 10;
-            mTextRect.bottom = mTextRect.top + height + 10;
-        }
-    }
-
-    /**
-     * 画手电筒
-     */
-    private void drawFlashLight(Canvas canvas) {
-        // 不使用手电筒图标
-        if (mDropFlashLight) {
-            return;
-        }
-        if (mLightOff == null) {
-            mLightOff = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_close_24dp);
-        }
-        if (mLightOn == null) {
-            mLightOn = BitmapUtil.getBitmap(getContext(), R.drawable.ic_highlight_open_24dp);
-        }
-        if (mFlashLightLeft == 0 && mLightOff != null) {
-            mFlashLightLeft = mFramingRect.left + ((mFramingRect.width() - mLightOff.getWidth()) >> 1);
-            mFlashLightTop = mFramingRect.bottom - (mTextSize << 2);
-            mFlashLightRight = mFlashLightLeft + mLightOff.getWidth();
-            mFlashLightBottom = mFlashLightTop + mLightOff.getHeight();
-        }
-        drawFlashLightBitmap(canvas);
-    }
-
-    private void drawFlashLightBitmap(Canvas canvas) {
-        if (isLightOn) {
-            if (mLightOn != null) {
-                canvas.drawBitmap(mLightOn, mFlashLightLeft, mFlashLightTop, mPaint);
-            }
-        } else {
-            if (mLightOff != null) {
-                canvas.drawBitmap(mLightOff, mFlashLightLeft, mFlashLightTop, mPaint);
-            }
         }
     }
 
@@ -355,30 +186,11 @@ public class ScanBoxView extends View {
         return animator;
     }
 
-    public void setDark(boolean dark) {
-        if (this.isDark != dark) {
-            postInvalidate();
-        }
-        isDark = dark;
-    }
-
     /**
      * 将扫码线设置为水平
      */
     public void setHorizontalScanLine() {
         this.mScanlineOrientation = HORIZONTAL;
-    }
-
-    /**
-     * 设置扫码得到结果后的遮罩颜色
-     *
-     * @param color 透明颜色
-     */
-    public void setResultMaskColor(int color) {
-        if (color == 0) {
-            return;
-        }
-        mMaskColor = color;
     }
 
     /**
@@ -398,75 +210,6 @@ public class ScanBoxView extends View {
         mScanLineGradient = null;
     }
 
-    /**
-     * 设置手电筒打开时的图标
-     */
-    public void setFlashLightOnDrawable(int lightOnDrawable) {
-        if (lightOnDrawable == 0) {
-            return;
-        }
-        mLightOn = BitmapUtil.getBitmap(getContext(), lightOnDrawable);
-    }
-
-    /**
-     * 设置手电筒关闭时的图标
-     */
-    public void setFlashLightOffDrawable(int lightOffDrawable) {
-        if (lightOffDrawable == 0) {
-            return;
-        }
-        mLightOff = BitmapUtil.getBitmap(getContext(), lightOffDrawable);
-    }
-
-    /**
-     * 不使用手电筒图标及提示
-     */
-    public void invisibleFlashLightIcon() {
-        mDropFlashLight = true;
-    }
-
-    /**
-     * 隐藏 我的卡片 功能
-     */
-    public void hideCardText() {
-        this.mDrawCardText = false;
-    }
-
-    /**
-     * 设置闪光灯打开时的提示文字
-     */
-    public void setFlashLightOnText(String lightOnText) {
-        if (lightOnText != null) {
-            mFlashLightOnText = lightOnText;
-        }
-    }
-
-    /**
-     * 设置闪光灯关闭时的提示文字
-     */
-    public void setFlashLightOffText(String lightOffText) {
-        if (lightOffText != null) {
-            mFlashLightOffText = lightOffText;
-        }
-    }
-
-    /**
-     * 设置扫码框下方的提示文字
-     */
-    public void setScanNoticeText(String scanNoticeText) {
-        if (scanNoticeText != null) {
-            mScanNoticeText = scanNoticeText;
-        }
-    }
-
-    /**
-     * 关闭闪光灯
-     */
-    void turnOffLight() {
-        isDark = false;
-        isLightOn = false;
-    }
-
     public void startAnim() {
         if (mScanLineAnimator != null && !mScanLineAnimator.isRunning()) {
             mScanLineAnimator.start();
@@ -482,6 +225,7 @@ public class ScanBoxView extends View {
     public void onDestroy() {
         if (mScanLineAnimator != null) {
             mScanLineAnimator.removeAllUpdateListeners();
+            mScanLineAnimator = null;
         }
     }
 
@@ -497,7 +241,4 @@ public class ScanBoxView extends View {
         return Math.min(mFramingRect.width(), mFramingRect.height());
     }
 
-    public interface ScanBoxClickListener {
-        void onFlashLightClick();
-    }
 }

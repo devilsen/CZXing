@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <me.devilsen.czxing.view.scanview.DetectView
+        android:id="@+id/detect_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <me.devilsen.czxing.view.scanview.ScanBoxView
+        android:id="@+id/scan_box"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="180dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_scan_flashlight_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/czxing_click_open_flash_light" />
+
+        <ImageView
+            android:id="@+id/image_scan_flashlight"
+            android:layout_width="40dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/ic_highlight_close_24dp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view_scan_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/czxing_line_mask"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -31,7 +31,6 @@ import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
-import me.devilsen.czxing.view.scanview.ScanView;
 
 public class MainActivity extends BaseDecoderActivity {
 
@@ -88,7 +87,6 @@ public class MainActivity extends BaseDecoderActivity {
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
 //                .setHorizontalScanLine()
-                .setScanMode(ScanView.SCAN_MODE_BIG)
 //                .setBarcodeFormat(BarcodeFormat.EAN_13)
                 .setTitle("")
                 .showAlbum(true)

@@ -37,7 +37,7 @@ public interface ScanListener {
      */
     interface AnalysisBrightnessListener {
 
-        void onAnalysisBrightness(boolean isDark);
+        void onAnalysisBrightness(double brightness);
 
     }
 }

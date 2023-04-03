@@ -33,7 +33,7 @@ import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanListener;
-import me.devilsen.czxing.view.scanview.ScanView;
+import me.devilsen.czxing.view.scanview.DetectView;
 
 /**
  * desc : 自定义扫码界面
@@ -48,7 +48,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     private static final int PERMISSIONS_REQUEST_STORAGE = 2;
     private static final int CODE_SELECT_IMAGE = 100;
 
-    private ScanView mScanView;
+    private DetectView mScanView;
     private SoundPoolUtil mSoundPoolUtil;
 
     @Override
@@ -136,13 +136,13 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     protected void onResume() {
         super.onResume();
         mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-        mScanView.startScan();  // 显示扫描框，并开始识别
+        mScanView.startDetect();  // 显示扫描框，并开始识别
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mScanView.stopScan();
+        mScanView.stopDetect();
         mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
     }
 
@@ -287,7 +287,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 mScanView.openCamera();
-                mScanView.startScan();
+                mScanView.startDetect();
             }
             return;
         } else if (requestCode == PERMISSIONS_REQUEST_STORAGE) {

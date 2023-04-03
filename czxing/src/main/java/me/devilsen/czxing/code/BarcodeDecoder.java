@@ -35,6 +35,9 @@ public class BarcodeDecoder {
     }
 
     public void setBarcodeFormat(BarcodeFormat... formats) {
+        if (formats == null || formats.length == 0) {
+            return;
+        }
         mEngine.setFormat(getNativeFormats(formats));
     }
 
@@ -65,7 +68,6 @@ public class BarcodeDecoder {
         BarCodeUtil.d("bitmap width = " + imgWidth + " height = " + imgHeight);
 
         CodeResult[] result = mEngine.decodeBitmap(newBitmap);
-        bitmap.recycle();
         newBitmap.recycle();
         return asList(result);
     }

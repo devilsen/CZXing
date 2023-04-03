@@ -1,12 +1,12 @@
 package me.devilsen.czxing.util;
 
 /**
- * desc : 分辨率转换util
+ * desc : 分辨率转换
  * date : 2019-08-20 17:07
  *
  * @author : dongSen
  */
-public class ResolutionAdapterUtil {
+public class ResolutionAdapter {
 
     private int resolutionWidth;
     private int resolutionHeight;
