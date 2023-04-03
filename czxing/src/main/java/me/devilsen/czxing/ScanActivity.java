@@ -70,7 +70,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
 
         backImg.setOnClickListener(this);
         albumTxt.setOnClickListener(this);
-        mScanLayout.setScanListener(this);
+        mScanLayout.setOnScanListener(this);
 
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) titleLayout.getLayoutParams();
         layoutParams.topMargin = ScreenUtil.getStatusBarHeight(this);
@@ -90,9 +90,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         if (option == null) {
             return;
         }
-        mScanLayout.setScanMode(option.getScanMode());
         mScanLayout.setBarcodeFormat(option.getBarcodeFormat());
-        mScanLayout.switchFlashLight();
         mScanLayout.setResultColor(option.getResultColor());
         mScanLayout.hideResultColor(option.isHideResultColor());
 
@@ -106,7 +104,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         mScanLayout.setFlashLightOnText(option.getFlashLightOnText());
         mScanLayout.setFlashLightOffText(option.getFlashLightOffText());
         if (option.isDropFlashLight()) {
-            scanBox.invisibleFlashLightIcon();
+            mScanLayout.invisibleFlashLightIcon();
         }
         mScanLayout.setScanNoticeText(option.getScanNoticeText());
 

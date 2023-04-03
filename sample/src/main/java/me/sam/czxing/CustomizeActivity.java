@@ -32,8 +32,8 @@ import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.util.ScreenUtil;
 import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
+import me.devilsen.czxing.view.scanview.ScanLayout;
 import me.devilsen.czxing.view.scanview.ScanListener;
-import me.devilsen.czxing.view.scanview.DetectView;
 
 /**
  * desc : 自定义扫码界面
@@ -48,7 +48,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     private static final int PERMISSIONS_REQUEST_STORAGE = 2;
     private static final int CODE_SELECT_IMAGE = 100;
 
-    private DetectView mScanView;
+    private ScanLayout mScanLayout;
     private SoundPoolUtil mSoundPoolUtil;
 
     @Override
@@ -65,7 +65,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         LinearLayout titleLayout = findViewById(R.id.layout_customize_scan_title);
         ImageView backImg = findViewById(R.id.image_customize_scan_back);
         TextView albumTxt = findViewById(R.id.text_view_customize_scan_album);
-        mScanView = findViewById(R.id.surface_customize_view_scan);
+        mScanLayout = findViewById(R.id.surface_customize_view_scan);
         TextView myCodeTxt = findViewById(R.id.text_view_customize_my_qr_code);
         TextView option1Txt = findViewById(R.id.text_view_customize_option_1);
         TextView option2Txt = findViewById(R.id.text_view_customize_option_2);
@@ -76,7 +76,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         // 设置扫描格式 BarcodeFormat
 //        mScanView.setBarcodeFormat();
 
-        ScanBoxView scanBox = mScanView.getScanBox();
+        ScanBoxView scanBox = mScanLayout.getScanBox();
         // 设置扫码框上下偏移量，可以为负数
 //        scanBox.setBoxTopOffset(-BarCodeUtil.dp2px(this, 100));
         // 设置边框大小
@@ -109,9 +109,9 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         backImg.setOnClickListener(this);
         albumTxt.setOnClickListener(this);
         // 获取扫码回调
-        mScanView.setScanListener(this);
+        mScanLayout.setOnScanListener(this);
         // 获取亮度测量结果
-        mScanView.setAnalysisBrightnessListener(this);
+        mScanLayout.setAnalysisBrightnessListener(this);
         myCodeTxt.setOnClickListener(this);
         option1Txt.setOnClickListener(this);
         option2Txt.setOnClickListener(this);
@@ -129,26 +129,26 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         String detectorCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "detect.caffemodel");
         String superResolutionPrototxtPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.prototxt");
         String superResolutionCaffeModelPath = AssetUtil.getAbsolutePath(this, "wechat", "sr.caffemodel");
-        mScanView.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
+        mScanLayout.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mScanView.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
-        mScanView.startDetect();  // 显示扫描框，并开始识别
+        mScanLayout.openCamera(); // 打开后置摄像头开始预览，但是并未开始识别
+        mScanLayout.startDetect();  // 显示扫描框，并开始识别
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mScanView.stopDetect();
-        mScanView.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
+        mScanLayout.stopDetect();
+        mScanLayout.closeCamera(); // 关闭摄像头预览，并且隐藏扫描框
     }
 
     @Override
     protected void onDestroy() {
-        mScanView.onDestroy(); // 销毁二维码扫描控件
+        mScanLayout.onDestroy(); // 销毁二维码扫描控件
         mSoundPoolUtil.release();
         super.onDestroy();
     }
@@ -203,11 +203,10 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
 
     /**
      * 可以通过此回调来控制自定义的手电筒显隐藏
-     *
-     * @param isDark 是否处于黑暗的环境
      */
     @Override
-    public void onAnalysisBrightness(boolean isDark) {
+    public void onAnalysisBrightness(double brightness) {
+        boolean isDark = brightness < 60;
         if (isDark) {
             Log.d("analysisBrightness", "您处于黑暗的环境，建议打开手电筒");
         } else {
@@ -286,8 +285,8 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                mScanView.openCamera();
-                mScanView.startDetect();
+                mScanLayout.openCamera();
+                mScanLayout.startDetect();
             }
             return;
         } else if (requestCode == PERMISSIONS_REQUEST_STORAGE) {

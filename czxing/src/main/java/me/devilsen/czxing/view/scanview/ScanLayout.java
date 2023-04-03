@@ -15,11 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import me.devilsen.czxing.R;
 import me.devilsen.czxing.code.BarcodeDecoder;
+import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.PointView;
@@ -42,7 +43,7 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
     private int mMaskColor;
 
     private Handler mHandler;
-    private final List<View> mResultViews = new ArrayList<>();
+    private final List<View> mResultViews = new CopyOnWriteArrayList<>();
     private int mPointSize;
     private int mResultColor;
     private boolean mIsHideResultColor;
@@ -50,6 +51,7 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
     private DetectView mDetectView;
 
     private ScanListener mScanListener;
+    private ScanListener.AnalysisBrightnessListener mAnalysisBrightnessListener;
 
     public ScanLayout(@NonNull Context context) {
         this(context, null);
@@ -65,7 +67,7 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
     }
 
     private void init(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.view_scan_layout, this, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.view_scan_layout, this, true);
         mDetectView = view.findViewById(R.id.detect_view);
         mScanBox = view.findViewById(R.id.scan_box);
         mFlashLightNotice = view.findViewById(R.id.text_scan_flashlight_notice);
@@ -101,7 +103,9 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
 
     @Override
     public void onAnalysisBrightness(double brightness) {
-
+        if (mAnalysisBrightnessListener != null) {
+            mAnalysisBrightnessListener.onAnalysisBrightness(brightness);
+        }
     }
 
     @Override
@@ -173,6 +177,26 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         });
     }
 
+    public void openCamera() {
+        mDetectView.openCamera();
+    }
+
+    public void closeCamera() {
+        mDetectView.closeCamera();
+    }
+
+    public void startDetect() {
+        mDetectView.startDetect();
+    }
+
+    public void stopDetect() {
+        mDetectView.stopDetect();
+    }
+
+    public void setDetectModel(String detectorPrototxtPath, String detectorCaffeModelPath, String superResolutionPrototxtPath, String superResolutionCaffeModelPath) {
+        mDetectView.setDetectModel(detectorPrototxtPath, detectorCaffeModelPath, superResolutionPrototxtPath, superResolutionCaffeModelPath);
+    }
+
     /**
      * 设置手电筒打开时的图标
      */
@@ -238,6 +262,33 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         mIsHideResultColor = hideResultColor;
     }
 
+    public ScanBoxView getScanBox() {
+        return mScanBox;
+    }
+
+    public void setOnScanListener(ScanListener listener) {
+        this.mScanListener = listener;
+    }
+
+    public void setAnalysisBrightnessListener(ScanListener.AnalysisBrightnessListener listener) {
+        this.mAnalysisBrightnessListener = listener;
+    }
+
+    public void setBarcodeFormat(BarcodeFormat[] barcodeFormat) {
+        mDetectView.setBarcodeFormat(barcodeFormat);
+    }
+
+    public void setScanNoticeText(String scanNoticeText) {
+
+    }
+
+    public void resetZoom() {
+
+    }
+
+    public void stopPreview() {
+
+    }
 
     public interface ScanBoxClickListener {
         void onFlashLightClick();

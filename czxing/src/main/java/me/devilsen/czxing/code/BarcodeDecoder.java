@@ -100,7 +100,7 @@ public class BarcodeDecoder {
     }
 
     public void decodeYUVASync(final byte[] data, final int cropLeft, final int cropTop, final int cropWidth, final int cropHeight, final int rowWidth, final int rowHeight, final OnDetectCodeListener listener, final OnFocusListener focusListener) {
-        ExecutorUtil.getCalculateExecutor().execute(new Runnable() {
+        ExecutorUtil.getSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 List<CodeResult> codeResults = decodeYUV(data, cropLeft, cropTop, cropWidth, cropHeight, rowWidth, rowHeight);
