@@ -54,6 +54,7 @@ android {
         sourceCompatibility = rootProject.ext.javaVersion
         targetCompatibility = rootProject.ext.javaVersion
     }
+    namespace 'me.sam.czxing'
 
 }
 

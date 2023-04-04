@@ -7,8 +7,6 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         ndkVersion rootProject.ext.ndkVersion
-        versionCode 35
-        versionName "1.1.0"
 
         externalNativeBuild {
             cmake {
@@ -44,6 +42,7 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+    namespace 'me.devilsen.czxing'
 }
 
 dependencies {
