@@ -67,20 +67,6 @@ BitmapToMat(JNIEnv *env, jobject bitmap, cv::Mat &mat) {
     }
 }
 
-/**
- * wstring转为string
- */
-std::string UnicodeToANSI(const std::wstring &wstr) {
-    return ZXing::TextUtfEncoding::ToUtf8(wstr);
-}
-
-/**
- * string转为wstring
- */
-std::wstring ANSIToUnicode(const std::string &str) {
-    return ZXing::TextUtfEncoding::FromUtf8(str);
-}
-
 void ThrowJavaException(JNIEnv *env, const char *message) {
     static jclass jcls = env->FindClass("java/lang/RuntimeException");
     env->ThrowNew(jcls, message);
