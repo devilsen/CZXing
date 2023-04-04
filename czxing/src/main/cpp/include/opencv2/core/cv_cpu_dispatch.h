@@ -55,7 +55,7 @@
 #  ifdef _MSC_VER
 #    include <nmmintrin.h>
 #    if defined(_M_X64)
-#      define CV_POPCNT_U64 _mm_popcnt_u64
+#      define CV_POPCNT_U64 (int)_mm_popcnt_u64
 #    endif
 #    define CV_POPCNT_U32 _mm_popcnt_u32
 #  else
@@ -140,6 +140,11 @@
 #elif defined(__ARM_NEON__) || (defined (__ARM_NEON) && defined(__aarch64__))
 #  include <arm_neon.h>
 #  define CV_NEON 1
+#endif
+
+#if defined(__riscv) && defined(__riscv_vector) && defined(__riscv_vector_071)
+# include<riscv-vector.h>
+# define CV_RVV071 1
 #endif
 
 #if defined(__ARM_NEON__) || defined(__aarch64__)
@@ -336,6 +341,10 @@ struct VZeroUpperGuard {
 
 #ifndef CV_NEON
 #  define CV_NEON 0
+#endif
+
+#ifndef CV_RVV071
+#  define CV_RVV071 0
 #endif
 
 #ifndef CV_VSX

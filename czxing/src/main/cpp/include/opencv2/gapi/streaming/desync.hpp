@@ -2,7 +2,7 @@
 // It is subject to the license terms in the LICENSE file found in the top-level directory
 // of this distribution and at http://opencv.org/license.html.
 //
-// Copyright (C) 2020 Intel Corporation
+// Copyright (C) 2020-2021 Intel Corporation
 
 
 #ifndef OPENCV_GAPI_GSTREAMING_DESYNC_HPP
@@ -67,15 +67,16 @@ G desync(const G &g) {
  * always produce their full output vectors.
  *
  * This operation only makes sense when a GComputation is compiled in
- * straming mode with cv::GComputation::compileStreaming(). If this
+ * streaming mode with cv::GComputation::compileStreaming(). If this
  * operation is used and there are desynchronized outputs, the user
  * should use a special version of cv::GStreamingCompiled::pull()
  * which produces an array of cv::util::optional<> objects.
  *
  * @note This feature is highly experimental now and is currently
- * limited to a single GMat argument only.
+ * limited to a single GMat/GFrame argument only.
  */
 GAPI_EXPORTS GMat desync(const GMat &g);
+GAPI_EXPORTS GFrame desync(const GFrame &f);
 
 } // namespace streaming
 } // namespace gapi

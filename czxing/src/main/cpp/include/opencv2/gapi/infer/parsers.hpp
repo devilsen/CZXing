@@ -64,12 +64,13 @@ detection is smaller than confidence threshold, detection is rejected.
 given label will get to the output.
 @return a tuple with a vector of detected boxes and a vector of appropriate labels.
 */
-GAPI_EXPORTS std::tuple<GArray<Rect>, GArray<int>> parseSSD(const GMat& in,
-                                                            const GOpaque<Size>& inSz,
-                                                            const float confidenceThreshold = 0.5f,
-                                                            const int   filterLabel = -1);
+GAPI_EXPORTS_W std::tuple<GArray<Rect>, GArray<int>> parseSSD(const GMat& in,
+                                                              const GOpaque<Size>& inSz,
+                                                              const float confidenceThreshold = 0.5f,
+                                                              const int   filterLabel = -1);
 
-/** @overload
+/** @brief Parses output of SSD network.
+
 Extracts detection information (box, confidence) from SSD output and
 filters it by given confidence and by going out of bounds.
 
@@ -87,14 +88,14 @@ the larger side of the rectangle.
 */
 GAPI_EXPORTS_W GArray<Rect> parseSSD(const GMat& in,
                                      const GOpaque<Size>& inSz,
-                                     const float confidenceThreshold = 0.5f,
-                                     const bool alignmentToSquare = false,
-                                     const bool filterOutOfBounds = false);
+                                     const float confidenceThreshold,
+                                     const bool alignmentToSquare,
+                                     const bool filterOutOfBounds);
 
 /** @brief Parses output of Yolo network.
 
 Extracts detection information (box, confidence, label) from Yolo output,
-filters it by given confidence and performs non-maximum supression for overlapping boxes.
+filters it by given confidence and performs non-maximum suppression for overlapping boxes.
 
 @note Function textual ID is "org.opencv.nn.parsers.parseYolo"
 
@@ -104,7 +105,7 @@ where num_classes - a number of classes Yolo network was trained with.
 @param inSz Size to project detected boxes to (size of the input image).
 @param confidenceThreshold If confidence of the
 detection is smaller than confidence threshold, detection is rejected.
-@param nmsThreshold Non-maximum supression threshold which controls minimum
+@param nmsThreshold Non-maximum suppression threshold which controls minimum
 relative box intersection area required for rejecting the box with a smaller confidence.
 If 1.f, nms is not performed and no boxes are rejected.
 @param anchors Anchors Yolo network was trained with.
@@ -112,12 +113,12 @@ If 1.f, nms is not performed and no boxes are rejected.
 <a href="https://github.com/openvinotoolkit/open_model_zoo/blob/master/models/public/yolo-v2-tiny-tf/yolo-v2-tiny-tf.md">documentation</a>.
 @return a tuple with a vector of detected boxes and a vector of appropriate labels.
 */
-GAPI_EXPORTS std::tuple<GArray<Rect>, GArray<int>> parseYolo(const GMat& in,
-                                                             const GOpaque<Size>& inSz,
-                                                             const float confidenceThreshold = 0.5f,
-                                                             const float nmsThreshold = 0.5f,
-                                                             const std::vector<float>& anchors
-                                                                 = nn::parsers::GParseYolo::defaultAnchors());
+GAPI_EXPORTS_W std::tuple<GArray<Rect>, GArray<int>> parseYolo(const GMat& in,
+                                                               const GOpaque<Size>& inSz,
+                                                               const float confidenceThreshold = 0.5f,
+                                                               const float nmsThreshold = 0.5f,
+                                                               const std::vector<float>& anchors
+                                                                   = nn::parsers::GParseYolo::defaultAnchors());
 
 } // namespace gapi
 } // namespace cv
