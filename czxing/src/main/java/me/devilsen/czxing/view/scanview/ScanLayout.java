@@ -1,7 +1,6 @@
 package me.devilsen.czxing.view.scanview;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,17 +26,17 @@ import me.devilsen.czxing.view.PointView;
 /**
  * Created by dongSen on 2023/4/3
  */
-public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusListener, BarcodeDecoder.OnDetectBrightnessListener, BarcodeDecoder.OnDetectCodeListener {
+public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusListener, BarcodeDecoder.OnDetectBrightnessListener, BarcodeDecoder.OnDetectCodeListener, View.OnClickListener {
 
     private String mFlashLightOnText;
     private String mFlashLightOffText;
     private ScanBoxView mScanBox;
-    private TextView mFlashLightNotice;
-    private ImageView mFlashLight;
-    private View mMask;
+    private TextView mFlashLightNoticeTextView;
+    private ImageView mFlashLightImageView;
+    private View mMaskView;
 
-    private Drawable mLightOn;
-    private Drawable mLightOff;
+    private int mLightOnResource;
+    private int mLightOffResource;
     private boolean mDropFlashLight;
     private int mMaskColor;
 
@@ -52,6 +50,9 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
 
     private ScanListener mScanListener;
     private ScanListener.AnalysisBrightnessListener mAnalysisBrightnessListener;
+    private String mScanNoticeText;
+    private boolean mFlashLightIsOpen;
+    private int mBrightnessThreshold;
 
     public ScanLayout(@NonNull Context context) {
         this(context, null);
@@ -70,12 +71,14 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         View view = LayoutInflater.from(context).inflate(R.layout.view_scan_layout, this, true);
         mDetectView = view.findViewById(R.id.detect_view);
         mScanBox = view.findViewById(R.id.scan_box);
-        mFlashLightNotice = view.findViewById(R.id.text_scan_flashlight_notice);
-        mFlashLight = view.findViewById(R.id.image_scan_flashlight);
-        mMask = view.findViewById(R.id.view_scan_mask);
+        mFlashLightNoticeTextView = view.findViewById(R.id.text_scan_flashlight_notice);
+        mFlashLightImageView = view.findViewById(R.id.image_scan_flashlight);
+        mMaskView = view.findViewById(R.id.view_scan_mask);
 
         mFlashLightOnText = getResources().getText(R.string.czxing_click_open_flash_light).toString();
         mFlashLightOffText = getResources().getText(R.string.czxing_click_close_flash_light).toString();
+        mLightOnResource = R.drawable.ic_highlight_open_24dp;
+        mLightOffResource = R.drawable.ic_highlight_close_24dp;
 
         mHandler = new Handler(Looper.getMainLooper());
         mPointSize = BarCodeUtil.dp2px(context, 15);
@@ -83,12 +86,36 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         mDetectView.setOnDetectCodeListener(this);
         mDetectView.setOnDetectBrightnessListener(this);
         mDetectView.setOnFocusListener(this);
+
+        mFlashLightImageView.setOnClickListener(this);
     }
 
     public void onDestroy() {
         if (mHandler != null) {
             mHandler.removeCallbacksAndMessages(null);
             mHandler = null;
+        }
+        if (mScanBox != null) {
+            mScanBox.onDestroy();
+            mScanBox = null;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.image_scan_flashlight) {
+            if (mFlashLightIsOpen) {
+                mDetectView.closeFlashlight();
+                mFlashLightNoticeTextView.setText(mFlashLightOnText);
+                mFlashLightImageView.setImageResource(mLightOffResource);
+                mFlashLightIsOpen = false;
+            } else {
+                mDetectView.openFlashlight();
+                mFlashLightNoticeTextView.setText(mFlashLightOffText);
+                mFlashLightImageView.setImageResource(mLightOnResource);
+                mFlashLightIsOpen = true;
+            }
         }
     }
 
@@ -105,6 +132,40 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
     public void onAnalysisBrightness(double brightness) {
         if (mAnalysisBrightnessListener != null) {
             mAnalysisBrightnessListener.onAnalysisBrightness(brightness);
+        }
+        BarCodeUtil.d("brightness = " + brightness);
+
+        if (mFlashLightIsOpen) {
+            return;
+        }
+        if (brightness < 80) {
+            if (mBrightnessThreshold < 20) {
+                mBrightnessThreshold++;
+            }
+        } else {
+            if (mBrightnessThreshold > 0) {
+                mBrightnessThreshold--;
+            }
+        }
+
+        if (mBrightnessThreshold > 10) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mFlashLightNoticeTextView.setVisibility(VISIBLE);
+                    mFlashLightImageView.setVisibility(VISIBLE);
+                }
+            });
+
+
+        } else {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mFlashLightNoticeTextView.setVisibility(GONE);
+                    mFlashLightImageView.setVisibility(GONE);
+                }
+            });
         }
     }
 
@@ -204,7 +265,7 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         if (lightOnDrawable == 0) {
             return;
         }
-        mLightOn = ResourcesCompat.getDrawable(getResources(), lightOnDrawable, null);
+        mLightOnResource = lightOnDrawable;
     }
 
     /**
@@ -214,7 +275,8 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         if (lightOffDrawable == 0) {
             return;
         }
-        mLightOff = ResourcesCompat.getDrawable(getResources(), lightOffDrawable, null);
+        mLightOffResource = lightOffDrawable;
+        mFlashLightImageView.setImageResource(lightOffDrawable);
     }
 
     /**
@@ -279,15 +341,15 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
     }
 
     public void setScanNoticeText(String scanNoticeText) {
-
+        mScanNoticeText = scanNoticeText;
     }
 
     public void resetZoom() {
-
+        mDetectView.resetZoom();
     }
 
     public void stopPreview() {
-
+        mDetectView.stopPreview();
     }
 
     public interface ScanBoxClickListener {

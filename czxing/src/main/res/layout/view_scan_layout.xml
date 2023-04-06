@@ -17,22 +17,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="180dp"
+        android:layout_marginBottom="150dp"
         android:gravity="center"
         android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/text_scan_flashlight_notice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/czxing_click_open_flash_light" />
 
         <ImageView
             android:id="@+id/image_scan_flashlight"
             android:layout_width="40dp"
             android:layout_height="80dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/ic_highlight_close_24dp" />
+            android:src="@drawable/ic_highlight_close_24dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/text_scan_flashlight_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/czxing_click_open_flash_light"
+            android:textColor="@android:color/white"
+            android:visibility="gone" />
 
     </LinearLayout>
 

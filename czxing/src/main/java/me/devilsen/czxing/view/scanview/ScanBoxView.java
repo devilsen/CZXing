@@ -86,7 +86,7 @@ public class ScanBoxView extends View {
 
         int scanLeft = 0;
         int scanTop = mTopOffset;
-        Rect rect = new Rect(scanLeft, scanTop, scanLeft + w, scanTop + h * 2 / 3);
+        Rect rect = new Rect(scanLeft, scanTop, scanLeft + w, scanTop + h * 3 / 5);
         mFramingRect.set(rect);
     }
 
@@ -168,7 +168,7 @@ public class ScanBoxView extends View {
         } else {
             mScanLineAnimator = createAnimator(mFramingRect.left, mFramingRect.right);
         }
-        mScanLineAnimator.setDuration(2500);
+        mScanLineAnimator.setDuration(3000);
         mScanLineAnimator.setInterpolator(new DecelerateInterpolator());
         mScanLineAnimator.setRepeatCount(ValueAnimator.INFINITE);
         mScanLineAnimator.start();
