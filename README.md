@@ -1,6 +1,3 @@
-![GitHub release](https://img.shields.io/github/release/devilsen/czxing.svg)
-![Bintray](https://img.shields.io/bintray/v/devilsen/Android/czxing?color=1E88E5&label=version)
-
 # CZXing
 C++ port of ZXing for Android
 
@@ -12,7 +9,7 @@ C++ port of ZXing for Android
 在gradle中:
 ``` groovy
 // 迁移至 Maven Central
-implementation 'io.github.devilsen:czxing:1.1.0'
+implementation 'io.github.devilsen:czxing:1.2.0'
 ```
 建议加入abiFilters
 ```gradle
