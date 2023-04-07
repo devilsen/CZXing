@@ -10,6 +10,7 @@ android {
 
         externalNativeBuild {
             cmake {
+                cppFlags "-std=c++17 -Werror=thread-safety"
 //                cppFlags "-std=c++11 -frtti -fexceptions -pthread"
 //                cppFlags "-std=c++11 -pthread"
                 arguments "-DANDROID_STL=c++_shared"

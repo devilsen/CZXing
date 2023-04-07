@@ -14,6 +14,7 @@
 #include <src/DecodeHints.h>
 #include "ScanResult.h"
 #include "config.h"
+#include "Mutex.h"
 #include <memory.h>
 
 CZXING_BEGIN_NAMESPACE()
@@ -48,6 +49,7 @@ private:
     double m_CameraLight { 0 };
     bool m_onlyQrCode;
     bool m_containQrCode;
+    Mutex m_decodeLock;
 
     std::vector<ScanResult> startDecode(const cv::Mat &gray);
     std::vector<ScanResult> decodeWeChat(const cv::Mat &gray);

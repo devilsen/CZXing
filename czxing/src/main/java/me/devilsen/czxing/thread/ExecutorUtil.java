@@ -3,6 +3,7 @@ package me.devilsen.czxing.thread;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
@@ -46,11 +47,11 @@ public class ExecutorUtil {
     public synchronized static Executor getCalculateExecutor() {
         if (sCalculateExecutor == null) {
             int processors = Runtime.getRuntime().availableProcessors();
-            sCalculateExecutor = new ThreadPoolExecutor(processors + 1, processors * 2,
+            sCalculateExecutor = new ThreadPoolExecutor(processors, processors,
                     500, TimeUnit.MILLISECONDS,
-                    new SynchronousQueue<Runnable>(),
+                    new ArrayBlockingQueue<Runnable>(1),
                     new DefaultThreadFactory(),
-                    new ThreadPoolExecutor.DiscardPolicy());
+                    new ThreadPoolExecutor.DiscardOldestPolicy());
         }
         return sCalculateExecutor;
     }

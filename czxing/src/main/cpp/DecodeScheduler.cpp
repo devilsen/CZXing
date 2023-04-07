@@ -11,6 +11,7 @@
 #include "JNIUtils.h"
 #include "MatUtils.h"
 #include "JniHelper.h"
+#include "Mutex.h"
 
 #define DEFAULT_MIN_LIGHT 30
 
@@ -60,6 +61,7 @@ void DecodeScheduler::setWeChatDetect(const char* detectorPrototxtPath,
 std::vector<ScanResult>
 DecodeScheduler::readByte(jbyte* bytes, int width, int height)
 {
+    LockGuard locker { m_decodeLock };
     LOGE("start readByte rowWidth = %d rowHeight = %d", width, height)
 
     cv::Mat src(height + height / 2, width, CV_8UC1, bytes);
