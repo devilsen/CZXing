@@ -153,13 +153,16 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_me_devilsen_czxing_code_EncodeEngine_nativeWriteCode(JNIEnv *env, jobject instance, jstring content_,
                                                           jint width, jint height, jint color,
-                                                          jstring format_, jobjectArray result) {
+                                                          jstring format_, jint ecc, jint margin, jobjectArray result) {
     const char *content = env->GetStringUTFChars(content_, 0);
     const char *format = env->GetStringUTFChars(format_, 0);
 
     auto zxingFormat = ZXing::BarcodeFormatFromString(format);
     ZXing::CharacterSet encoding = ZXing::CharacterSet::UTF8;
-    auto writer = ZXing::MultiFormatWriter(zxingFormat).setEncoding(encoding).setEccLevel(5);
+    auto writer = ZXing::MultiFormatWriter(zxingFormat)
+            .setEncoding(encoding)
+            .setEccLevel(ecc)
+            .setMargin(margin);
     ZXing::BitMatrix bitMatrix = writer.encode(content, width, height);
 
     if (bitMatrix.empty()) {
