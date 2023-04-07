@@ -133,7 +133,7 @@ public class ScanLayout extends FrameLayout implements BarcodeDecoder.OnFocusLis
         if (mAnalysisBrightnessListener != null) {
             mAnalysisBrightnessListener.onAnalysisBrightness(brightness);
         }
-        BarCodeUtil.d("brightness = " + brightness);
+//        BarCodeUtil.d("brightness = " + brightness);
 
         if (mFlashLightIsOpen) {
             return;

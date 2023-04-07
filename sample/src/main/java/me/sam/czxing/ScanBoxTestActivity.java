@@ -52,7 +52,7 @@ public class ScanBoxTestActivity extends BaseDecoderActivity {
 //                Log.e("ScanBox", "onFlashLightClick");
 //            }
 //        });
-//        testCamera2();
+        testCamera2();
     }
 
     private void testCamera2() {

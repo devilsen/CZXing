@@ -198,7 +198,9 @@ std::vector<ScanResult> DecodeScheduler::zxingDecode(const cv::Mat& mat)
         auto format = static_cast<CodeFormat>(zxingFormatIndex);
 
         ZXing::Position position = result.position();
-        CodeRect codeRect(position.topLeft().x, position.topLeft().y, position.bottomRight().x, position.bottomRight().y);
+        int width = abs(position.bottomRight().x - position.topLeft().x);
+        int height = abs(position.bottomRight().y - position.topLeft().y);
+        CodeRect codeRect(position.topLeft().x, position.topLeft().y, width, height);
 
         ScanResult scanResult(format, result.text(), codeRect);
         vector.push_back(scanResult);
