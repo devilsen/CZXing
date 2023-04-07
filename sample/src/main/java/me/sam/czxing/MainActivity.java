@@ -87,7 +87,7 @@ public class MainActivity extends BaseDecoderActivity {
                 .setCornerColor(resources.getColor(R.color.corner))
                 .setScanLineColors(scanColors)
 //                .setHorizontalScanLine()
-                .setBarcodeFormat(BarcodeFormat.EAN_13)
+//                .setBarcodeFormat(BarcodeFormat.EAN_13)
                 .setTitle("")
                 .showAlbum(true)
                 .setScanNoticeText("扫描二维码")

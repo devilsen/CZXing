@@ -8,6 +8,7 @@ import java.util.List;
 import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.CodeResult;
+import me.devilsen.czxing.thread.ExecutorUtil;
 
 /**
  * @author : dongSen
@@ -90,6 +91,8 @@ public class DetectView extends CameraView {
     public void onDestroy() {
         super.onDestroy();
         isStop = true;
+        ExecutorUtil.getCalculateExecutor().shutdownNow();
+        ExecutorUtil.getSingleThreadExecutor().shutdownNow();
         if (mDecoder != null) {
             mDecoder.destroy();
             mDecoder = null;

@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -16,9 +17,9 @@ public class ExecutorUtil {
 
     private static Executor sMainExecutor;
     private static Handler sMainHandler;
-    private static Executor sCalculateExecutor;
-    private static Executor sSingleThreadExecutor;
-    private static Executor sIOExecutor;
+    private static ExecutorService sCalculateExecutor;
+    private static ExecutorService sSingleThreadExecutor;
+    private static ExecutorService sIOExecutor;
 
 
     private synchronized static Executor getMainExecutor() {
@@ -34,7 +35,7 @@ public class ExecutorUtil {
         return sMainExecutor;
     }
 
-    public synchronized static Executor getIOExecutor() {
+    public synchronized static ExecutorService getIOExecutor() {
         if (sIOExecutor == null) {
             sIOExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
@@ -44,7 +45,7 @@ public class ExecutorUtil {
         return sIOExecutor;
     }
 
-    public synchronized static Executor getCalculateExecutor() {
+    public synchronized static ExecutorService getCalculateExecutor() {
         if (sCalculateExecutor == null) {
             int processors = Runtime.getRuntime().availableProcessors();
             sCalculateExecutor = new ThreadPoolExecutor(processors, processors,
@@ -56,7 +57,7 @@ public class ExecutorUtil {
         return sCalculateExecutor;
     }
 
-    public synchronized static Executor getSingleThreadExecutor() {
+    public synchronized static ExecutorService getSingleThreadExecutor() {
         if (sSingleThreadExecutor == null) {
             sSingleThreadExecutor = Executors.newSingleThreadExecutor();
         }
