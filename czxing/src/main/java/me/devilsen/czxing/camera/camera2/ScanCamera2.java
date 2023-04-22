@@ -16,6 +16,7 @@ import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.MeteringRectangle;
+import android.media.Image;
 import android.media.ImageReader;
 import android.os.Build;
 import android.os.Handler;
@@ -25,16 +26,16 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import me.devilsen.czxing.camera.CameraSize;
 import me.devilsen.czxing.camera.ScanCamera;
-import me.devilsen.czxing.compat.ActivityCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
-import me.devilsen.czxing.util.Camera2Helper;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 
 /**
@@ -243,7 +244,7 @@ public class ScanCamera2 extends ScanCamera {
         Size[] outputSizes = mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                 .getOutputSizes(pixelFormat);
         Boolean available = mCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-        isFlashSupported = available == null ? false : available;
+        isFlashSupported = available != null && available;
         Integer afRegion = mCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF);
         isAFSupported = afRegion != null && afRegion >= 1;
         Integer aeState = mCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE);
@@ -266,7 +267,7 @@ public class ScanCamera2 extends ScanCamera {
             public void onImageAvailable(ImageReader reader) {
                 if (mScanCallback != null && mImageReader != null) {
 //                    BarCodeUtil.d("image reader: width  = " + mImageReader.getWidth() + " height = " + mImageReader.getHeight());
-                    mScanCallback.onPreviewFrame(Camera2Helper.readYuv(reader), mImageReader.getWidth(), mImageReader.getHeight());
+                    mScanCallback.onPreviewFrame(readYuv(reader), mImageReader.getWidth(), mImageReader.getHeight());
                 }
             }
         }, null);
@@ -495,4 +496,61 @@ public class ScanCamera2 extends ScanCamera {
         }
         zoom(mZoomLevel);
     }
+
+    /***
+     * ImageReader中读取YUV
+     */
+    @Nullable
+    public byte[] readYuv(ImageReader reader) {
+        Image image;
+        image = reader.acquireLatestImage();
+        if (image == null) {
+            return null;
+        }
+//        BarCodeUtil.d("image width = " + image.getWidth() + " height = " + image.getHeight());
+        byte[] data = getByteFromImage(image);
+        image.close();
+        return data;
+    }
+
+    @Nullable
+    private byte[] getByteFromImage(Image image) {
+        byte[] nv21 = null;
+        try {
+            if (image == null || image.getPlanes() == null || image.getPlanes().length == 0)
+                return null;
+            Image.Plane[] planes = image.getPlanes();
+            int remaining0 = planes[0].getBuffer().remaining();
+            int remaining2 = planes[2].getBuffer().remaining();
+            int w = image.getWidth();
+            int h = image.getHeight();
+            byte[] yRawSrcBytes = new byte[remaining0];
+            byte[] uvRawSrcBytes = new byte[remaining2];
+            nv21 = new byte[w * h * 3 / 2];
+            planes[0].getBuffer().get(yRawSrcBytes);
+            planes[2].getBuffer().get(uvRawSrcBytes);
+            //0b10000001 对应-127,YUV灰度操作
+//            for (int i = 0; i < uvRawSrcBytes.length; i++)
+//                nv21[yRawSrcBytes.length + i] = (byte) 0b10000001;
+            for (int i = 0; i < h; i++) {
+                System.arraycopy(yRawSrcBytes, planes[0].getRowStride() * i,
+                        nv21, w * i, w);
+
+                if (i > image.getHeight() / 2)
+                    continue;
+
+                int offset = w * (h + i);
+
+                if (offset + w >= nv21.length)
+                    continue;
+
+                System.arraycopy(uvRawSrcBytes, planes[2].getRowStride() * i,
+                        nv21, offset, w);
+            }
+            return nv21;
+        } catch (Exception e) {
+            return nv21;
+        }
+    }
+
 }

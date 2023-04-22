@@ -1,6 +1,5 @@
 package me.devilsen.czxing;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -10,12 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * @author : dongSen
  * date : 2019/07/21
  * desc : 扫码结果显示界面
  */
-public class ResultActivity extends Activity implements View.OnClickListener {
+public class ResultActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView resultTxt;
 

@@ -1,9 +1,11 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import me.sam.czxing.R;
 
 /**
  * desc: 我的卡片

@@ -10,9 +10,10 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
+import androidx.core.content.ContextCompat;
+
 import me.devilsen.czxing.camera.ScanCamera;
 import me.devilsen.czxing.camera.camera1.ScanCamera1;
-import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.thread.ExecutorUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ResolutionAdapter;

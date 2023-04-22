@@ -12,12 +12,12 @@ import me.devilsen.czxing.R;
  *
  * @author : dongSen
  */
-public class SoundPoolUtil {
+public class SoundPlayer {
 
     private SoundPool mSoundPool;
     private int mSoundId = -1;
 
-    public SoundPoolUtil() {
+    public SoundPlayer() {
         mSoundPool = new SoundPool(1, AudioManager.STREAM_RING, 0);
     }
 
@@ -57,6 +57,7 @@ public class SoundPoolUtil {
     public void release() {
         if (mSoundPool != null) {
             mSoundPool.release();
+            mSoundPool = null;
         }
     }
 }

@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +12,7 @@ import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
+import me.sam.czxing.R;
 
 /**
  * desc :

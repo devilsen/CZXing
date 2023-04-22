@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context="me.sam.czxing.MainActivity">
+    tools:context="me.sam.czxing.activity.MainActivity">
 
     <TextView
         android:id="@+id/text_view_result"

@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 import me.devilsen.czxing.code.BarcodeWriter;
 import me.devilsen.czxing.code.CodeResult;
 import me.devilsen.czxing.util.BarCodeUtil;
+import me.sam.czxing.R;
 
 /**
  * desc :

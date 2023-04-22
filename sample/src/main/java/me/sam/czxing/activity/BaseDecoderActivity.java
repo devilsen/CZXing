@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
