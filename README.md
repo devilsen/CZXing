@@ -27,8 +27,15 @@ defaultConfig {
 ```gradle
 maven { url 'https://maven.aliyun.com/repository/central' }
 ```
+#### 关于 1.2.0
+**注：请先下载 [模型](https://github.com/devilsen/CZXing/tree/master/sample/src/main/assets/wechat) 到本地使用**
+
+- 1.2.0 加入了微信的解码和超分能力，识别能力理论上和微信是一致的。
+- 此版本经过了大量重构，可以更方便的使用各个组件，比如想拥有更自定义化的界面可以直接使用 DecodeEngine 作为内部的解码引擎，如果想直接使用Camera，可以使用 CameraView 来直接使用相机界面，此外还有封装好的识别界面 DetectView 和拥有识别流程的 ScanLayout 界面。
+- 如果觉得 sdk 版本过高，可以直接使用 1.1.0 后期将重新编译 OpenCV 降低 sdk 的需求版本。
 
 #### 1. 直接使用
+
 你可以直接使用已经封装好的ScanActivity作为扫码界面
 ```java
 Resources resources = getResources();
@@ -53,6 +60,8 @@ Scanner.with(this)
         .setFlashLightOffDrawable(R.drawable.ic_highlight_white_close_24dp)    // 闪光灯关闭时的样式
         .setFlashLightInvisible()                               // 不使用闪光灯图标及提示
         .continuousScan()                                       // 连续扫码，不关闭扫码界面
+        .detectorModel(detectorPrototxtPath, detectorCaffeModelPath)    // 二维码识别模型
+        .superResolutionModel(superResolutionPrototxtPath, superResolutionCaffeModelPath)   // 超分模型
         .enableOpenCVDetect(false)                              // 关闭OpenCV探测，避免没有发现二维码也放大的现象，但是这样可能降低扫码的成功率，请结合业务关闭（默认开启）
         .setOnClickAlbumDelegate(new ScanActivityDelegate.OnClickAlbumDelegate() {
             @Override
