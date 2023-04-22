@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.Manifest;
 import android.content.Intent;
@@ -34,6 +34,7 @@ import me.devilsen.czxing.util.SoundPoolUtil;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanLayout;
 import me.devilsen.czxing.view.scanview.ScanListener;
+import me.sam.czxing.R;
 
 /**
  * desc : 自定义扫码界面

@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.util;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;

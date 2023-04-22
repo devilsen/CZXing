@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.SystemClock;
 
-import me.devilsen.czxing.util.SensorController;
 import me.devilsen.czxing.view.AutoFitSurfaceView;
 
 /**

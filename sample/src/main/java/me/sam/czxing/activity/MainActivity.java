@@ -1,4 +1,4 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,6 +31,7 @@ import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
+import me.sam.czxing.R;
 
 public class MainActivity extends BaseDecoderActivity {
 

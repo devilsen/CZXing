@@ -15,7 +15,7 @@ import java.util.Collections;
 
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.CameraUtil;
-import me.devilsen.czxing.util.SensorController;
+import me.devilsen.czxing.camera.SensorController;
 
 /**
  * @author : dongSen

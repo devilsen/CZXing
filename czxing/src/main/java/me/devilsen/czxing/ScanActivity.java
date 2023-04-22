@@ -15,16 +15,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.List;
 
 import me.devilsen.czxing.code.BarcodeFormat;
 import me.devilsen.czxing.code.CodeResult;
-import me.devilsen.czxing.compat.ActivityCompat;
-import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.BarCodeUtil;
 import me.devilsen.czxing.util.ScreenUtil;
-import me.devilsen.czxing.util.SoundPoolUtil;
+import me.devilsen.czxing.util.SoundPlayer;
 import me.devilsen.czxing.view.scanview.ScanActivityDelegate;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanLayout;
@@ -46,7 +46,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
     private TextView titleTxt;
     private TextView albumTxt;
     private ScanLayout mScanLayout;
-    private SoundPoolUtil mSoundPoolUtil;
+    private SoundPlayer mSoundPoolUtil;
 
     private boolean isContinuousScan;
 
@@ -78,7 +78,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         scanDelegate = ScanActivityDelegate.getInstance().getScanDelegate();
         clickAlbumDelegate = ScanActivityDelegate.getInstance().getOnClickAlbumDelegate();
 
-        mSoundPoolUtil = new SoundPoolUtil();
+        mSoundPoolUtil = new SoundPlayer();
         mSoundPoolUtil.loadDefault(this);
 
         initData();

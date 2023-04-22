@@ -1,4 +1,4 @@
-package me.devilsen.czxing.util;
+package me.devilsen.czxing.camera;
 
 import android.app.Activity;
 import android.content.Context;

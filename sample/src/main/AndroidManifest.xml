@@ -25,7 +25,7 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,20 +33,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DelegateActivity" />
-        <activity android:name=".MyCardActivity" />
-        <activity android:name=".WriteCodeActivity" />
-        <activity android:name="me.sam.czxing.ScanBoxTestActivity">
+        <activity android:name=".activity.DelegateActivity" />
+        <activity android:name=".activity.MyCardActivity" />
+        <activity android:name=".activity.WriteCodeActivity" />
+        <activity android:name="me.sam.czxing.activity.ScanBoxTestActivity">
             <!--<intent-filter>-->
             <!--<action android:name="android.intent.action.MAIN" />-->
 
             <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
         </activity>
-        <activity android:name=".WriteQRCodeActivity" />
-        <activity android:name=".CallBackTestActivity" />
+        <activity android:name=".activity.WriteQRCodeActivity" />
+        <activity android:name=".activity.CallBackTestActivity" />
         <activity
-            android:name=".CustomizeActivity"
+            android:name=".activity.CustomizeActivity"
             android:launchMode="singleTop" />
 <!--        <activity android:name=".DetectTestActivity" />-->
 

@@ -1,10 +1,12 @@
-package me.sam.czxing;
+package me.sam.czxing.activity;
 
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import me.sam.czxing.R;
 
 //import me.devilsen.czxing.code.NativeSdk;
 
