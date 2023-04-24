@@ -20,17 +20,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.List;
 
 import me.devilsen.czxing.code.BarcodeDecoder;
 import me.devilsen.czxing.code.CodeResult;
-import me.devilsen.czxing.compat.ActivityCompat;
-import me.devilsen.czxing.compat.ContextCompat;
 import me.devilsen.czxing.util.AssetUtil;
 import me.devilsen.czxing.util.BitmapUtil;
 import me.devilsen.czxing.util.ScreenUtil;
-import me.devilsen.czxing.util.SoundPoolUtil;
+import me.devilsen.czxing.util.SoundPlayer;
 import me.devilsen.czxing.view.scanview.ScanBoxView;
 import me.devilsen.czxing.view.scanview.ScanLayout;
 import me.devilsen.czxing.view.scanview.ScanListener;
@@ -50,7 +50,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     private static final int CODE_SELECT_IMAGE = 100;
 
     private ScanLayout mScanLayout;
-    private SoundPoolUtil mSoundPoolUtil;
+    private SoundPlayer mSoundPool;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,8 +121,8 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) titleLayout.getLayoutParams();
         layoutParams.topMargin = ScreenUtil.getStatusBarHeight(this);
 
-        mSoundPoolUtil = new SoundPoolUtil();
-        mSoundPoolUtil.loadDefault(this);
+        mSoundPool = new SoundPlayer();
+        mSoundPool.loadDefault(this);
 
         requestCameraPermission();
 
@@ -150,7 +150,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         mScanLayout.onDestroy(); // 销毁二维码扫描控件
-        mSoundPoolUtil.release();
+        mSoundPool.release();
         super.onDestroy();
     }
 
@@ -190,7 +190,7 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onScanSuccess(@NonNull List<CodeResult> resultList) {
-        mSoundPoolUtil.play();
+        mSoundPool.play();
 
         // todo deal with results
 //        showResult(result);

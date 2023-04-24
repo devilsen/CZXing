@@ -53,7 +53,7 @@ public class CameraView extends FrameLayout implements ScanCamera.ScanPreviewCal
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            mCamera = new ScanCamera2(context, mCameraSurface);
 //        } else {
-        mCamera = new ScanCamera1(context, mCameraSurface);
+            mCamera = new ScanCamera1(context, mCameraSurface);
 //        }
         mCamera.onCreate();
         mCamera.setPreviewListener(this);
