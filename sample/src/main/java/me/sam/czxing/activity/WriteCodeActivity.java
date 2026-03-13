@@ -104,19 +104,14 @@ public class WriteCodeActivity extends BaseDecoderActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id) {
-            case R.id.image_view_qr_code_1:
-                readRxJava(getBitmap(qrcodeImage));
-                break;
-            case R.id.image_view_qr_code_2:
-                readRxJava(getBitmap(qrcodeLogoImage));
-                break;
-            case R.id.image_view_bar_code_1:
-                readRxJava(getBitmap(barcodeImage));
-                break;
-            case R.id.image_view_bar_code_2:
-                readRxJava(getBitmap(barcodeColorImage));
-                break;
+        if (id == R.id.image_view_qr_code_1) {
+            readRxJava(getBitmap(qrcodeImage));
+        } else if (id == R.id.image_view_qr_code_2) {
+            readRxJava(getBitmap(qrcodeLogoImage));
+        } else if (id == R.id.image_view_bar_code_1) {
+            readRxJava(getBitmap(barcodeImage));
+        } else if (id == R.id.image_view_bar_code_2) {
+            readRxJava(getBitmap(barcodeColorImage));
         }
     }
 

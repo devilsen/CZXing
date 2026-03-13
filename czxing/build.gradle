@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
 //apply plugin: 'com.github.dcendents.android-maven'
 
 android {
@@ -12,7 +13,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                cppFlags "-std=c++17 -Werror=thread-safety"
+                cppFlags "-Werror=thread-safety"
 //                cppFlags "-std=c++11 -frtti -fexceptions -pthread"
 //                cppFlags "-std=c++11 -pthread"
                 arguments "-DANDROID_STL=c++_shared"
@@ -46,6 +47,14 @@ android {
         }
     }
     namespace 'me.devilsen.czxing'
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    publishing {
+        singleVariant('release')
+    }
 }
 
 dependencies {
@@ -56,4 +65,17 @@ dependencies {
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
     androidTestImplementation rootProject.ext.testespresso
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
+                from components.release
+            }
+            groupId = project.group
+            artifactId = 'czxing'
+            version = project.version
+        }
+    }
 }

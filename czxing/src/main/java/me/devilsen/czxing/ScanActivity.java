@@ -59,7 +59,7 @@ public class ScanActivity extends Activity implements ScanListener, View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_scan);
 
-        BarCodeUtil.setDebug(BuildConfig.DEBUG);
+//        BarCodeUtil.setDebug(BuildConfig.DEBUG);
         ScreenUtil.setFullScreen(this);
 
         LinearLayout titleLayout = findViewById(R.id.layout_scan_title);

@@ -7,13 +7,19 @@
 
 #ifdef __cpp_impl_coroutine
 #ifdef __ANDROID__
-// NDK 25.1.8937393 can compile this code with c++20 but needs a few tweaks:
+#if __has_include(<coroutine>)
+// NDK 26+: standard coroutine header
+#include <coroutine>
+
+#else
+// NDK < 26: experimental coroutine header
 #include <experimental/coroutine>
 namespace std {
-	using experimental::suspend_always;
-	using experimental::coroutine_handle;
-	struct default_sentinel_t {};
+    using experimental::suspend_always;
+    using experimental::coroutine_handle;
+    struct default_sentinel_t {};
 }
+#endif
 #else
 #include <concepts>
 #include <coroutine>

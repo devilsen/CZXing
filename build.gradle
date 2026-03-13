@@ -33,13 +33,6 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        mavenCentral()
-        google()
-    }
-}
 
 task clean(type: Delete) {
     delete rootProject.buildDir

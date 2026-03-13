@@ -60,9 +60,9 @@ android {
 
 dependencies {
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
     implementation project(':czxing')
-//    implementation 'io.github.devilsen:czxing:1.2.0'
+//    implementation 'com.github.devilsen:CZXing:1.2.1'
 
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.testrunner
@@ -70,8 +70,7 @@ dependencies {
 
     implementation rootProject.ext.appcompat
     implementation rootProject.ext.material
-    // permission
-    implementation 'com.yanzhenjie:permission:2.0.3'
+    // permission - replaced with AndroidX native API
     // bugly
     implementation 'com.tencent.bugly:crashreport:3.1.0'
     implementation 'com.tencent.bugly:nativecrashreport:3.7.1'

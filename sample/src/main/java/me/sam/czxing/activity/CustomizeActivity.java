@@ -157,25 +157,18 @@ public class CustomizeActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id) {
-            case R.id.image_customize_scan_back:
-                finish();
-                break;
-            case R.id.text_view_customize_scan_album:
-                requestStoragePermission();
-                break;
-            case R.id.text_view_customize_my_qr_code:
-                startActivity(new Intent(this, MyCardActivity.class));
-                break;
-            case R.id.text_view_customize_option_1:
-                Toast.makeText(this, "option 1", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.text_view_customize_option_2:
-                Toast.makeText(this, "option 2", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.text_view_customize_option_3:
-                Toast.makeText(this, "option 3", Toast.LENGTH_SHORT).show();
-                break;
+        if (id == R.id.image_customize_scan_back) {
+            finish();
+        } else if (id == R.id.text_view_customize_scan_album) {
+            requestStoragePermission();
+        } else if (id == R.id.text_view_customize_my_qr_code) {
+            startActivity(new Intent(this, MyCardActivity.class));
+        } else if (id == R.id.text_view_customize_option_1) {
+            Toast.makeText(this, "option 1", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.text_view_customize_option_2) {
+            Toast.makeText(this, "option 2", Toast.LENGTH_SHORT).show();
+        } else if (id == R.id.text_view_customize_option_3) {
+            Toast.makeText(this, "option 3", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -3,13 +3,15 @@ C++ port of ZXing for Android
 
 拥有和微信一样的扫码能力！
 
+[![](https://jitpack.io/v/devilsen/CZXing.svg)](https://jitpack.io/#devilsen/CZXing)
+
 ![App展示](https://github.com/devilsen/CZXing/blob/master/screenshots/scan_code.gif)
 
 ### 使用
 在gradle中:
 ``` groovy
 // 迁移至 Maven Central
-implementation 'io.github.devilsen:czxing:1.2.0'
+implementation 'io.github.devilsen:czxing:latestVersion'
 ```
 建议加入abiFilters
 ```gradle
